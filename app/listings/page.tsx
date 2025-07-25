@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { MapPin, Star, Building, Home, Heart, ChevronLeft, ChevronRight, X, ExternalLink } from "lucide-react"
 import Link from "next/link"
+import { useProjects } from "@/hooks/use-projects"
 
 interface PropertyData {
   id: number // Changed to number for cleaner URLs
@@ -45,9 +46,16 @@ export default function ListingsPage() {
   const mapRef = useRef<HTMLDivElement>(null)
   const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0 })
 
+  // API hook to fetch projects
+  const { projects: apiProjects, loading, error } = useProjects({
+    city: selectedCity === "all" ? undefined : selectedCity,
+    per_page: 50, // Get more for client-side filtering
+  })
+
   const PROPERTIES_PER_PAGE = 18 // 6 rows × 3 properties per row
 
-  const allProperties: PropertyData[] = [
+  // Mock data as fallback when API is not available
+  const mockProperties: PropertyData[] = [
     {
       id: 1,
       slug: "seaside-apartments",
@@ -281,8 +289,23 @@ export default function ListingsPage() {
     { name: "Varna", id: "varna" },
   ]
 
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ds-primary-600 mx-auto mb-4"></div>
+          <p className="text-ds-neutral-600">Loading properties...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Use API data if available, otherwise fall back to mock data
+  const allProperties = apiProjects.length > 0 ? apiProjects : mockProperties
+
   // Filter properties by selected city and property type
-  const filteredProperties = allProperties.filter((property) => {
+  const filteredProperties = allProperties.filter((property: PropertyData) => {
     // City filter
     let cityMatch = true
     if (selectedCity === "Sofia") cityMatch = property.location.includes("Sofia")
@@ -512,7 +535,7 @@ export default function ListingsPage() {
           <div className="p-6">
             {/* Property Grid - 3 columns, 6 rows max */}
             <div className="grid grid-cols-3 gap-6 mb-8">
-              {currentProperties.map((property) => (
+              {currentProperties.map((property: PropertyData) => (
                 <div
                   key={property.id}
                   className={`group cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-[1.02] border rounded-lg ${
@@ -710,7 +733,7 @@ export default function ListingsPage() {
             />
 
             {/* Airbnb-style Price Markers */}
-            {currentProperties.map((property, index) => {
+            {currentProperties.map((property: PropertyData, index: number) => {
               const positions = [
                 { top: "15%", left: "20%" },
                 { top: "25%", left: "45%" },

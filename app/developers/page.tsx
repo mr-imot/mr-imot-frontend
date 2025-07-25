@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ScrollAnimationWrapper } from "@/components/scroll-animation-wrapper"
 import { MapPin, Building, Star, Award, CheckCircle, Phone, Mail, ExternalLink } from "lucide-react"
+import { useDevelopers } from "@/hooks/use-developers"
 
 interface Developer {
   id: number
@@ -38,7 +39,8 @@ interface Developer {
   establishedYear: number
 }
 
-const developers: Developer[] = [
+// Mock data as fallback when API is not available
+const mockDevelopers: Developer[] = [
   {
     id: 1,
     slug: "seaside-properties",
@@ -418,8 +420,25 @@ function DeveloperCard({
 }
 
 export default function DevelopersPage() {
-  const featuredDevelopers = developers.filter((dev) => dev.featured)
-  const allDevelopers = developers.sort((a, b) => b.rating - a.rating)
+  const { developers: apiDevelopers, loading, error } = useDevelopers()
+  
+  // Use API data if available, otherwise fall back to mock data
+  const developers = apiDevelopers.length > 0 ? apiDevelopers : mockDevelopers
+  
+  const featuredDevelopers = developers.filter((dev: Developer) => dev.featured)
+  const allDevelopers = developers.sort((a: Developer, b: Developer) => b.rating - a.rating)
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ds-primary-600 mx-auto mb-4"></div>
+          <p className="text-ds-neutral-600">Loading developers...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -443,13 +462,13 @@ export default function DevelopersPage() {
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-ds-primary-600">
-                    {developers.reduce((sum, dev) => sum + dev.totalProjects, 0)}
+                    {developers.reduce((sum: number, dev: Developer) => sum + dev.totalProjects, 0)}
                   </div>
                   <div className="text-sm text-ds-neutral-600">Total Projects</div>
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-ds-primary-600">
-                    {developers.reduce((sum, dev) => sum + dev.activeProjects, 0)}
+                    {developers.reduce((sum: number, dev: Developer) => sum + dev.activeProjects, 0)}
                   </div>
                   <div className="text-sm text-ds-neutral-600">Active Projects</div>
                 </div>

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useDeveloperDashboard } from "@/hooks/use-developer-dashboard"
 import { DeveloperDashboardHero } from "@/components/developer-dashboard-hero"
 import { AnalyticsKpiGrid } from "@/components/analytics-kpi-grid"
 import { PerformanceTrendsSection } from "@/components/performance-trends-section"
@@ -40,6 +41,9 @@ import {
 import { cn } from "@/lib/utils"
 
 export default function DeveloperDashboardPage() {
+  // Fetch dashboard data from API
+  const { stats, analytics, projects: apiProjects, loading, error } = useDeveloperDashboard('week')
+  
   const [activeTab, setActiveTab] = useState("analytics")
   const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>({
     from: new Date(2024, 0, 1),
@@ -62,7 +66,8 @@ export default function DeveloperDashboardPage() {
   const [selectedMetricIds, setSelectedMetricIds] = useState<string[]>(["views", "website_clicks"])
   const [selectedListingIds, setSelectedListingIds] = useState<string[]>([])
 
-  const analyticsData = [
+  // Mock analytics data as fallback
+  const mockAnalyticsData = [
     {
       title: "Total Views",
       value: "2,847",
@@ -119,7 +124,8 @@ export default function DeveloperDashboardPage() {
     },
   ]
 
-  const listings = [
+  // Mock listings data as fallback
+  const mockListings = [
     {
       id: 1,
       title: "Skyline Towers - Downtown",
@@ -263,10 +269,27 @@ export default function DeveloperDashboardPage() {
     { id: "3", name: "Metro Business Plaza" },
   ]
 
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ds-primary-600 mx-auto mb-4"></div>
+          <p className="text-ds-neutral-600">Loading dashboard...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Use API data if available, otherwise fall back to mock data
+  const analyticsData = analytics || mockAnalyticsData
+  const listings = apiProjects.length > 0 ? apiProjects : mockListings
+
   const generateTrendsData = (days: number, offset = 0) => {
     return Array.from({ length: days }, (_, i) => {
       const date = new Date(Date.now() - (days - 1 - i + offset) * 24 * 60 * 60 * 1000)
       const dateString = date.toISOString().split("T")[0] // YYYY-MM-DD format
+
       return {
         date: dateString,
         views: Math.floor(Math.random() * 100) + 50 + i * 2,
@@ -432,7 +455,7 @@ export default function DeveloperDashboardPage() {
               </div>
 
               <div className="space-y-4">
-                {listings.map((listing) => (
+                {listings.map((listing: any) => (
                   <Card
                     key={listing.id}
                     className="rounded-2xl border-slate-200 shadow-sm hover:shadow-md transition-shadow duration-200"
