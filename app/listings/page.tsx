@@ -289,18 +289,6 @@ export default function ListingsPage() {
     { name: "Varna", id: "varna" },
   ]
 
-  // Show loading state
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ds-primary-600 mx-auto mb-4"></div>
-          <p className="text-ds-neutral-600">Loading properties...</p>
-        </div>
-      </div>
-    )
-  }
-
   // Use API data if available, otherwise fall back to mock data
   const allProperties = apiProjects.length > 0 ? apiProjects : mockProperties
 
@@ -535,7 +523,13 @@ export default function ListingsPage() {
           <div className="p-6">
             {/* Property Grid - 3 columns, 6 rows max */}
             <div className="grid grid-cols-3 gap-6 mb-8">
-              {currentProperties.map((property: PropertyData) => (
+              {loading ? (
+                // Loading placeholder cards
+                [...Array(6)].map((_, i) => (
+                  <div key={i} className="bg-gray-100 rounded-lg h-64 animate-pulse"></div>
+                ))
+              ) : (
+                currentProperties.map((property: PropertyData) => (
                 <div
                   key={property.id}
                   className={`group cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-[1.02] border rounded-lg ${
@@ -645,7 +639,8 @@ export default function ListingsPage() {
                     </CardContent>
                   </Card>
                 </div>
-              ))}
+              ))
+              )}
             </div>
 
             {/* Airbnb-style Pagination */}
