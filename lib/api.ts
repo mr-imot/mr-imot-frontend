@@ -198,18 +198,16 @@ class ApiClient {
 // Export singleton instance
 export const apiClient = new ApiClient(API_BASE_URL);
 
-// Export convenience functions
-export const {
-  getDevelopers,
-  getCurrentDeveloper,
-  getDeveloperStats,
-  getDeveloperAnalytics,
-  getDeveloperSubscription,
-  getDeveloperProjects,
-  getProjects,
-  getProject,
-  createProject,
-  updateProject,
-  deleteProject,
-  getAuthHealth,
-} = apiClient; 
+// Export convenience functions with proper context binding
+export const getDevelopers = () => apiClient.getDevelopers();
+export const getCurrentDeveloper = () => apiClient.getCurrentDeveloper();
+export const getDeveloperStats = () => apiClient.getDeveloperStats();
+export const getDeveloperAnalytics = (period?: string) => apiClient.getDeveloperAnalytics(period);
+export const getDeveloperSubscription = () => apiClient.getDeveloperSubscription();
+export const getDeveloperProjects = (params?: any) => apiClient.getDeveloperProjects(params);
+export const getProjects = (params?: any) => apiClient.getProjects(params);
+export const getProject = (id: number) => apiClient.getProject(id);
+export const createProject = (projectData: any) => apiClient.createProject(projectData);
+export const updateProject = (id: number, projectData: any) => apiClient.updateProject(id, projectData);
+export const deleteProject = (id: number) => apiClient.deleteProject(id);
+export const getAuthHealth = () => apiClient.getAuthHealth(); 
