@@ -11,16 +11,36 @@ interface DashboardStats {
 interface UseDeveloperDashboardResult {
   stats: DashboardStats | null;
   analytics: any;
-  projects: any[];
+  projects: any[] | null;
   loading: boolean;
   error: string | null;
   refetch: () => void;
 }
 
+// Transform API project data to dashboard format
+const transformProjectForDashboard = (project: any) => {
+  return {
+    id: project.id,
+    title: project.title,
+    status: project.status === 'UNDER_CONSTRUCTION' ? 'Active' : 
+           project.status === 'PLANNING' ? 'Planning' : 'Completed',
+    views: Math.floor(Math.random() * 1000) + 100, // Mock data for now
+    websiteClicks: Math.floor(Math.random() * 100) + 10,
+    phoneClicks: Math.floor(Math.random() * 30) + 5,
+    contactMessages: Math.floor(Math.random() * 20) + 2,
+    savedCount: Math.floor(Math.random() * 50) + 10,
+    dateCreated: project.created_at ? new Date(project.created_at).toISOString().split('T')[0] : '2024-01-01',
+    price: project.price_per_m2 ? `${project.price_per_m2}/m²` : 'Price on request',
+    type: project.project_type === 'APARTMENT' ? 'Residential' : 
+          project.project_type === 'HOUSE' ? 'Residential' : 'Commercial',
+    location: project.neighborhood ? `${project.neighborhood}, ${project.city}` : project.city,
+  };
+};
+
 export const useDeveloperDashboard = (period: string = 'week'): UseDeveloperDashboardResult => {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [analytics, setAnalytics] = useState<any>(null);
-  const [projects, setProjects] = useState<any[]>([]);
+  const [projects, setProjects] = useState<any[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -52,9 +72,11 @@ export const useDeveloperDashboard = (period: string = 'week'): UseDeveloperDash
 
       // Handle projects
       if (projectsData.status === 'fulfilled') {
-        setProjects(projectsData.value.projects || []);
+        const transformedProjects = (projectsData.value.projects || []).map(transformProjectForDashboard);
+        setProjects(transformedProjects);
       } else {
         console.error('Failed to fetch projects:', projectsData.reason);
+        setProjects(null);
       }
 
     } catch (err) {

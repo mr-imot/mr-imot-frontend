@@ -283,7 +283,7 @@ export default function DeveloperDashboardPage() {
 
   // Use API data if available, otherwise fall back to mock data
   const analyticsData = analytics || mockAnalyticsData
-  const listings = apiProjects.length > 0 ? apiProjects : mockListings
+  const listings = apiProjects && apiProjects.length > 0 ? apiProjects : mockListings
 
   const generateTrendsData = (days: number, offset = 0) => {
     return Array.from({ length: days }, (_, i) => {

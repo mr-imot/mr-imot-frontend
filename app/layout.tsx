@@ -5,6 +5,8 @@ import "./globals.css"
 import { cn } from "@/lib/utils"
 import { SiteHeader } from "@/components/site-header"
 import { Footer } from "@/components/footer"
+import { StagewiseToolbar } from "@stagewise/toolbar-next"
+import ReactPlugin from "@stagewise-plugins/react"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -27,6 +29,11 @@ export default function RootLayout({
           <main className="flex-1">{children}</main>
           <Footer />
         </div>
+        <StagewiseToolbar
+          config={{
+            plugins: [ReactPlugin],
+          }}
+        />
       </body>
     </html>
   )

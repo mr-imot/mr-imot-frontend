@@ -20,16 +20,36 @@ export interface Project {
   id: number;
   title: string;
   description: string;
-  location: string;
+  location?: string; // Optional for backward compatibility
   city: string;
+  neighborhood?: string;
   project_type: string;
   status: string;
   price_from?: number;
   price_to?: number;
+  price_per_m2?: string; // New field from mock API
   completion_date?: string;
+  expected_completion_date?: string; // New field from mock API
   developer_id: number;
   created_at: string;
   updated_at: string;
+  // New fields from mock API
+  latitude?: number;
+  longitude?: number;
+  cover_image_url?: string;
+  gallery_urls?: string[];
+  amenities_list?: string[];
+  developer?: {
+    id: number;
+    company_name: string;
+    email: string;
+    contact_person: string;
+    phone: string;
+    office_address: string;
+    website: string;
+    verification_status: string;
+    is_active: boolean;
+  };
 }
 
 export interface ProjectListResponse {
@@ -89,13 +109,21 @@ class ApiClient {
     };
 
     try {
+      console.log(`Making API request to: ${url}`);
       const response = await fetch(url, config);
 
+      console.log(`Response status: ${response.status}`);
+      console.log(`Response headers:`, Object.fromEntries(response.headers.entries()));
+
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        console.error(`API Error Response: ${errorText}`);
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
       }
 
-      return await response.json();
+      const data = await response.json();
+      console.log(`API Response data:`, data);
+      return data;
     } catch (error) {
       console.error(`API request failed: ${url}`, error);
       throw error;
@@ -138,6 +166,7 @@ class ApiClient {
     });
 
     const queryString = searchParams.toString();
+    // Use the real API endpoint for developer projects
     const endpoint = `/api/v1/developers/projects${queryString ? `?${queryString}` : ''}`;
     
     return this.request(endpoint);
@@ -160,7 +189,8 @@ class ApiClient {
     });
 
     const queryString = searchParams.toString();
-    const endpoint = `/api/v1/projects/${queryString ? `?${queryString}` : ''}`;
+    // Temporarily use mock API while debugging real API
+    const endpoint = `/api/v1/mock-projects/${queryString ? `?${queryString}` : ''}`;
     
     return this.request(endpoint);
   }
@@ -193,6 +223,20 @@ class ApiClient {
   async getAuthHealth(): Promise<{ status: string; auth_provider: string }> {
     return this.request('/api/v1/health');
   }
+
+  // Simple connectivity test
+  async testConnection(): Promise<{ status: string; message: string }> {
+    try {
+      const response = await fetch(`${this.baseURL}/docs`);
+      if (response.ok) {
+        return { status: 'connected', message: 'Backend is reachable' };
+      } else {
+        return { status: 'error', message: `Backend responded with status: ${response.status}` };
+      }
+    } catch (error) {
+      return { status: 'error', message: `Connection failed: ${error}` };
+    }
+  }
 }
 
 // Export singleton instance
@@ -210,4 +254,5 @@ export const getProject = (id: number) => apiClient.getProject(id);
 export const createProject = (projectData: any) => apiClient.createProject(projectData);
 export const updateProject = (id: number, projectData: any) => apiClient.updateProject(id, projectData);
 export const deleteProject = (id: number) => apiClient.deleteProject(id);
-export const getAuthHealth = () => apiClient.getAuthHealth(); 
+export const getAuthHealth = () => apiClient.getAuthHealth();
+export const testConnection = () => apiClient.testConnection(); 

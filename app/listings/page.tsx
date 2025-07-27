@@ -290,7 +290,16 @@ export default function ListingsPage() {
   ]
 
   // Use API data if available, otherwise fall back to mock data
-  const allProperties = apiProjects.length > 0 ? apiProjects : mockProperties
+  const allProperties = apiProjects && apiProjects.length > 0 ? apiProjects : mockProperties
+  
+  console.log('🏠 Listings page data:', {
+    apiProjects: apiProjects,
+    apiProjectsLength: apiProjects?.length,
+    allPropertiesLength: allProperties.length,
+    usingApiData: apiProjects && apiProjects.length > 0,
+    loading,
+    error
+  });
 
   // Filter properties by selected city and property type
   const filteredProperties = allProperties.filter((property: PropertyData) => {
