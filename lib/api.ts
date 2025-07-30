@@ -189,8 +189,8 @@ class ApiClient {
     });
 
     const queryString = searchParams.toString();
-    // Temporarily use mock API while debugging real API
-    const endpoint = `/api/v1/mock-projects/${queryString ? `?${queryString}` : ''}`;
+    // Use the real API endpoint now that database connection is fixed
+    const endpoint = `/api/v1/projects/${queryString ? `?${queryString}` : ''}`;
     
     return this.request(endpoint);
   }
@@ -216,6 +216,23 @@ class ApiClient {
   async deleteProject(id: number): Promise<{ message: string }> {
     return this.request(`/api/v1/projects/${id}`, {
       method: 'DELETE',
+    });
+  }
+
+  // Developer registration
+  async registerDeveloper(developerData: {
+    company_name: string;
+    contact_person: string;
+    email: string;
+    phone: string;
+    office_address: string;
+    password: string;
+    accept_terms: boolean;
+    website?: string;
+  }): Promise<{ message: string; developer_id?: number }> {
+    return this.request('/api/v1/developers/register', {
+      method: 'POST',
+      body: JSON.stringify(developerData),
     });
   }
 
@@ -254,5 +271,6 @@ export const getProject = (id: number) => apiClient.getProject(id);
 export const createProject = (projectData: any) => apiClient.createProject(projectData);
 export const updateProject = (id: number, projectData: any) => apiClient.updateProject(id, projectData);
 export const deleteProject = (id: number) => apiClient.deleteProject(id);
+export const registerDeveloper = (developerData: any) => apiClient.registerDeveloper(developerData);
 export const getAuthHealth = () => apiClient.getAuthHealth();
 export const testConnection = () => apiClient.testConnection(); 
