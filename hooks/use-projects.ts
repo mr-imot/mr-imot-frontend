@@ -42,7 +42,7 @@ const transformProjectToPropertyData = (project: any) => {
       }) : 'TBD',
     rating: 4.5 + Math.random() * 0.4, // Random rating for now
     reviews: Math.floor(Math.random() * 30) + 5, // Random reviews for now
-    features: project.amenities_list || ['Modern Design', 'Quality Construction'],
+    features: project.amenities_list && project.amenities_list.length > 0 ? project.amenities_list : ['Modern Design', 'Quality Construction'],
     originalPrice: undefined,
   };
 };
@@ -65,9 +65,13 @@ const getColorForProject = (id: number) => {
 const mapProjectType = (apiType: string) => {
   const typeMap: { [key: string]: string } = {
     'APARTMENT': 'Apartment Complex',
+    'apartment': 'Apartment Complex',
     'HOUSE': 'Residential Houses',
+    'house': 'Residential Houses',
     'MIXED_USE': 'Mixed-Use Building',
+    'mixed_use': 'Mixed-Use Building',
     'OFFICE': 'Mixed-Use Building',
+    'office': 'Mixed-Use Building',
   };
   return typeMap[apiType] || 'Apartment Complex';
 };
@@ -75,9 +79,13 @@ const mapProjectType = (apiType: string) => {
 const mapProjectStatus = (apiStatus: string) => {
   const statusMap: { [key: string]: string } = {
     'UNDER_CONSTRUCTION': 'Under Construction',
+    'under_construction': 'Under Construction',
     'PLANNING': 'Foundation Laid',
+    'planning': 'Foundation Laid',
     'COMPLETED': 'Pre-Sales Open',
+    'completed': 'Pre-Sales Open',
     'PRE_SALES': 'Pre-Sales Open',
+    'pre_sales': 'Pre-Sales Open',
   };
   return statusMap[apiStatus] || 'Under Construction';
 };
