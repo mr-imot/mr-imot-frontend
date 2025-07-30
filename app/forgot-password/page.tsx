@@ -2,15 +2,11 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Mail, ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Mail, ArrowLeft, Shield, CheckCircle } from 'lucide-react';
+import { FloatingInput } from '@/components/ui/floating-input';
+import { EnhancedButton } from '@/components/ui/enhanced-button';
 import { AuthError } from '@/components/ui/auth-error';
 import { RateLimitInfo } from '@/components/ui/rate-limit-info';
-import { EmailVerificationSent } from '@/components/auth/email-verification-sent';
-import { DSButton } from '@/components/ds/ds-button';
-import { DSTypography } from '@/components/ds/ds-typography';
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/lib/auth-constants';
 import { cn } from '@/lib/utils';
 
@@ -93,154 +89,227 @@ export default function ForgotPasswordPage() {
 
   if (emailSent) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-ds-primary-50 via-white to-ds-accent-50 py-ds-8 px-ds-2 flex items-center justify-center">
-        <div className="w-full max-w-md">
-          <div className="text-center mb-6">
-            <Button
-              variant="ghost"
-              onClick={() => setEmailSent(false)}
-              className="mb-4"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to form
-            </Button>
-          </div>
-          
-          <Card className="bg-white/95 backdrop-blur-sm shadow-ds-lg border border-ds-neutral-200 rounded-ds">
-            <CardContent className="p-ds-6">
-              <div className="text-center space-y-4">
-                <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-                  <Mail className="h-8 w-8 text-green-600" />
-                </div>
-                
-                <DSTypography variant="h3" weight="semibold" color="neutral-900">
-                  Reset Link Sent
-                </DSTypography>
-                
-                <DSTypography variant="body" color="neutral-600" className="leading-relaxed">
-                  We've sent a password reset link to{' '}
-                  <span className="font-medium text-ds-neutral-900">{email}</span>
-                </DSTypography>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 relative overflow-hidden">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-500/5 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-indigo-500/5 to-transparent"></div>
+        </div>
+        
+        {/* Gradient Orbs */}
+        <div className="absolute top-0 left-0 w-72 h-72 bg-gradient-to-br from-blue-400/20 to-cyan-400/20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-br from-indigo-400/20 to-purple-400/20 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
+        
+        {/* Content */}
+        <div className="relative z-10 flex items-center justify-center min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+          <div className="w-full max-w-md mx-auto">
+            {/* Brand Header */}
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-green-600 to-green-700 rounded-2xl shadow-xl shadow-green-500/25 mb-6">
+                <CheckCircle className="w-8 h-8 text-white" />
+              </div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                Check your email
+              </h1>
+              <p className="text-gray-600 text-lg">
+                Reset link sent successfully
+              </p>
+            </div>
 
-                <div className="bg-amber-50 border border-amber-200 rounded-ds p-3">
-                  <DSTypography variant="small" weight="medium" color="amber-800">
-                    ⚠️ Important: The reset link expires in 15 minutes for security.
-                  </DSTypography>
-                </div>
+            {/* Main Card */}
+            <div className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl shadow-blue-500/10 border border-white/20 overflow-hidden">
+              <div className="p-8">
+                <div className="text-center space-y-6">
+                  <p className="text-gray-700 text-lg leading-relaxed">
+                    We've sent a password reset link to{' '}
+                    <span className="font-semibold text-gray-900">{email}</span>
+                  </p>
 
-                <div className="space-y-2 text-sm text-ds-neutral-600">
-                  <p>• Check your spam folder if you don't see the email</p>
-                  <p>• The link will only work once for security</p>
-                  <p>• You can close this page after clicking the link</p>
-                </div>
+                  <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="flex-shrink-0 w-6 h-6 bg-amber-100 rounded-full flex items-center justify-center mt-0.5">
+                        <span className="text-amber-600 text-sm font-bold">!</span>
+                      </div>
+                      <div className="text-left">
+                        <p className="text-amber-800 font-semibold text-sm">Important</p>
+                        <p className="text-amber-700 text-sm">The reset link expires in 15 minutes for security.</p>
+                      </div>
+                    </div>
+                  </div>
 
-                <RateLimitInfo 
-                  type="password-reset" 
-                  remainingTime={getRemainingTime()}
-                />
+                  <div className="space-y-3 text-sm text-gray-600 bg-gray-50 rounded-2xl p-4">
+                    <p className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+                      Check your spam folder if you don't see the email
+                    </p>
+                    <p className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+                      The link will only work once for security
+                    </p>
+                    <p className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+                      You can close this page after clicking the link
+                    </p>
+                  </div>
 
-                <div className="flex gap-3">
-                  <DSButton
-                    variant="outline"
-                    size="sm"
-                    onClick={() => router.push('/login')}
-                    className="flex-1"
-                  >
-                    Back to Sign In
-                  </DSButton>
-                  <DSButton
-                    variant="secondary"
-                    size="sm"
-                    onClick={handleResendReset}
-                    disabled={!canRequest() || isSubmitting}
-                    className="flex-1"
-                  >
-                    {isSubmitting ? 'Sending...' : 'Resend'}
-                  </DSButton>
+                  <RateLimitInfo 
+                    type="password-reset" 
+                    remainingTime={getRemainingTime()}
+                  />
+
+                  <div className="flex gap-3">
+                    <EnhancedButton
+                      variant="outline"
+                      size="lg"
+                      onClick={() => router.push('/login')}
+                      className="flex-1"
+                    >
+                      Back to Sign In
+                    </EnhancedButton>
+                    <EnhancedButton
+                      variant="secondary"
+                      size="lg"
+                      onClick={handleResendReset}
+                      disabled={!canRequest() || isSubmitting}
+                      loading={isSubmitting}
+                      loadingText="Sending..."
+                      className="flex-1"
+                    >
+                      Resend
+                    </EnhancedButton>
+                  </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+
+            {/* Back Link */}
+            <div className="mt-6 text-center">
+              <button
+                onClick={() => setEmailSent(false)}
+                className="text-blue-600 hover:text-blue-700 font-medium text-sm transition-colors duration-200"
+              >
+                ← Back to forgot password form
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-ds-primary-50 via-white to-ds-accent-50 py-ds-8 px-ds-2 flex items-center justify-center">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-6">
-          <Button
-            variant="ghost"
-            onClick={() => router.push('/login')}
-            className="mb-4"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Sign In
-          </Button>
-        </div>
-
-        <Card className="bg-white/95 backdrop-blur-sm shadow-ds-lg border border-ds-neutral-200 rounded-ds overflow-hidden">
-          <CardHeader className="bg-gradient-to-br from-ds-primary-50 to-ds-accent-50 py-ds-6 px-ds-4 text-center">
-            <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-              <Mail className="h-8 w-8 text-blue-600" />
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 relative overflow-hidden">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 opacity-30">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-500/5 to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-indigo-500/5 to-transparent"></div>
+      </div>
+      
+      {/* Gradient Orbs */}
+      <div className="absolute top-0 left-0 w-72 h-72 bg-gradient-to-br from-blue-400/20 to-cyan-400/20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-br from-indigo-400/20 to-purple-400/20 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
+      
+      {/* Content */}
+      <div className="relative z-10 flex items-center justify-center min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-md mx-auto">
+          {/* Brand Header */}
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl shadow-xl shadow-blue-500/25 mb-6">
+              <Shield className="w-8 h-8 text-white" />
             </div>
-            <CardTitle>
-              <DSTypography variant="h2" weight="bold" color="neutral-900">
-                Reset Password
-              </DSTypography>
-            </CardTitle>
-            <DSTypography variant="body" color="neutral-600" className="mt-2">
-              Enter your email to receive a password reset link
-            </DSTypography>
-          </CardHeader>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Forgot password?
+            </h1>
+            <p className="text-gray-600 text-lg">
+              No worries, we'll send you reset instructions
+            </p>
+          </div>
 
-          <CardContent className="p-ds-6 bg-ds-neutral-50/30">
-            <form onSubmit={handleSubmit} className="space-y-ds-4">
+          {/* Main Card */}
+          <div className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl shadow-blue-500/10 border border-white/20 overflow-hidden">
+            <div className="p-8">
               {error && (
-                <AuthError
-                  error={error}
-                  onRetry={() => setError(null)}
-                  retryLabel="Try Again"
-                />
+                <div className="mb-6">
+                  <AuthError
+                    error={error}
+                    onRetry={() => setError(null)}
+                    retryLabel="Try Again"
+                  />
+                </div>
               )}
 
-              <div className="space-y-ds-2">
-                <DSTypography variant="label" weight="medium" color="neutral-700">
-                  Email Address
-                </DSTypography>
-                <Input
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Email Field */}
+                <FloatingInput
+                  label="Email Address"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email address"
                   disabled={isSubmitting}
-                  className={cn(
-                    "h-12 px-ds-3 border-2 rounded-ds bg-white shadow-ds-sm",
-                    "border-ds-neutral-300 focus:border-ds-primary-500 focus:ring-2 focus:ring-ds-primary-200",
-                    "transition-all duration-200"
-                  )}
                   required
                 />
+
+                <RateLimitInfo 
+                  type="password-reset" 
+                  remainingTime={getRemainingTime()}
+                />
+
+                {/* Send Reset Button */}
+                <EnhancedButton
+                  type="submit"
+                  variant="primary"
+                  size="lg"
+                  fullWidth
+                  loading={isSubmitting}
+                  loadingText="Sending reset link..."
+                  disabled={isSubmitting || !canRequest()}
+                  icon={!isSubmitting ? <Mail size={20} /> : undefined}
+                >
+                  Send Reset Link
+                </EnhancedButton>
+              </form>
+
+              {/* Back to Login */}
+              <div className="mt-8">
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-200"></div>
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-4 bg-white text-gray-500 font-medium">
+                      Remember your password?
+                    </span>
+                  </div>
+                </div>
+
+                <div className="mt-6">
+                  <EnhancedButton
+                    variant="outline"
+                    size="lg"
+                    fullWidth
+                    onClick={() => router.push('/login')}
+                    icon={<ArrowLeft size={20} />}
+                  >
+                    Back to Sign In
+                  </EnhancedButton>
+                </div>
               </div>
+            </div>
+          </div>
 
-              <RateLimitInfo 
-                type="password-reset" 
-                remainingTime={getRemainingTime()}
-              />
-
-              <DSButton
-                type="submit"
-                variant="primary"
-                size="lg"
-                disabled={isSubmitting || !canRequest()}
-                className="w-full shadow-ds-md hover:shadow-ds-lg transform hover:-translate-y-0.5 transition-all duration-200"
+          {/* Footer */}
+          <div className="mt-8 text-center">
+            <p className="text-sm text-gray-500">
+              Don't have an account?{' '}
+              <button
+                onClick={() => router.push('/register?type=developer')}
+                className="text-blue-600 hover:text-blue-700 font-medium"
               >
-                {isSubmitting ? 'Sending Reset Link...' : 'Send Reset Link'}
-              </DSButton>
-            </form>
-          </CardContent>
-        </Card>
+                Sign up
+              </button>
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
