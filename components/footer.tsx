@@ -29,10 +29,10 @@ export function Footer() {
   ]
 
   const legalLinks = [
-    { href: "/privacy", label: "Privacy Policy" },
-    { href: "/terms", label: "Terms of Service" },
-    { href: "/cookies", label: "Cookie Policy" },
-  ]
+  { href: "/privacy-policy.html", label: "Privacy Policy" },
+  { href: "/terms-of-service.html", label: "Terms of Service" },
+  { href: "/cookie-policy.html", label: "Cookie Policy" },
+]
 
   const socialLinks = [
     { href: "#", icon: Facebook, label: "Facebook" },
@@ -190,6 +190,8 @@ export function Footer() {
                   key={index}
                   href={link.href}
                   className="text-ds-neutral-400 hover:text-white transition-colors duration-200"
+                  target={link.href.startsWith('http') ? '_blank' : undefined}
+                  rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
                 >
                   {link.label}
                 </Link>
