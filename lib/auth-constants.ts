@@ -6,7 +6,7 @@ export const TOKEN_EXPIRATION = {
 } as const;
 
 export const ERROR_MESSAGES = {
-  'Verification token has expired': 'This verification link has expired (valid for 2 hours). Please request a new one.',
+  'Verification token has expired': 'This verification link has expired (valid for 10 minutes). Please request a new one.',
   'Invalid or expired reset token': 'This reset link has expired (valid for 15 minutes). Please request a new one.',
   'Too many requests': 'Too many requests. Please wait 5 minutes before requesting a new link.',
   'Invalid credentials': 'Invalid email or password. Please try again.',
@@ -15,6 +15,11 @@ export const ERROR_MESSAGES = {
   'Invalid token': 'This link is invalid or has been used already.',
   'Network error': 'Connection failed. Please check your internet and try again.',
   'Server error': 'Something went wrong on our end. Please try again later.',
+  'Email verification required': 'Please verify your email address before signing in.',
+  'Account pending approval': 'Your account is pending manual approval by our team.',
+  'Account not verified': 'Your account is not yet verified. Please check your email for verification instructions.',
+  'Email already registered as developer': 'An account with this email already exists. Try signing in instead.',
+  'Email already registered': 'An account with this email already exists. Try signing in instead.',
 } as const;
 
 export const SUCCESS_MESSAGES = {

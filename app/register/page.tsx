@@ -102,20 +102,35 @@ function RegisterFormContent() {
       
       let errorMessage = "Registration failed. Please try again."
       
-      if (error.message?.includes("400")) {
-        errorMessage = "Please check your information and try again."
-      } else if (error.message?.includes("409")) {
-        errorMessage = "An account with this email already exists."
-      } else if (error.message?.includes("500")) {
-        errorMessage = "Server error. Please try again later."
-      } else if (error.message?.includes("accept the Terms")) {
-        setErrors([{ field: "acceptTerms", message: "You must accept the Terms of Service and Privacy Policy" }])
-        setIsLoading(false)
-        return
-      } else {
-        // Use predefined error messages or fallback
-        const predefinedMessage = ERROR_MESSAGES[error.message as keyof typeof ERROR_MESSAGES]
-        errorMessage = predefinedMessage || errorMessage
+      // Check for specific error messages from the backend
+      if (error.message) {
+        if (error.message.includes("Email already registered")) {
+          errorMessage = "An account with this email already exists. Try signing in instead."
+        } else if (error.message.includes("Invalid email")) {
+          errorMessage = "Please enter a valid email address."
+        } else if (error.message.includes("Password")) {
+          errorMessage = "Password must be at least 8 characters long."
+        } else if (error.message.includes("Phone")) {
+          errorMessage = "Please enter a valid phone number."
+        } else if (error.message.includes("Terms")) {
+          setErrors([{ field: "acceptTerms", message: "You must accept the Terms of Service and Privacy Policy" }])
+          setIsLoading(false)
+          return
+        } else if (error.message.includes("500") || error.message.includes("Server")) {
+          errorMessage = "Server error. Please try again later."
+        } else {
+          // Use the backend error message directly if it's user-friendly
+          const backendMessage = error.message;
+          if (backendMessage.length < 100 && !backendMessage.includes("HTTP") && !backendMessage.includes("status:")) {
+            errorMessage = backendMessage;
+          }
+        }
+      }
+      
+      // Check predefined error messages as fallback
+      const predefinedMessage = ERROR_MESSAGES[error.message as keyof typeof ERROR_MESSAGES]
+      if (predefinedMessage) {
+        errorMessage = predefinedMessage;
       }
       
       setSubmitStatus({
@@ -151,17 +166,9 @@ function RegisterFormContent() {
             <EmailVerificationSent
               email={formData.email}
               onResend={async () => {
-                // Resend verification email
-                await registerDeveloper({
-                  company_name: formData.companyName.trim(),
-                  contact_person: formData.contactPerson.trim(),
-                  email: formData.email.trim(),
-                  phone: formData.phone.trim(),
-                  office_address: formData.officeAddress.trim(),
-                  password: formData.password,
-                  accept_terms: formData.acceptTerms,
-                  website: formData.website?.trim() || undefined
-                })
+                // Resend verification email using the dedicated endpoint
+                const { resendVerification } = await import('@/lib/api')
+                await resendVerification(formData.email.trim())
               }}
               className="mb-6"
             />

@@ -9,13 +9,15 @@ import { AuthError } from "@/components/ui/auth-error"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { Suspense } from "react"
-import { LogIn, CheckCircle, Shield, ArrowRight, Sparkles } from "lucide-react"
+import { LogIn, CheckCircle, Shield, ArrowRight, Sparkles, Mail } from "lucide-react"
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from "@/lib/auth-constants"
+import { useAuth } from "@/lib/auth-context"
 
 function LoginFormContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const message = searchParams.get('message')
+  const { login } = useAuth()
   
   const [formData, setFormData] = useState({
     email: '',
@@ -25,6 +27,11 @@ function LoginFormContent() {
   const [rememberMe, setRememberMe] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [verificationRequired, setVerificationRequired] = useState<{
+    email: string;
+    status: string;
+    message: string;
+  } | null>(null)
 
   // Show success message if redirected from password reset
   const showSuccessMessage = message === 'password-reset-success'
@@ -40,23 +47,35 @@ function LoginFormContent() {
     try {
       setIsLoading(true)
       setError(null)
+      setVerificationRequired(null)
 
-      // TODO: Replace with actual API call
-      const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      })
+      await login(formData.email, formData.password)
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || 'Login failed')
+      // Store remember me preference
+      if (rememberMe) {
+        localStorage.setItem('remember_me', 'true')
       }
 
       // Redirect to dashboard on success
       router.push('/developer/dashboard')
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Login failed'
+      
+      try {
+        // Try to parse the error as JSON to handle verification status
+        const errorData = JSON.parse(errorMessage)
+        if (errorData.detail?.verification_status) {
+          setVerificationRequired({
+            email: errorData.detail.email,
+            status: errorData.detail.verification_status,
+            message: errorData.detail.message
+          })
+          return
+        }
+      } catch {
+        // If not JSON, treat as regular error
+      }
+      
       const predefinedMessage = ERROR_MESSAGES[errorMessage as keyof typeof ERROR_MESSAGES]
       setError(predefinedMessage || errorMessage)
     } finally {
@@ -67,6 +86,27 @@ function LoginFormContent() {
   const handleInputChange = (field: keyof typeof formData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
     if (error) setError(null) // Clear error when user starts typing
+    if (verificationRequired) setVerificationRequired(null) // Clear verification required when user starts typing
+  }
+
+  const handleResendVerification = async () => {
+    if (!verificationRequired?.email) return
+    
+    try {
+      setIsLoading(true)
+      // Import the resend function
+      const { resendVerification } = await import('@/lib/api')
+      await resendVerification(verificationRequired.email)
+      setError(null)
+      setVerificationRequired(null)
+      // Show success message
+      setError('Verification email sent! Please check your inbox.')
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to resend verification email'
+      setError(errorMessage)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -102,7 +142,40 @@ function LoginFormContent() {
 
         {/* Form Content */}
         <div className="p-8">
-          {error && (
+          {verificationRequired ? (
+            <div className="mb-6">
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <Mail className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <h3 className="text-sm font-medium text-amber-800 mb-1">
+                      Email Verification Required
+                    </h3>
+                    <p className="text-sm text-amber-700 mb-3">
+                      {verificationRequired.message}
+                    </p>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={handleResendVerification}
+                        disabled={isLoading}
+                        className="text-sm bg-amber-100 hover:bg-amber-200 text-amber-800 px-3 py-1 rounded-md transition-colors"
+                      >
+                        {isLoading ? 'Sending...' : 'Resend Email'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setVerificationRequired(null)}
+                        className="text-sm text-amber-600 hover:text-amber-700 px-3 py-1 rounded-md transition-colors"
+                      >
+                        Try Again
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : error ? (
             <div className="mb-6">
               <AuthError 
                 error={error}
@@ -110,7 +183,7 @@ function LoginFormContent() {
                 retryLabel="Try Again"
               />
             </div>
-          )}
+          ) : null}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email Field */}

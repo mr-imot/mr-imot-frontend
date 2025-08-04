@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from 'react'
+import { registerDeveloper, verifyEmail, resendVerification, loginDeveloper } from '@/lib/api'
 
 export default function TestAPIPage() {
   const [status, setStatus] = useState<string>('Click to test')
@@ -57,6 +58,48 @@ export default function TestAPIPage() {
     }
   }
 
+  const testRegistration = async () => {
+    try {
+      setStatus('Testing Registration...')
+      
+      const testData = {
+        company_name: 'Test Company',
+        contact_person: 'Test Person',
+        email: `test${Date.now()}@example.com`,
+        phone: '+359 88 123 4567',
+        office_address: 'Sofia, Bulgaria',
+        password: 'testpass123',
+        accept_terms: true,
+        website: 'https://test.com'
+      }
+      
+      const result = await registerDeveloper(testData)
+      console.log('Registration result:', result)
+      setData(result)
+      setStatus(`Registration Success! Check email: ${testData.email}`)
+      
+    } catch (error) {
+      console.error('Registration Error:', error)
+      setStatus(`Registration Error: ${error}`)
+    }
+  }
+
+  const testLogin = async () => {
+    try {
+      setStatus('Testing Login...')
+      
+      // This will likely fail since the account needs to be verified and approved
+      const result = await loginDeveloper('test@example.com', 'testpass123')
+      console.log('Login result:', result)
+      setData(result)
+      setStatus('Login Success!')
+      
+    } catch (error) {
+      console.error('Login Error:', error)
+      setStatus(`Login Error: ${error}`)
+    }
+  }
+
   return (
     <div className="container mx-auto p-8">
       <h1 className="text-2xl font-bold mb-6">API Test Page</h1>
@@ -77,6 +120,18 @@ export default function TestAPIPage() {
               className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
             >
               Test Mock API
+            </button>
+            <button 
+              onClick={testRegistration}
+              className="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600"
+            >
+              Test Registration
+            </button>
+            <button 
+              onClick={testLogin}
+              className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600"
+            >
+              Test Login
             </button>
           </div>
         </div>

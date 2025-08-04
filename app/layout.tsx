@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils"
 import { SiteHeader } from "@/components/site-header"
 import { Footer } from "@/components/footer"
 import GlobalMaintenanceWrapper from "@/components/maintenance/global-maintenance-wrapper"
+import { AuthProvider } from "@/lib/auth-context"
 
 
 const inter = Inter({ subsets: ["latin"] })
@@ -25,11 +26,13 @@ export default function RootLayout({
     <html lang="en">
       <body className={cn("min-h-screen bg-nova-background font-sans antialiased", inter.className)}>
         <GlobalMaintenanceWrapper>
-          <div className="relative flex min-h-screen flex-col">
-            <SiteHeader />
-            <main className="flex-1">{children}</main>
-            <Footer />
-          </div>
+          <AuthProvider>
+            <div className="relative flex min-h-screen flex-col">
+              <SiteHeader />
+              <main className="flex-1">{children}</main>
+              <Footer />
+            </div>
+          </AuthProvider>
         </GlobalMaintenanceWrapper>
       </body>
     </html>

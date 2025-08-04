@@ -35,28 +35,24 @@ function VerifyEmailContent() {
   const verifyEmail = async (verificationToken: string) => {
     try {
       setIsLoading(true)
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/v1/auth/developers/verify-email?token=${verificationToken}`,
-        { 
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      )
+      const { verifyEmail: verifyEmailApi } = await import('@/lib/api')
+      const data = await verifyEmailApi(verificationToken)
       
-      const data: VerificationResponse = await response.json()
-      
-      if (response.ok) {
-        setStatus('success')
-        setMessage(data.message || 'Email verified successfully! You can now sign in.')
-      } else {
-        setStatus('error')
-        setMessage(data.message || 'Verification failed. The link may be expired or invalid.')
-      }
-    } catch (error) {
+      setStatus('success')
+      setMessage(data.message || 'Email verified successfully! Your account is now pending manual approval.')
+    } catch (error: any) {
       setStatus('error')
-      setMessage('Network error occurred. Please check your connection and try again.')
+      let errorMessage = 'Verification failed. The link may be expired or invalid.'
+      
+      try {
+        const errorData = JSON.parse(error.message)
+        errorMessage = errorData.detail || errorData.message || errorMessage
+      } catch {
+        // If not JSON, use the error message as is
+        errorMessage = error.message || errorMessage
+      }
+      
+      setMessage(errorMessage)
     } finally {
       setIsLoading(false)
     }

@@ -6,6 +6,7 @@ import { DeveloperDashboardHero } from "@/components/developer-dashboard-hero"
 import { AnalyticsKpiGrid } from "@/components/analytics-kpi-grid"
 import { PerformanceTrendsSection } from "@/components/performance-trends-section"
 import { DashboardFooterBar } from "@/components/dashboard-footer-bar"
+import { ProtectedRoute } from "@/components/protected-route"
 import { DSInput } from "@/components/ds/ds-input"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -40,7 +41,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-export default function DeveloperDashboardPage() {
+function DeveloperDashboardContent() {
   // Fetch dashboard data from API
   const { stats, analytics, projects: apiProjects, loading, error } = useDeveloperDashboard('week')
   
@@ -991,5 +992,13 @@ export default function DeveloperDashboardPage() {
         onLocaleChange={setLocale}
       />
     </div>
+  )
+}
+
+export default function DeveloperDashboardPage() {
+  return (
+    <ProtectedRoute>
+      <DeveloperDashboardContent />
+    </ProtectedRoute>
   )
 }

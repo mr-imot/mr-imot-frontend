@@ -76,18 +76,25 @@ class ApiClient {
   }
 
   private async getAuthHeaders(): Promise<HeadersInit> {
-    // TODO: Get Supabase JWT token when auth is set up
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
     };
 
-    // If we have a Supabase session, add the JWT token
+    // Get the stored auth token
     if (typeof window !== 'undefined') {
-      // This will be implemented when Supabase is set up
-      // const { data: { session } } = await supabase.auth.getSession();
-      // if (session?.access_token) {
-      //   headers.Authorization = `Bearer ${session.access_token}`;
-      // }
+      const token = localStorage.getItem('auth_token');
+      const expires = localStorage.getItem('auth_expires');
+      
+      if (token && expires) {
+        const expiryTime = parseInt(expires);
+        if (Date.now() < expiryTime) {
+          headers.Authorization = `Bearer ${token}`;
+        } else {
+          // Token expired, clear it
+          localStorage.removeItem('auth_token');
+          localStorage.removeItem('auth_expires');
+        }
+      }
     }
 
     return headers;
@@ -117,8 +124,24 @@ class ApiClient {
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error(`API Error Response: ${errorText}`);
-        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+        if (process.env.NODE_ENV === 'development') {
+          console.error(`API Error Response: ${errorText}`);
+        }
+        
+        // Try to parse the error as JSON to get a better error message
+        let errorMessage = `HTTP error! status: ${response.status}, message: ${errorText}`;
+        
+        try {
+          const errorData = JSON.parse(errorText);
+          if (errorData.message) {
+            errorMessage = errorData.message;
+          }
+        } catch (parseError) {
+          // If parsing fails, use the generic error message
+          console.log('Failed to parse error as JSON, using generic error');
+        }
+        
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
@@ -229,7 +252,7 @@ class ApiClient {
     password: string;
     accept_terms: boolean;
     website?: string;
-  }): Promise<{ message: string; developer_id?: number }> {
+  }): Promise<{ message: string; developer_id?: string; email?: string; status?: string }> {
     // Build query parameters
     const params = new URLSearchParams();
     params.append('company_name', developerData.company_name);
@@ -250,6 +273,47 @@ class ApiClient {
     return this.request(`/api/v1/auth/developers/register?${params.toString()}`, {
       method: 'POST',
     });
+  }
+
+  // Email verification
+  async verifyEmail(token: string): Promise<{ message: string; status?: string }> {
+    return this.request(`/api/v1/auth/developers/verify-email?token=${encodeURIComponent(token)}`, {
+      method: 'POST',
+    });
+  }
+
+  // Resend verification email
+  async resendVerification(email: string): Promise<{ message: string }> {
+    return this.request(`/api/v1/auth/developers/resend-verification`, {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+  }
+
+  // Developer login
+  async loginDeveloper(email: string, password: string): Promise<{
+    access_token: string;
+    token_type: string;
+    expires_in: number;
+    user_type: string;
+  }> {
+    const response = await fetch(`${this.baseURL}/api/v1/auth/token`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        username: email,
+        password: password,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(JSON.stringify(errorData));
+    }
+
+    return response.json();
   }
 
   // Auth health check
@@ -288,5 +352,8 @@ export const createProject = (projectData: any) => apiClient.createProject(proje
 export const updateProject = (id: number, projectData: any) => apiClient.updateProject(id, projectData);
 export const deleteProject = (id: number) => apiClient.deleteProject(id);
 export const registerDeveloper = (developerData: any) => apiClient.registerDeveloper(developerData);
+export const verifyEmail = (token: string) => apiClient.verifyEmail(token);
+export const resendVerification = (email: string) => apiClient.resendVerification(email);
+export const loginDeveloper = (email: string, password: string) => apiClient.loginDeveloper(email, password);
 export const getAuthHealth = () => apiClient.getAuthHealth();
 export const testConnection = () => apiClient.testConnection(); 
