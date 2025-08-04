@@ -9,6 +9,7 @@ import { FloatingInput } from "@/components/ui/floating-input"
 import { InternationalPhoneInput } from "@/components/ui/international-phone-input"
 import { EnhancedButton } from "@/components/ui/enhanced-button"
 import { AuthError } from "@/components/ui/auth-error"
+import { EmailVerificationSent } from "@/components/auth/email-verification-sent"
 import { registerDeveloper } from "@/lib/api"
 import { validateForm, getFieldError, type FormData, type ValidationError } from "@/lib/validation"
 import { cn } from "@/lib/utils"
@@ -156,28 +157,33 @@ function RegisterFormContent() {
       {/* Main Card */}
       <div className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl shadow-blue-500/10 border border-white/20 overflow-hidden">
         <div className="p-8">
-          {submitStatus.type && (
+          {submitStatus.type === "success" ? (
+            <EmailVerificationSent
+              email={formData.email}
+              onResend={async () => {
+                // Resend verification email
+                await registerDeveloper({
+                  company_name: formData.companyName.trim(),
+                  contact_person: formData.contactPerson.trim(),
+                  email: formData.email.trim(),
+                  phone: formData.phone.trim(),
+                  office_address: formData.officeAddress.trim(),
+                  password: formData.password,
+                  accept_terms: formData.acceptTerms,
+                  website: formData.website?.trim() || undefined
+                })
+              }}
+              className="mb-6"
+            />
+          ) : submitStatus.type === "error" ? (
             <div className="mb-6">
-              {submitStatus.type === "success" ? (
-                <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="flex-shrink-0 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                      <CheckCircle className="w-5 h-5 text-green-600" />
-                    </div>
-                    <p className="text-green-800 font-medium">
-                      {submitStatus.message}
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <AuthError 
-                  error={submitStatus.message}
-                  onRetry={() => setSubmitStatus({ type: null, message: "" })}
-                  retryLabel="Try Again"
-                />
-              )}
+              <AuthError 
+                error={submitStatus.message}
+                onRetry={() => setSubmitStatus({ type: null, message: "" })}
+                retryLabel="Try Again"
+              />
             </div>
-          )}
+          ) : null}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Company Information */}

@@ -22,13 +22,13 @@ export const SUCCESS_MESSAGES = {
   PASSWORD_RESET_SENT: 'Password reset link sent to your email!',
   PASSWORD_RESET_SUCCESS: 'Password reset successfully!',
   EMAIL_VERIFIED: 'Email verified successfully! You can now sign in.',
-  REGISTRATION_SUCCESS: 'Registration successful! Please check your email.',
+  REGISTRATION_SUCCESS: 'Registration successful! Please check your email for a verification link. The link expires in 10 minutes.',
 } as const;
 
 export const getTimingMessage = (isMobile: boolean) => ({
   emailVerification: isMobile 
-    ? "Check your email app - link expires in 2h" 
-    : "Check your email - verification link expires in 2 hours",
+    ? "Check your email app - link expires in 10 minutes" 
+    : "Check your email - verification link expires in 10 minutes",
   passwordReset: isMobile
     ? "Reset your password quickly - expires in 15min"
     : "Reset your password - this link expires in 15 minutes for security",
