@@ -94,18 +94,8 @@ function RegisterFormContent() {
         message: SUCCESS_MESSAGES.REGISTRATION_SUCCESS
       })
       
-      // Reset form on success
-      setFormData({
-        companyName: "",
-        contactPerson: "",
-        email: "",
-        phone: "",
-        officeAddress: "",
-        password: "",
-        confirmPassword: "",
-        website: "",
-        acceptTerms: false
-      })
+      // Don't reset form data immediately - we need the email for the verification component
+      // Form will be reset when user navigates away or manually resets
       
     } catch (error: any) {
       console.error("Registration error:", error)
@@ -185,6 +175,8 @@ function RegisterFormContent() {
             </div>
           ) : null}
 
+          {/* Hide form when showing email verification */}
+          {submitStatus.type !== "success" && (
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Company Information */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -339,8 +331,10 @@ function RegisterFormContent() {
               Create Developer Account
             </EnhancedButton>
           </form>
+          )}
 
-          {/* Sign In Link */}
+          {/* Sign In Link - hide when showing email verification */}
+          {submitStatus.type !== "success" && (
           <div className="mt-8">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
@@ -367,6 +361,7 @@ function RegisterFormContent() {
               </Link>
             </div>
           </div>
+          )}
         </div>
       </div>
 
