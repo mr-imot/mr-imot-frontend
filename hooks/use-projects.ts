@@ -109,13 +109,14 @@ export const useProjects = (params: UseProjectsParams = {}): UseProjectsResult =
       const transformedProjects = (data.projects || []).map(transformProjectToPropertyData);
       console.log('🔄 Transformed projects:', transformedProjects);
       
+      // Always set projects, even if empty (this indicates successful API call)
       setProjects(transformedProjects);
       setTotal(data.total || 0);
       console.log('✅ Successfully set projects:', transformedProjects.length, 'total:', data.total);
     } catch (err) {
       console.error('❌ Error fetching projects:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch projects');
-      // Return null when API fails so fallback logic works correctly
+      // Set projects to null only on actual API failure
       setProjects(null);
       setTotal(0);
     } finally {

@@ -1,16 +1,25 @@
 "use client"
 
 import type React from "react"
-import { Loader2 } from "lucide-react" // Import Loader2 here
-
 import { useState, useRef, useEffect } from "react"
 import Image from "next/image"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { MapPin, Star, Building, Home, Heart, ChevronLeft, ChevronRight, X, ExternalLink } from "lucide-react"
+import { MapPin, Star, Building, Home, Heart, ChevronLeft, ChevronRight, X, ExternalLink, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { useProjects } from "@/hooks/use-projects"
+import { 
+  shouldShowMockData, 
+  shouldShowDevIndicators, 
+  shouldShowMaintenancePage,
+  shouldUseGracefulDegradation,
+  getErrorHandlingStrategy,
+  logError 
+} from "@/lib/config"
+import MaintenancePage from "@/components/maintenance/maintenance-page"
+import GracefulDegradation from "@/components/maintenance/graceful-degradation"
+import useHealthCheck from "@/hooks/use-health-check"
 
 interface PropertyData {
   id: number // Changed to number for cleaner URLs
@@ -52,236 +61,32 @@ export default function ListingsPage() {
     per_page: 50, // Get more for client-side filtering
   })
 
+  // Health check for production monitoring - NO POLLING to prevent UX interruptions
+  const { 
+    isHealthy, 
+    getSystemStatus, 
+    isServiceAvailable, 
+    checkHealth 
+  } = useHealthCheck({
+    enabled: false, // Disable automatic health checks to prevent page reloads
+    interval: 0 // No automatic polling
+  })
+
   const PROPERTIES_PER_PAGE = 18 // 6 rows × 3 properties per row
 
-  // Mock data as fallback when API is not available
-  const mockProperties: PropertyData[] = [
-    {
-      id: 1,
-      slug: "seaside-apartments",
-      title: "Seaside Apartments Varna",
-      priceRange: "€200,000 - €400,000",
-      shortPrice: "€200k",
-      location: "Varna Beach, Bulgaria",
-      image: "/placeholder.svg?height=300&width=400",
-      description: "Beachfront apartments with stunning sea views and resort-style amenities.",
-      lat: 43.2141,
-      lng: 27.9147,
-      color: "from-blue-500 to-blue-700",
-      type: "Apartment Complex",
-      status: "Under Construction",
-      developer: "Seaside Properties",
-      completionDate: "Q1 2026",
-      rating: 4.9,
-      reviews: 12,
-      features: ["Sea Views", "Beach Access", "Resort Amenities", "Pool"],
-    },
-    {
-      id: 2,
-      slug: "mountain-retreat-houses",
-      title: "Mountain Retreat Houses",
-      priceRange: "€150,000 - €280,000",
-      shortPrice: "€150k",
-      location: "Bansko, Bulgaria",
-      image: "/placeholder.svg?height=300&width=400",
-      description: "Cozy mountain houses with ski access and panoramic views.",
-      lat: 41.8311,
-      lng: 23.4871,
-      color: "from-green-500 to-green-700",
-      type: "Residential Houses",
-      status: "Foundation Laid",
-      developer: "Mountain Living",
-      completionDate: "Q3 2025",
-      rating: 4.7,
-      reviews: 19,
-      features: ["Mountain Views", "Ski Access", "Fireplace", "Garden"],
-    },
-    {
-      id: 3,
-      slug: "urban-lofts-plovdiv",
-      title: "Urban Lofts Plovdiv",
-      priceRange: "€180,000 - €320,000",
-      shortPrice: "€180k",
-      location: "Old Town, Plovdiv",
-      image: "/placeholder.svg?height=300&width=400",
-      description: "Modern lofts in the historic old town with contemporary design.",
-      lat: 42.1354,
-      lng: 24.7453,
-      color: "from-indigo-500 to-indigo-700",
-      type: "Mixed-Use Building",
-      status: "Under Construction",
-      developer: "Plovdiv Heritage",
-      completionDate: "Q1 2025",
-      rating: 4.6,
-      reviews: 14,
-      features: ["Historic Location", "Modern Design", "Rooftop Terrace", "Parking"],
-    },
-    // Sofia properties
-    {
-      id: 4,
-      slug: "luxury-apartments-central",
-      title: "Luxury Apartments Central",
-      priceRange: "€250,000 - €450,000",
-      shortPrice: "€250k",
-      location: "Sofia Center, Bulgaria",
-      image: "/placeholder.svg?height=300&width=400",
-      description: "Modern luxury apartments in the heart of Sofia with premium finishes and city views.",
-      lat: 42.6977,
-      lng: 23.3219,
-      color: "from-ds-primary-500 to-ds-primary-700",
-      type: "Apartment Complex",
-      status: "Under Construction",
-      developer: "Sofia Premium Developments",
-      completionDate: "Q2 2025",
-      rating: 4.8,
-      reviews: 24,
-      features: ["City Views", "Premium Finishes", "Parking", "Gym"],
-      originalPrice: "€280,000",
-    },
-    {
-      id: 5,
-      slug: "green-valley-residences",
-      title: "Green Valley Residences",
-      priceRange: "€180,000 - €320,000",
-      shortPrice: "€180k",
-      location: "Vitosha District, Sofia",
-      image: "/placeholder.svg?height=300&width=400",
-      description: "Eco-friendly residential complex surrounded by green spaces and mountain views.",
-      lat: 42.7105,
-      lng: 23.3341,
-      color: "from-ds-accent-500 to-ds-accent-700",
-      type: "Residential Houses",
-      status: "Foundation Laid",
-      developer: "EcoLiving Bulgaria",
-      completionDate: "Q4 2025",
-      rating: 4.9,
-      reviews: 18,
-      features: ["Mountain Views", "Eco-Friendly", "Garden", "Solar Panels"],
-    },
-    {
-      id: 6,
-      slug: "riverside-towers",
-      title: "Riverside Towers",
-      priceRange: "€300,000 - €550,000",
-      shortPrice: "€300k",
-      location: "Lozenets, Sofia",
-      image: "/placeholder.svg?height=300&width=400",
-      description: "Premium high-rise towers with river views and luxury amenities.",
-      lat: 42.6794,
-      lng: 23.3192,
-      color: "from-orange-500 to-orange-700",
-      type: "Mixed-Use Building",
-      status: "Framing Complete",
-      developer: "Riverside Developments",
-      completionDate: "Q1 2025",
-      rating: 4.7,
-      reviews: 31,
-      features: ["River Views", "Luxury Amenities", "Concierge", "Spa"],
-      originalPrice: "€350,000",
-    },
-    {
-      id: 7,
-      slug: "modern-living-complex",
-      title: "Modern Living Complex",
-      priceRange: "€220,000 - €380,000",
-      shortPrice: "€220k",
-      location: "Mladost, Sofia",
-      image: "/placeholder.svg?height=300&width=400",
-      description: "Contemporary apartments with smart home technology and modern amenities.",
-      lat: 42.7038,
-      lng: 23.337,
-      color: "from-purple-500 to-purple-700",
-      type: "Apartment Complex",
-      status: "Pre-Sales Open",
-      developer: "Smart Living Ltd",
-      completionDate: "Q3 2025",
-      rating: 4.6,
-      reviews: 15,
-      features: ["Smart Home", "Modern Design", "Fitness Center", "Rooftop"],
-    },
-    {
-      id: 8,
-      slug: "city-center-lofts",
-      title: "City Center Lofts",
-      priceRange: "€350,000 - €650,000",
-      shortPrice: "€350k",
-      location: "Serdika, Sofia",
-      image: "/placeholder.svg?height=300&width=400",
-      description: "Industrial-style lofts in the historic center with high ceilings and exposed brick.",
-      lat: 42.6935,
-      lng: 23.3281,
-      color: "from-red-500 to-red-700",
-      type: "Mixed-Use Building",
-      status: "Under Construction",
-      developer: "Heritage Lofts",
-      completionDate: "Q2 2025",
-      rating: 4.8,
-      reviews: 22,
-      features: ["Historic Center", "High Ceilings", "Exposed Brick", "Loft Style"],
-    },
-    {
-      id: 9,
-      slug: "family-homes-sofia",
-      title: "Family Homes Sofia",
-      priceRange: "€200,000 - €380,000",
-      shortPrice: "€200k",
-      location: "Dragalevtsi, Sofia",
-      image: "/placeholder.svg?height=300&width=400",
-      description: "Spacious family houses with gardens in a quiet neighborhood.",
-      lat: 42.6354,
-      lng: 23.2711,
-      color: "from-teal-500 to-teal-700",
-      type: "Residential Houses",
-      status: "Pre-Sales Open",
-      developer: "Family Living Ltd",
-      completionDate: "Q4 2025",
-      rating: 4.8,
-      reviews: 21,
-      features: ["Large Gardens", "Family Friendly", "Quiet Area", "Parking"],
-    },
-    // Add more properties to demonstrate pagination
-    {
-      id: 10,
-      slug: "sunset-villas",
-      title: "Sunset Villas",
-      priceRange: "€280,000 - €420,000",
-      shortPrice: "€280k",
-      location: "Boyana, Sofia",
-      image: "/placeholder.svg?height=300&width=400",
-      description: "Luxury villas with mountain views and private gardens.",
-      lat: 42.6234,
-      lng: 23.2567,
-      color: "from-amber-500 to-amber-700",
-      type: "Residential Houses",
-      status: "Under Construction",
-      developer: "Sunset Properties",
-      completionDate: "Q1 2026",
-      rating: 4.9,
-      reviews: 8,
-      features: ["Mountain Views", "Private Garden", "Luxury Finishes", "Garage"],
-    },
-    // Add more properties for pagination demo...
-    ...Array.from({ length: 15 }, (_, i) => ({
-      id: i + 11,
-      slug: `property-${i + 11}`,
-      title: `Property ${i + 11}`,
-      priceRange: `€${180 + i * 20},000 - €${280 + i * 30},000`,
-      shortPrice: `€${180 + i * 20}k`,
-      location: `Location ${i + 11}, Sofia`,
-      image: "/placeholder.svg?height=300&width=400",
-      description: `Description for property ${i + 11}`,
-      lat: 42.6977 + (Math.random() - 0.5) * 0.1,
-      lng: 23.3219 + (Math.random() - 0.5) * 0.1,
-      color: "from-blue-500 to-blue-700",
-      type: "Apartment Complex" as const,
-      status: "Under Construction" as const,
-      developer: `Developer ${i + 11}`,
-      completionDate: "Q2 2025",
-      rating: 4.5 + Math.random() * 0.4,
-      reviews: Math.floor(Math.random() * 30) + 5,
-      features: ["Feature 1", "Feature 2", "Feature 3"],
-    })),
-  ]
+  // Close popup with escape key - MUST be before any early returns to fix Hooks order
+  useEffect(() => {
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setSelectedProperty(null)
+      }
+    }
+
+    document.addEventListener("keydown", handleEscapeKey)
+    return () => document.removeEventListener("keydown", handleEscapeKey)
+  }, [])
+
+  // No more mock data - developers see real production behavior
 
   const cities = [
     { name: "Sofia", id: "sofia" },
@@ -289,17 +94,69 @@ export default function ListingsPage() {
     { name: "Varna", id: "varna" },
   ]
 
-  // Use API data if available, otherwise fall back to mock data
-  const allProperties = apiProjects && apiProjects.length > 0 ? apiProjects : mockProperties
+  // Production-ready error handling
+  const systemStatus = getSystemStatus()
+  const errorHandlingStrategy = getErrorHandlingStrategy(!!error)
+  
+  // Log errors for monitoring
+  if (error) {
+    logError(error, {
+      context: 'listings_page',
+      city: selectedCity,
+      systemStatus,
+      strategy: errorHandlingStrategy
+    })
+  }
+
+  // Simple data handling - no more mock data fallback
+  // Developers and users see exactly the same behavior
+  const allProperties = apiProjects || []
   
   console.log('🏠 Listings page data:', {
     apiProjects: apiProjects,
     apiProjectsLength: apiProjects?.length,
     allPropertiesLength: allProperties.length,
-    usingApiData: apiProjects && apiProjects.length > 0,
+    usingApiData: !error && apiProjects !== null,
+    systemStatus,
+    errorHandlingStrategy,
     loading,
     error
   });
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-ds-background-50 to-ds-background-100">
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ds-primary-500 mx-auto mb-4"></div>
+              <h3 className="text-lg font-medium text-ds-foreground-800 mb-2">Finding Properties</h3>
+              <p className="text-ds-foreground-600">
+                Searching for the best properties in {selectedCity}...
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Production-ready error handling based on strategy
+  if (error && errorHandlingStrategy === 'maintenance') {
+    return (
+      <MaintenancePage
+        message="We're currently experiencing technical difficulties with our property listing service."
+        expectedReturn="Service should resume within the next hour"
+        onRetry={checkHealth}
+        showContact={true}
+        showRetry={true}
+      />
+    );
+  }
+
+  // Show empty state when API returns no results - but keep the normal page layout
+  const showEmptyState = !loading && !error && apiProjects !== null && apiProjects.length === 0;
 
   // Filter properties by selected city and property type
   const filteredProperties = allProperties.filter((property: PropertyData) => {
@@ -444,270 +301,308 @@ export default function ListingsPage() {
     return pages
   }
 
-  // Close popup with escape key
-  useEffect(() => {
-    const handleEscapeKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setSelectedProperty(null)
-      }
-    }
 
-    document.addEventListener("keydown", handleEscapeKey)
-    return () => document.removeEventListener("keydown", handleEscapeKey)
-  }, [])
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Top Header - Airbnb Style with City Selector and Filters */}
-      <div className="sticky top-16 z-40 bg-white border-b border-ds-neutral-200 shadow-sm">
-        <div className="container px-4 py-6">
-          {/* Filters Row */}
-          <div className="flex items-center justify-between">
-            {/* Left Side - City Selector + Property Type Filter */}
-            <div className="flex items-center space-x-6">
-              {/* City Selector - Moved to left */}
-              <div className="bg-white/95 backdrop-blur-sm p-1 rounded-xl border border-ds-neutral-200 shadow-sm">
-                <ToggleGroup type="single" value={selectedCity} onValueChange={handleCityChange} className="flex gap-1">
-                  {cities.map((city) => (
-                    <ToggleGroupItem
-                      key={city.id}
-                      value={city.name}
-                      className="group relative px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-300 data-[state=on]:bg-ds-accent-500 data-[state=on]:text-white data-[state=on]:shadow-md data-[state=off]:text-ds-neutral-600 hover:data-[state=off]:text-ds-neutral-800 hover:data-[state=off]:bg-gray-50 hover:scale-105 data-[state=on]:scale-105"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <MapPin className="h-4 w-4 transition-all duration-300 group-data-[state=on]:text-white group-data-[state=off]:text-ds-accent-500 group-hover:scale-110" />
-                        <span>{city.name}</span>
-                      </div>
-                      <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-ds-accent-500 rounded-full opacity-0 group-data-[state=on]:opacity-100 transition-opacity duration-300"></div>
-                    </ToggleGroupItem>
-                  ))}
-                </ToggleGroup>
-              </div>
-
-              {/* Separator */}
-              <div className="w-px h-8 bg-ds-neutral-200"></div>
-
-              {/* Property Type Filter */}
-              <div className="bg-white/95 backdrop-blur-sm p-1 rounded-xl border border-ds-neutral-200 shadow-sm">
-                <ToggleGroup
-                  type="single"
-                  value={propertyTypeFilter}
-                  onValueChange={handlePropertyTypeChange}
-                  className="flex gap-1"
-                >
-                  <ToggleGroupItem
-                    value="all"
-                    className="px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-300 data-[state=on]:bg-ds-accent-500 data-[state=on]:text-white data-[state=on]:shadow-md data-[state=off]:text-ds-neutral-600 hover:data-[state=off]:text-ds-neutral-800 hover:data-[state=off]:bg-gray-50 hover:scale-105 data-[state=on]:scale-105"
-                  >
-                    All Properties
-                  </ToggleGroupItem>
-                  <ToggleGroupItem
-                    value="houses"
-                    className="px-3 py-2 rounded-lg font-semibold text-sm transition-all duration-300 data-[state=on]:bg-ds-accent-500 data-[state=on]:text-white data-[state=on]:shadow-md data-[state=off]:text-ds-neutral-600 hover:data-[state=off]:text-ds-neutral-800 hover:data-[state=off]:bg-gray-50 hover:scale-105 data-[state=on]:scale-105 flex items-center justify-center relative group"
-                  >
-                    <Home className="h-5 w-5 transition-all duration-300 group-data-[state=on]:text-white group-data-[state=off]:text-ds-accent-500 group-hover:scale-110" />
-                    <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-ds-accent-500 rounded-full opacity-0 group-data-[state=on]:opacity-100 transition-opacity duration-300"></div>
-                  </ToggleGroupItem>
-                  <ToggleGroupItem
-                    value="apartments"
-                    className="px-3 py-2 rounded-lg font-semibold text-sm transition-all duration-300 data-[state=on]:bg-ds-accent-500 data-[state=on]:text-white data-[state=on]:shadow-md data-[state=off]:text-ds-neutral-600 hover:data-[state=off]:text-ds-neutral-800 hover:data-[state=off]:bg-gray-50 hover:scale-105 data-[state=on]:scale-105 flex items-center justify-center relative group"
-                  >
-                    <Building className="h-5 w-5 transition-all duration-300 group-data-[state=on]:text-white group-data-[state=off]:text-ds-accent-500 group-hover:scale-110" />
-                    <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-ds-accent-500 rounded-full opacity-0 group-data-[state=on]:opacity-100 transition-opacity duration-300"></div>
-                  </ToggleGroupItem>
-                </ToggleGroup>
-              </div>
+    <div className="min-h-screen bg-gradient-to-br from-ds-background-50 to-ds-background-100">
+      {/* Development indicator - shows when in dev mode with errors */}
+      {error && shouldShowDevIndicators() && (
+        <div className="bg-blue-50 border-l-4 border-blue-400 text-blue-800 p-4">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+              </svg>
             </div>
-
-            {/* Right Side - Empty for now, can add sorting or other controls later */}
-            <div></div>
+            <div className="ml-3">
+              <p className="text-sm">
+                <strong>🔧 Development Mode:</strong> You're seeing the same experience users would see in production. 
+                Start your backend server to see real data.
+              </p>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* Main Content - Airbnb Desktop Layout */}
-      <div className="flex">
-        {/* Left Side - Property Cards (Scrollable) - 60% width */}
-        <div className="w-3/5 min-h-[calc(100vh-200px)]">
-          <div className="p-6">
-            {/* Property Grid - 3 columns, 6 rows max */}
-            <div className="grid grid-cols-3 gap-6 mb-8">
-              {loading ? (
-                // Loading placeholder cards
-                [...Array(6)].map((_, i) => (
-                  <div key={i} className="bg-gray-100 rounded-lg h-64 animate-pulse"></div>
-                ))
-              ) : (
-                currentProperties.map((property: PropertyData) => (
-                <div
-                  key={property.id}
-                  className={`group cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-[1.02] border rounded-lg ${
-                    hoveredProperty === property.id
-                      ? "border-ds-primary-500 shadow-xl scale-[1.02]"
-                      : selectedProperty?.id === property.id
-                        ? "border-ds-primary-400 shadow-lg"
-                        : "border-ds-neutral-200 hover:border-ds-neutral-300"
-                  }`}
-                  onMouseEnter={() => handlePropertyHover(property.id)}
-                  onMouseLeave={() => handlePropertyHover(null)}
-                  onClick={() => window.open(`/listing/${property.id}`, "_blank", "noopener,noreferrer")}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault()
-                      window.open(`/listing/${property.id}`, "_blank", "noopener,noreferrer")
-                    }
-                  }}
-                  tabIndex={0}
-                  role="button"
-                  aria-label={`View details for ${property.title}`}
-                >
-                  <Card className="border-0 shadow-none">
-                    <CardContent className="p-0">
-                      <div className="flex flex-col">
-                        {/* Property Image */}
-                        <div className="relative w-full h-48 flex-shrink-0">
-                          <Image
-                            src={property.image || "/placeholder.svg"}
-                            alt={property.title}
-                            fill
-                            className="object-cover rounded-t-lg transition-transform duration-300 group-hover:scale-105"
-                          />
-                          {/* Heart Icon */}
-                          <button
-                            className="absolute top-3 right-3 w-8 h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-md transition-all duration-200 hover:scale-110 z-10"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              // Handle favorite logic here
-                            }}
-                            aria-label={`Add ${property.title} to favorites`}
-                          >
-                            <Heart className="h-4 w-4 text-ds-neutral-600 hover:text-red-500" />
-                          </button>
-                          {/* Status Badge */}
-                          <div className="absolute bottom-3 left-3 bg-ds-accent-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
-                            {property.status}
-                          </div>
-                        </div>
+      <div className="container mx-auto px-4 py-8">
+        {/* Graceful degradation notice for partial outages */}
+        {error && errorHandlingStrategy === 'graceful' && (
+          <GracefulDegradation
+            serviceType="listings"
+            message="Property listings may be incomplete due to temporary service issues. We're working to restore full functionality."
+            onRetry={checkHealth}
+            showRetry={true}
+          />
+        )}
 
-                        {/* Property Details */}
-                        <div className="p-4 space-y-3">
-                          {/* Header */}
-                          <div className="space-y-1">
-                            <h3 className="text-lg font-bold text-ds-neutral-900 group-hover:text-ds-primary-600 transition-colors duration-300 leading-tight line-clamp-1">
-                              {property.title}
-                            </h3>
-                            <p className="text-sm text-ds-neutral-600 flex items-center line-clamp-1">
-                              <MapPin className="h-3 w-3 mr-1 text-ds-accent-500 flex-shrink-0" />
-                              {property.location}
-                            </p>
-                          </div>
-
-                          {/* Rating and Type */}
-                          <div className="flex items-center justify-between text-sm">
-                            <div className="flex items-center space-x-1">
-                              <Star className="h-4 w-4 text-amber-400 fill-amber-400" />
-                              <span className="font-semibold">{property.rating}</span>
-                              <span className="text-ds-neutral-500">({property.reviews})</span>
-                            </div>
-                            <div className="flex items-center space-x-1 text-ds-neutral-600">
-                              {property.type === "Residential Houses" ? (
-                                <Home className="h-3 w-3" />
-                              ) : (
-                                <Building className="h-3 w-3" />
-                              )}
-                              <span className="text-xs">
-                                {property.type.replace(" Complex", "").replace(" Building", "")}
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* Price */}
-                          <div className="flex items-baseline space-x-2">
-                            {property.originalPrice && (
-                              <span className="text-sm text-ds-neutral-500 line-through">{property.originalPrice}</span>
-                            )}
-                            <span className="text-lg font-bold text-ds-primary-600">
-                              {property.priceRange.split(" - ")[0]}
-                            </span>
-                            <span className="text-xs text-ds-neutral-500">starting</span>
-                          </div>
-
-                          {/* Completion Date */}
-                          <p className="text-xs text-ds-neutral-600">Completion: {property.completionDate}</p>
-
-                          {/* View Details Button */}
-                          <Button
-                            className="w-full bg-ds-primary-600 hover:bg-ds-primary-700 text-white font-semibold py-2 rounded-lg mt-3 group-hover:bg-ds-primary-700 transition-colors duration-300"
-                            onClick={(e) => e.stopPropagation()}
-                            tabIndex={-1}
-                          >
-                            View Details
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              ))
-              )}
+        {/* Filters Row */}
+        <div className="flex items-center justify-between">
+          {/* Left Side - City Selector + Property Type Filter */}
+          <div className="flex items-center space-x-6">
+            {/* City Selector - Moved to left */}
+            <div className="bg-white/95 backdrop-blur-sm p-1 rounded-xl border border-ds-neutral-200 shadow-sm">
+              <ToggleGroup type="single" value={selectedCity} onValueChange={handleCityChange} className="flex gap-1">
+                {cities.map((city) => (
+                  <ToggleGroupItem
+                    key={city.id}
+                    value={city.name}
+                    className="group relative px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-300 data-[state=on]:bg-ds-accent-500 data-[state=on]:text-white data-[state=on]:shadow-md data-[state=off]:text-ds-neutral-600 hover:data-[state=off]:text-ds-neutral-800 hover:data-[state=off]:bg-gray-50 hover:scale-105 data-[state=on]:scale-105"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <MapPin className="h-4 w-4 transition-all duration-300 group-data-[state=on]:text-white group-data-[state=off]:text-ds-accent-500 group-hover:scale-110" />
+                      <span>{city.name}</span>
+                    </div>
+                    <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-ds-accent-500 rounded-full opacity-0 group-data-[state=on]:opacity-100 transition-opacity duration-300"></div>
+                  </ToggleGroupItem>
+                ))}
+              </ToggleGroup>
             </div>
 
-            {/* Airbnb-style Pagination */}
-            {totalPages > 1 && (
-              <div className="flex items-center justify-center space-x-2 py-8">
-                {/* Previous Button */}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  disabled={currentPage === 1}
-                  className="px-3 py-2 border-ds-neutral-300 text-ds-neutral-700 hover:bg-ds-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
+            {/* Separator */}
+            <div className="w-px h-8 bg-ds-neutral-200"></div>
 
-                {/* Page Numbers */}
-                {getPageNumbers().map((page, index) => (
-                  <div key={index}>
-                    {page === "..." ? (
-                      <span className="px-3 py-2 text-ds-neutral-500">...</span>
-                    ) : (
-                      <Button
-                        variant={currentPage === page ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => handlePageChange(page as number)}
-                        className={`px-3 py-2 min-w-[40px] ${
-                          currentPage === page
-                            ? "bg-ds-neutral-900 text-white hover:bg-ds-neutral-800"
-                            : "border-ds-neutral-300 text-ds-neutral-700 hover:bg-ds-neutral-50"
-                        }`}
+            {/* Property Type Filter */}
+            <div className="bg-white/95 backdrop-blur-sm p-1 rounded-xl border border-ds-neutral-200 shadow-sm">
+              <ToggleGroup
+                type="single"
+                value={propertyTypeFilter}
+                onValueChange={handlePropertyTypeChange}
+                className="flex gap-1"
+              >
+                <ToggleGroupItem
+                  value="all"
+                  className="px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-300 data-[state=on]:bg-ds-accent-500 data-[state=on]:text-white data-[state=on]:shadow-md data-[state=off]:text-ds-neutral-600 hover:data-[state=off]:text-ds-neutral-800 hover:data-[state=off]:bg-gray-50 hover:scale-105 data-[state=on]:scale-105"
+                >
+                  All Properties
+                </ToggleGroupItem>
+                <ToggleGroupItem
+                  value="houses"
+                  className="px-3 py-2 rounded-lg font-semibold text-sm transition-all duration-300 data-[state=on]:bg-ds-accent-500 data-[state=on]:text-white data-[state=on]:shadow-md data-[state=off]:text-ds-neutral-600 hover:data-[state=off]:text-ds-neutral-800 hover:data-[state=off]:bg-gray-50 hover:scale-105 data-[state=on]:scale-105 flex items-center justify-center relative group"
+                >
+                  <Home className="h-5 w-5 transition-all duration-300 group-data-[state=on]:text-white group-data-[state=off]:text-ds-accent-500 group-hover:scale-110" />
+                  <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-ds-accent-500 rounded-full opacity-0 group-data-[state=on]:opacity-100 transition-opacity duration-300"></div>
+                </ToggleGroupItem>
+                <ToggleGroupItem
+                  value="apartments"
+                  className="px-3 py-2 rounded-lg font-semibold text-sm transition-all duration-300 data-[state=on]:bg-ds-accent-500 data-[state=on]:text-white data-[state=on]:shadow-md data-[state=off]:text-ds-neutral-600 hover:data-[state=off]:text-ds-neutral-800 hover:data-[state=off]:bg-gray-50 hover:scale-105 data-[state=on]:scale-105 flex items-center justify-center relative group"
+                >
+                  <Building className="h-5 w-5 transition-all duration-300 group-data-[state=on]:text-white group-data-[state=off]:text-ds-accent-500 group-hover:scale-110" />
+                  <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-ds-accent-500 rounded-full opacity-0 group-data-[state=on]:opacity-100 transition-opacity duration-300"></div>
+                </ToggleGroupItem>
+              </ToggleGroup>
+            </div>
+          </div>
+
+          {/* Right Side - Empty for now, can add sorting or other controls later */}
+          <div></div>
+        </div>
+
+        {/* Main Content - Airbnb Desktop Layout */}
+        <div className="flex">
+          {/* Left Side - Property Cards (Scrollable) - 60% width */}
+          <div className="w-3/5 min-h-[calc(100vh-200px)]">
+            <div className="p-6">
+              {/* Property Grid - 3 columns, 6 rows max */}
+              <div className="grid grid-cols-3 gap-6 mb-8">
+                {loading ? (
+                  // Loading placeholder cards
+                  [...Array(6)].map((_, i) => (
+                    <div key={i} className="bg-gray-100 rounded-lg h-64 animate-pulse"></div>
+                  ))
+                ) : showEmptyState ? (
+                  // Empty state message within the normal layout
+                  <div className="col-span-3 text-center py-12">
+                    <div className="text-ds-foreground-400 text-6xl mb-4">🏠</div>
+                    <h3 className="text-xl font-semibold text-ds-foreground-900 mb-2">
+                      No properties in {selectedCity}
+                    </h3>
+                    <p className="text-ds-foreground-600 mb-6">
+                      We don't have any listings in {selectedCity} yet. Try a different city or check back later.
+                    </p>
+                    <div className="space-y-3">
+                      <button 
+                        onClick={() => {
+                          setPropertyTypeFilter("all")
+                          setSelectedCity("Sofia")
+                          setCurrentPage(1)
+                        }}
+                        className="bg-ds-primary-500 text-white px-6 py-2 rounded-lg hover:bg-ds-primary-600 transition-colors"
                       >
-                        {page}
-                      </Button>
-                    )}
+                        Browse Sofia Properties
+                      </button>
+                    </div>
                   </div>
-                ))}
+                ) : (
+                  currentProperties.map((property: PropertyData) => (
+                    <div
+                      key={property.id}
+                      className={`group cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-[1.02] border rounded-lg ${
+                        hoveredProperty === property.id
+                          ? "border-ds-primary-500 shadow-xl scale-[1.02]"
+                          : selectedProperty?.id === property.id
+                            ? "border-ds-primary-400 shadow-lg"
+                            : "border-ds-neutral-200 hover:border-ds-neutral-300"
+                      }`}
+                      onMouseEnter={() => handlePropertyHover(property.id)}
+                      onMouseLeave={() => handlePropertyHover(null)}
+                      onClick={() => window.open(`/listing/${property.id}`, "_blank", "noopener,noreferrer")}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault()
+                          window.open(`/listing/${property.id}`, "_blank", "noopener,noreferrer")
+                        }
+                      }}
+                      tabIndex={0}
+                      role="button"
+                      aria-label={`View details for ${property.title}`}
+                    >
+                      <Card className="border-0 shadow-none">
+                        <CardContent className="p-0">
+                          <div className="flex flex-col">
+                            {/* Property Image */}
+                            <div className="relative w-full h-48 flex-shrink-0">
+                              <Image
+                                src={property.image || "/placeholder.svg"}
+                                alt={property.title}
+                                fill
+                                className="object-cover rounded-t-lg transition-transform duration-300 group-hover:scale-105"
+                              />
+                              {/* Heart Icon */}
+                              <button
+                                className="absolute top-3 right-3 w-8 h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-md transition-all duration-200 hover:scale-110 z-10"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  // Handle favorite logic here
+                                }}
+                                aria-label={`Add ${property.title} to favorites`}
+                              >
+                                <Heart className="h-4 w-4 text-ds-neutral-600 hover:text-red-500" />
+                              </button>
+                              {/* Status Badge */}
+                              <div className="absolute bottom-3 left-3 bg-ds-accent-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
+                                {property.status}
+                              </div>
+                            </div>
 
-                {/* Next Button */}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                  className="px-3 py-2 border-ds-neutral-300 text-ds-neutral-700 hover:bg-ds-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
+                            {/* Property Details */}
+                            <div className="p-4 space-y-3">
+                              {/* Header */}
+                              <div className="space-y-1">
+                                <h3 className="text-lg font-bold text-ds-neutral-900 group-hover:text-ds-primary-600 transition-colors duration-300 leading-tight line-clamp-1">
+                                  {property.title}
+                                </h3>
+                                <p className="text-sm text-ds-neutral-600 flex items-center line-clamp-1">
+                                  <MapPin className="h-3 w-3 mr-1 text-ds-accent-500 flex-shrink-0" />
+                                  {property.location}
+                                </p>
+                              </div>
+
+                              {/* Rating and Type */}
+                              <div className="flex items-center justify-between text-sm">
+                                <div className="flex items-center space-x-1">
+                                  <Star className="h-4 w-4 text-amber-400 fill-amber-400" />
+                                  <span className="font-semibold">{property.rating}</span>
+                                  <span className="text-ds-neutral-500">({property.reviews})</span>
+                                </div>
+                                <div className="flex items-center space-x-1 text-ds-neutral-600">
+                                  {property.type === "Residential Houses" ? (
+                                    <Home className="h-3 w-3" />
+                                  ) : (
+                                    <Building className="h-3 w-3" />
+                                  )}
+                                  <span className="text-xs">
+                                    {property.type.replace(" Complex", "").replace(" Building", "")}
+                                  </span>
+                                </div>
+                              </div>
+
+                              {/* Price */}
+                              <div className="flex items-baseline space-x-2">
+                                {property.originalPrice && (
+                                  <span className="text-sm text-ds-neutral-500 line-through">{property.originalPrice}</span>
+                                )}
+                                <span className="text-lg font-bold text-ds-primary-600">
+                                  {property.priceRange.split(" - ")[0]}
+                                </span>
+                                <span className="text-xs text-ds-neutral-500">starting</span>
+                              </div>
+
+                              {/* Completion Date */}
+                              <p className="text-xs text-ds-neutral-600">Completion: {property.completionDate}</p>
+
+                              {/* View Details Button */}
+                              <Button
+                                className="w-full bg-ds-primary-600 hover:bg-ds-primary-700 text-white font-semibold py-2 rounded-lg mt-3 group-hover:bg-ds-primary-700 transition-colors duration-300"
+                                onClick={(e) => e.stopPropagation()}
+                                tabIndex={-1}
+                              >
+                                View Details
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  ))
+                )}
               </div>
-            )}
 
-            {/* No Results */}
-            {filteredProperties.length === 0 && (
+              {/* Airbnb-style Pagination */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-center space-x-2 py-8">
+                  {/* Previous Button */}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="px-3 py-2 border-ds-neutral-300 text-ds-neutral-700 hover:bg-ds-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+
+                  {/* Page Numbers */}
+                  {getPageNumbers().map((page, index) => (
+                    <div key={index}>
+                      {page === "..." ? (
+                        <span className="px-3 py-2 text-ds-neutral-500">...</span>
+                      ) : (
+                        <Button
+                          variant={currentPage === page ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => handlePageChange(page as number)}
+                          className={`px-3 py-2 min-w-[40px] ${
+                            currentPage === page
+                              ? "bg-ds-neutral-900 text-white hover:bg-ds-neutral-800"
+                              : "border-ds-neutral-300 text-ds-neutral-700 hover:bg-ds-neutral-50"
+                          }`}
+                        >
+                          {page}
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+
+                  {/* Next Button */}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="px-3 py-2 border-ds-neutral-300 text-ds-neutral-700 hover:bg-ds-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+
+                          {/* No Results after filtering */}
+            {!loading && !showEmptyState && filteredProperties.length === 0 && allProperties.length > 0 && (
               <div className="text-center py-12">
                 <div className="text-ds-neutral-400 mb-4">
                   <Building className="h-16 w-16 mx-auto" />
                 </div>
-                <h3 className="text-xl font-semibold text-ds-neutral-900 mb-2">No properties found</h3>
+                <h3 className="text-xl font-semibold text-ds-neutral-900 mb-2">No properties match your filters</h3>
                 <p className="text-ds-neutral-600 mb-4">Try adjusting your filters or selecting a different city.</p>
                 <Button
                   onClick={() => {
@@ -722,166 +617,156 @@ export default function ListingsPage() {
                 </Button>
               </div>
             )}
+            </div>
           </div>
-        </div>
 
-        {/* Right Side - Google Map (Sticky/Fixed) - 40% width */}
-        <div className="w-2/5 sticky top-[200px] h-[calc(100vh-200px)] bg-gray-100" onClick={handleMapClick}>
-          <div ref={mapRef} className="w-full h-full relative">
-            {/* Map Background */}
-            <Image
-              src="/placeholder.svg?height=800&width=800"
-              alt={`Interactive map of real estate projects in ${selectedCity}`}
-              fill
-              className="object-cover"
-            />
+          {/* Right Side - Google Map (Sticky/Fixed) - 40% width */}
+          <div className="w-2/5 sticky top-[200px] h-[calc(100vh-200px)] bg-gray-100" onClick={handleMapClick}>
+            <div ref={mapRef} className="w-full h-full relative">
+              {/* Map Background */}
+              <Image
+                src="/placeholder.svg?height=800&width=800"
+                alt={`Interactive map of real estate projects in ${selectedCity}`}
+                fill
+                className="object-cover"
+              />
 
-            {/* Airbnb-style Price Markers */}
-            {currentProperties.map((property: PropertyData, index: number) => {
-              const positions = [
-                { top: "15%", left: "20%" },
-                { top: "25%", left: "45%" },
-                { top: "35%", left: "70%" },
-                { top: "45%", left: "15%" },
-                { top: "55%", left: "50%" },
-                { top: "65%", left: "75%" },
-                { top: "75%", left: "25%" },
-                { top: "20%", left: "60%" },
-                { top: "40%", left: "35%" },
-                { top: "60%", left: "40%" },
-                { top: "30%", left: "80%" },
-                { top: "50%", left: "10%" },
-                { top: "70%", left: "55%" },
-                { top: "80%", left: "40%" },
-                { top: "10%", left: "50%" },
-                { top: "85%", left: "70%" },
-                { top: "25%", left: "85%" },
-                { top: "45%", left: "85%" },
-              ]
-
-              const isSelected = selectedProperty?.id === property.id
-              const isHovered = hoveredProperty === property.id
-
-              return (
-                <div key={property.id} className="absolute z-30" style={positions[index % positions.length]}>
+              {/* Airbnb-style Price Markers */}
+              {currentProperties.map((property: PropertyData, index: number) => {
+                const positions = [
+                  { top: "15%", left: "20%" },
+                  { top: "25%", left: "45%" },
+                  { top: "35%", left: "70%" },
+                  { top: "45%", left: "15%" },
+                  { top: "55%", left: "50%" },
+                  { top: "65%", left: "75%" },
+                  { top: "75%", left: "25%" },
+                ]
+                const pos = positions[index % positions.length]
+                return (
                   <div
-                    className={`property-pin cursor-pointer transform transition-all duration-300 ${
-                      isSelected ? "scale-110 z-40" : isHovered ? "scale-105 z-40" : "hover:scale-105"
+                    key={property.id}
+                    className={`absolute z-10 cursor-pointer group transition-all duration-300 ${
+                      hoveredProperty === property.id
+                        ? "scale-110 z-20"
+                        : selectedProperty?.id === property.id
+                          ? "scale-105 z-20"
+                          : "opacity-90 hover:opacity-100"
                     }`}
-                    onClick={(e) => handlePinClick(property, e)}
+                    style={{ top: pos.top, left: pos.left }}
+                    onMouseEnter={() => handlePropertyHover(property.id)}
+                    onMouseLeave={() => handlePropertyHover(null)}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setSelectedProperty(property)
+                      setPopupPosition({ x: e.clientX, y: e.clientY })
+                    }}
                   >
-                    {/* Airbnb-style Price Bubble */}
-                    <div
-                      className={`relative rounded-full px-3 py-2 text-sm font-semibold shadow-lg border-2 transition-all duration-300 ${
-                        isSelected || isHovered
-                          ? "bg-ds-neutral-900 text-white border-ds-neutral-900 scale-110 shadow-xl"
-                          : "bg-white text-ds-neutral-900 border-white hover:shadow-xl"
-                      }`}
-                    >
-                      <span className="whitespace-nowrap">{property.shortPrice}</span>
-                    </div>
+                    <span className="bg-white px-3 py-1 rounded-full shadow-lg border border-ds-primary-500 text-ds-primary-600 font-semibold text-sm group-hover:bg-ds-primary-600 group-hover:text-white transition-colors duration-300">
+                      {property.shortPrice}
+                    </span>
                   </div>
-                </div>
-              )
-            })}
+                )
+              })}
 
-            {/* Airbnb-style Property Popup - Updated with smart positioning */}
-            {selectedProperty && (
-              <div
-                className="absolute z-50 animate-in fade-in-0 zoom-in-95 duration-300"
-                style={{
-                  left: `${popupPosition.x - 160}px`, // Center the popup (320px width / 2)
-                  top: `${popupPosition.y}px`,
-                  maxWidth: "320px",
-                }}
-                onClick={(e) => e.stopPropagation()}
-              >
-                {/* Popup Card */}
-                <div className="bg-white rounded-2xl shadow-2xl border border-ds-neutral-200 overflow-hidden w-80 max-w-sm">
-                  {/* Property Image */}
-                  <div className="relative h-48 w-full">
-                    <Image
-                      src={selectedProperty.image || "/placeholder.svg"}
-                      alt={selectedProperty.title}
-                      layout="fill"
-                      objectFit="cover"
-                      className="transition-transform duration-300 hover:scale-105"
-                    />
+              {/* Popup for Selected Property */}
+              {selectedProperty && (
+                <div
+                  className="absolute z-30 bg-white rounded-2xl shadow-2xl border border-ds-neutral-200 overflow-hidden"
+                  style={{
+                    left: `${popupPosition.x - 160}px`, // Center the popup (320px width / 2)
+                    top: `${popupPosition.y}px`,
+                    maxWidth: "320px",
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {/* Popup Card */}
+                  <div className="bg-white rounded-2xl shadow-2xl border border-ds-neutral-200 overflow-hidden w-80 max-w-sm">
+                    {/* Property Image */}
+                    <div className="relative h-48 w-full">
+                      <Image
+                        src={selectedProperty.image || "/placeholder.svg"}
+                        alt={selectedProperty.title}
+                        layout="fill"
+                        objectFit="cover"
+                        className="transition-transform duration-300 hover:scale-105"
+                      />
 
-                    {/* Close Button */}
-                    <button
-                      onClick={() => setSelectedProperty(null)}
-                      className="absolute top-3 right-3 w-8 h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110"
-                    >
-                      <X className="h-4 w-4 text-ds-neutral-600" />
-                    </button>
+                      {/* Close Button */}
+                      <button
+                        onClick={() => setSelectedProperty(null)}
+                        className="absolute top-3 right-3 w-8 h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110"
+                      >
+                        <X className="h-4 w-4 text-ds-neutral-600" />
+                      </button>
 
-                    {/* Price Badge */}
-                    <div className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-full">
-                      <p className="text-sm font-bold text-ds-neutral-900">{selectedProperty.priceRange}</p>
-                    </div>
-                  </div>
-
-                  {/* Property Details */}
-                  <div className="p-6 space-y-4">
-                    {/* Title and Location */}
-                    <div className="space-y-2">
-                      <h3 className="text-xl font-bold text-ds-neutral-900 leading-tight">{selectedProperty.title}</h3>
-                      <div className="flex items-center text-ds-neutral-600">
-                        <MapPin className="h-4 w-4 mr-2 text-ds-accent-500" />
-                        <p className="text-sm">{selectedProperty.location}</p>
+                      {/* Price Badge */}
+                      <div className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-full">
+                        <p className="text-sm font-bold text-ds-neutral-900">{selectedProperty.priceRange}</p>
                       </div>
                     </div>
 
-                    {/* Description */}
-                    <p className="text-sm text-ds-neutral-700 leading-relaxed">{selectedProperty.description}</p>
+                    {/* Property Details */}
+                    <div className="p-6 space-y-4">
+                      {/* Title and Location */}
+                      <div className="space-y-2">
+                        <h3 className="text-xl font-bold text-ds-neutral-900 leading-tight">{selectedProperty.title}</h3>
+                        <div className="flex items-center text-ds-neutral-600">
+                          <MapPin className="h-4 w-4 mr-2 text-ds-accent-500" />
+                          <p className="text-sm">{selectedProperty.location}</p>
+                        </div>
+                      </div>
 
-                    {/* View Details Button */}
-                    <Button
-                      asChild
-                      className="w-full bg-ds-primary-600 hover:bg-ds-primary-700 text-white font-semibold py-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 group"
-                    >
-                      <Link href={`/listing/${selectedProperty.id}`} target="_blank" rel="noopener noreferrer">
-                        View Details
-                        <ExternalLink className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
-                      </Link>
-                    </Button>
+                      {/* Description */}
+                      <p className="text-sm text-ds-neutral-700 leading-relaxed">{selectedProperty.description}</p>
+
+                      {/* View Details Button */}
+                      <Button
+                        asChild
+                        className="w-full bg-ds-primary-600 hover:bg-ds-primary-700 text-white font-semibold py-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 group"
+                      >
+                        <Link href={`/listing/${selectedProperty.id}`} target="_blank" rel="noopener noreferrer">
+                          View Details
+                          <ExternalLink className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+                        </Link>
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Loading Overlay */}
-            {isMapLoading && (
-              <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-20">
-                <div className="flex flex-col items-center space-y-4">
-                  <Loader2 className="h-8 w-8 text-ds-primary-600 animate-spin" />
-                  <p className="text-sm font-medium text-ds-neutral-700">Loading {selectedCity} projects...</p>
+              {/* Loading Overlay */}
+              {isMapLoading && (
+                <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-20">
+                  <div className="flex flex-col items-center space-y-4">
+                    <Loader2 className="h-8 w-8 text-ds-primary-600 animate-spin" />
+                    <p className="text-sm font-medium text-ds-neutral-700">Loading {selectedCity} projects...</p>
+                  </div>
                 </div>
+              )}
+
+              {/* Map Controls */}
+              <div className="absolute bottom-6 right-6 flex flex-col space-y-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="w-10 h-10 p-0 bg-white/95 backdrop-blur-sm text-lg font-bold"
+                >
+                  +
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="w-10 h-10 p-0 bg-white/95 backdrop-blur-sm text-lg font-bold"
+                >
+                  −
+                </Button>
               </div>
-            )}
 
-            {/* Map Controls */}
-            <div className="absolute bottom-6 right-6 flex flex-col space-y-2">
-              <Button
-                size="sm"
-                variant="outline"
-                className="w-10 h-10 p-0 bg-white/95 backdrop-blur-sm text-lg font-bold"
-              >
-                +
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                className="w-10 h-10 p-0 bg-white/95 backdrop-blur-sm text-lg font-bold"
-              >
-                −
-              </Button>
-            </div>
-
-            {/* Results Count - Bottom Left */}
-            <div className="absolute bottom-6 left-6 bg-ds-neutral-900 text-white px-4 py-2 rounded-full text-sm font-medium shadow-lg">
-              {filteredProperties.length} projects in {selectedCity}
+              {/* Results Count - Bottom Left */}
+              <div className="absolute bottom-6 left-6 bg-ds-neutral-900 text-white px-4 py-2 rounded-full text-sm font-medium shadow-lg">
+                {filteredProperties.length} projects in {selectedCity}
+              </div>
             </div>
           </div>
         </div>

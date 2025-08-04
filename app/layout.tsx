@@ -5,6 +5,7 @@ import "./globals.css"
 import { cn } from "@/lib/utils"
 import { SiteHeader } from "@/components/site-header"
 import { Footer } from "@/components/footer"
+import GlobalMaintenanceWrapper from "@/components/maintenance/global-maintenance-wrapper"
 
 
 const inter = Inter({ subsets: ["latin"] })
@@ -23,12 +24,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={cn("min-h-screen bg-nova-background font-sans antialiased", inter.className)}>
-        <div className="relative flex min-h-screen flex-col">
-          <SiteHeader />
-          <main className="flex-1">{children}</main>
-          <Footer />
-        </div>
-
+        <GlobalMaintenanceWrapper>
+          <div className="relative flex min-h-screen flex-col">
+            <SiteHeader />
+            <main className="flex-1">{children}</main>
+            <Footer />
+          </div>
+        </GlobalMaintenanceWrapper>
       </body>
     </html>
   )
