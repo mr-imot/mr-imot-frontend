@@ -230,9 +230,25 @@ class ApiClient {
     accept_terms: boolean;
     website?: string;
   }): Promise<{ message: string; developer_id?: number }> {
-    return this.request('/api/v1/developers/register', {
+    // Build query parameters
+    const params = new URLSearchParams();
+    params.append('company_name', developerData.company_name);
+    params.append('contact_person', developerData.contact_person);
+    params.append('email', developerData.email);
+    params.append('phone', developerData.phone);
+    params.append('password', developerData.password);
+    params.append('accept_terms', developerData.accept_terms.toString());
+    
+    // Add optional parameters if provided
+    if (developerData.website) {
+      params.append('website', developerData.website);
+    }
+    if (developerData.office_address) {
+      params.append('office_address', developerData.office_address);
+    }
+
+    return this.request(`/api/v1/auth/developers/register?${params.toString()}`, {
       method: 'POST',
-      body: JSON.stringify(developerData),
     });
   }
 
