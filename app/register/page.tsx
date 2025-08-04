@@ -6,6 +6,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { PasswordStrength } from "@/components/ui/password-strength"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { FloatingInput } from "@/components/ui/floating-input"
+import { InternationalPhoneInput } from "@/components/ui/international-phone-input"
 import { EnhancedButton } from "@/components/ui/enhanced-button"
 import { AuthError } from "@/components/ui/auth-error"
 import { registerDeveloper } from "@/lib/api"
@@ -212,14 +213,15 @@ function RegisterFormContent() {
                 disabled={isLoading}
                 required
               />
-              <FloatingInput
+              <InternationalPhoneInput
                 label="Phone Number"
-                type="tel"
                 value={formData.phone}
-                onChange={(e) => handleInputChange("phone", e.target.value)}
+                onChange={(phone) => handleInputChange("phone", phone)}
                 error={getFieldError(errors, "phone")}
                 disabled={isLoading}
                 required
+                defaultCountry="bg"
+                placeholder="Enter your phone number"
               />
             </div>
 

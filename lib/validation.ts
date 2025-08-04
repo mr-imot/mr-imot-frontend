@@ -1,4 +1,5 @@
 // Validation utilities for form fields
+import { isPossiblePhoneNumber } from 'libphonenumber-js'
 
 export interface ValidationError {
   field: string
@@ -91,11 +92,16 @@ export const isValidEmail = (email: string): boolean => {
 }
 
 export const isValidPhone = (phone: string): boolean => {
-  // International phone number regex - allows various formats
-  const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/
-  // Remove all non-digit characters except + for validation
-  const cleanPhone = phone.replace(/[^\d+]/g, '')
-  return phoneRegex.test(cleanPhone)
+  if (!phone || phone.trim() === '') return false
+  
+  try {
+    // Use libphonenumber-js for robust validation
+    // This supports all international formats and country-specific validation
+    return isPossiblePhoneNumber(phone)
+  } catch (error) {
+    // If parsing fails, it's not a valid phone number
+    return false
+  }
 }
 
 export const isValidPassword = (password: string): boolean => {
