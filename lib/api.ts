@@ -282,8 +282,12 @@ class ApiClient {
 
   // Email verification
   async verifyEmail(token: string): Promise<{ message: string; status?: string }> {
-    return this.request(`/api/v1/auth/developers/verify-email?token=${encodeURIComponent(token)}`, {
+    return this.request(`/api/v1/auth/developers/verify-email`, {
       method: 'POST',
+      body: new URLSearchParams({ token }),
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
     });
   }
 
@@ -378,3 +382,12 @@ export const resendVerification = (email: string) => apiClient.resendVerificatio
 export const loginDeveloper = (email: string, password: string) => apiClient.loginDeveloper(email, password);
 export const getAuthHealth = () => apiClient.getAuthHealth();
 export const testConnection = () => apiClient.testConnection(); 
+
+
+
+
+
+
+
+
+
