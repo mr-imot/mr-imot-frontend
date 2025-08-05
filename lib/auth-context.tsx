@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { loginDeveloper } from './api';
+import { loginDeveloper, getCurrentDeveloper } from './api';
 
 interface AuthUser {
   email: string;
@@ -40,6 +40,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const login = async (email: string, password: string) => {
     try {
       const response = await loginDeveloper(email, password);
+      
+      // Validate user role for developer login
+      if (response.user_type !== 'developer') {
+        // Clear any stored tokens
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('auth_expires');
+        setUser(null);
+        throw new Error('Access denied. This login is for developers only. Please use the admin login if you have an admin account.');
+      }
       
       // Store the token securely
       localStorage.setItem('auth_token', response.access_token);
@@ -89,17 +98,30 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     // For now, we'll assume the token is valid if it exists and hasn't expired
     // In a real app, you might want to validate the token with the backend
-    const rememberMe = localStorage.getItem('remember_me');
-    if (rememberMe) {
-      // If remember me is enabled, we can keep the user logged in
-      // You might want to get user info from the backend here
+    try {
+      // Try to get current user info if we have a token
+      const userInfo = await getCurrentDeveloper();
       setUser({
-        email: 'user@example.com', // This should come from the backend
+        email: userInfo.email,
         user_type: 'developer'
       });
+      return true;
+    } catch (error) {
+      // If we can't get user info, check if remember me is enabled
+      const rememberMe = localStorage.getItem('remember_me');
+      if (rememberMe) {
+        // Keep minimal user state for remember me
+        setUser({
+          email: 'user@example.com', // This should come from stored data
+          user_type: 'developer'
+        });
+        return true;
+      } else {
+        // Clear invalid tokens
+        logout();
+        return false;
+      }
     }
-
-    return true;
   };
 
   useEffect(() => {

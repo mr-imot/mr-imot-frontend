@@ -4,7 +4,7 @@
 // Provides the main layout structure for all admin pages
 
 import React, { useState } from 'react';
-import { useAdminAuth } from '@/lib/admin-auth';
+import { useUnifiedAuth } from '@/lib/unified-auth';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
@@ -70,7 +70,7 @@ const navigation: NavItem[] = [
 ];
 
 export function AdminLayout({ children }: AdminLayoutProps) {
-  const { user, logout } = useAdminAuth();
+  const { user, logout } = useUnifiedAuth();
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -83,8 +83,8 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       {/* Header */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
         <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-          {/* Left side - Logo and mobile menu */}
-          <div className="flex items-center space-x-4">
+          {/* Left side - Mobile menu only */}
+          <div className="flex items-center">
             {/* Mobile menu button */}
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
@@ -104,66 +104,11 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                 />
               </SheetContent>
             </Sheet>
-
-            {/* Logo */}
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <Shield className="h-5 w-5 text-white" />
-              </div>
-              <div className="hidden sm:block">
-                <h1 className="text-lg font-semibold text-gray-900">
-                  Admin Panel
-                </h1>
-                <p className="text-xs text-gray-500">MrImot Real Estate</p>
-              </div>
-            </div>
           </div>
 
-          {/* Right side - Notifications and user menu */}
+          {/* Right side - Empty (removed notifications and user menu) */}
           <div className="flex items-center space-x-4">
-            {/* Notifications */}
-            <Button variant="ghost" size="sm" className="relative">
-              <Bell className="h-5 w-5" />
-              <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full" />
-            </Button>
-
-            {/* User menu */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="flex items-center space-x-2">
-                  <Avatar className="h-8 w-8">
-                    <AvatarFallback className="bg-blue-100 text-blue-600 text-sm">
-                      {userInitials}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="hidden sm:block text-left">
-                    <p className="text-sm font-medium text-gray-900">
-                      {user?.email}
-                    </p>
-                    <p className="text-xs text-gray-500">Administrator</p>
-                  </div>
-                  <ChevronDown className="h-4 w-4 text-gray-500" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>Admin Account</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href="/admin/settings" className="cursor-pointer">
-                    <Settings className="mr-2 h-4 w-4" />
-                    Settings
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem 
-                  className="cursor-pointer text-red-600 focus:text-red-600"
-                  onClick={logout}
-                >
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Sign Out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {/* Empty - user profile moved to main header */}
           </div>
         </div>
       </header>
@@ -233,9 +178,9 @@ function MobileSidebar({
           </div>
           <div>
             <h2 className="text-lg font-semibold text-gray-900">
-              Admin Panel
+              MrImot Admin
             </h2>
-            <p className="text-xs text-gray-500">MrImot Real Estate</p>
+            <p className="text-xs text-gray-500">Real Estate Platform</p>
           </div>
         </div>
       </div>

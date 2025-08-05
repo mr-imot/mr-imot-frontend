@@ -9,7 +9,7 @@ export const ERROR_MESSAGES = {
   'Verification token has expired': 'This verification link has expired (valid for 10 minutes). Please request a new one.',
   'Invalid or expired reset token': 'This reset link has expired (valid for 15 minutes). Please request a new one.',
   'Too many requests': 'Too many requests. Please wait 5 minutes before requesting a new link.',
-  'Invalid credentials': 'Invalid email or password. Please try again.',
+  'Invalid credentials': 'Invalid email or password. Please check your credentials and try again.',
   'User not found': 'No account found with this email address.',
   'Email already verified': 'Your email is already verified. You can now sign in.',
   'Invalid token': 'This link is invalid or has been used already.',
@@ -20,6 +20,14 @@ export const ERROR_MESSAGES = {
   'Account not verified': 'Your account is not yet verified. Please check your email for verification instructions.',
   'Email already registered as developer': 'An account with this email already exists. Try signing in instead.',
   'Email already registered': 'An account with this email already exists. Try signing in instead.',
+  'Login failed': 'Login failed. Please check your credentials and try again.',
+  'Validation error': 'Please check your input and try again.',
+  'Invalid input data': 'Please check your input and try again.',
+  'Access denied. This login is for developers only. Please use the admin login if you have an admin account.': 'Access denied. This login is for developers only. Please use the admin login if you have an admin account.',
+  'Connection failed': 'Unable to connect to the server. Please check your internet connection.',
+  'Request timeout': 'Request timed out. Please try again.',
+  'Account disabled': 'This account has been disabled. Please contact support.',
+  'Account locked': 'This account has been temporarily locked due to failed login attempts.',
 } as const;
 
 export const SUCCESS_MESSAGES = {

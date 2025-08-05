@@ -997,7 +997,7 @@ function DeveloperDashboardContent() {
 
 export default function DeveloperDashboardPage() {
   return (
-    <ProtectedRoute>
+    <ProtectedRoute requiredRole="developer">
       <DeveloperDashboardContent />
     </ProtectedRoute>
   )

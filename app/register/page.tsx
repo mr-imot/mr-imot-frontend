@@ -14,14 +14,25 @@ import { registerDeveloper } from "@/lib/api"
 import { validateForm, getFieldError, type FormData, type ValidationError } from "@/lib/validation"
 import { cn } from "@/lib/utils"
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from "@/lib/auth-constants"
+import { createAuthError, getErrorDisplayMessage } from "@/lib/auth-errors"
+import { useUnifiedAuth } from "@/lib/unified-auth"
 import Link from "next/link"
-import { Suspense } from "react"
-import { useSearchParams } from "next/navigation"
+import { Suspense, useEffect } from "react"
+import { useSearchParams, useRouter } from "next/navigation"
 import { Eye, EyeOff, CheckCircle, AlertCircle, Shield, Sparkles, UserPlus, ArrowLeft } from "lucide-react"
 
 function RegisterFormContent() {
   const searchParams = useSearchParams()
   const userType = searchParams.get("type")
+  const router = useRouter()
+  const { isAuthenticated, isLoading: unifiedLoading, getDashboardUrl } = useUnifiedAuth()
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (!unifiedLoading && isAuthenticated) {
+      router.replace(getDashboardUrl())
+    }
+  }, [isAuthenticated, unifiedLoading, router, getDashboardUrl])
 
   const [formData, setFormData] = useState<FormData>({
     companyName: "",
@@ -100,42 +111,26 @@ function RegisterFormContent() {
     } catch (error: any) {
       console.error("Registration error:", error)
       
-      let errorMessage = "Registration failed. Please try again."
+      const errorMessage = error.message || "Registration failed. Please try again."
       
-      // Check for specific error messages from the backend
-      if (error.message) {
-        if (error.message.includes("Email already registered")) {
-          errorMessage = "An account with this email already exists. Try signing in instead."
-        } else if (error.message.includes("Invalid email")) {
-          errorMessage = "Please enter a valid email address."
-        } else if (error.message.includes("Password")) {
-          errorMessage = "Password must be at least 8 characters long."
-        } else if (error.message.includes("Phone")) {
-          errorMessage = "Please enter a valid phone number."
-        } else if (error.message.includes("Terms")) {
-          setErrors([{ field: "acceptTerms", message: "You must accept the Terms of Service and Privacy Policy" }])
-          setIsLoading(false)
-          return
-        } else if (error.message.includes("500") || error.message.includes("Server")) {
-          errorMessage = "Server error. Please try again later."
-        } else {
-          // Use the backend error message directly if it's user-friendly
-          const backendMessage = error.message;
-          if (backendMessage.length < 100 && !backendMessage.includes("HTTP") && !backendMessage.includes("status:")) {
-            errorMessage = backendMessage;
-          }
-        }
+      // Handle terms acceptance as special field-specific error
+      if (errorMessage.toLowerCase().includes("terms") || errorMessage.toLowerCase().includes("accept")) {
+        setErrors([{ field: "acceptTerms", message: "You must accept the Terms of Service and Privacy Policy" }])
+        setIsLoading(false)
+        return
       }
       
-      // Check predefined error messages as fallback
-      const predefinedMessage = ERROR_MESSAGES[error.message as keyof typeof ERROR_MESSAGES]
-      if (predefinedMessage) {
-        errorMessage = predefinedMessage;
-      }
+      // Create structured error
+      const statusCode = error?.statusCode
+      const details = error?.details
+      const authError = createAuthError(errorMessage, statusCode, details)
+      
+      // Get user-friendly error message
+      const displayMessage = getErrorDisplayMessage(authError)
       
       setSubmitStatus({
         type: "error",
-        message: errorMessage
+        message: displayMessage
       })
     } finally {
       setIsLoading(false)

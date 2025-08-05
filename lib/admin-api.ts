@@ -33,6 +33,7 @@ export interface DeveloperStats {
   total_verified: number;
   total_rejected: number;
   recent_applications: number;
+  error?: string;
 }
 
 // Error types for better error handling
@@ -149,61 +150,137 @@ class AdminApiClient {
     });
   }
 
-  // Dashboard statistics (these would need to be implemented in the backend)
+  // Dashboard statistics - try multiple potential endpoints
   async getDeveloperStats(): Promise<DeveloperStats> {
+    const endpoints = [
+      '/api/v1/admin/stats/developers',
+      '/api/v1/admin/stats',
+      '/api/v1/admin/dashboard/stats'
+    ];
+    
+    for (const endpoint of endpoints) {
+      try {
+        const stats = await this.request<DeveloperStats>(endpoint);
+        console.log(`Successfully fetched stats from ${endpoint}:`, stats);
+        return stats;
+      } catch (error) {
+        console.warn(`Stats endpoint ${endpoint} not available:`, error);
+        continue;
+      }
+    }
+    
+    // If all endpoints fail, try to calculate from pending developers
     try {
-      return this.request<DeveloperStats>('/api/v1/admin/stats/developers');
-    } catch (error) {
-      // Return mock data if endpoint doesn't exist yet
-      console.warn('Stats endpoint not available, returning mock data');
+      const pendingDevelopers = await this.getPendingDevelopers();
       return {
-        total_pending: 5,
-        total_verified: 23,
-        total_rejected: 2,
-        recent_applications: 3,
+        total_pending: pendingDevelopers.length,
+        total_verified: 0, // Would need verified developers endpoint
+        total_rejected: 0, // Would need rejected developers endpoint  
+        recent_applications: pendingDevelopers.filter(dev => {
+          const createdDate = new Date(dev.created_at);
+          const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+          return createdDate > dayAgo;
+        }).length,
+      };
+    } catch (error) {
+      // Last resort: return zero stats with error indication
+      console.error('All stats endpoints failed:', error);
+      return {
+        total_pending: 0,
+        total_verified: 0,
+        total_rejected: 0,
+        recent_applications: 0,
+        error: 'Unable to fetch statistics from backend'
       };
     }
   }
 
   async getRecentActivity(): Promise<any[]> {
+    const endpoints = [
+      '/api/v1/admin/activity/recent',
+      '/api/v1/admin/activity', 
+      '/api/v1/admin/logs/recent',
+      '/api/v1/admin/audit/recent'
+    ];
+    
+    for (const endpoint of endpoints) {
+      try {
+        const activity = await this.request<any[]>(endpoint);
+        console.log(`Successfully fetched activity from ${endpoint}:`, activity);
+        return activity;
+      } catch (error) {
+        console.warn(`Activity endpoint ${endpoint} not available:`, error);
+        continue;
+      }
+    }
+    
+    // If no activity endpoint exists, try to derive from pending developers
     try {
-      return this.request<any[]>('/api/v1/admin/activity/recent');
+      const pendingDevelopers = await this.getPendingDevelopers();
+      return pendingDevelopers.slice(0, 5).map(dev => ({
+        id: dev.id,
+        action: 'registered',
+        target: dev.company_name,
+        email: dev.email,
+        timestamp: dev.created_at,
+        type: 'developer_registration'
+      }));
     } catch (error) {
-      // Return mock data if endpoint doesn't exist yet
-      console.warn('Activity endpoint not available, returning mock data');
-      return [
-        {
-          id: '1',
-          action: 'Developer verified',
-          target: 'ABC Construction Ltd.',
-          timestamp: new Date().toISOString(),
-        },
-        {
-          id: '2',
-          action: 'New developer application',
-          target: 'XYZ Builders',
-          timestamp: new Date(Date.now() - 3600000).toISOString(),
-        },
-      ];
+      console.error('All activity endpoints failed:', error);
+      return [{
+        id: 'error',
+        action: 'Unable to fetch recent activity',
+        target: 'Backend connection error',
+        timestamp: new Date().toISOString(),
+        type: 'error'
+      }];
     }
   }
 
-  // System health check
-  async getSystemHealth(): Promise<{ status: string; services: any[] }> {
-    try {
-      return this.request<{ status: string; services: any[] }>('/api/v1/admin/health');
-    } catch (error) {
-      // Return mock data if endpoint doesn't exist yet
-      console.warn('Health endpoint not available, returning mock data');
-      return {
-        status: 'healthy',
-        services: [
-          { name: 'Database', status: 'healthy' },
-          { name: 'Authentication', status: 'healthy' },
-          { name: 'File Storage', status: 'healthy' },
-        ],
-      };
+  // System health check - try multiple health endpoints
+  async getSystemHealth(): Promise<{ status: string; services?: any[]; error?: string }> {
+    const endpoints = [
+      '/api/v1/admin/health',
+      '/api/v1/health',
+      '/api/v1/system/health',
+      '/health'
+    ];
+    
+    for (const endpoint of endpoints) {
+      try {
+        const health = await this.request<any>(endpoint);
+        console.log(`Successfully fetched health from ${endpoint}:`, health);
+        
+        // Normalize response format
+        if (health.status) {
+          return {
+            status: health.status,
+            services: health.services || health.checks || [],
+            lastChecked: new Date().toISOString()
+          };
+        } else {
+          // If response doesn't have expected format, consider it healthy
+          return {
+            status: 'healthy',
+            services: [
+              { name: 'API', status: 'healthy', endpoint }
+            ],
+            lastChecked: new Date().toISOString()
+          };
+        }
+      } catch (error) {
+        console.warn(`Health endpoint ${endpoint} not available:`, error);
+        continue;
+      }
     }
+    
+    // If all health endpoints fail, return unhealthy status
+    return {
+      status: 'unhealthy',
+      error: 'Unable to reach any health endpoints',
+      services: [],
+      lastChecked: new Date().toISOString()
+    };
   }
 
   // Bulk operations for developer management

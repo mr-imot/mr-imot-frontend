@@ -184,6 +184,11 @@ export const useAdminAuthProvider = (): AdminAuthContextType => {
       const adminUser = await AdminAuthAPI.getCurrentAdmin();
       setUser(adminUser);
       
+      // Store the actual user email in sessionStorage for unified auth
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('admin_email', adminUser.email);
+      }
+      
     } catch (error) {
       SecureTokenStorage.clearToken();
       setUser(null);
@@ -197,6 +202,11 @@ export const useAdminAuthProvider = (): AdminAuthContextType => {
   const logout = useCallback(() => {
     SecureTokenStorage.clearToken();
     setUser(null);
+    
+    // Clear admin email from sessionStorage
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('admin_email');
+    }
     
     // Redirect to login page
     if (typeof window !== 'undefined') {

@@ -8,16 +8,26 @@ import { RememberMeCheckbox } from "@/components/ui/remember-me-checkbox"
 import { AuthError } from "@/components/ui/auth-error"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
-import { Suspense } from "react"
+import { Suspense, useEffect } from "react"
 import { LogIn, CheckCircle, Shield, ArrowRight, Sparkles, Mail } from "lucide-react"
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from "@/lib/auth-constants"
 import { useAuth } from "@/lib/auth-context"
+import { useUnifiedAuth } from "@/lib/unified-auth"
+import { createAuthError, getErrorDisplayMessage, AuthenticationError } from "@/lib/auth-errors"
 
 function LoginFormContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const message = searchParams.get('message')
   const { login } = useAuth()
+  const { isAuthenticated, isLoading: unifiedLoading, getDashboardUrl } = useUnifiedAuth()
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (!unifiedLoading && isAuthenticated) {
+      router.replace(getDashboardUrl())
+    }
+  }, [isAuthenticated, unifiedLoading, router, getDashboardUrl])
   
   const [formData, setFormData] = useState({
     email: '',
@@ -61,23 +71,31 @@ function LoginFormContent() {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Login failed'
       
-      try {
-        // Try to parse the error as JSON to handle verification status
-        const errorData = JSON.parse(errorMessage)
-        if (errorData.detail?.verification_status) {
-          setVerificationRequired({
-            email: errorData.detail.email,
-            status: errorData.detail.verification_status,
-            message: errorData.detail.message
-          })
-          return
+      // Handle verification status (only case where we expect JSON)
+      if (errorMessage.startsWith('{') && errorMessage.includes('verification_status')) {
+        try {
+          const errorData = JSON.parse(errorMessage)
+          if (errorData.detail?.verification_status) {
+            setVerificationRequired({
+              email: errorData.detail.email,
+              status: errorData.detail.verification_status,
+              message: errorData.detail.message
+            })
+            return
+          }
+        } catch {
+          // If JSON parsing fails, fall through to regular error handling
         }
-      } catch {
-        // If not JSON, treat as regular error
       }
       
-      const predefinedMessage = ERROR_MESSAGES[errorMessage as keyof typeof ERROR_MESSAGES]
-      setError(predefinedMessage || errorMessage)
+      // Create structured error with status code if available
+      const statusCode = (err as any)?.statusCode
+      const details = (err as any)?.details
+      const authError = createAuthError(errorMessage, statusCode, details)
+      
+      // Get user-friendly error message
+      const displayMessage = getErrorDisplayMessage(authError)
+      setError(displayMessage)
     } finally {
       setIsLoading(false)
     }

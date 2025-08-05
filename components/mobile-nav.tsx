@@ -5,8 +5,76 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
-import { Menu } from "lucide-react"
+import { Menu, LogOut, User, Settings } from "lucide-react"
+import { useUnifiedAuth } from "@/lib/unified-auth"
 import { cn } from "@/lib/utils"
+
+// Auth Actions Component for Mobile
+function AuthActionsSection({ onLinkClick }: { onLinkClick: () => void }) {
+  const { user, isAuthenticated, logout, getDashboardUrl } = useUnifiedAuth();
+
+  if (isAuthenticated && user) {
+    return (
+      <div className="flex flex-col space-y-4">
+        {/* User Info */}
+        <div className="px-4 py-3 bg-ds-neutral-50 rounded-lg">
+          <div className="flex items-center space-x-3">
+            <div className="flex-shrink-0 w-10 h-10 bg-ds-primary-100 rounded-full flex items-center justify-center">
+              <User className="w-5 h-5 text-ds-primary-600" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-ds-neutral-900 truncate">{user.email}</p>
+              <p className="text-xs text-ds-neutral-500 capitalize">{user.user_type} Account</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Dashboard Link */}
+        <Link
+          href={getDashboardUrl()}
+          onClick={onLinkClick}
+          className="flex items-center space-x-3 text-lg font-medium text-ds-neutral-700 hover:text-ds-primary-600 py-3 px-4 rounded-lg hover:bg-ds-neutral-50 transition-all duration-200"
+        >
+          <Settings className="w-5 h-5" />
+          <span>Dashboard</span>
+        </Link>
+
+        {/* Logout Button */}
+        <button
+          onClick={() => {
+            logout();
+            onLinkClick();
+          }}
+          className="flex items-center space-x-3 text-lg font-medium text-red-600 hover:text-red-700 py-3 px-4 rounded-lg hover:bg-red-50 transition-all duration-200 w-full text-left"
+        >
+          <LogOut className="w-5 h-5" />
+          <span>Logout</span>
+        </button>
+      </div>
+    );
+  }
+
+  // Not authenticated
+  return (
+    <div className="flex flex-col space-y-4">
+      <Link
+        href="/login"
+        onClick={onLinkClick}
+        className="text-lg font-medium text-ds-neutral-700 hover:text-ds-primary-600 py-3 px-4 rounded-lg hover:bg-ds-neutral-50 transition-all duration-200"
+      >
+        Sign In
+      </Link>
+      <Button
+        asChild
+        className="bg-ds-primary-600 hover:bg-ds-primary-700 text-white font-semibold py-3 h-12 rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
+      >
+        <Link href="/register?type=developer" onClick={onLinkClick}>
+          List Your Project
+        </Link>
+      </Button>
+    </div>
+  );
+}
 
 export function MobileNav() {
   const [isOpen, setIsOpen] = useState(false)
@@ -59,23 +127,7 @@ export function MobileNav() {
           <div className="border-t border-ds-neutral-200" />
 
           {/* Auth Actions */}
-          <div className="flex flex-col space-y-4">
-            <Link
-              href="/login"
-              onClick={handleLinkClick}
-              className="text-lg font-medium text-ds-neutral-700 hover:text-ds-primary-600 py-3 px-4 rounded-lg hover:bg-ds-neutral-50 transition-all duration-200"
-            >
-              Sign In
-            </Link>
-            <Button
-              asChild
-              className="bg-ds-primary-600 hover:bg-ds-primary-700 text-white font-semibold py-3 h-12 rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
-            >
-              <Link href="/register?type=developer" onClick={handleLinkClick}>
-                List Your Project
-              </Link>
-            </Button>
-          </div>
+          <AuthActionsSection onLinkClick={handleLinkClick} />
 
           {/* Footer Info */}
           <div className="mt-auto pt-8 border-t border-ds-neutral-200">

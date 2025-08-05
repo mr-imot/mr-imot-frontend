@@ -16,6 +16,7 @@ import {
   AdminApiError,
   type PendingDeveloper
 } from '@/lib/admin-api';
+import { notifyDeveloperVerified, notifyDeveloperRejected } from '@/lib/admin-notifications';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -56,6 +57,7 @@ import {
   Download,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { UnifiedAuthProvider } from '@/lib/unified-auth';
 
 function DeveloperManagementContent() {
   const [developers, setDevelopers] = useState<PendingDeveloper[]>([]);
@@ -121,10 +123,33 @@ function DeveloperManagementContent() {
     try {
       setProcessingIds(prev => new Set(prev).add(developerId));
 
+      // Find the developer for notification
+      const developer = developers.find(dev => dev.id === developerId);
+
       if (action === 'verify') {
         await verifyDeveloper(developerId);
+        
+        // Send notification
+        if (developer) {
+          try {
+            const notificationResult = await notifyDeveloperVerified(developer);
+            console.log('Verification notification:', notificationResult.message);
+          } catch (notificationError) {
+            console.error('Error sending verification notification:', notificationError);
+          }
+        }
       } else {
         await rejectDeveloper(developerId);
+        
+        // Send notification
+        if (developer) {
+          try {
+            const notificationResult = await notifyDeveloperRejected(developer);
+            console.log('Rejection notification:', notificationResult.message);
+          } catch (notificationError) {
+            console.error('Error sending rejection notification:', notificationError);
+          }
+        }
       }
 
       // Remove from list
@@ -137,7 +162,7 @@ function DeveloperManagementContent() {
 
     } catch (err) {
       console.error(`Error ${action}ing developer:`, err);
-      // Could show toast notification
+      setError(`Failed to ${action} developer. Please try again.`);
     } finally {
       setProcessingIds(prev => {
         const newSet = new Set(prev);
@@ -155,10 +180,31 @@ function DeveloperManagementContent() {
       setProcessingBulk(true);
       const ids = Array.from(selectedDevelopers);
 
+      // Find selected developers for notifications
+      const selectedDevs = developers.filter(dev => selectedDevelopers.has(dev.id));
+
       if (action === 'verify') {
         await bulkVerifyDevelopers(ids);
+        
+        // Send notifications for all verified developers
+        for (const developer of selectedDevs) {
+          try {
+            await notifyDeveloperVerified(developer);
+          } catch (notificationError) {
+            console.error('Error sending bulk verification notification:', notificationError);
+          }
+        }
       } else {
         await bulkRejectDevelopers(ids);
+        
+        // Send notifications for all rejected developers
+        for (const developer of selectedDevs) {
+          try {
+            await notifyDeveloperRejected(developer);
+          } catch (notificationError) {
+            console.error('Error sending bulk rejection notification:', notificationError);
+          }
+        }
       }
 
       // Remove from list
@@ -167,7 +213,7 @@ function DeveloperManagementContent() {
 
     } catch (err) {
       console.error(`Error bulk ${action}ing developers:`, err);
-      // Could show toast notification
+      setError(`Failed to bulk ${action} developers. Please try again.`);
     } finally {
       setProcessingBulk(false);
     }
@@ -594,12 +640,12 @@ function DeveloperManagementSkeleton() {
 // Main component with providers
 export default function DeveloperManagementPage() {
   return (
-    <AdminAuthProvider>
+    <UnifiedAuthProvider>
       <ProtectedRoute>
         <AdminLayout>
           <DeveloperManagementContent />
         </AdminLayout>
       </ProtectedRoute>
-    </AdminAuthProvider>
+    </UnifiedAuthProvider>
   );
 } 

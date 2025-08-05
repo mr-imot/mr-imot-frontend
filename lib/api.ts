@@ -1,6 +1,8 @@
 // API service layer for NovaDom Real Estate Platform
 // Handles all backend communication with proper authentication
 
+import { withRetry, isNetworkError, getConnectionErrorMessage } from './network-utils'
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 // Types for API responses
@@ -290,30 +292,51 @@ class ApiClient {
     });
   }
 
-  // Developer login
+  // Developer login with retry logic
   async loginDeveloper(email: string, password: string): Promise<{
     access_token: string;
     token_type: string;
     expires_in: number;
     user_type: string;
   }> {
-    const response = await fetch(`${this.baseURL}/api/v1/auth/token`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams({
-        username: email,
-        password: password,
-      }),
+    return withRetry(async () => {
+      const response = await fetch(`${this.baseURL}/api/v1/auth/token`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          username: email,
+          password: password,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        
+        // Handle verification status as special case (still needs JSON)
+        if (response.status === 422 && errorData.detail?.verification_status) {
+          throw new Error(JSON.stringify(errorData));
+        }
+        
+        // For all other errors, throw the appropriate message
+        const errorMessage = errorData.detail || errorData.message || `HTTP ${response.status}: Login failed`;
+        const error = new Error(errorMessage);
+        
+        // Add status code for better error handling downstream
+        (error as any).statusCode = response.status;
+        (error as any).details = errorData;
+        
+        throw error;
+      }
+
+      return response.json();
+    }, {
+      maxRetries: 2, // Lower retries for login attempts
+      baseDelay: 1000,
+      maxDelay: 5000,
+      backoffFactor: 2
     });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(JSON.stringify(errorData));
-    }
-
-    return response.json();
   }
 
   // Auth health check
