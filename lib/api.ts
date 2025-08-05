@@ -1,7 +1,7 @@
 // API service layer for NovaDom Real Estate Platform
 // Handles all backend communication with proper authentication
 
-import { withRetry, isNetworkError, getConnectionErrorMessage } from './network-utils'
+import { withRetry, isNetworkError, getConnectionErrorMessage, AUTH_RETRY_OPTIONS } from './network-utils'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -161,7 +161,10 @@ class ApiClient {
   }
 
   async getCurrentDeveloper(): Promise<Developer> {
-    return this.request('/api/v1/developers/me');
+    // Use optimized retry options for auth calls
+    return withRetry(async () => {
+      return this.request('/api/v1/developers/me');
+    }, AUTH_RETRY_OPTIONS);
   }
 
   async getDeveloperStats(): Promise<DeveloperStats> {
@@ -331,12 +334,7 @@ class ApiClient {
       }
 
       return response.json();
-    }, {
-      maxRetries: 2, // Lower retries for login attempts
-      baseDelay: 1000,
-      maxDelay: 5000,
-      backoffFactor: 2
-    });
+    }, AUTH_RETRY_OPTIONS); // Use optimized auth retry options
   }
 
   // Auth health check

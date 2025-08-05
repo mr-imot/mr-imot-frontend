@@ -3,8 +3,9 @@ export const config = {
   // API Configuration
   api: {
     baseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
-    timeout: 10000, // 10 seconds
-    retryAttempts: 3,
+    timeout: 5000, // Reduced from 10s to 5s for faster failures
+    authTimeout: 3000, // Special timeout for auth calls
+    retryAttempts: 2, // Reduced from 3 for faster failures
     healthCheckEndpoint: '/health',
   },
 

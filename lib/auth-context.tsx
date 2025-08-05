@@ -53,6 +53,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       // Store the token securely
       localStorage.setItem('auth_token', response.access_token);
       localStorage.setItem('auth_expires', (Date.now() + response.expires_in * 1000).toString());
+      localStorage.setItem('user_email', email); // Cache email for faster future loads
       
       // Set user info
       setUser({
@@ -72,6 +73,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('auth_expires');
     localStorage.removeItem('remember_me');
+    localStorage.removeItem('user_email'); // Clear cached email
     setUser(null);
     
     // Redirect to login page
@@ -96,18 +98,45 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       return false;
     }
 
-    // For now, we'll assume the token is valid if it exists and hasn't expired
-    // In a real app, you might want to validate the token with the backend
+    // OPTIMIZATION: Try cached user data first for faster initial load
+    const cachedUserEmail = localStorage.getItem('user_email');
+    if (cachedUserEmail) {
+      setUser({
+        email: cachedUserEmail,
+        user_type: 'developer'
+      });
+    }
+
+    // Validate token with backend in background (non-blocking)
     try {
-      // Try to get current user info if we have a token
-      const userInfo = await getCurrentDeveloper();
+      // Use Promise.race with timeout for faster failure detection
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Auth validation timeout')), 5000)
+      );
+      
+      const userInfo = await Promise.race([
+        getCurrentDeveloper(),
+        timeoutPromise
+      ]);
+      
+      // Update with fresh data from API
       setUser({
         email: userInfo.email,
         user_type: 'developer'
       });
+      
+      // Cache user email for faster future loads
+      localStorage.setItem('user_email', userInfo.email);
       return true;
     } catch (error) {
-      // If we can't get user info, check if remember me is enabled
+      console.warn('Auth validation failed, using fallback:', error);
+      
+      // If we have cached user data, keep using it
+      if (cachedUserEmail) {
+        return true;
+      }
+      
+      // Check if remember me is enabled
       const rememberMe = localStorage.getItem('remember_me');
       if (rememberMe) {
         // Keep minimal user state for remember me

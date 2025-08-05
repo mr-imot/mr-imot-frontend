@@ -49,18 +49,49 @@ export const useDeveloperDashboard = (period: string = 'week'): UseDeveloperDash
       setLoading(true);
       setError(null);
 
-      // Fetch all dashboard data in parallel
+      // OPTIMIZATION: Set loading to false early to show partial data
+      // Use a timeout to prevent indefinite loading states
+      const timeoutId = setTimeout(() => {
+        setLoading(false);
+        console.warn('Dashboard data loading timeout, showing partial results');
+      }, 3000); // 3 second timeout for better UX
+
+      // Fetch all dashboard data in parallel with individual timeouts
       const [statsData, analyticsData, projectsData] = await Promise.allSettled([
-        getDeveloperStats(),
-        getDeveloperAnalytics(period),
-        getDeveloperProjects({ per_page: 20 })
+        Promise.race([
+          getDeveloperStats(),
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Stats timeout')), 2000)
+          )
+        ]),
+        Promise.race([
+          getDeveloperAnalytics(period),
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Analytics timeout')), 2000)
+          )
+        ]),
+        Promise.race([
+          getDeveloperProjects({ per_page: 20 }),
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Projects timeout')), 2000)
+          )
+        ])
       ]);
+
+      clearTimeout(timeoutId);
 
       // Handle stats
       if (statsData.status === 'fulfilled') {
         setStats(statsData.value);
       } else {
         console.error('Failed to fetch stats:', statsData.reason);
+        // Set default stats to prevent blank UI
+        setStats({
+          total_projects: 0,
+          active_projects: 0,
+          total_views: 0,
+          total_inquiries: 0
+        });
       }
 
       // Handle analytics
@@ -68,6 +99,7 @@ export const useDeveloperDashboard = (period: string = 'week'): UseDeveloperDash
         setAnalytics(analyticsData.value);
       } else {
         console.error('Failed to fetch analytics:', analyticsData.reason);
+        // Keep analytics as null - component should handle this gracefully
       }
 
       // Handle projects
@@ -76,7 +108,7 @@ export const useDeveloperDashboard = (period: string = 'week'): UseDeveloperDash
         setProjects(transformedProjects);
       } else {
         console.error('Failed to fetch projects:', projectsData.reason);
-        setProjects(null);
+        setProjects([]); // Show empty array instead of null for better UX
       }
 
     } catch (err) {

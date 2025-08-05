@@ -8,6 +8,11 @@ import { AdminLayout } from '@/components/admin/admin-layout';
 import { ProtectedRoute } from '@/components/admin/protected-route';
 import { UnifiedAuthProvider } from '@/lib/unified-auth';
 import { SessionTimeoutWarning } from '@/components/admin/session-timeout-warning';
+import { NotificationCenter } from '@/components/admin/notification-center';
+import { AuditLogs } from '@/components/admin/audit-logs';
+import { ActivityTimeline } from '@/components/admin/activity-timeline';
+import { EnhancedSystemHealth } from '@/components/admin/enhanced-system-health';
+import { QuickHealthStatus } from '@/components/admin/quick-health-status';
 import { 
   getDeveloperStats, 
   getRecentActivity, 
@@ -15,9 +20,12 @@ import {
   getPendingDevelopers,
   verifyDeveloper,
   rejectDeveloper,
+  getAdminStats,
   AdminApiError,
   type PendingDeveloper,
-  type DeveloperStats
+  type DeveloperStats,
+  type AdminStats,
+  type SystemHealth
 } from '@/lib/admin-api';
 import { 
   notifyDeveloperVerified, 
@@ -28,6 +36,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Users,
   UserCheck,
@@ -39,18 +48,27 @@ import {
   ExternalLink,
   RefreshCw,
   AlertTriangle,
+  BarChart3,
+  Activity,
+  Shield,
+  Mail,
+  Settings,
+  Database,
+  Globe
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 
 function AdminDashboardContent() {
   const [stats, setStats] = useState<DeveloperStats | null>(null);
+  const [adminStats, setAdminStats] = useState<AdminStats | null>(null);
   const [pendingDevelopers, setPendingDevelopers] = useState<PendingDeveloper[]>([]);
   const [recentActivity, setRecentActivity] = useState<any[]>([]);
-  const [systemHealth, setSystemHealth] = useState<{ status: string; services?: any[]; error?: string; lastChecked?: string } | null>(null);
+  const [systemHealth, setSystemHealth] = useState<SystemHealth | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [processingDevelopers, setProcessingDevelopers] = useState<Set<string>>(new Set());
+  const [activeTab, setActiveTab] = useState('overview');
 
   // Load dashboard data
   const loadDashboardData = async () => {
@@ -58,14 +76,16 @@ function AdminDashboardContent() {
       setLoading(true);
       setError('');
 
-      const [statsData, developersData, activityData, healthData] = await Promise.all([
+      const [statsData, adminStatsData, developersData, activityData, healthData] = await Promise.all([
         getDeveloperStats(),
+        getAdminStats(),
         getPendingDevelopers(),
         getRecentActivity(),
         getSystemHealth(),
       ]);
 
       setStats(statsData);
+      setAdminStats(adminStatsData);
       setPendingDevelopers(developersData);
       setRecentActivity(activityData);
       setSystemHealth(healthData);
@@ -141,11 +161,13 @@ function AdminDashboardContent() {
       
       // Fetch fresh stats from backend to ensure accuracy
       try {
-        const [updatedStats, updatedActivity] = await Promise.all([
+        const [updatedStats, updatedAdminStats, updatedActivity] = await Promise.all([
           getDeveloperStats(),
+          getAdminStats(),
           getRecentActivity()
         ]);
         setStats(updatedStats);
+        setAdminStats(updatedAdminStats);
         setRecentActivity(updatedActivity);
       } catch (statsError) {
         console.error('Error fetching updated stats:', statsError);
@@ -194,73 +216,186 @@ function AdminDashboardContent() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-          <p className="text-gray-600">
-            Overview of system activity and pending developer applications
+          <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+          <p className="text-gray-600 mt-1">
+            Comprehensive overview of system activity and developer management
           </p>
         </div>
-        <Button onClick={loadDashboardData} variant="outline" size="sm">
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Refresh
-        </Button>
+        <div className="flex items-center space-x-3">
+          <Button onClick={loadDashboardData} variant="outline" size="sm">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Refresh
+          </Button>
+          <Badge variant="outline" className="text-sm">
+            Last updated: {new Date().toLocaleTimeString()}
+          </Badge>
+        </div>
       </div>
 
-      {/* Statistics Cards */}
+      {/* Enhanced Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
-          title="Pending Developers"
-          value={stats?.total_pending || 0}
-          icon={Clock}
-          color="orange"
-          change={stats?.error ? "Stats unavailable" : "+2 this week"}
+          title="Total Developers"
+          value={adminStats?.total_developers || stats?.total_verified || 0}
+          icon={Users}
+          color="blue"
+          change={`${adminStats?.total_verified_developers || 0} verified`}
           hasError={!!stats?.error}
         />
         <StatCard
-          title="Verified Developers"
-          value={stats?.total_verified || 0}
-          icon={UserCheck}
+          title="Pending Verifications"
+          value={stats?.total_pending || 0}
+          icon={Clock}
+          color="orange"
+          change={`${stats?.recent_applications || 0} new today`}
+          hasError={!!stats?.error}
+        />
+        <StatCard
+          title="Total Projects"
+          value={adminStats?.total_projects || 0}
+          icon={Database}
           color="green"
-          change="+5 this month"
+          change="Active listings"
         />
         <StatCard
-          title="Rejected Applications"
-          value={stats?.total_rejected || 0}
-          icon={UserX}
-          color="red"
-          change="2 this month"
-        />
-        <StatCard
-          title="Recent Applications"
-          value={stats?.recent_applications || 0}
-          icon={TrendingUp}
-          color="blue"
-          change="Last 24 hours"
+          title="System Health"
+          value={systemHealth?.status === 'healthy' ? 'Healthy' : 'Issues'}
+          icon={systemHealth?.status === 'healthy' ? CheckCircle : AlertTriangle}
+          color={systemHealth?.status === 'healthy' ? 'green' : 'red'}
+          change={systemHealth?.lastChecked ? 'Last checked: ' + new Date(systemHealth.lastChecked).toLocaleTimeString() : 'Unknown'}
         />
       </div>
 
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Pending Developers */}
-        <div className="lg:col-span-2">
+      {/* Main Dashboard Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="grid w-full grid-cols-6">
+          <TabsTrigger value="overview" className="flex items-center space-x-2">
+            <BarChart3 className="h-4 w-4" />
+            <span>Overview</span>
+          </TabsTrigger>
+          <TabsTrigger value="developers" className="flex items-center space-x-2">
+            <Users className="h-4 w-4" />
+            <span>Developers</span>
+          </TabsTrigger>
+          <TabsTrigger value="health" className="flex items-center space-x-2">
+            <Activity className="h-4 w-4" />
+            <span>System Health</span>
+          </TabsTrigger>
+          <TabsTrigger value="activity" className="flex items-center space-x-2">
+            <Activity className="h-4 w-4" />
+            <span>Activity</span>
+          </TabsTrigger>
+          <TabsTrigger value="audit" className="flex items-center space-x-2">
+            <Shield className="h-4 w-4" />
+            <span>Audit Logs</span>
+          </TabsTrigger>
+          <TabsTrigger value="notifications" className="flex items-center space-x-2">
+            <Mail className="h-4 w-4" />
+            <span>Notifications</span>
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Overview Tab */}
+        <TabsContent value="overview" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Pending Developers */}
+            <div className="lg:col-span-2">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle className="flex items-center space-x-2">
+                    <Users className="h-5 w-5" />
+                    <span>Pending Developer Applications</span>
+                  </CardTitle>
+                  <Badge variant="secondary">
+                    {pendingDevelopers.length} pending
+                  </Badge>
+                </CardHeader>
+                <CardContent>
+                  {pendingDevelopers.length === 0 ? (
+                    <div className="text-center py-8 text-gray-500">
+                      <Users className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                      <p>No pending developer applications</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {pendingDevelopers.slice(0, 5).map((developer) => (
+                        <DeveloperApplicationCard
+                          key={developer.id}
+                          developer={developer}
+                          onVerify={() => handleDeveloperAction(developer.id, 'verify')}
+                          onReject={() => handleDeveloperAction(developer.id, 'reject')}
+                          isProcessing={processingDevelopers.has(developer.id)}
+                        />
+                      ))}
+                      {pendingDevelopers.length > 5 && (
+                        <div className="text-center pt-4 border-t">
+                          <Button variant="outline" asChild>
+                            <Link href="/admin/developers">
+                              View All {pendingDevelopers.length} Applications
+                            </Link>
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Enhanced System Health & Recent Activity */}
+            <div className="space-y-6">
+              {/* Quick System Health Status */}
+              <QuickHealthStatus healthData={systemHealth} />
+
+              {/* Quick Stats */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <TrendingUp className="h-5 w-5" />
+                    <span>Quick Stats</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Verified Developers</span>
+                    <Badge variant="outline">{adminStats?.total_verified_developers || 0}</Badge>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Rejected Applications</span>
+                    <Badge variant="outline">{adminStats?.total_rejected_developers || 0}</Badge>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Total Projects</span>
+                    <Badge variant="outline">{adminStats?.total_projects || 0}</Badge>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Recent Activity</span>
+                    <Badge variant="outline">{adminStats?.recent_activity_count || 0}</Badge>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </TabsContent>
+
+        {/* Developers Tab */}
+        <TabsContent value="developers" className="space-y-6">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
+            <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <Users className="h-5 w-5" />
-                <span>Pending Developer Applications</span>
+                <span>Developer Management</span>
               </CardTitle>
-              <Badge variant="secondary">
-                {pendingDevelopers.length} pending
-              </Badge>
             </CardHeader>
             <CardContent>
-              {pendingDevelopers.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  <Users className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                  <p>No pending developer applications</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {pendingDevelopers.slice(0, 5).map((developer) => (
+              <div className="space-y-4">
+                {pendingDevelopers.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    <Users className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                    <p>No pending developer applications</p>
+                  </div>
+                ) : (
+                  pendingDevelopers.map((developer) => (
                     <DeveloperApplicationCard
                       key={developer.id}
                       developer={developer}
@@ -268,164 +403,41 @@ function AdminDashboardContent() {
                       onReject={() => handleDeveloperAction(developer.id, 'reject')}
                       isProcessing={processingDevelopers.has(developer.id)}
                     />
-                  ))}
-                  {pendingDevelopers.length > 5 && (
-                    <div className="text-center pt-4 border-t">
-                      <Button variant="outline" asChild>
-                        <Link href="/admin/developers">
-                          View All {pendingDevelopers.length} Applications
-                        </Link>
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* System Activity & Health */}
-        <div className="space-y-6">
-          {/* System Health */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="flex items-center space-x-2">
-                {systemHealth?.status === 'healthy' ? (
-                  <CheckCircle className="h-5 w-5 text-green-600" />
-                ) : systemHealth?.status === 'unhealthy' ? (
-                  <XCircle className="h-5 w-5 text-red-600" />
-                ) : (
-                  <AlertTriangle className="h-5 w-5 text-amber-600" />
-                )}
-                <span>System Health</span>
-              </CardTitle>
-              <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={loadDashboardData}
-                disabled={loading}
-              >
-                <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-              </Button>
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-3/4" />
-                </div>
-              ) : systemHealth ? (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium capitalize">
-                      Status: {systemHealth.status}
-                    </p>
-                    {systemHealth.lastChecked && (
-                      <p className="text-xs text-gray-500">
-                        {new Date(systemHealth.lastChecked).toLocaleTimeString()}
-                      </p>
-                    )}
-                  </div>
-                  
-                  {systemHealth.error ? (
-                    <Alert variant="destructive">
-                      <AlertTriangle className="h-4 w-4" />
-                      <AlertDescription className="text-xs">
-                        {systemHealth.error}
-                      </AlertDescription>
-                    </Alert>
-                  ) : systemHealth.services && systemHealth.services.length > 0 ? (
-                    <div className="space-y-2">
-                      {systemHealth.services.map((service: any, index: number) => (
-                        <div key={index} className="flex items-center justify-between">
-                          <span className="text-sm font-medium">{service.name}</span>
-                          <Badge 
-                            variant={service.status === 'healthy' ? 'default' : 'destructive'}
-                            className="text-xs"
-                          >
-                            {service.status}
-                          </Badge>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-4 text-gray-500">
-                      <p className="text-sm">No detailed health information available</p>
-                      <p className="text-xs mt-1">Backend health endpoints may not be configured</p>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="text-center py-4 text-gray-500">
-                  <AlertTriangle className="h-6 w-6 mx-auto mb-2 text-amber-500" />
-                  <p className="text-sm">Health data unavailable</p>
-                  <p className="text-xs mt-1">Check backend connection</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Recent Activity */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <TrendingUp className="h-5 w-5" />
-                <span>Recent Activity</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {loading ? (
-                  Array.from({ length: 3 }).map((_, i) => (
-                    <div key={i} className="space-y-2">
-                      <Skeleton className="h-4 w-full" />
-                      <Skeleton className="h-3 w-3/4" />
-                    </div>
-                  ))
-                ) : recentActivity.length === 0 ? (
-                  <div className="text-center py-6 text-gray-500">
-                    <TrendingUp className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-                    <p className="text-sm">No recent activity</p>
-                    <p className="text-xs mt-1">Activity will appear here as developers register and get verified</p>
-                  </div>
-                ) : (
-                  recentActivity.slice(0, 5).map((activity, index) => (
-                    <div key={activity.id || index} className="flex items-start space-x-3 p-3 rounded-lg border bg-gray-50">
-                      <div className="flex-shrink-0">
-                        {activity.type === 'error' ? (
-                          <XCircle className="h-4 w-4 text-red-500 mt-1" />
-                        ) : activity.action === 'registered' ? (
-                          <Users className="h-4 w-4 text-blue-500 mt-1" />
-                        ) : activity.action.toLowerCase().includes('verify') ? (
-                          <CheckCircle className="h-4 w-4 text-green-500 mt-1" />
-                        ) : (
-                          <Clock className="h-4 w-4 text-gray-500 mt-1" />
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium leading-none">
-                          {activity.action === 'registered' ? 'New Registration' : activity.action}
-                        </p>
-                        <p className="text-sm text-gray-600 mt-1">
-                          {activity.target}
-                        </p>
-                        {activity.email && (
-                          <p className="text-xs text-gray-500 mt-1">
-                            {activity.email}
-                          </p>
-                        )}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {new Date(activity.timestamp).toLocaleDateString()}
-                      </div>
-                    </div>
                   ))
                 )}
               </div>
             </CardContent>
           </Card>
-        </div>
-      </div>
+        </TabsContent>
+
+        {/* System Health Tab */}
+        <TabsContent value="health" className="space-y-6">
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">System Health Dashboard</h2>
+              <p className="text-gray-600">
+                Real-time monitoring of system performance, database connectivity, and resource usage.
+              </p>
+            </div>
+            <EnhancedSystemHealth refreshInterval={15000} />
+          </div>
+        </TabsContent>
+
+        {/* Activity Tab */}
+        <TabsContent value="activity" className="space-y-6">
+          <ActivityTimeline />
+        </TabsContent>
+
+        {/* Audit Logs Tab */}
+        <TabsContent value="audit" className="space-y-6">
+          <AuditLogs />
+        </TabsContent>
+
+        {/* Notifications Tab */}
+        <TabsContent value="notifications" className="space-y-6">
+          <NotificationCenter pendingDevelopers={pendingDevelopers} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
@@ -440,7 +452,7 @@ function StatCard({
   hasError = false
 }: { 
   title: string;
-  value: number;
+  value: string | number;
   icon: React.ComponentType<{ className?: string }>;
   color: 'orange' | 'green' | 'red' | 'blue';
   change: string;
@@ -454,7 +466,7 @@ function StatCard({
   };
 
   return (
-    <Card>
+    <Card className="hover:shadow-md transition-shadow">
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
           <div>
@@ -487,7 +499,7 @@ function DeveloperApplicationCard({
   isProcessing: boolean;
 }) {
   return (
-    <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+    <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
       <div className="flex-1">
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
@@ -514,6 +526,9 @@ function DeveloperApplicationCard({
               <ExternalLink className="h-3 w-3" />
             </a>
           )}
+          <span className="text-xs text-gray-400">
+            Applied: {new Date(developer.created_at).toLocaleDateString()}
+          </span>
         </div>
       </div>
 

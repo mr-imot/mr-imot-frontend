@@ -8,10 +8,18 @@ export interface RetryOptions {
 }
 
 export const DEFAULT_RETRY_OPTIONS: RetryOptions = {
-  maxRetries: 3,
-  baseDelay: 1000, // 1 second
-  maxDelay: 10000, // 10 seconds
-  backoffFactor: 2
+  maxRetries: 2, // Reduced from 3 for faster failures
+  baseDelay: 500, // Reduced from 1000ms for faster retries
+  maxDelay: 5000, // Reduced from 10 seconds
+  backoffFactor: 1.5 // Reduced from 2 for less aggressive backoff
+};
+
+// Optimized retry options for authentication calls
+export const AUTH_RETRY_OPTIONS: RetryOptions = {
+  maxRetries: 1, // Only 1 retry for auth calls
+  baseDelay: 300, // Very fast retry for better UX
+  maxDelay: 1000, // Max 1 second delay
+  backoffFactor: 1.2
 };
 
 export const shouldRetryRequest = (error: any): boolean => {
