@@ -48,7 +48,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-16">
           {/* Trust Indicators Column */}
           <div className="lg:col-span-1">
-            <h3 className="text-xl font-bold text-white mb-8">Why Choose MrImot</h3>
+            <h3 className="text-xl font-bold text-white mb-8">Why Choose Mr imot</h3>
             <div className="space-y-6">
               {trustIndicators.map((item, index) => (
                 <div key={index} className="flex items-start space-x-4">
@@ -91,10 +91,10 @@ export function Footer() {
                 <div>
                   <h4 className="font-semibold text-white mb-1">Email</h4>
                   <a
-                    href="mailto:info@mrimot.com"
+                    href="mailto:info@Mr imot.com"
                     className="text-ds-neutral-300 hover:text-white transition-colors duration-200"
                   >
-                    info@mrimot.com
+                    info@Mr imot.com
                   </a>
                 </div>
               </div>
@@ -119,7 +119,7 @@ export function Footer() {
                 <div>
                   <h4 className="font-semibold text-white mb-1">Address</h4>
                   <p className="text-ds-neutral-300 leading-relaxed">
-                    123 MrImot Street
+                    123 Mr imot Street
                     <br />
                     Sofia, Bulgaria
                   </p>
@@ -178,7 +178,7 @@ export function Footer() {
             {/* Copyright */}
             <div className="text-center md:text-left">
               <p className="text-ds-neutral-300 text-sm">
-                &copy; {new Date().getFullYear()} MrImot. All rights reserved.
+                &copy; {new Date().getFullYear()} Mr imot. All rights reserved.
               </p>
               <p className="text-ds-neutral-400 text-xs mt-1">Connecting you directly with real estate developers.</p>
             </div>

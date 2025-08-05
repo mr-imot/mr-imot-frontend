@@ -13,7 +13,7 @@ import { UnifiedAuthProvider } from "@/lib/unified-auth"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "MrImot - Real Estate Development Directory",
+  title: "Mr imot - Real Estate Development Directory",
   description: "Find and connect with real estate developers directly. No brokers, no BS.",
     generator: 'v0.dev'
 }

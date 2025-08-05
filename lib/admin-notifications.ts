@@ -73,7 +73,7 @@ export class AdminNotificationService {
           companyName: developer.company_name,
           contactPerson: developer.contact_person,
           reason: reason || 'Application did not meet our current requirements',
-          supportEmail: 'support@mrimot.com'
+          supportEmail: 'support@Mr imot.com'
         },
         status: 'pending',
         createdAt: new Date().toISOString()
@@ -100,7 +100,7 @@ export class AdminNotificationService {
       
       const notification: EmailNotification = {
         id: `notif_${Date.now()}`,
-        to: 'admin@mrimot.com', // Admin email
+        to: 'admin@Mr imot.com', // Admin email
         subject: `New Developer Application: ${developer.company_name}`,
         template: 'new_application',
         data: {
@@ -231,14 +231,14 @@ export class AdminNotificationService {
           <p>Dear {{contactPerson}},</p>
           <p>We're excited to inform you that your developer application for <strong>{{companyName}}</strong> has been approved!</p>
           <p>You can now access your developer dashboard at: <a href="{{dashboardUrl}}">Developer Dashboard</a></p>
-          <p>Welcome to the MrImot platform!</p>
+          <p>Welcome to the Mr imot platform!</p>
         `,
         textContent: `
           Congratulations! Your application has been approved.
           Dear {{contactPerson}},
           We're excited to inform you that your developer application for {{companyName}} has been approved!
           You can now access your developer dashboard at: {{dashboardUrl}}
-          Welcome to the MrImot platform!
+          Welcome to the Mr imot platform!
         `
       },
       developer_rejected: {
@@ -246,7 +246,7 @@ export class AdminNotificationService {
         htmlContent: `
           <h2>Developer Application Update</h2>
           <p>Dear {{contactPerson}},</p>
-          <p>Thank you for your interest in joining the MrImot platform.</p>
+          <p>Thank you for your interest in joining the Mr imot platform.</p>
           <p>After careful review, we're unable to approve your application for <strong>{{companyName}}</strong> at this time.</p>
           <p><strong>Reason:</strong> {{reason}}</p>
           <p>If you have any questions, please contact us at {{supportEmail}}</p>
@@ -254,7 +254,7 @@ export class AdminNotificationService {
         textContent: `
           Developer Application Update
           Dear {{contactPerson}},
-          Thank you for your interest in joining the MrImot platform.
+          Thank you for your interest in joining the Mr imot platform.
           After careful review, we're unable to approve your application for {{companyName}} at this time.
           Reason: {{reason}}
           If you have any questions, please contact us at {{supportEmail}}

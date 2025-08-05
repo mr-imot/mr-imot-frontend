@@ -357,8 +357,8 @@ function DeveloperDashboardContent() {
     <div className="min-h-screen bg-slate-50 flex flex-col">
       {/* Hero Section */}
       <DeveloperDashboardHero
-        companyName="MrImot Developments"
-        companyLogoUrl="/images/mrimot-logo.png"
+        companyName="Mr imot Developments"
+        companyLogoUrl="/images/Mr imot-logo.png"
         planTier="Pro"
         activeListings={7}
         totalViews={2847}
@@ -579,17 +579,17 @@ function DeveloperDashboardContent() {
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <Label htmlFor="company-name">Company Name</Label>
-                          <DSInput id="company-name" defaultValue="MrImot Developments" />
+                          <DSInput id="company-name" defaultValue="Mr imot Developments" />
                         </div>
                         <div>
                           <Label htmlFor="company-website">Website</Label>
-                          <DSInput id="company-website" defaultValue="www.mrimot.com" />
+                          <DSInput id="company-website" defaultValue="www.Mr imot.com" />
                         </div>
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <Label htmlFor="company-email">Contact Email</Label>
-                          <DSInput id="company-email" defaultValue="contact@mrimot.com" />
+                          <DSInput id="company-email" defaultValue="contact@Mr imot.com" />
                         </div>
                         <div>
                           <Label htmlFor="company-phone">Phone Number</Label>
@@ -805,7 +805,7 @@ function DeveloperDashboardContent() {
                     </div>
                     <div>
                       <Label htmlFor="email">Email Address</Label>
-                      <DSInput id="email" type="email" defaultValue="john@mrimot.com" />
+                      <DSInput id="email" type="email" defaultValue="john@Mr imot.com" />
                     </div>
                     <div>
                       <Label htmlFor="phone">Phone Number</Label>

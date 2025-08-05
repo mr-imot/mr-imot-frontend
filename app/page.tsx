@@ -143,7 +143,7 @@ export default function HomePage() {
   const testimonials = [
     {
       quote:
-        "My family wanted to love our neighborhood but wanted to stop renting and buy something. We found a project near us via MrImot and contacted the developer without brokers. It was so easy!",
+        "My family wanted to love our neighborhood but wanted to stop renting and buy something. We found a project near us via Mr imot and contacted the developer without brokers. It was so easy!",
       author: "The Ivanovi Family",
       role: "First-time Homebuyers",
       imageSrc: "/placeholder.svg?height=48&width=48",
@@ -151,7 +151,7 @@ export default function HomePage() {
     },
     {
       quote:
-        "I wanted to invest directly with a developer for the best prices, without fake listings from brokers. I don't like paying for commissions or wasting my time. MrImot delivered exactly that.",
+        "I wanted to invest directly with a developer for the best prices, without fake listings from brokers. I don't like paying for commissions or wasting my time. Mr imot delivered exactly that.",
       author: "Ivan Ivanov",
       role: "Savvy Investor",
       imageSrc: "/placeholder.svg?height=48&width=48",
@@ -159,7 +159,7 @@ export default function HomePage() {
     },
     {
       quote:
-        "Finding an apartment for my daughter studying medicine in Plovdiv was a breeze. MrImot connected me directly to a reputable developer, ensuring a smooth and transparent process.",
+        "Finding an apartment for my daughter studying medicine in Plovdiv was a breeze. Mr imot connected me directly to a reputable developer, ensuring a smooth and transparent process.",
       author: "Georgi Petrov",
       role: "Father & Investor",
       imageSrc: "/placeholder.svg?height=48&width=48",
@@ -167,7 +167,7 @@ export default function HomePage() {
     },
     {
       quote:
-        "MrImot helped us discover a fantastic new development that perfectly matched our needs as a young couple. The direct communication with the builder saved us so much time and money.",
+        "Mr imot helped us discover a fantastic new development that perfectly matched our needs as a young couple. The direct communication with the builder saved us so much time and money.",
       author: "Maria & Alex",
       role: "Young Couple",
       imageSrc: "/placeholder.svg?height=48&width=48",
@@ -175,7 +175,7 @@ export default function HomePage() {
     },
     {
       quote:
-        "As a real estate investor, I've used many platforms, but MrImot's direct developer access has saved me thousands in broker fees. The transparency is unmatched.",
+        "As a real estate investor, I've used many platforms, but Mr imot's direct developer access has saved me thousands in broker fees. The transparency is unmatched.",
       author: "Stefan Dimitrov",
       role: "Property Investor",
       imageSrc: "/placeholder.svg?height=48&width=48",
@@ -183,7 +183,7 @@ export default function HomePage() {
     },
     {
       quote:
-        "We were skeptical about buying off-plan, but MrImot's verified listings and direct developer communication gave us confidence. Our new home exceeded expectations!",
+        "We were skeptical about buying off-plan, but Mr imot's verified listings and direct developer communication gave us confidence. Our new home exceeded expectations!",
       author: "Elena & Dimitar",
       role: "New Homeowners",
       imageSrc: "/placeholder.svg?height=48&width=48",
@@ -549,7 +549,7 @@ export default function HomePage() {
               {/* Enhanced Section Header */}
               <div className="text-center mb-20 md:mb-24 space-y-6">
                 <h2 className="text-4xl md:text-5xl font-bold leading-[1.1] tracking-tight text-ds-neutral-900">
-                  Why Smart Buyers Choose MrImot
+                  Why Smart Buyers Choose Mr imot
                 </h2>
                 <p className="text-xl md:text-2xl text-ds-neutral-600 max-w-4xl mx-auto leading-relaxed">
                   Stop overpaying brokers and dealing with fake listings. Get direct access to the best new projects
@@ -658,7 +658,7 @@ export default function HomePage() {
                 Hear from Our Happy Users
               </h2>
               <p className="text-xl md:text-2xl text-ds-neutral-600 leading-relaxed">
-                Real stories from people who found their dream property or investment through MrImot. See why thousands
+                Real stories from people who found their dream property or investment through Mr imot. See why thousands
                 trust us for their real estate needs.
               </p>
             </div>

@@ -116,7 +116,7 @@ export function DashboardFooterBar({
         {/* Bottom row - Copyright */}
         <div className="mt-4 pt-4 border-t border-slate-100">
           <div className="flex flex-col md:flex-row items-center justify-between gap-2">
-            <p className="text-xs text-slate-500">© 2024 MrImot. All rights reserved.</p>
+            <p className="text-xs text-slate-500">© 2024 Mr imot. All rights reserved.</p>
             <p className="text-xs text-slate-500">Made with ❤️ for real estate developers</p>
           </div>
         </div>

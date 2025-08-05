@@ -53,7 +53,7 @@ export const MaintenancePage: React.FC<MaintenancePageProps> = ({
           <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <AlertCircle className="w-8 h-8 text-blue-600" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">MrImot</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Mr imot</h1>
           <p className="text-sm text-gray-500">Real Estate Directory</p>
         </div>
 

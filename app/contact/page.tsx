@@ -22,15 +22,15 @@ export default function ContactPage() {
       icon: Mail,
       title: "Email Us",
       description: "Get a response within 24 hours",
-      value: "info@mrimot.com",
-      action: "mailto:info@mrimot.com",
+      value: "info@Mr imot.com",
+      action: "mailto:info@Mr imot.com",
       available: "24/7 Support",
     },
     {
       icon: MapPin,
       title: "Visit Us",
       description: "Meet us at our office",
-      value: "123 MrImot Street, Sofia",
+      value: "123 Mr imot Street, Sofia",
       action: "#",
       available: "By Appointment",
     },
@@ -44,11 +44,11 @@ export default function ContactPage() {
     },
     {
       question: "Are all listings verified?",
-      answer: "Yes, every project on MrImot is personally verified by our team to ensure authenticity and accuracy.",
+      answer: "Yes, every project on Mr imot is personally verified by our team to ensure authenticity and accuracy.",
     },
     {
-      question: "Do I pay any fees to use MrImot?",
-      answer: "No, MrImot is completely free for buyers. We don't charge any commissions or hidden fees.",
+      question: "Do I pay any fees to use Mr imot?",
+      answer: "No, Mr imot is completely free for buyers. We don't charge any commissions or hidden fees.",
     },
   ]
 
@@ -259,7 +259,7 @@ export default function ContactPage() {
                         <div>
                           <h4 className="font-semibold text-ds-neutral-900">Address</h4>
                           <p className="text-ds-neutral-600">
-                            123 MrImot Street
+                            123 Mr imot Street
                             <br />
                             Sofia 1000, Bulgaria
                           </p>

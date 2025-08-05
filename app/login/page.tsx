@@ -138,7 +138,7 @@ function LoginFormContent() {
           Welcome back
         </h1>
         <p className="text-gray-600 text-lg">
-          Sign in to your MrImot developer account
+          Sign in to your Mr imot developer account
         </p>
       </div>
 
@@ -264,7 +264,7 @@ function LoginFormContent() {
               </div>
               <div className="relative flex justify-center text-sm">
                 <span className="px-4 bg-white text-gray-500 font-medium">
-                  New to MrImot?
+                  New to Mr imot?
                 </span>
               </div>
             </div>

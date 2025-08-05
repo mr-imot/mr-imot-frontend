@@ -32,13 +32,12 @@ export function SiteHeader() {
         <div className="flex items-center space-x-2">
           <Link href="/" className="flex items-center space-x-3 group">
             <div className="relative w-8 h-8 md:w-10 md:h-10 transition-transform duration-200 group-hover:scale-105">
-              <Image src="/images/mrimot-logo.png" alt="MrImot Logo" fill className="object-contain" priority />
+              <Image src="/images/mr-imot-logo-no-background.png" alt="Mr imot Logo" fill className="object-contain" priority />
             </div>
             <div className="flex flex-col">
               <span className="text-xl md:text-2xl font-bold text-ds-neutral-900 leading-none tracking-tight">
-                MrImot
+                Mr imot
               </span>
-              <span className="text-xs text-ds-neutral-500 leading-none hidden sm:block">Real Estate Directory</span>
             </div>
           </Link>
         </div>
@@ -64,3 +63,4 @@ export function SiteHeader() {
     </header>
   )
 }
+

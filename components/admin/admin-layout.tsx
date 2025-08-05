@@ -178,7 +178,7 @@ function MobileSidebar({
           </div>
           <div>
             <h2 className="text-lg font-semibold text-gray-900">
-              MrImot Admin
+              Mr imot Admin
             </h2>
             <p className="text-xs text-gray-500">Real Estate Platform</p>
           </div>

@@ -56,7 +56,7 @@ export default function AboutUsPage() {
                 Our Story
               </div>
               <h1 className="text-4xl md:text-6xl font-bold text-ds-text-primary mb-6 leading-tight">
-                About <span className="text-ds-primary-600">MrImot</span>
+                About <span className="text-ds-primary-600">Mr imot</span>
               </h1>
               <p className="text-xl text-ds-text-secondary leading-relaxed">
                 Connecting you directly with the future of real estate through innovation, transparency, and trust.
@@ -80,7 +80,7 @@ export default function AboutUsPage() {
                   Revolutionizing Real Estate
                 </h2>
                 <p className="text-lg text-ds-text-secondary leading-relaxed mb-6">
-                  At MrImot, our mission is to revolutionize the real estate market by creating a transparent and direct
+                  At Mr imot, our mission is to revolutionize the real estate market by creating a transparent and direct
                   connection between property buyers and real estate developers. We believe in cutting out unnecessary
                   intermediaries, reducing costs, and providing direct access to verified, under-construction projects.
                 </p>
@@ -131,7 +131,7 @@ export default function AboutUsPage() {
                 </h2>
                 <p className="text-lg text-ds-text-secondary leading-relaxed mb-6">
                   We envision a world where finding and investing in new real estate is simple, direct, and trustworthy.
-                  MrImot aims to be the go-to platform for anyone seeking new construction properties and for developers
+                  Mr imot aims to be the go-to platform for anyone seeking new construction properties and for developers
                   looking to list their projects with confidence and ease.
                 </p>
                 <p className="text-lg text-ds-text-secondary leading-relaxed">
@@ -204,13 +204,13 @@ export default function AboutUsPage() {
             <ScrollAnimationWrapper>
               <div>
                 <div className="inline-flex items-center gap-2 bg-ds-primary-100 text-ds-primary-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
-                  Why Choose MrImot?
+                  Why Choose Mr imot?
                 </div>
                 <h2 className="text-3xl md:text-4xl font-bold text-ds-text-primary mb-6">
                   Your Success is Our Priority
                 </h2>
                 <p className="text-lg text-ds-text-secondary leading-relaxed mb-8">
-                  We've built MrImot with one goal in mind: making real estate investment simple, transparent, and
+                  We've built Mr imot with one goal in mind: making real estate investment simple, transparent, and
                   profitable for everyone involved.
                 </p>
                 <div className="space-y-4">
@@ -249,7 +249,7 @@ export default function AboutUsPage() {
             <div className="text-center max-w-3xl mx-auto">
               <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to Find Your Dream Property?</h2>
               <p className="text-xl opacity-90 mb-8">
-                Join thousands of satisfied customers who found their perfect home through MrImot
+                Join thousands of satisfied customers who found their perfect home through Mr imot
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <button className="bg-white text-ds-primary-600 px-8 py-4 rounded-xl font-semibold hover:bg-ds-neutral-50 transition-colors duration-300 shadow-lg">
