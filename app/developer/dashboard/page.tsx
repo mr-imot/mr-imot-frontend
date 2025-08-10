@@ -1,1004 +1,566 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { useDeveloperDashboard } from "@/hooks/use-developer-dashboard"
-import { DeveloperDashboardHero } from "@/components/developer-dashboard-hero"
-import { AnalyticsKpiGrid } from "@/components/analytics-kpi-grid"
-import { PerformanceTrendsSection } from "@/components/performance-trends-section"
-import { DashboardFooterBar } from "@/components/dashboard-footer-bar"
 import { ProtectedRoute } from "@/components/protected-route"
-import { DSInput } from "@/components/ds/ds-input"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Calendar } from "@/components/ui/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Progress } from "@/components/ui/progress"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import {
-  BarChart,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
+  Building2,
   Eye,
-  Phone,
-  List,
-  Building,
-  DollarSign,
-  Settings,
-  Plus,
-  Edit,
-  Trash2,
-  ExternalLink,
-  CalendarIcon,
-  MessageSquare,
-  Heart,
   Globe,
-  Mail,
-  Lock,
+  Phone,
+  Plus,
+  TrendingUp,
+  TrendingDown,
+  Home,
+  Settings,
+  LogOut,
   User,
-  Camera,
+  BarChart3,
+  Bell,
+  Search,
+  Menu,
+  X,
+  ChevronRight,
+  Activity,
+  CheckCircle,
+  AlertCircle,
+  MessageSquare,
+  MapPin,
+  Calendar,
+  ExternalLink,
+  Layers,
+  Grid3x3,
+  Maximize2,
+  Zap,
+  ArrowUpRight,
+  Cube,
+  Sparkles,
 } from "lucide-react"
-import { cn } from "@/lib/utils"
 
-function DeveloperDashboardContent() {
-  // Fetch dashboard data from API
-  const { stats, analytics, projects: apiProjects, loading, error } = useDeveloperDashboard('week')
+interface DeveloperProfile {
+  id: string
+  email: string
+  company_name: string
+  contact_person: string
+  phone: string
+  office_address: string
+  website: string
+  verification_status: string
+  created_at: string
+}
+
+// Professional Metric Card Component
+function MetricCard({ 
+  title, 
+  value, 
+  change, 
+  changeType = "positive",
+  icon: Icon, 
+  loading = false,
+  onClick
+}: {
+  title: string
+  value: string | number
+  change?: string
+  changeType?: "positive" | "negative" | "neutral"
+  icon: any
+  loading?: boolean
+  onClick?: () => void
+}) {
+  const changeColor = {
+    positive: "text-emerald-600",
+    negative: "text-red-600", 
+    neutral: "text-gray-500"
+  }[changeType]
   
-  const [activeTab, setActiveTab] = useState("analytics")
-  const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>({
-    from: new Date(2024, 0, 1),
-    to: new Date(),
-  })
-  const [isAddListingOpen, setIsAddListingOpen] = useState(false)
-  const [isEditListingOpen, setIsEditListingOpen] = useState(false)
-  const [selectedListing, setSelectedListing] = useState<any>(null)
-  const [locale, setLocale] = useState("en")
-
-  // Performance trends state
-  const [trendsRange, setTrendsRange] = useState({
-    start: new Date(Date.now() - 29 * 24 * 60 * 60 * 1000), // 30 days ago
-    end: new Date(),
-  })
-  const [trendsComparison, setTrendsComparison] = useState({
-    start: new Date(Date.now() - 59 * 24 * 60 * 60 * 1000), // 60 days ago
-    end: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
-  })
-  const [selectedMetricIds, setSelectedMetricIds] = useState<string[]>(["views", "website_clicks"])
-  const [selectedListingIds, setSelectedListingIds] = useState<string[]>([])
-
-  // Mock analytics data as fallback
-  const mockAnalyticsData = [
-    {
-      title: "Total Views",
-      value: "2,847",
-      change: "+12.5%",
-      trend: "up",
-      icon: Eye,
-      color: "primary",
-      description: "Page views across all listings",
-    },
-    {
-      title: "Website Clicks",
-      value: "156",
-      change: "+8.2%",
-      trend: "up",
-      icon: ExternalLink,
-      color: "accent",
-      description: "Clicks to your website",
-    },
-    {
-      title: "Phone Clicks",
-      value: "43",
-      change: "-2.1%",
-      trend: "down",
-      icon: Phone,
-      color: "primary",
-      description: "Phone number clicks",
-    },
-    {
-      title: "Contact Messages",
-      value: "28",
-      change: "+15.7%",
-      trend: "up",
-      icon: MessageSquare,
-      color: "accent",
-      description: "Contact form submissions",
-    },
-    {
-      title: "Saved Listings",
-      value: "89",
-      change: "+22.3%",
-      trend: "up",
-      icon: Heart,
-      color: "primary",
-      description: "Times your listings were saved",
-    },
-    {
-      title: "Active Listings",
-      value: "7",
-      change: "0%",
-      trend: "neutral",
-      icon: List,
-      color: "accent",
-      description: "Currently active listings",
-    },
-  ]
-
-  // Mock listings data as fallback
-  const mockListings = [
-    {
-      id: 1,
-      title: "Skyline Towers - Downtown",
-      status: "Active",
-      views: 1245,
-      websiteClicks: 67,
-      phoneClicks: 15,
-      contactMessages: 8,
-      savedCount: 34,
-      dateCreated: "2024-01-15",
-      price: "$450,000 - $850,000",
-      type: "Residential",
-      location: "Downtown, City Center",
-    },
-    {
-      id: 2,
-      title: "Lakeside Residences",
-      status: "Active",
-      views: 892,
-      websiteClicks: 45,
-      phoneClicks: 12,
-      contactMessages: 6,
-      savedCount: 28,
-      dateCreated: "2024-02-01",
-      price: "$320,000 - $650,000",
-      type: "Residential",
-      location: "Lakeside District",
-    },
-    {
-      id: 3,
-      title: "Metro Business Plaza",
-      status: "Pending Review",
-      views: 234,
-      websiteClicks: 12,
-      phoneClicks: 3,
-      contactMessages: 2,
-      savedCount: 8,
-      dateCreated: "2024-03-10",
-      price: "$2.5M - $8.5M",
-      type: "Commercial",
-      location: "Business District",
-    },
-  ]
-
-  const pricingPlans = [
-    {
-      name: "Basic",
-      price: "$29",
-      period: "/month",
-      features: ["Up to 3 active listings", "Basic analytics", "Email support", "Standard listing features"],
-    },
-    {
-      name: "Professional",
-      price: "$79",
-      period: "/month",
-      popular: true,
-      features: [
-        "Up to 15 active listings",
-        "Advanced analytics",
-        "Priority support",
-        "Featured listing options",
-        "Custom branding",
-        "Lead management tools",
-      ],
-    },
-    {
-      name: "Enterprise",
-      price: "$199",
-      period: "/month",
-      features: [
-        "Unlimited listings",
-        "Full analytics suite",
-        "Dedicated account manager",
-        "API access",
-        "White-label solutions",
-        "Custom integrations",
-        "Advanced reporting",
-      ],
-    },
-  ]
-
-  // KPI Grid data
-  const kpiMetrics = [
-    {
-      id: "views" as const,
-      label: "Total Views",
-      value: 2847,
-      deltaPct: 12.5,
-      trend: [
-        120, 135, 142, 138, 155, 162, 158, 170, 165, 180, 175, 190, 185, 200, 195, 210, 205, 220, 215, 230, 225, 240,
-        235, 250, 245, 260, 255, 270, 265, 280,
-      ],
-    },
-    {
-      id: "website_clicks" as const,
-      label: "Website Clicks",
-      value: 156,
-      deltaPct: 8.2,
-      trend: [
-        8, 12, 10, 15, 13, 18, 16, 20, 18, 22, 20, 25, 23, 28, 26, 30, 28, 32, 30, 35, 33, 38, 36, 40, 38, 42, 40, 45,
-        43, 48,
-      ],
-    },
-    {
-      id: "phone_clicks" as const,
-      label: "Phone Clicks",
-      value: 43,
-      deltaPct: -2.1,
-      trend: [3, 4, 2, 5, 3, 6, 4, 7, 5, 8, 6, 7, 5, 8, 6, 9, 7, 8, 6, 9, 7, 10, 8, 9, 7, 10, 8, 11, 9, 10],
-    },
-    {
-      id: "contact_messages" as const,
-      label: "Contact Messages",
-      value: 28,
-      deltaPct: 15.7,
-      trend: [1, 2, 1, 3, 2, 4, 3, 5, 4, 6, 5, 7, 6, 8, 7, 9, 8, 10, 9, 11, 10, 12, 11, 13, 12, 14, 13, 15, 14, 16],
-    },
-    {
-      id: "saved_listings" as const,
-      label: "Saved Listings",
-      value: 89,
-      deltaPct: 22.3,
-      trend: [
-        5, 8, 6, 10, 8, 12, 10, 15, 13, 18, 16, 20, 18, 22, 20, 25, 23, 28, 26, 30, 28, 32, 30, 35, 33, 38, 36, 40, 38,
-        42,
-      ],
-    },
-    {
-      id: "active_listings" as const,
-      label: "Active Listings",
-      value: 7,
-      deltaPct: null,
-      trend: [5, 5, 6, 6, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-    },
-  ]
-
-  // Performance trends data
-  const trendsListings = [
-    { id: "1", name: "Skyline Towers - Downtown" },
-    { id: "2", name: "Lakeside Residences" },
-    { id: "3", name: "Metro Business Plaza" },
-  ]
-
-  // Show loading state
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ds-primary-600 mx-auto mb-4"></div>
-          <p className="text-ds-neutral-600">Loading dashboard...</p>
+  const IconComponent = changeType === "positive" ? TrendingUp : 
+                        changeType === "negative" ? TrendingDown : Activity
+  
+  return (
+    <Card className={`transition-all duration-200 hover:shadow-md ${onClick ? 'cursor-pointer hover:border-blue-200' : ''}`} onClick={onClick}>
+      <CardContent className="p-6">
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <p className="text-sm font-medium text-gray-600">{title}</p>
+            {loading ? (
+              <div className="w-16 h-8 bg-gray-200 rounded animate-pulse" />
+            ) : (
+              <p className="text-3xl font-bold text-gray-900">{typeof value === 'number' ? value.toLocaleString() : value}</p>
+            )}
+            {change && (
+              <div className="flex items-center gap-1 mt-1">
+                <IconComponent className="h-3 w-3" />
+                <span className={`text-sm font-medium ${changeColor}`}>{change}</span>
+              </div>
+            )}
+          </div>
+          <div className="p-3 bg-blue-50 rounded-full">
+            <Icon className="h-6 w-6 text-blue-600" />
+          </div>
         </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+// Professional Navigation Sidebar
+function DashboardSidebar({ profile, isOpen, onClose }: { 
+  profile: DeveloperProfile | null, 
+  isOpen: boolean, 
+  onClose: () => void 
+}) {
+  const router = useRouter()
+  
+  const navigationItems = [
+    { icon: Home, label: "Dashboard", href: "/developer/dashboard", active: true },
+    { icon: Building2, label: "Properties", href: "/developer/properties", active: false },
+    { icon: BarChart3, label: "Analytics", href: "/developer/analytics", active: false },
+    { icon: MessageSquare, label: "Inquiries", href: "/developer/inquiries", active: false },
+    { icon: User, label: "Profile", href: "/developer/profile", active: false },
+    { icon: Settings, label: "Settings", href: "/developer/settings", active: false },
+  ]
+
+  const handleNavigation = (href: string) => {
+    router.push(href)
+    onClose()
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem('auth_token')
+    localStorage.removeItem('auth_expires')
+    router.push('/login')
+  }
+
+  return (
+    <>
+      {/* Mobile overlay */}
+      {isOpen && (
+        <div className="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden" onClick={onClose} />
+      )}
+      
+      {/* Sidebar */}
+      <div className={`
+        fixed inset-y-0 left-0 z-50 w-72 bg-white shadow-xl transform transition-transform duration-300 ease-in-out
+        lg:translate-x-0 lg:static lg:z-0 lg:shadow-none lg:border-r lg:border-gray-200
+        ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+      `}>
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-lg">
+              <Building2 className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h1 className="font-bold text-gray-900">Mr imot</h1>
+              <p className="text-xs text-gray-500">Developer Portal</p>
+            </div>
+          </div>
+          <Button variant="ghost" size="sm" className="lg:hidden" onClick={onClose}>
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+
+        {/* Navigation */}
+        <nav className="p-4 space-y-1">
+          {navigationItems.map((item) => (
+            <Button
+              key={item.href}
+              variant={item.active ? "default" : "ghost"}
+              className={`w-full justify-start h-11 ${
+                item.active 
+                  ? "bg-blue-600 text-white hover:bg-blue-700 shadow-sm" 
+                  : "text-gray-700 hover:bg-gray-50"
+              }`}
+              onClick={() => handleNavigation(item.href)}
+            >
+              <item.icon className="h-5 w-5 mr-3" />
+              {item.label}
+              {item.active && <ChevronRight className="h-4 w-4 ml-auto" />}
+            </Button>
+          ))}
+        </nav>
+
+        {/* Profile Section */}
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100 bg-gray-50">
+          {profile && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm">
+                <Avatar className="h-10 w-10">
+                  <AvatarFallback className="bg-blue-100 text-blue-700 font-medium">
+                    {profile.company_name.substring(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-900 truncate">{profile.company_name}</p>
+                  <p className="text-xs text-gray-500 truncate">{profile.email}</p>
+                </div>
+                <Badge variant="outline" className="text-xs bg-emerald-50 text-emerald-700 border-emerald-200">
+                  {profile.verification_status}
+                </Badge>
+              </div>
+              <Button variant="outline" size="sm" className="w-full" onClick={handleLogout}>
+                <LogOut className="h-4 w-4 mr-2" />
+                Sign Out
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  )
+}
+
+// Main Dashboard Content
+function DashboardContent() {
+  const { stats, analytics, projects, loading, error } = useDeveloperDashboard('week')
+  const [profile, setProfile] = useState<DeveloperProfile | null>(null)
+  const [selectedPeriod, setSelectedPeriod] = useState('week')
+  const router = useRouter()
+
+  // Fetch developer profile
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const token = localStorage.getItem('auth_token')
+        if (!token) return
+
+        const response = await fetch('http://localhost:8000/api/v1/developers/me', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+        
+        if (response.ok) {
+          const profileData = await response.json()
+          setProfile(profileData)
+        }
+      } catch (error) {
+        console.error('Failed to fetch profile:', error)
+      }
+    }
+
+    fetchProfile()
+  }, [])
+
+  const handleAddListing = () => {
+    router.push('/developer/properties/new')
+  }
+
+  const handleViewAnalytics = () => {
+    router.push('/developer/analytics')
+  }
+
+  if (error) {
+    return (
+      <div className="p-6">
+        <Alert>
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Failed to load dashboard data. Please try refreshing the page.
+          </AlertDescription>
+        </Alert>
       </div>
     )
   }
 
-  // Use API data if available, otherwise fall back to mock data
-  const analyticsData = analytics || mockAnalyticsData
-  const listings = apiProjects && apiProjects.length > 0 ? apiProjects : mockListings
-
-  const generateTrendsData = (days: number, offset = 0) => {
-    return Array.from({ length: days }, (_, i) => {
-      const date = new Date(Date.now() - (days - 1 - i + offset) * 24 * 60 * 60 * 1000)
-      const dateString = date.toISOString().split("T")[0] // YYYY-MM-DD format
-
-      return {
-        date: dateString,
-        views: Math.floor(Math.random() * 100) + 50 + i * 2,
-        website_clicks: Math.floor(Math.random() * 20) + 5 + Math.floor(i / 3),
-        phone_clicks: Math.floor(Math.random() * 8) + 1,
-        contact_messages: Math.floor(Math.random() * 5) + 1,
-        saved_listings: Math.floor(Math.random() * 15) + 3 + Math.floor(i / 2),
-      }
-    })
-  }
-
-  const trendsData = generateTrendsData(30)
-  const trendsComparisonData = generateTrendsData(30, 30)
-
-  // Hero component handlers
-  const handleAddListing = () => {
-    setIsAddListingOpen(true)
-  }
-
-  const handleManageCompany = () => {
-    setActiveTab("company")
-  }
-
-  const handleBilling = () => {
-    setActiveTab("billing")
-  }
-
-  const handleSupport = () => {
-    console.log("Support clicked")
-  }
-
-  const handleKpiDrill = (metricId: string) => {
-    console.log(`Drilling into KPI: ${metricId}`)
-    // Could navigate to detailed view or update trends chart
-    setSelectedMetricIds([metricId])
-  }
-
-  const handleTrendsExport = (type: "csv" | "png") => {
-    console.log(`Exporting trends as ${type}`)
-  }
-
-  // Footer handlers
-  const handleHelp = () => {
-    console.log("Help clicked")
-  }
-
-  const handleDocs = () => {
-    console.log("Docs clicked")
-  }
-
-  const handleFooterSupport = () => {
-    console.log("Footer support clicked")
-  }
-
-  const handleFooterBilling = () => {
-    setActiveTab("billing")
-  }
-
-  const handlePrivacy = () => {
-    console.log("Privacy clicked")
-  }
-
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
-      {/* Hero Section */}
-      <DeveloperDashboardHero
-        companyName="Mr imot Developments"
-        companyLogoUrl="/images/Mr imot-logo.png"
-        planTier="Pro"
-        activeListings={7}
-        totalViews={2847}
-        totalLeads={71}
-        onAddListing={handleAddListing}
-        onManageCompany={handleManageCompany}
-        onBilling={handleBilling}
-        onSupport={handleSupport}
-      />
+    <div className="flex-1 bg-gray-50 overflow-auto">
+      {/* Header */}
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-30">
+        <div className="px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+              <p className="text-gray-600">Welcome back! Here's what's happening with your properties.</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
+                <SelectTrigger className="w-36">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="week">This Week</SelectItem>
+                  <SelectItem value="month">This Month</SelectItem>
+                  <SelectItem value="year">This Year</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button onClick={handleAddListing} className="bg-blue-600 hover:bg-blue-700">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Property
+              </Button>
+            </div>
+          </div>
+        </div>
+      </header>
 
-      <div className="flex-1">
-        <div className="max-w-7xl mx-auto px-4 lg:px-8 py-8">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-            <TabsList className="grid w-full grid-cols-5 lg:w-fit lg:grid-cols-5">
-              <TabsTrigger value="analytics" className="flex items-center gap-2">
-                <BarChart className="h-4 w-4" />
-                <span className="hidden sm:inline">Analytics</span>
-              </TabsTrigger>
-              <TabsTrigger value="listings" className="flex items-center gap-2">
-                <List className="h-4 w-4" />
-                <span className="hidden sm:inline">Listings</span>
-              </TabsTrigger>
-              <TabsTrigger value="company" className="flex items-center gap-2">
-                <Building className="h-4 w-4" />
-                <span className="hidden sm:inline">Company</span>
-              </TabsTrigger>
-              <TabsTrigger value="billing" className="flex items-center gap-2">
-                <DollarSign className="h-4 w-4" />
-                <span className="hidden sm:inline">Billing</span>
-              </TabsTrigger>
-              <TabsTrigger value="settings" className="flex items-center gap-2">
-                <Settings className="h-4 w-4" />
-                <span className="hidden sm:inline">Settings</span>
-              </TabsTrigger>
-            </TabsList>
+      {/* Main Content */}
+      <main className="p-6 max-w-7xl mx-auto space-y-8">
+        {/* Key Metrics */}
+        <section>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <MetricCard
+              title="Active Properties"
+              value={stats?.total_projects || 0}
+              change={stats?.projects_growth}
+              icon={Building2}
+              loading={loading}
+              onClick={() => router.push('/developer/properties')}
+            />
+            <MetricCard
+              title="Total Views"
+              value={stats?.total_views || 0}
+              change={stats?.views_growth}
+              changeType="positive"
+              icon={Eye}
+              loading={loading}
+              onClick={handleViewAnalytics}
+            />
+            <MetricCard
+              title="Website Clicks"
+              value={stats?.total_website_clicks || 0}
+              change={stats?.website_clicks_growth}
+              changeType="positive"
+              icon={Globe}
+              loading={loading}
+              onClick={handleViewAnalytics}
+            />
+            <MetricCard
+              title="Phone Clicks"
+              value={stats?.total_phone_clicks || 0}
+              change={stats?.phone_clicks_growth}
+              changeType={stats?.phone_clicks_growth?.startsWith('-') ? 'negative' : 'positive'}
+              icon={Phone}
+              loading={loading}
+              onClick={handleViewAnalytics}
+            />
+          </div>
+        </section>
 
-            {/* Analytics Tab */}
-            <TabsContent value="analytics" className="space-y-8">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                  <h2 className="text-3xl font-semibold text-slate-900">Analytics Overview</h2>
-                  <p className="text-slate-600 mt-1">Track your listing performance and engagement metrics</p>
+        {/* Quick Actions & Recent Activity */}
+        <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Quick Actions */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Activity className="h-5 w-5 text-blue-600" />
+                Quick Actions
+              </CardTitle>
+              <CardDescription>Common tasks and shortcuts</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Button variant="outline" className="w-full justify-start h-11" onClick={handleAddListing}>
+                <Plus className="h-5 w-5 mr-3 text-blue-600" />
+                Add New Property
+              </Button>
+              <Button variant="outline" className="w-full justify-start h-11" onClick={handleViewAnalytics}>
+                <BarChart3 className="h-5 w-5 mr-3 text-emerald-600" />
+                View Detailed Analytics
+              </Button>
+              <Button variant="outline" className="w-full justify-start h-11" onClick={() => router.push('/developer/profile')}>
+                <User className="h-5 w-5 mr-3 text-purple-600" />
+                Edit Company Profile
+              </Button>
+              <Button variant="outline" className="w-full justify-start h-11" onClick={() => router.push('/developer/settings')}>
+                <Settings className="h-5 w-5 mr-3 text-gray-600" />
+                Account Settings
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Recent Activity */}
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Bell className="h-5 w-5 text-orange-600" />
+                Recent Activity
+              </CardTitle>
+              <CardDescription>Latest updates and notifications</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {loading ? (
+                <div className="space-y-3">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="flex items-center gap-3 p-3">
+                      <div className="w-10 h-10 bg-gray-200 rounded-full animate-pulse" />
+                      <div className="flex-1 space-y-2">
+                        <div className="w-3/4 h-4 bg-gray-200 rounded animate-pulse" />
+                        <div className="w-1/2 h-3 bg-gray-100 rounded animate-pulse" />
+                      </div>
+                    </div>
+                  ))}
                 </div>
-
-                <div className="flex items-center gap-2">
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" className="w-fit bg-white">
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {dateRange.from.toLocaleDateString("en-US", { month: "short", day: "numeric" })} -{" "}
-                        {dateRange.to.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="end">
-                      <Calendar initialFocus mode="range" defaultMonth={dateRange.from} numberOfMonths={2} />
-                    </PopoverContent>
-                  </Popover>
+              ) : stats?.recent_activity?.length > 0 ? (
+                <div className="space-y-1">
+                  {stats.recent_activity.map((activity: any) => (
+                    <div key={activity.id} className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full" />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-900">{activity.message}</p>
+                        <p className="text-xs text-gray-500">{activity.time}</p>
+                      </div>
+                      {activity.unread && (
+                        <div className="w-2 h-2 bg-red-500 rounded-full" />
+                      )}
+                    </div>
+                  ))}
                 </div>
-              </div>
+              ) : (
+                <div className="text-center py-8">
+                  <Activity className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-500">No recent activity</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </section>
 
-              {/* KPI Grid */}
-              <AnalyticsKpiGrid metrics={kpiMetrics} onDrill={handleKpiDrill} />
-
-              {/* Performance Trends */}
-              <PerformanceTrendsSection
-                range={trendsRange}
-                comparison={trendsComparison}
-                selectedMetricIds={selectedMetricIds}
-                selectedListingIds={selectedListingIds}
-                listings={trendsListings}
-                data={trendsData}
-                comparisonData={trendsComparisonData}
-                onRangeChange={setTrendsRange}
-                onComparisonChange={setTrendsComparison}
-                onMetricChange={setSelectedMetricIds}
-                onListingChange={setSelectedListingIds}
-                onExport={handleTrendsExport}
-              />
-            </TabsContent>
-
-            {/* Listings Tab */}
-            <TabsContent value="listings" className="space-y-8">
+        {/* Properties Overview */}
+        <section>
+          <Card>
+            <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-3xl font-semibold text-slate-900">My Listings</h2>
-                  <p className="text-slate-600 mt-1">Manage your property listings and track their performance</p>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Building2 className="h-5 w-5 text-blue-600" />
+                    Your Properties
+                  </CardTitle>
+                  <CardDescription>Manage and monitor your property listings</CardDescription>
                 </div>
-                <Button
-                  onClick={() => setIsAddListingOpen(true)}
-                  className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add New Listing
+                <Button variant="outline" onClick={() => router.push('/developer/properties')}>
+                  View All
+                  <ExternalLink className="h-4 w-4 ml-2" />
                 </Button>
               </div>
-
-              <div className="space-y-4">
-                {listings.map((listing: any) => (
-                  <Card
-                    key={listing.id}
-                    className="rounded-2xl border-slate-200 shadow-sm hover:shadow-md transition-shadow duration-200"
-                  >
-                    <CardContent className="p-6">
-                      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-3">
-                            <h3 className="text-xl font-medium text-slate-900">{listing.title}</h3>
-                            <Badge variant={listing.status === "Active" ? "default" : "secondary"}>
-                              {listing.status}
-                            </Badge>
-                          </div>
-
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                            <div className="text-center p-3 bg-gradient-to-br from-teal-50 to-blue-50 rounded-lg">
-                              <div className="text-lg font-bold text-slate-900">{listing.views}</div>
-                              <div className="text-xs text-slate-600">Views</div>
-                            </div>
-                            <div className="text-center p-3 bg-emerald-50 rounded-lg">
-                              <div className="text-lg font-bold text-emerald-600">{listing.websiteClicks}</div>
-                              <div className="text-xs text-slate-600">Website Clicks</div>
-                            </div>
-                            <div className="text-center p-3 bg-amber-50 rounded-lg">
-                              <div className="text-lg font-bold text-amber-600">{listing.phoneClicks}</div>
-                              <div className="text-xs text-slate-600">Phone Clicks</div>
-                            </div>
-                            <div className="text-center p-3 bg-blue-50 rounded-lg">
-                              <div className="text-lg font-bold text-blue-600">{listing.savedCount}</div>
-                              <div className="text-xs text-slate-600">Saved</div>
-                            </div>
-                          </div>
-
-                          <div className="flex flex-wrap gap-4 text-sm text-slate-600">
-                            <span>{listing.type}</span>
-                            <span>•</span>
-                            <span>{listing.location}</span>
-                            <span>•</span>
-                            <span>{listing.price}</span>
-                            <span>•</span>
-                            <span>Created {listing.dateCreated}</span>
+            </CardHeader>
+            <CardContent>
+              {loading ? (
+                <div className="space-y-4">
+                  {[1, 2].map((i) => (
+                    <div key={i} className="p-4 border rounded-lg">
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-2 flex-1">
+                          <div className="w-1/2 h-5 bg-gray-200 rounded animate-pulse" />
+                          <div className="w-1/3 h-4 bg-gray-100 rounded animate-pulse" />
+                        </div>
+                        <div className="w-16 h-6 bg-gray-200 rounded animate-pulse" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : projects?.length > 0 ? (
+                <div className="space-y-4">
+                  {projects.map((project: any) => (
+                    <div key={project.id} className="p-4 border rounded-lg hover:border-blue-200 transition-colors">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="font-semibold text-gray-900">{project.title}</h4>
+                          <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
+                            <span className="flex items-center gap-1">
+                              <MapPin className="h-4 w-4" />
+                              {project.location}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Calendar className="h-4 w-4" />
+                              {new Date(project.created_at).toLocaleDateString()}
+                            </span>
                           </div>
                         </div>
-
-                        <div className="flex items-center gap-2">
-                          <Button variant="outline" size="sm">
-                            <Eye className="h-4 w-4 mr-1" />
-                            View
-                          </Button>
-                          <Dialog open={isEditListingOpen} onOpenChange={setIsEditListingOpen}>
-                            <DialogTrigger asChild>
-                              <Button variant="outline" size="sm" onClick={() => setSelectedListing(listing)}>
-                                <Edit className="h-4 w-4 mr-1" />
-                                Edit
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent className="max-w-2xl">
-                              <DialogHeader>
-                                <DialogTitle>Edit Listing</DialogTitle>
-                              </DialogHeader>
-                              <div className="grid gap-4 py-4">
-                                <div className="grid grid-cols-2 gap-4">
-                                  <div>
-                                    <Label htmlFor="edit-title">Project Title</Label>
-                                    <DSInput id="edit-title" defaultValue={selectedListing?.title} />
-                                  </div>
-                                  <div>
-                                    <Label htmlFor="edit-type">Property Type</Label>
-                                    <Select defaultValue={selectedListing?.type.toLowerCase()}>
-                                      <SelectTrigger>
-                                        <SelectValue />
-                                      </SelectTrigger>
-                                      <SelectContent>
-                                        <SelectItem value="residential">Residential</SelectItem>
-                                        <SelectItem value="commercial">Commercial</SelectItem>
-                                        <SelectItem value="mixed">Mixed Use</SelectItem>
-                                      </SelectContent>
-                                    </Select>
-                                  </div>
-                                </div>
-                                <div className="flex justify-end gap-2">
-                                  <Button variant="outline" onClick={() => setIsEditListingOpen(false)}>
-                                    Cancel
-                                  </Button>
-                                  <Button className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700">
-                                    Save Changes
-                                  </Button>
-                                </div>
-                              </div>
-                            </DialogContent>
-                          </Dialog>
-                          <Button variant="destructive" size="sm">
-                            <Trash2 className="h-4 w-4 mr-1" />
-                            Delete
-                          </Button>
+                        <div className="text-right">
+                          <Badge variant={project.status === 'active' ? 'default' : 'secondary'}>
+                            {project.status}
+                          </Badge>
+                          <div className="text-sm text-gray-600 mt-1">
+                            {project.views} views
+                          </div>
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </TabsContent>
-
-            {/* Company Tab */}
-            <TabsContent value="company" className="space-y-8">
-              <div>
-                <h2 className="text-3xl font-semibold text-slate-900 mb-2">Company Profile</h2>
-                <p className="text-slate-600">
-                  This information will be visible to potential clients in the developers directory
-                </p>
-              </div>
-
-              <div className="grid gap-6 lg:grid-cols-3">
-                <div className="lg:col-span-2 space-y-6">
-                  <Card className="rounded-2xl border-slate-200 shadow-sm">
-                    <CardHeader>
-                      <CardTitle>Basic Information</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="company-name">Company Name</Label>
-                          <DSInput id="company-name" defaultValue="Mr imot Developments" />
-                        </div>
-                        <div>
-                          <Label htmlFor="company-website">Website</Label>
-                          <DSInput id="company-website" defaultValue="www.Mr imot.com" />
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="company-email">Contact Email</Label>
-                          <DSInput id="company-email" defaultValue="contact@Mr imot.com" />
-                        </div>
-                        <div>
-                          <Label htmlFor="company-phone">Phone Number</Label>
-                          <DSInput id="company-phone" defaultValue="+1 (555) 123-4567" />
-                        </div>
-                      </div>
-                      <div>
-                        <Label htmlFor="company-description">Company Description</Label>
-                        <Textarea
-                          id="company-description"
-                          rows={4}
-                          defaultValue="Leading real estate development company specializing in luxury residential and commercial properties. With over 15 years of experience, we deliver exceptional projects that exceed client expectations."
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="company-address">Business Address</Label>
-                        <DSInput id="company-address" defaultValue="123 Business District, City Center, State 12345" />
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="rounded-2xl border-slate-200 shadow-sm">
-                    <CardHeader>
-                      <CardTitle>Specializations & Services</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div>
-                        <Label>Property Types</Label>
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          {["Residential", "Commercial", "Mixed Use", "Luxury Homes", "Condominiums"].map((type) => (
-                            <Badge key={type} variant="secondary">
-                              {type}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                      <div>
-                        <Label>Service Areas</Label>
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          {["Downtown", "Lakeside", "Business District", "Suburban Areas"].map((area) => (
-                            <Badge key={area} variant="outline">
-                              {area}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  ))}
                 </div>
-
-                <div className="space-y-6">
-                  <Card className="rounded-2xl border-slate-200 shadow-sm">
-                    <CardHeader>
-                      <CardTitle>Company Logo</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex flex-col items-center space-y-4">
-                        <div className="w-32 h-32 bg-slate-100 rounded-lg flex items-center justify-center">
-                          <Building className="h-12 w-12 text-slate-400" />
-                        </div>
-                        <Button variant="outline" size="sm">
-                          <Camera className="h-4 w-4 mr-2" />
-                          Upload Logo
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="rounded-2xl border-slate-200 shadow-sm">
-                    <CardHeader>
-                      <CardTitle>Public Profile Stats</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <div className="flex justify-between">
-                        <span className="text-sm text-slate-600">Profile Views</span>
-                        <span className="font-medium">1,247</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-slate-600">Total Projects</span>
-                        <span className="font-medium">7</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-slate-600">Years Active</span>
-                        <span className="font-medium">15+</span>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
-
-              <div className="flex justify-end">
-                <Button
-                  size="lg"
-                  className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700"
-                >
-                  Save Company Profile
-                </Button>
-              </div>
-            </TabsContent>
-
-            {/* Billing Tab */}
-            <TabsContent value="billing" className="space-y-8">
-              <div className="text-center mb-8">
-                <h2 className="text-3xl font-semibold text-slate-900 mb-2">Choose Your Plan</h2>
-                <p className="text-slate-600">All plans are currently FREE during our development phase</p>
-              </div>
-
-              <div className="grid gap-6 md:grid-cols-3 relative">
-                <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 rounded-2xl flex items-center justify-center">
-                  <div className="text-center p-8 bg-white rounded-2xl shadow-lg border-2 border-teal-200">
-                    <h3 className="text-xl font-bold bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent mb-2">
-                      FREE During Development
-                    </h3>
-                    <p className="text-slate-600 mb-4">
-                      All premium features are currently free while we're in beta. Enjoy unlimited access to help us
-                      improve the platform!
-                    </p>
-                    <Button className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700">
-                      Continue with Free Access
-                    </Button>
-                  </div>
-                </div>
-
-                {pricingPlans.map((plan, index) => (
-                  <Card
-                    key={index}
-                    className={cn(
-                      "rounded-2xl border-slate-200 shadow-sm relative",
-                      plan.popular && "border-teal-500 border-2",
-                    )}
-                  >
-                    {plan.popular && (
-                      <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                        <Badge className="bg-gradient-to-r from-teal-500 to-blue-600 text-white">Most Popular</Badge>
-                      </div>
-                    )}
-                    <CardHeader className="text-center">
-                      <CardTitle className="text-xl">{plan.name}</CardTitle>
-                      <div className="text-3xl font-bold bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent">
-                        {plan.price}
-                        <span className="text-base font-normal text-slate-600">{plan.period}</span>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <ul className="space-y-2 mb-6">
-                        {plan.features.map((feature, featureIndex) => (
-                          <li key={featureIndex} className="flex items-center text-sm">
-                            <div className="w-4 h-4 bg-green-100 rounded-full flex items-center justify-center mr-2">
-                              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                            </div>
-                            {feature}
-                          </li>
-                        ))}
-                      </ul>
-                      <Button
-                        className={cn(
-                          "w-full",
-                          plan.popular
-                            ? "bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700"
-                            : "",
-                        )}
-                        variant={plan.popular ? "default" : "outline"}
-                        size="lg"
-                      >
-                        Choose {plan.name}
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-
-              <Card className="rounded-2xl border-slate-200 shadow-sm">
-                <CardHeader>
-                  <CardTitle>Current Subscription</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
-                    <div>
-                      <h3 className="text-lg font-semibold text-slate-900">Free Development Access</h3>
-                      <p className="text-sm text-slate-600">All features included • No billing required</p>
-                    </div>
-                    <Badge variant="secondary" className="bg-green-100 text-green-800">
-                      Active
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            {/* Settings Tab */}
-            <TabsContent value="settings" className="space-y-8">
-              <div>
-                <h2 className="text-3xl font-semibold text-slate-900 mb-2">Account Settings</h2>
-                <p className="text-slate-600">Manage your account preferences and security settings</p>
-              </div>
-
-              <div className="grid gap-6 lg:grid-cols-2">
-                <Card className="rounded-2xl border-slate-200 shadow-sm">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <User className="h-5 w-5" />
-                      Profile Settings
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <Label htmlFor="first-name">First Name</Label>
-                      <DSInput id="first-name" defaultValue="John" />
-                    </div>
-                    <div>
-                      <Label htmlFor="last-name">Last Name</Label>
-                      <DSInput id="last-name" defaultValue="Developer" />
-                    </div>
-                    <div>
-                      <Label htmlFor="email">Email Address</Label>
-                      <DSInput id="email" type="email" defaultValue="john@Mr imot.com" />
-                    </div>
-                    <div>
-                      <Label htmlFor="phone">Phone Number</Label>
-                      <DSInput id="phone" defaultValue="+1 (555) 123-4567" />
-                    </div>
-                    <Button className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700">
-                      Update Profile
-                    </Button>
-                  </CardContent>
-                </Card>
-
-                <Card className="rounded-2xl border-slate-200 shadow-sm">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Lock className="h-5 w-5" />
-                      Security Settings
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <Label htmlFor="current-password">Current Password</Label>
-                      <DSInput id="current-password" type="password" />
-                    </div>
-                    <div>
-                      <Label htmlFor="new-password">New Password</Label>
-                      <DSInput id="new-password" type="password" />
-                    </div>
-                    <div>
-                      <Label htmlFor="confirm-password">Confirm New Password</Label>
-                      <DSInput id="confirm-password" type="password" />
-                    </div>
-                    <Button className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700">
-                      Change Password
-                    </Button>
-                  </CardContent>
-                </Card>
-
-                <Card className="rounded-2xl border-slate-200 shadow-sm">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Mail className="h-5 w-5" />
-                      Notification Preferences
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium">Email Notifications</p>
-                        <p className="text-xs text-slate-600">Receive updates about your listings</p>
-                      </div>
-                      <Button variant="outline" size="sm">
-                        Enable
-                      </Button>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium">SMS Notifications</p>
-                        <p className="text-xs text-slate-600">Get instant alerts for important updates</p>
-                      </div>
-                      <Button variant="outline" size="sm">
-                        Enable
-                      </Button>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium">Weekly Reports</p>
-                        <p className="text-xs text-slate-600">Receive weekly performance summaries</p>
-                      </div>
-                      <Button variant="outline" size="sm">
-                        Enable
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="rounded-2xl border-slate-200 shadow-sm">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Globe className="h-5 w-5" />
-                      Account Preferences
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <Label htmlFor="timezone">Timezone</Label>
-                      <Select defaultValue="est">
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="est">Eastern Time (EST)</SelectItem>
-                          <SelectItem value="cst">Central Time (CST)</SelectItem>
-                          <SelectItem value="mst">Mountain Time (MST)</SelectItem>
-                          <SelectItem value="pst">Pacific Time (PST)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label htmlFor="language">Language</Label>
-                      <Select defaultValue="en">
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="en">English</SelectItem>
-                          <SelectItem value="es">Spanish</SelectItem>
-                          <SelectItem value="fr">French</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <Button className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700">
-                      Save Preferences
-                    </Button>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-          </Tabs>
-
-          {/* Add Listing Dialog */}
-          <Dialog open={isAddListingOpen} onOpenChange={setIsAddListingOpen}>
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>Add New Listing</DialogTitle>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="title">Project Title</Label>
-                    <DSInput id="title" placeholder="Enter project title" />
-                  </div>
-                  <div>
-                    <Label htmlFor="type">Property Type</Label>
-                    <Select>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="residential">Residential</SelectItem>
-                        <SelectItem value="commercial">Commercial</SelectItem>
-                        <SelectItem value="mixed">Mixed Use</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="price">Price Range</Label>
-                    <DSInput id="price" placeholder="e.g., $300,000 - $500,000" />
-                  </div>
-                  <div>
-                    <Label htmlFor="location">Location</Label>
-                    <DSInput id="location" placeholder="Enter location" />
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea id="description" placeholder="Describe your project..." rows={4} />
-                </div>
-                <div className="flex justify-end gap-2">
-                  <Button variant="outline" onClick={() => setIsAddListingOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700">
-                    Create Listing
+              ) : (
+                <div className="text-center py-12">
+                  <Building2 className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No properties yet</h3>
+                  <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                    Start building your portfolio by adding your first property listing. It only takes a few minutes!
+                  </p>
+                  <Button onClick={handleAddListing} size="lg" className="bg-blue-600 hover:bg-blue-700">
+                    <Plus className="h-5 w-5 mr-2" />
+                    Add Your First Property
                   </Button>
                 </div>
-              </div>
-            </DialogContent>
-          </Dialog>
-        </div>
-      </div>
-
-      {/* Footer */}
-      <DashboardFooterBar
-        onHelp={handleHelp}
-        onDocs={handleDocs}
-        onSupport={handleFooterSupport}
-        onBilling={handleFooterBilling}
-        onPrivacy={handlePrivacy}
-        version="v2.1.0"
-        status="operational"
-        locale={locale}
-        onLocaleChange={setLocale}
-      />
+              )}
+            </CardContent>
+          </Card>
+        </section>
+      </main>
     </div>
   )
 }
 
 export default function DeveloperDashboardPage() {
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [profile, setProfile] = useState<DeveloperProfile | null>(null)
+
+  // Fetch developer profile for sidebar
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const token = localStorage.getItem('auth_token')
+        if (!token) return
+
+        const response = await fetch('http://localhost:8000/api/v1/developers/me', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+        
+        if (response.ok) {
+          const profileData = await response.json()
+          setProfile(profileData)
+        }
+      } catch (error) {
+        console.error('Failed to fetch profile:', error)
+      }
+    }
+
+    fetchProfile()
+  }, [])
+
   return (
     <ProtectedRoute requiredRole="developer">
-      <DeveloperDashboardContent />
+      <div className="min-h-screen bg-gray-50 flex">
+        {/* Mobile menu button */}
+        <Button
+          variant="outline"
+          size="sm"
+          className="fixed top-4 left-4 z-50 lg:hidden"
+          onClick={() => setSidebarOpen(true)}
+        >
+          <Menu className="h-4 w-4" />
+        </Button>
+
+        <DashboardSidebar 
+          profile={profile}
+          isOpen={sidebarOpen} 
+          onClose={() => setSidebarOpen(false)} 
+        />
+        <DashboardContent />
+      </div>
     </ProtectedRoute>
   )
 }

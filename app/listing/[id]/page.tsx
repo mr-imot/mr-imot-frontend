@@ -35,7 +35,8 @@ import {
   ChevronRight,
   X,
 } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
+import { recordProjectPhoneClick, recordProjectView, recordProjectWebsiteClick } from "@/lib/api"
 
 interface PropertyData {
   id: number
@@ -969,6 +970,18 @@ export default function ListingDetailPage({ params }: PageProps) {
     setCurrentImageIndex((prev) => (prev - 1 + property.images.length) % property.images.length)
   }
 
+  // Track a view once per session for this listing (using sessionStorage key)
+  useEffect(() => {
+    if (!property?.id) return
+    const key = `viewed_listing_${property.id}`
+    if (typeof window !== 'undefined' && !sessionStorage.getItem(key)) {
+      sessionStorage.setItem(key, '1')
+      // Note: propertyId here is mock numeric; backend expects UUID when using real data
+      // Guard call for demos; in real page this should use real project id
+      recordProjectView(String(property.id)).catch(() => {})
+    }
+  }, [property?.id])
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header with Back Button */}
@@ -1267,7 +1280,10 @@ export default function ListingDetailPage({ params }: PageProps) {
                 <CardContent className="space-y-4">
                   <Button
                     className="w-full bg-ds-primary-600 hover:bg-ds-primary-700 text-white"
-                    onClick={() => window.open(`tel:${property.contact.phone}`)}
+                    onClick={() => {
+                      recordProjectPhoneClick(String(property.id)).catch(() => {})
+                      window.open(`tel:${property.contact.phone}`)
+                    }}
                   >
                     <Phone className="h-4 w-4 mr-2" />
                     Call {property.contact.phone}
@@ -1280,7 +1296,10 @@ export default function ListingDetailPage({ params }: PageProps) {
                     <Button
                       variant="outline"
                       className="w-full bg-transparent"
-                      onClick={() => window.open(`https://${property.contact.website}`, "_blank")}
+                      onClick={() => {
+                        recordProjectWebsiteClick(String(property.id)).catch(() => {})
+                        window.open(`https://${property.contact.website}`, "_blank")
+                      }}
                     >
                       <Globe className="h-4 w-4 mr-2" />
                       Visit Website

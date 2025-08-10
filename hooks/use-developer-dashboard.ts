@@ -3,9 +3,14 @@ import { getDeveloperStats, getDeveloperAnalytics, getDeveloperProjects } from '
 
 interface DashboardStats {
   total_projects: number;
-  active_projects: number;
   total_views: number;
   total_inquiries: number;
+  total_website_clicks?: number;
+  total_phone_clicks?: number;
+  projects_growth?: string;
+  views_growth?: string;
+  website_clicks_growth?: string;
+  phone_clicks_growth?: string;
 }
 
 interface UseDeveloperDashboardResult {
@@ -21,19 +26,17 @@ interface UseDeveloperDashboardResult {
 const transformProjectForDashboard = (project: any) => {
   return {
     id: project.id,
-    title: project.title,
-    status: project.status === 'UNDER_CONSTRUCTION' ? 'Active' : 
-           project.status === 'PLANNING' ? 'Planning' : 'Completed',
-    views: Math.floor(Math.random() * 1000) + 100, // Mock data for now
-    websiteClicks: Math.floor(Math.random() * 100) + 10,
-    phoneClicks: Math.floor(Math.random() * 30) + 5,
-    contactMessages: Math.floor(Math.random() * 20) + 2,
-    savedCount: Math.floor(Math.random() * 50) + 10,
-    dateCreated: project.created_at ? new Date(project.created_at).toISOString().split('T')[0] : '2024-01-01',
-    price: project.price_per_m2 ? `${project.price_per_m2}/m²` : 'Price on request',
-    type: project.project_type === 'APARTMENT' ? 'Residential' : 
-          project.project_type === 'HOUSE' ? 'Residential' : 'Commercial',
-    location: project.neighborhood ? `${project.neighborhood}, ${project.city}` : project.city,
+    title: project.title || project.name,
+    status: project.is_active ? 'active' : 'inactive',
+    views: project.total_views || 0,
+    websiteClicks: project.total_clicks_website || 0,
+    phoneClicks: project.total_clicks_phone || 0,
+    contactMessages: 0,
+    savedCount: 0,
+    dateCreated: project.created_at ? new Date(project.created_at).toISOString().split('T')[0] : undefined,
+    price: project.price_label || 'Price on request',
+    type: project.project_type,
+    location: project.city,
   };
 };
 
