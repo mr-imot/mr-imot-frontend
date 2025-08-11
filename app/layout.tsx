@@ -9,6 +9,7 @@ import GlobalMaintenanceWrapper from "@/components/maintenance/global-maintenanc
 import { AuthProvider } from "@/lib/auth-context"
 import { UnifiedAuthProvider } from "@/lib/unified-auth"
 import { SpeedInsights } from "@vercel/speed-insights/next"
+import { Analytics } from "@vercel/analytics/next"
 
 
 const inter = Inter({ subsets: ["latin"] })
@@ -38,6 +39,7 @@ export default function RootLayout({
             </UnifiedAuthProvider>
           </AuthProvider>
         </GlobalMaintenanceWrapper>
+        <Analytics />
         <SpeedInsights />
       </body>
     </html>
