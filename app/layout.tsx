@@ -8,6 +8,7 @@ import { Footer } from "@/components/footer"
 import GlobalMaintenanceWrapper from "@/components/maintenance/global-maintenance-wrapper"
 import { AuthProvider } from "@/lib/auth-context"
 import { UnifiedAuthProvider } from "@/lib/unified-auth"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 
 const inter = Inter({ subsets: ["latin"] })
@@ -37,6 +38,7 @@ export default function RootLayout({
             </UnifiedAuthProvider>
           </AuthProvider>
         </GlobalMaintenanceWrapper>
+        <SpeedInsights />
       </body>
     </html>
   )
