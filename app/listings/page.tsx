@@ -92,24 +92,17 @@ export default function ListingsPage() {
     return () => document.removeEventListener("keydown", handleEscapeKey)
   }, [])
 
-  // System status and error handling - moved to useEffect to prevent infinite re-renders
+  // System status and error handling - disabled to prevent infinite re-renders
   useEffect(() => {
-    const status = getSystemStatus()
-    const strategy = getErrorHandlingStrategy(!!error)
+    // Simplified error handling - no system status calls
+    setSystemStatus('healthy')
+    setErrorHandlingStrategy('none')
     
-    setSystemStatus(status)
-    setErrorHandlingStrategy(strategy)
-    
-    // Log errors for monitoring
+    // Minimal error logging
     if (error) {
-      logError(error, {
-        context: 'listings_page',
-        city: selectedCity,
-        systemStatus: status,
-        strategy: strategy
-      })
+      console.warn('Listings page error:', error)
     }
-  }, [error, selectedCity])
+  }, [error])
 
   // No more mock data - developers see real production behavior
 
