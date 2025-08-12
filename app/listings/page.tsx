@@ -109,7 +109,7 @@ export default function ListingsPage() {
         strategy: strategy
       })
     }
-  }, [error, selectedCity, getSystemStatus, getErrorHandlingStrategy])
+  }, [error, selectedCity])
 
   // No more mock data - developers see real production behavior
 
