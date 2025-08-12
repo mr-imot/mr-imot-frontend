@@ -134,7 +134,18 @@ export const useProjects = (params: UseProjectsParams = {}): UseProjectsResult =
 
   useEffect(() => {
     fetchProjects();
-  }, [JSON.stringify(params)]); // Re-fetch when params change
+  }, [
+    params.search,
+    params.city,
+    params.project_type,
+    params.status,
+    params.page,
+    params.per_page,
+    params.sw_lat,
+    params.sw_lng,
+    params.ne_lat,
+    params.ne_lng
+  ]); // Re-fetch when individual params change
 
   const refetch = () => {
     fetchProjects();
