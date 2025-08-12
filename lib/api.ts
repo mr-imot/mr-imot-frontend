@@ -207,6 +207,10 @@ class ApiClient {
     status?: string;
     page?: number;
     per_page?: number;
+    sw_lat?: number;
+    sw_lng?: number;
+    ne_lat?: number;
+    ne_lng?: number;
   } = {}): Promise<ProjectListResponse> {
     const searchParams = new URLSearchParams();
     Object.entries(params).forEach(([key, value]) => {

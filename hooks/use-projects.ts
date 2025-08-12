@@ -8,6 +8,11 @@ interface UseProjectsParams {
   status?: string;
   page?: number;
   per_page?: number;
+  // Optional viewport bounds for map queries
+  sw_lat?: number;
+  sw_lng?: number;
+  ne_lat?: number;
+  ne_lng?: number;
 }
 
 interface UseProjectsResult {
@@ -20,17 +25,20 @@ interface UseProjectsResult {
 
 // Transform API project data to PropertyData format
 const transformProjectToPropertyData = (project: any) => {
+  const title: string = project.title || project.name || 'Project';
+  const city: string = project.city || project.location || '';
+  const priceLabel: string | undefined = project.price_label || project.price_per_m2;
   return {
     id: project.id,
-    slug: project.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
-    title: project.title,
-    priceRange: project.price_per_m2 ? `${project.price_per_m2}/m²` : 'Price on request',
-    shortPrice: project.price_per_m2 ? project.price_per_m2 : '€0k',
-    location: project.neighborhood ? `${project.neighborhood}, ${project.city}` : project.city,
+    slug: String(title).toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
+    title,
+    priceRange: priceLabel ? `${priceLabel}` : 'Price on request',
+    shortPrice: priceLabel || '€0k',
+    location: project.neighborhood ? `${project.neighborhood}, ${city}` : city,
     image: project.cover_image_url || '/placeholder.svg?height=300&width=400',
-    description: project.description,
-    lat: project.latitude || 42.6977, // Default to Sofia center if no coordinates
-    lng: project.longitude || 23.3219,
+    description: project.description || '',
+    lat: project.latitude ?? 42.6977, // Default to Sofia center if no coordinates
+    lng: project.longitude ?? 23.3219,
     color: getColorForProject(project.id),
     type: mapProjectType(project.project_type),
     status: mapProjectStatus(project.status),
