@@ -3,6 +3,7 @@
 import type React from "react"
 import { useState, useRef, useEffect } from "react"
 import Image from "next/image"
+import { Loader as GoogleLoader } from "@googlemaps/js-api-loader"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -53,6 +54,7 @@ export default function ListingsPage() {
   const [hoveredProperty, setHoveredProperty] = useState<number | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const mapRef = useRef<HTMLDivElement>(null)
+  const googleMapRef = useRef<google.maps.Map | null>(null)
   const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0 })
 
   // API hook to fetch projects
@@ -182,6 +184,31 @@ export default function ListingsPage() {
   const startIndex = (currentPage - 1) * PROPERTIES_PER_PAGE
   const endIndex = startIndex + PROPERTIES_PER_PAGE
   const currentProperties = filteredProperties.slice(startIndex, endIndex)
+
+  // Initialize Google Map once
+  useEffect(() => {
+    const init = async () => {
+      try {
+        const loader = new GoogleLoader({
+          apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
+          version: "weekly",
+        })
+        await loader.load()
+        if (!mapRef.current) return
+        const map = new google.maps.Map(mapRef.current, {
+          center: { lat: 42.6977, lng: 23.3219 },
+          zoom: 11,
+          streetViewControl: false,
+          mapTypeControl: false,
+          fullscreenControl: false,
+        })
+        googleMapRef.current = map
+      } catch (e) {
+        console.error("Google Maps init failed", e)
+      }
+    }
+    init()
+  }, [])
 
   // Handle city change
   const handleCityChange = (value: string) => {
@@ -623,13 +650,8 @@ export default function ListingsPage() {
           {/* Right Side - Google Map (Sticky/Fixed) - 40% width */}
           <div className="w-2/5 sticky top-[200px] h-[calc(100vh-200px)] bg-gray-100" onClick={handleMapClick}>
             <div ref={mapRef} className="w-full h-full relative">
-              {/* Map Background */}
-              <Image
-                src="/placeholder.svg?height=800&width=800"
-                alt={`Interactive map of real estate projects in ${selectedCity}`}
-                fill
-                className="object-cover"
-              />
+              {/* Google Map Canvas */}
+              <div className="absolute inset-0" ref={mapRef} />
 
               {/* Airbnb-style Price Markers */}
               {currentProperties.map((property: PropertyData, index: number) => {
