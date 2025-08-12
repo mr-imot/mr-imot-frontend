@@ -12,7 +12,7 @@ export default function TestAPIPage() {
       setStatus('Testing...')
       
       // Test 1: Basic connectivity
-      const response = await fetch('http://localhost:8000/api/v1/projects/')
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://api.mrimot.com'}/api/v1/projects/`)
       console.log('Response status:', response.status)
       console.log('Response headers:', Object.fromEntries(response.headers.entries()))
       
@@ -38,7 +38,7 @@ export default function TestAPIPage() {
     try {
       setStatus('Testing Mock API...')
       
-      const response = await fetch('http://localhost:8000/api/v1/mock-projects/')
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://api.mrimot.com'}/api/v1/mock-projects/`)
       console.log('Mock API Response status:', response.status)
       
       if (!response.ok) {

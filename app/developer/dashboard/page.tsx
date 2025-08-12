@@ -238,7 +238,7 @@ function DashboardContent() {
         const token = localStorage.getItem('auth_token')
         if (!token) return
 
-        const response = await fetch('http://localhost:8000/api/v1/developers/me', {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://api.mrimot.com'}/api/v1/developers/me`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -523,7 +523,7 @@ export default function DeveloperDashboardPage() {
         const token = localStorage.getItem('auth_token')
         if (!token) return
 
-        const response = await fetch('http://localhost:8000/api/v1/developers/me', {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://api.mrimot.com'}/api/v1/developers/me`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }

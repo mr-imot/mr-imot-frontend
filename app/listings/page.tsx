@@ -187,14 +187,19 @@ export default function ListingsPage() {
 
   // Initialize Google Map once
   useEffect(() => {
+    let cancelled = false
     const init = async () => {
       try {
+        if (!process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY) {
+          console.error('Missing NEXT_PUBLIC_GOOGLE_MAPS_API_KEY')
+          return
+        }
         const loader = new GoogleLoader({
           apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
           version: "weekly",
         })
         await loader.load()
-        if (!mapRef.current) return
+        if (!mapRef.current || cancelled) return
         const map = new google.maps.Map(mapRef.current, {
           center: { lat: 42.6977, lng: 23.3219 },
           zoom: 11,
@@ -208,6 +213,7 @@ export default function ListingsPage() {
       }
     }
     init()
+    return () => { cancelled = true }
   }, [])
 
   // Handle city change
