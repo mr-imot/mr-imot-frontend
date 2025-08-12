@@ -3,7 +3,7 @@
 
 import { getAdminAuthHeaders, SecureTokenStorage } from './admin-auth';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.mrimot.com';
 
 // Types for Admin API responses
 export interface PendingDeveloper {

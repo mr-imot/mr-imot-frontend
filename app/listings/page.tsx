@@ -76,6 +76,10 @@ export default function ListingsPage() {
 
   const PROPERTIES_PER_PAGE = 18 // 6 rows × 3 properties per row
 
+  // State for cached system status to prevent re-renders
+  const [systemStatus, setSystemStatus] = useState('healthy')
+  const [errorHandlingStrategy, setErrorHandlingStrategy] = useState('none')
+
   // Close popup with escape key - MUST be before any early returns to fix Hooks order
   useEffect(() => {
     const handleEscapeKey = (event: KeyboardEvent) => {
@@ -88,6 +92,25 @@ export default function ListingsPage() {
     return () => document.removeEventListener("keydown", handleEscapeKey)
   }, [])
 
+  // System status and error handling - moved to useEffect to prevent infinite re-renders
+  useEffect(() => {
+    const status = getSystemStatus()
+    const strategy = getErrorHandlingStrategy(!!error)
+    
+    setSystemStatus(status)
+    setErrorHandlingStrategy(strategy)
+    
+    // Log errors for monitoring
+    if (error) {
+      logError(error, {
+        context: 'listings_page',
+        city: selectedCity,
+        systemStatus: status,
+        strategy: strategy
+      })
+    }
+  }, [error, selectedCity, getSystemStatus, getErrorHandlingStrategy])
+
   // No more mock data - developers see real production behavior
 
   const cities = [
@@ -96,34 +119,9 @@ export default function ListingsPage() {
     { name: "Varna", id: "varna" },
   ]
 
-  // Production-ready error handling
-  const systemStatus = getSystemStatus()
-  const errorHandlingStrategy = getErrorHandlingStrategy(!!error)
-  
-  // Log errors for monitoring
-  if (error) {
-    logError(error, {
-      context: 'listings_page',
-      city: selectedCity,
-      systemStatus,
-      strategy: errorHandlingStrategy
-    })
-  }
-
   // Simple data handling - no more mock data fallback
   // Developers and users see exactly the same behavior
   const allProperties = apiProjects || []
-  
-  console.log('🏠 Listings page data:', {
-    apiProjects: apiProjects,
-    apiProjectsLength: apiProjects?.length,
-    allPropertiesLength: allProperties.length,
-    usingApiData: !error && apiProjects !== null,
-    systemStatus,
-    errorHandlingStrategy,
-    loading,
-    error
-  });
 
   // Show loading state
   if (loading) {

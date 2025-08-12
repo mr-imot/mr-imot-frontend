@@ -3,7 +3,7 @@
 
 import { createContext, useContext, useCallback, useEffect, useState } from 'react';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.mrimot.com';
 
 // Admin-specific types
 export interface AdminUser {
