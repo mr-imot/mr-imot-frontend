@@ -47,6 +47,7 @@ interface PropertyData {
 type PropertyTypeFilter = "all" | "houses" | "apartments"
 
 export default function ListingsPage() {
+  // ===== ALL HOOKS MUST BE CALLED FIRST - NO EARLY RETURNS BEFORE THIS POINT =====
   const [selectedCity, setSelectedCity] = useState("Sofia")
   const [propertyTypeFilter, setPropertyTypeFilter] = useState<PropertyTypeFilter>("all")
   const [isMapLoading, setIsMapLoading] = useState(false)
@@ -74,13 +75,11 @@ export default function ListingsPage() {
     interval: 0 // No automatic polling
   })
 
-  const PROPERTIES_PER_PAGE = 18 // 6 rows × 3 properties per row
-
   // State for cached system status to prevent re-renders
   const [systemStatus, setSystemStatus] = useState('healthy')
   const [errorHandlingStrategy, setErrorHandlingStrategy] = useState('none')
 
-  // Close popup with escape key - MUST be before any early returns to fix Hooks order
+  // Close popup with escape key
   useEffect(() => {
     const handleEscapeKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -104,7 +103,40 @@ export default function ListingsPage() {
     }
   }, [error])
 
-  // No more mock data - developers see real production behavior
+  // Initialize Google Map once
+  useEffect(() => {
+    let cancelled = false
+    const init = async () => {
+      try {
+        if (!process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY) {
+          console.error('Missing NEXT_PUBLIC_GOOGLE_MAPS_API_KEY')
+          return
+        }
+        const loader = new GoogleLoader({
+          apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
+          version: "weekly",
+        })
+        await loader.load()
+        if (!mapRef.current || cancelled) return
+        const map = new google.maps.Map(mapRef.current, {
+          center: { lat: 42.6977, lng: 23.3219 },
+          zoom: 11,
+          streetViewControl: false,
+          mapTypeControl: false,
+          fullscreenControl: false,
+        })
+        googleMapRef.current = map
+      } catch (e) {
+        console.error("Google Maps init failed", e)
+      }
+    }
+    init()
+    return () => { cancelled = true }
+  }, [])
+
+  // ===== ALL HOOKS CALLED - NOW SAFE FOR CONDITIONAL RENDERING =====
+
+  const PROPERTIES_PER_PAGE = 18 // 6 rows × 3 properties per row
 
   const cities = [
     { name: "Sofia", id: "sofia" },
@@ -113,7 +145,6 @@ export default function ListingsPage() {
   ]
 
   // Simple data handling - no more mock data fallback
-  // Developers and users see exactly the same behavior
   const allProperties = apiProjects || []
 
   // Show loading state
@@ -175,37 +206,6 @@ export default function ListingsPage() {
   const startIndex = (currentPage - 1) * PROPERTIES_PER_PAGE
   const endIndex = startIndex + PROPERTIES_PER_PAGE
   const currentProperties = filteredProperties.slice(startIndex, endIndex)
-
-  // Initialize Google Map once
-  useEffect(() => {
-    let cancelled = false
-    const init = async () => {
-      try {
-        if (!process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY) {
-          console.error('Missing NEXT_PUBLIC_GOOGLE_MAPS_API_KEY')
-          return
-        }
-        const loader = new GoogleLoader({
-          apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
-          version: "weekly",
-        })
-        await loader.load()
-        if (!mapRef.current || cancelled) return
-        const map = new google.maps.Map(mapRef.current, {
-          center: { lat: 42.6977, lng: 23.3219 },
-          zoom: 11,
-          streetViewControl: false,
-          mapTypeControl: false,
-          fullscreenControl: false,
-        })
-        googleMapRef.current = map
-      } catch (e) {
-        console.error("Google Maps init failed", e)
-      }
-    }
-    init()
-    return () => { cancelled = true }
-  }, [])
 
   // Handle city change
   const handleCityChange = (value: string) => {
