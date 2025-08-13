@@ -53,9 +53,9 @@ export default function ContactPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-ds-neutral-50">
+    <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-ds-primary-50 via-white to-ds-accent-50">
+      <section className="relative overflow-hidden bg-gradient-to-br from-muted via-background to-muted">
         <div className="absolute inset-0 opacity-5">
           <div className="absolute top-0 left-0 w-full h-full">
             <svg className="w-full h-full" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -72,14 +72,14 @@ export default function ContactPage() {
         <div className="container relative py-20 md:py-32">
           <ScrollAnimationWrapper>
             <div className="text-center max-w-4xl mx-auto">
-              <div className="inline-flex items-center gap-2 bg-ds-primary-100 text-ds-primary-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
+              <div className="inline-flex items-center gap-2 bg-muted text-foreground px-4 py-2 rounded-full text-sm font-medium mb-6">
                 <MessageCircle className="w-4 h-4" />
                 Get in Touch
               </div>
-              <h1 className="text-4xl md:text-6xl font-bold text-ds-neutral-900 mb-6 leading-tight">
-                We're Here to <span className="text-ds-primary-600">Help</span>
+              <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
+                We're Here to <span className="text-primary">Help</span>
               </h1>
-              <p className="text-xl text-ds-neutral-600 leading-relaxed max-w-3xl mx-auto">
+              <p className="text-xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
                 Have questions about a property? Need help finding the perfect developer? Our team is ready to assist
                 you every step of the way.
               </p>
@@ -90,12 +90,12 @@ export default function ContactPage() {
       </section>
 
       {/* Contact Methods */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-background">
         <div className="container">
           <ScrollAnimationWrapper>
             <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold text-ds-neutral-900 mb-4">Multiple Ways to Reach Us</h2>
-              <p className="text-lg text-ds-neutral-600 max-w-2xl mx-auto">
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Multiple Ways to Reach Us</h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
                 Choose the method that works best for you. We're committed to responding quickly and helpfully.
               </p>
             </div>
@@ -104,22 +104,22 @@ export default function ContactPage() {
           <div className="grid md:grid-cols-3 gap-8 mb-20">
             {contactMethods.map((method, index) => (
               <ScrollAnimationWrapper key={index} delay={index * 0.1}>
-                <Card className="group bg-white shadow-lg hover:shadow-2xl border border-ds-neutral-200 hover:border-ds-primary-300 transition-all duration-300 hover:-translate-y-2 h-full">
+                <Card className="group bg-card shadow-lg hover:shadow-2xl border transition-all duration-300 hover:-translate-y-2 h-full">
                   <CardContent className="p-8 text-center h-full flex flex-col">
-                    <div className="w-16 h-16 bg-gradient-to-br from-ds-primary-500 to-ds-accent-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
                       <method.icon className="w-8 h-8 text-white" />
                     </div>
-                    <h3 className="text-xl font-bold text-ds-neutral-900 mb-3">{method.title}</h3>
-                    <p className="text-ds-neutral-600 mb-4 flex-grow">{method.description}</p>
+                    <h3 className="text-xl font-bold text-foreground mb-3">{method.title}</h3>
+                    <p className="text-muted-foreground mb-4 flex-grow">{method.description}</p>
                     <div className="space-y-2 mb-6">
-                      <p className="text-lg font-semibold text-ds-primary-600">{method.value}</p>
-                      <div className="flex items-center justify-center text-sm text-ds-neutral-500">
+                      <p className="text-lg font-semibold text-primary">{method.value}</p>
+                      <div className="flex items-center justify-center text-sm text-muted-foreground">
                         <Clock className="w-4 h-4 mr-1" />
                         {method.available}
                       </div>
                     </div>
                     <Button
-                      className="w-full bg-ds-primary-600 hover:bg-ds-primary-700 text-white font-semibold py-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 group-hover:bg-ds-primary-700"
+                      className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-300"
                       onClick={() => {
                         if (method.action.startsWith("tel:") || method.action.startsWith("mailto:")) {
                           window.open(method.action)
@@ -137,18 +137,18 @@ export default function ContactPage() {
       </section>
 
       {/* Contact Form & Info */}
-      <section className="py-20 bg-ds-neutral-50">
+      <section className="py-20 bg-muted">
         <div className="container">
           <div className="grid lg:grid-cols-2 gap-16">
             {/* Contact Form */}
             <ScrollAnimationWrapper>
-              <Card className="bg-white shadow-xl border border-ds-neutral-200 rounded-2xl overflow-hidden">
-                <CardHeader className="bg-gradient-to-r from-ds-primary-600 to-ds-accent-600 text-white p-8">
+              <Card className="bg-card shadow-xl border rounded-2xl overflow-hidden">
+                <CardHeader className="bg-gradient-to-r from-primary to-accent text-primary-foreground p-8">
                   <CardTitle className="text-2xl font-bold flex items-center">
                     <Send className="w-6 h-6 mr-3" />
                     Send Us a Message
                   </CardTitle>
-                  <p className="text-white/90 mt-2">
+                  <p className="mt-2 opacity-90">
                     Fill out the form below and we'll get back to you within 24 hours.
                   </p>
                 </CardHeader>
@@ -156,7 +156,7 @@ export default function ContactPage() {
                   <form className="space-y-6">
                     <div className="grid md:grid-cols-2 gap-6">
                       <div>
-                        <label htmlFor="firstName" className="block text-sm font-semibold text-ds-neutral-800 mb-2">
+                        <label htmlFor="firstName" className="block text-sm font-semibold text-foreground mb-2">
                           First Name *
                         </label>
                         <Input
@@ -164,11 +164,11 @@ export default function ContactPage() {
                           type="text"
                           placeholder="John"
                           required
-                          className="w-full border-ds-neutral-300 rounded-lg focus:border-ds-primary-600 focus:ring-2 focus:ring-ds-primary-500 focus:ring-offset-1 transition-all duration-200"
+                          className="w-full rounded-lg"
                         />
                       </div>
                       <div>
-                        <label htmlFor="lastName" className="block text-sm font-semibold text-ds-neutral-800 mb-2">
+                        <label htmlFor="lastName" className="block text-sm font-semibold text-foreground mb-2">
                           Last Name *
                         </label>
                         <Input
@@ -176,12 +176,12 @@ export default function ContactPage() {
                           type="text"
                           placeholder="Doe"
                           required
-                          className="w-full border-ds-neutral-300 rounded-lg focus:border-ds-primary-600 focus:ring-2 focus:ring-ds-primary-500 focus:ring-offset-1 transition-all duration-200"
+                          className="w-full rounded-lg"
                         />
                       </div>
                     </div>
                     <div>
-                      <label htmlFor="email" className="block text-sm font-semibold text-ds-neutral-800 mb-2">
+                      <label htmlFor="email" className="block text-sm font-semibold text-foreground mb-2">
                         Email Address *
                       </label>
                       <Input
@@ -189,22 +189,22 @@ export default function ContactPage() {
                         type="email"
                         placeholder="your@example.com"
                         required
-                        className="w-full border-ds-neutral-300 rounded-lg focus:border-ds-primary-600 focus:ring-2 focus:ring-ds-primary-500 focus:ring-offset-1 transition-all duration-200"
+                        className="w-full rounded-lg"
                       />
                     </div>
                     <div>
-                      <label htmlFor="phone" className="block text-sm font-semibold text-ds-neutral-800 mb-2">
+                      <label htmlFor="phone" className="block text-sm font-semibold text-foreground mb-2">
                         Phone Number
                       </label>
                       <Input
                         id="phone"
                         type="tel"
                         placeholder="+359 ..."
-                        className="w-full border-ds-neutral-300 rounded-lg focus:border-ds-primary-600 focus:ring-2 focus:ring-ds-primary-500 focus:ring-offset-1 transition-all duration-200"
+                        className="w-full rounded-lg"
                       />
                     </div>
                     <div>
-                      <label htmlFor="subject" className="block text-sm font-semibold text-ds-neutral-800 mb-2">
+                      <label htmlFor="subject" className="block text-sm font-semibold text-foreground mb-2">
                         Subject *
                       </label>
                       <Input
@@ -212,11 +212,11 @@ export default function ContactPage() {
                         type="text"
                         placeholder="How can we help you?"
                         required
-                        className="w-full border-ds-neutral-300 rounded-lg focus:border-ds-primary-600 focus:ring-2 focus:ring-ds-primary-500 focus:ring-offset-1 transition-all duration-200"
+                        className="w-full rounded-lg"
                       />
                     </div>
                     <div>
-                      <label htmlFor="message" className="block text-sm font-semibold text-ds-neutral-800 mb-2">
+                      <label htmlFor="message" className="block text-sm font-semibold text-foreground mb-2">
                         Message *
                       </label>
                       <Textarea
@@ -224,12 +224,12 @@ export default function ContactPage() {
                         placeholder="Tell us more about your inquiry..."
                         rows={5}
                         required
-                        className="w-full border-ds-neutral-300 rounded-lg focus:border-ds-primary-600 focus:ring-2 focus:ring-ds-primary-500 focus:ring-offset-1 transition-all duration-200 resize-none"
+                        className="w-full rounded-lg resize-none"
                       />
                     </div>
                     <Button
                       type="submit"
-                      className="w-full bg-ds-primary-600 hover:bg-ds-primary-700 text-white font-semibold py-4 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]"
+                      className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-4 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]"
                     >
                       <Send className="w-5 h-5 mr-2" />
                       Send Message
@@ -243,22 +243,22 @@ export default function ContactPage() {
             <div className="space-y-8">
               {/* Office Information */}
               <ScrollAnimationWrapper delay={0.2}>
-                <Card className="bg-white shadow-lg border border-ds-neutral-200 rounded-2xl">
+                <Card className="bg-card shadow-lg border rounded-2xl">
                   <CardHeader>
-                    <CardTitle className="text-xl font-bold text-ds-neutral-900 flex items-center">
-                      <MapPin className="w-5 h-5 mr-2 text-ds-primary-600" />
+                    <CardTitle className="text-xl font-bold text-foreground flex items-center">
+                      <MapPin className="w-5 h-5 mr-2 text-primary" />
                       Office Information
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-6">
                     <div className="space-y-4">
                       <div className="flex items-start space-x-4">
-                        <div className="w-10 h-10 bg-ds-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <MapPin className="w-5 h-5 text-ds-primary-600" />
+                        <div className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center flex-shrink-0">
+                          <MapPin className="w-5 h-5 text-primary" />
                         </div>
                         <div>
-                          <h4 className="font-semibold text-ds-neutral-900">Address</h4>
-                          <p className="text-ds-neutral-600">
+                          <h4 className="font-semibold text-foreground">Address</h4>
+                          <p className="text-muted-foreground">
                             123 Mr imot Street
                             <br />
                             Sofia 1000, Bulgaria
@@ -266,12 +266,12 @@ export default function ContactPage() {
                         </div>
                       </div>
                       <div className="flex items-start space-x-4">
-                        <div className="w-10 h-10 bg-ds-accent-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <Clock className="w-5 h-5 text-ds-accent-600" />
+                        <div className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center flex-shrink-0">
+                          <Clock className="w-5 h-5 text-primary" />
                         </div>
                         <div>
-                          <h4 className="font-semibold text-ds-neutral-900">Business Hours</h4>
-                          <p className="text-ds-neutral-600">
+                          <h4 className="font-semibold text-foreground">Business Hours</h4>
+                          <p className="text-muted-foreground">
                             Monday - Friday: 9:00 AM - 6:00 PM
                             <br />
                             Saturday: 10:00 AM - 4:00 PM
@@ -287,18 +287,18 @@ export default function ContactPage() {
 
               {/* FAQ */}
               <ScrollAnimationWrapper delay={0.3}>
-                <Card className="bg-white shadow-lg border border-ds-neutral-200 rounded-2xl">
+                <Card className="bg-card shadow-lg border rounded-2xl">
                   <CardHeader>
-                    <CardTitle className="text-xl font-bold text-ds-neutral-900">Frequently Asked Questions</CardTitle>
+                    <CardTitle className="text-xl font-bold text-foreground">Frequently Asked Questions</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-6">
                     {faqs.map((faq, index) => (
-                      <div key={index} className="border-b border-ds-neutral-200 last:border-b-0 pb-4 last:pb-0">
-                        <h4 className="font-semibold text-ds-neutral-900 mb-2 flex items-start">
-                          <CheckCircle className="w-5 h-5 text-ds-accent-500 mr-2 flex-shrink-0 mt-0.5" />
+                      <div key={index} className="border-b last:border-b-0 pb-4 last:pb-0">
+                        <h4 className="font-semibold text-foreground mb-2 flex items-start">
+                          <CheckCircle className="w-5 h-5 text-primary mr-2 flex-shrink-0 mt-0.5" />
                           {faq.question}
                         </h4>
-                        <p className="text-ds-neutral-600 ml-7">{faq.answer}</p>
+                        <p className="text-muted-foreground ml-7">{faq.answer}</p>
                       </div>
                     ))}
                   </CardContent>
@@ -307,12 +307,12 @@ export default function ContactPage() {
 
               {/* Response Time Promise */}
               <ScrollAnimationWrapper delay={0.4}>
-                <div className="bg-gradient-to-r from-ds-accent-500 to-ds-primary-600 rounded-2xl p-6 text-white">
+                <div className="bg-gradient-to-r from-accent to-primary rounded-2xl p-6 text-primary-foreground">
                   <div className="flex items-center mb-3">
                     <CheckCircle className="w-6 h-6 mr-2" />
                     <h3 className="text-lg font-bold">Our Promise</h3>
                   </div>
-                  <p className="text-white/90">
+                  <p className="opacity-90">
                     We guarantee a response within 24 hours during business days. For urgent inquiries, call us directly
                     for immediate assistance.
                   </p>
@@ -324,7 +324,7 @@ export default function ContactPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-br from-ds-primary-600 via-ds-primary-700 to-ds-accent-600 text-white relative overflow-hidden">
+      <section className="py-20 bg-gradient-to-br from-primary via-primary to-accent text-primary-foreground relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 left-0 w-full h-full">
             <svg className="w-full h-full" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -349,7 +349,7 @@ export default function ContactPage() {
                 <Button
                   asChild
                   size="lg"
-                  className="bg-white text-ds-primary-600 hover:bg-ds-neutral-50 px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                  className="bg-card text-primary hover:bg-muted px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
                 >
                   <a href="/listings">Browse Properties</a>
                 </Button>
@@ -357,7 +357,7 @@ export default function ContactPage() {
                   asChild
                   variant="outline"
                   size="lg"
-                  className="border-2 border-white text-white hover:bg-white hover:text-ds-primary-600 px-8 py-4 text-lg font-semibold rounded-xl transition-all duration-300 bg-transparent"
+                  className="border-2 border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary px-8 py-4 text-lg font-semibold rounded-xl transition-all duration-300 bg-transparent"
                 >
                   <a href="/developers">Meet Developers</a>
                 </Button>

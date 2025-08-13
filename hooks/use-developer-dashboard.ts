@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import useSWR from 'swr'
+import { useMemo } from 'react'
 import { getDeveloperStats, getDeveloperAnalytics, getDeveloperProjects } from '@/lib/api';
 
 interface DashboardStats {
@@ -41,101 +42,44 @@ const transformProjectForDashboard = (project: any) => {
 };
 
 export const useDeveloperDashboard = (period: string = 'week'): UseDeveloperDashboardResult => {
-  const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [analytics, setAnalytics] = useState<any>(null);
-  const [projects, setProjects] = useState<any[] | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: stats, error: statsErr, isLoading: statsLoading, mutate: refetchStats } = useSWR(
+    ['developer/stats'],
+    () => getDeveloperStats(),
+    { dedupingInterval: 30000, revalidateOnFocus: false }
+  )
 
-  const fetchDashboardData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
+  const { data: analytics, error: analyticsErr, isLoading: analyticsLoading, mutate: refetchAnalytics } = useSWR(
+    ['developer/analytics', period],
+    () => getDeveloperAnalytics(period),
+    { dedupingInterval: 30000, revalidateOnFocus: false }
+  )
 
-      // OPTIMIZATION: Set loading to false early to show partial data
-      // Use a timeout to prevent indefinite loading states
-      const timeoutId = setTimeout(() => {
-        setLoading(false);
-        console.warn('Dashboard data loading timeout, showing partial results');
-      }, 3000); // 3 second timeout for better UX
+  const { data: projectsResp, error: projectsErr, isLoading: projectsLoading, mutate: refetchProjects } = useSWR(
+    ['developer/projects'],
+    () => getDeveloperProjects({ per_page: 100 }),
+    { dedupingInterval: 30000, revalidateOnFocus: false }
+  )
 
-      // Fetch all dashboard data in parallel with individual timeouts
-      const [statsData, analyticsData, projectsData] = await Promise.allSettled([
-        Promise.race([
-          getDeveloperStats(),
-          new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Stats timeout')), 2000)
-          )
-        ]),
-        Promise.race([
-          getDeveloperAnalytics(period),
-          new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Analytics timeout')), 2000)
-          )
-        ]),
-        Promise.race([
-          getDeveloperProjects({ per_page: 20 }),
-          new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Projects timeout')), 2000)
-          )
-        ])
-      ]);
+  const projects = useMemo(() => {
+    const list = projectsResp?.projects || []
+    return list.map(transformProjectForDashboard)
+  }, [projectsResp])
 
-      clearTimeout(timeoutId);
-
-      // Handle stats
-      if (statsData.status === 'fulfilled') {
-        setStats(statsData.value);
-      } else {
-        console.error('Failed to fetch stats:', statsData.reason);
-        // Set default stats to prevent blank UI
-        setStats({
-          total_projects: 0,
-          active_projects: 0,
-          total_views: 0,
-          total_inquiries: 0
-        });
-      }
-
-      // Handle analytics
-      if (analyticsData.status === 'fulfilled') {
-        setAnalytics(analyticsData.value);
-      } else {
-        console.error('Failed to fetch analytics:', analyticsData.reason);
-        // Keep analytics as null - component should handle this gracefully
-      }
-
-      // Handle projects
-      if (projectsData.status === 'fulfilled') {
-        const transformedProjects = (projectsData.value.projects || []).map(transformProjectForDashboard);
-        setProjects(transformedProjects);
-      } else {
-        console.error('Failed to fetch projects:', projectsData.reason);
-        setProjects([]); // Show empty array instead of null for better UX
-      }
-
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch dashboard data');
-      console.error('Error fetching dashboard data:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchDashboardData();
-  }, [period]);
+  const loading = statsLoading || analyticsLoading || projectsLoading
+  const error = statsErr?.message || analyticsErr?.message || projectsErr?.message || null
 
   const refetch = () => {
-    fetchDashboardData();
-  };
+    refetchStats()
+    refetchAnalytics()
+    refetchProjects()
+  }
 
   return {
-    stats,
-    analytics,
+    stats: (stats as any) || null,
+    analytics: (analytics as any) || null,
     projects,
     loading,
     error,
     refetch,
-  };
-}; 
+  }
+}

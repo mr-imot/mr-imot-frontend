@@ -1,31 +1,27 @@
 import Link from "next/link"
-import { CheckCircle, Users, UserX, Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Instagram } from "lucide-react"
+import { Separator } from "@/components/ui/separator"
+import { Facebook, Twitter, Linkedin, Instagram } from "lucide-react"
 
 export function Footer() {
-  const trustIndicators = [
+  const navColumns = [
     {
-      icon: CheckCircle,
-      title: "Verified Listings",
-      description: "100% authentic projects",
+      title: "Explore",
+      links: [
+        { href: "/listings", label: "Listings" },
+        { href: "/developers", label: "Developers" },
+        { href: "/about-us", label: "About Us" },
+        { href: "/contact", label: "Contact" },
+      ],
     },
     {
-      icon: Users,
-      title: "Direct Contact",
-      description: "No middlemen involved",
+      title: "For Developers",
+      links: [
+        { href: "/register?type=developer", label: "List Your Project" },
+        { href: "/developer/dashboard", label: "Developer Dashboard" },
+        { href: "/login", label: "Login" },
+        { href: "/register", label: "Register" },
+      ],
     },
-    {
-      icon: UserX,
-      title: "No Brokers",
-      description: "Zero commission fees",
-    },
-  ]
-
-  const quickLinks = [
-    { href: "/listings", label: "Browse Listings" },
-    { href: "/developers", label: "Find Developers" },
-    { href: "/about-us", label: "About Us" },
-    { href: "/contact", label: "Contact" },
-    { href: "/register?type=developer", label: "List Your Project" },
   ]
 
   const legalLinks = [
@@ -35,152 +31,78 @@ export function Footer() {
 ]
 
   const socialLinks = [
-    { href: "#", icon: Facebook, label: "Facebook" },
-    { href: "#", icon: Twitter, label: "Twitter" },
-    { href: "#", icon: Linkedin, label: "LinkedIn" },
-    { href: "#", icon: Instagram, label: "Instagram" },
+    { href: "https://facebook.com/mrimot", icon: Facebook, label: "Facebook" },
+    { href: "https://twitter.com/mrimot", icon: Twitter, label: "Twitter" },
+    { href: "https://www.linkedin.com/company/mrimot", icon: Linkedin, label: "LinkedIn" },
+    { href: "https://instagram.com/mrimot", icon: Instagram, label: "Instagram" },
   ]
 
   return (
-    <footer className="bg-ds-neutral-800 text-white">
+    <footer className="bg-card border-t text-card-foreground">
       {/* Main Footer Content */}
       <div className="container px-4 md:px-6 py-16 md:py-20">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-16">
-          {/* Trust Indicators Column */}
+          {/* Brand + description */}
           <div className="lg:col-span-1">
-            <h3 className="text-xl font-bold text-white mb-8">Why Choose Mr imot</h3>
-            <div className="space-y-6">
-              {trustIndicators.map((item, index) => (
-                <div key={index} className="flex items-start space-x-4">
-                  <div className="w-10 h-10 bg-ds-primary-600 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <item.icon className="h-5 w-5 text-white" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-white mb-1">{item.title}</h4>
-                    <p className="text-sm text-ds-neutral-300 leading-relaxed">{item.description}</p>
-                  </div>
-                </div>
-              ))}
+            <div className="flex items-center space-x-3">
+              <div className="h-8 w-8 rounded bg-foreground/90" />
+              <span className="text-lg font-semibold">Mr imot</span>
             </div>
+            <p className="mt-6 text-muted-foreground leading-relaxed">
+              Connect directly with real estate developers across Bulgaria. No brokers, no commissions — just
+              verified new‑build projects and transparent conversations.
+            </p>
           </div>
 
-          {/* Quick Links Column */}
+          {/* Link columns */}
+          {navColumns.map((col, idx) => (
+            <div key={idx} className="lg:col-span-1">
+              <h3 className="text-base font-semibold mb-4">{col.title}</h3>
+              <nav className="space-y-3">
+                {col.links.map((link, linkIdx) => (
+                  <Link
+                    key={linkIdx}
+                    href={link.href}
+                    className="block text-muted-foreground hover:text-foreground transition-colors duration-200 text-sm"
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </nav>
+            </div>
+          ))}
+          {/* Social column */}
           <div className="lg:col-span-1">
-            <h3 className="text-xl font-bold text-white mb-8">Quick Links</h3>
-            <nav className="space-y-4">
-              {quickLinks.map((link, index) => (
-                <Link
+            <h3 className="text-base font-semibold mb-4">Social</h3>
+            <div className="flex items-center gap-3">
+              {socialLinks.map((social, index) => (
+                <a
                   key={index}
-                  href={link.href}
-                  className="block text-ds-neutral-300 hover:text-white transition-colors duration-200 text-base"
+                  href={social.href}
+                  aria-label={social.label}
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-md border bg-card hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
-                  {link.label}
-                </Link>
+                  <social.icon className="h-5 w-5" />
+                </a>
               ))}
-            </nav>
-          </div>
-
-          {/* Contact Information Column */}
-          <div className="lg:col-span-1">
-            <h3 className="text-xl font-bold text-white mb-8">Contact Info</h3>
-            <div className="space-y-6">
-              <div className="flex items-start space-x-4">
-                <div className="w-10 h-10 bg-ds-accent-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Mail className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <h4 className="font-semibold text-white mb-1">Email</h4>
-                  <a
-                    href="mailto:info@Mr imot.com"
-                    className="text-ds-neutral-300 hover:text-white transition-colors duration-200"
-                  >
-                    info@Mr imot.com
-                  </a>
-                </div>
-              </div>
-              <div className="flex items-start space-x-4">
-                <div className="w-10 h-10 bg-ds-accent-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Phone className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <h4 className="font-semibold text-white mb-1">Phone</h4>
-                  <a
-                    href="tel:+1234567890"
-                    className="text-ds-neutral-300 hover:text-white transition-colors duration-200"
-                  >
-                    +1 (234) 567-8900
-                  </a>
-                </div>
-              </div>
-              <div className="flex items-start space-x-4">
-                <div className="w-10 h-10 bg-ds-accent-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <MapPin className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <h4 className="font-semibold text-white mb-1">Address</h4>
-                  <p className="text-ds-neutral-300 leading-relaxed">
-                    123 Mr imot Street
-                    <br />
-                    Sofia, Bulgaria
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Social & Newsletter Column */}
-          <div className="lg:col-span-1">
-            <h3 className="text-xl font-bold text-white mb-8">Stay Connected</h3>
-            <div className="space-y-8">
-              {/* Social Links */}
-              <div>
-                <h4 className="font-semibold text-white mb-4">Follow Us</h4>
-                <div className="flex space-x-4">
-                  {socialLinks.map((social, index) => (
-                    <a
-                      key={index}
-                      href={social.href}
-                      className="w-10 h-10 bg-ds-neutral-700 hover:bg-ds-primary-600 rounded-lg flex items-center justify-center transition-colors duration-200 group"
-                      aria-label={social.label}
-                    >
-                      <social.icon className="h-5 w-5 text-ds-neutral-300 group-hover:text-white" />
-                    </a>
-                  ))}
-                </div>
-              </div>
-
-              {/* Newsletter Signup */}
-              <div>
-                <h4 className="font-semibold text-white mb-4">Newsletter</h4>
-                <p className="text-sm text-ds-neutral-300 mb-4 leading-relaxed">
-                  Get updates on new projects and market insights.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <input
-                    type="email"
-                    placeholder="Enter your email"
-                    className="flex-1 px-4 py-2 bg-ds-neutral-700 border border-ds-neutral-600 rounded-lg text-white placeholder-ds-neutral-400 focus:outline-none focus:ring-2 focus:ring-ds-primary-600 focus:border-transparent"
-                  />
-                  <button className="px-6 py-2 bg-ds-primary-600 hover:bg-ds-primary-700 text-white font-semibold rounded-lg transition-colors duration-200 whitespace-nowrap">
-                    Subscribe
-                  </button>
-                </div>
-              </div>
             </div>
           </div>
         </div>
       </div>
 
+      <Separator className="opacity-60" />
       {/* Footer Bottom */}
-      <div className="border-t border-ds-neutral-700">
+      <div>
         <div className="container px-4 md:px-6 py-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             {/* Copyright */}
             <div className="text-center md:text-left">
-              <p className="text-ds-neutral-300 text-sm">
+              <p className="text-muted-foreground text-sm">
                 &copy; {new Date().getFullYear()} Mr imot. All rights reserved.
               </p>
-              <p className="text-ds-neutral-400 text-xs mt-1">Connecting you directly with real estate developers.</p>
+              <p className="text-muted-foreground/70 text-xs mt-1">Connecting you directly with real estate developers.</p>
             </div>
 
             {/* Legal Links */}
@@ -189,7 +111,7 @@ export function Footer() {
                 <Link
                   key={index}
                   href={link.href}
-                  className="text-ds-neutral-400 hover:text-white transition-colors duration-200"
+                  className="text-muted-foreground hover:text-foreground transition-colors duration-200"
                   target={link.href.startsWith('http') ? '_blank' : undefined}
                   rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
                 >

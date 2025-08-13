@@ -44,21 +44,21 @@ export default function AboutUsPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-ds-neutral-50">
+    <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-ds-primary-50 via-white to-ds-accent-50">
+      <section className="relative overflow-hidden bg-gradient-to-br from-muted via-background to-muted">
         <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
         <div className="container relative py-20 md:py-32">
           <ScrollAnimationWrapper>
             <div className="text-center max-w-4xl mx-auto">
-              <div className="inline-flex items-center gap-2 bg-ds-primary-100 text-ds-primary-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
+              <div className="inline-flex items-center gap-2 bg-muted text-foreground px-4 py-2 rounded-full text-sm font-medium mb-6">
                 <Target className="w-4 h-4" />
                 Our Story
               </div>
-              <h1 className="text-4xl md:text-6xl font-bold text-ds-text-primary mb-6 leading-tight">
-                About <span className="text-ds-primary-600">Mr imot</span>
+              <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
+                About <span className="text-primary">Mr imot</span>
               </h1>
-              <p className="text-xl text-ds-text-secondary leading-relaxed">
+              <p className="text-xl text-muted-foreground leading-relaxed">
                 Connecting you directly with the future of real estate through innovation, transparency, and trust.
               </p>
             </div>
@@ -68,23 +68,23 @@ export default function AboutUsPage() {
       </section>
 
       {/* Mission & Vision Section */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-background">
         <div className="container">
           <div className="grid lg:grid-cols-2 gap-16 items-center mb-20">
             <ScrollAnimationWrapper>
               <div>
-                <div className="inline-flex items-center gap-2 bg-ds-accent-100 text-ds-accent-700 px-3 py-1 rounded-full text-sm font-medium mb-4">
+                <div className="inline-flex items-center gap-2 bg-muted text-foreground px-3 py-1 rounded-full text-sm font-medium mb-4">
                   Mission
                 </div>
-                <h2 className="text-3xl md:text-4xl font-bold text-ds-text-primary mb-6">
+                <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
                   Revolutionizing Real Estate
                 </h2>
-                <p className="text-lg text-ds-text-secondary leading-relaxed mb-6">
+                <p className="text-lg text-muted-foreground leading-relaxed mb-6">
                   At Mr imot, our mission is to revolutionize the real estate market by creating a transparent and direct
                   connection between property buyers and real estate developers. We believe in cutting out unnecessary
                   intermediaries, reducing costs, and providing direct access to verified, under-construction projects.
                 </p>
-                <p className="text-lg text-ds-text-secondary leading-relaxed">
+                <p className="text-lg text-muted-foreground leading-relaxed">
                   We empower buyers to make informed decisions and help developers showcase their work efficiently to a
                   targeted audience.
                 </p>
@@ -92,7 +92,7 @@ export default function AboutUsPage() {
             </ScrollAnimationWrapper>
             <ScrollAnimationWrapper delay={0.2}>
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-ds-primary-200 to-ds-accent-200 rounded-2xl transform rotate-3"></div>
+                 <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl transform rotate-3"></div>
                 <div className="relative bg-white p-2 rounded-2xl shadow-xl">
                   <Image
                     src="/placeholder.svg?height=400&width=600"
@@ -123,18 +123,18 @@ export default function AboutUsPage() {
             </ScrollAnimationWrapper>
             <ScrollAnimationWrapper delay={0.2}>
               <div className="order-1 lg:order-2">
-                <div className="inline-flex items-center gap-2 bg-ds-primary-100 text-ds-primary-700 px-3 py-1 rounded-full text-sm font-medium mb-4">
+                <div className="inline-flex items-center gap-2 bg-muted text-foreground px-3 py-1 rounded-full text-sm font-medium mb-4">
                   Vision
                 </div>
-                <h2 className="text-3xl md:text-4xl font-bold text-ds-text-primary mb-6">
+                <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
                   Building Tomorrow's Marketplace
                 </h2>
-                <p className="text-lg text-ds-text-secondary leading-relaxed mb-6">
+                <p className="text-lg text-muted-foreground leading-relaxed mb-6">
                   We envision a world where finding and investing in new real estate is simple, direct, and trustworthy.
                   Mr imot aims to be the go-to platform for anyone seeking new construction properties and for developers
                   looking to list their projects with confidence and ease.
                 </p>
-                <p className="text-lg text-ds-text-secondary leading-relaxed">
+                <p className="text-lg text-muted-foreground leading-relaxed">
                   We are committed to fostering a community where quality projects meet genuine demand, creating value
                   for everyone involved.
                 </p>
@@ -145,7 +145,7 @@ export default function AboutUsPage() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-20 bg-gradient-to-r from-ds-primary-600 to-ds-accent-600 text-white relative overflow-hidden">
+      <section className="py-20 bg-gradient-to-r from-primary to-accent text-primary-foreground relative overflow-hidden">
         <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
         <div className="container relative">
           <ScrollAnimationWrapper>
@@ -168,15 +168,15 @@ export default function AboutUsPage() {
       </section>
 
       {/* Values Section */}
-      <section className="py-20 bg-ds-neutral-50">
+      <section className="py-20 bg-muted">
         <div className="container">
           <ScrollAnimationWrapper>
             <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 bg-ds-accent-100 text-ds-accent-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
+              <div className="inline-flex items-center gap-2 bg-muted text-foreground px-4 py-2 rounded-full text-sm font-medium mb-6">
                 Our Values
               </div>
-              <h2 className="text-3xl md:text-4xl font-bold text-ds-text-primary mb-4">What Drives Us Forward</h2>
-              <p className="text-xl text-ds-text-secondary max-w-3xl mx-auto">
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">What Drives Us Forward</h2>
+              <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
                 Our core values guide every decision we make and every feature we build
               </p>
             </div>
@@ -184,12 +184,12 @@ export default function AboutUsPage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {values.map((value, index) => (
               <ScrollAnimationWrapper key={index} delay={index * 0.1}>
-                <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 group">
-                  <div className="w-16 h-16 bg-gradient-to-br from-ds-primary-500 to-ds-accent-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                <div className="bg-card rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 group">
+                  <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                     <value.icon className="w-8 h-8 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold text-ds-text-primary mb-4">{value.title}</h3>
-                  <p className="text-ds-text-secondary leading-relaxed">{value.description}</p>
+                  <h3 className="text-xl font-bold text-foreground mb-4">{value.title}</h3>
+                  <p className="text-muted-foreground leading-relaxed">{value.description}</p>
                 </div>
               </ScrollAnimationWrapper>
             ))}
@@ -198,26 +198,26 @@ export default function AboutUsPage() {
       </section>
 
       {/* Why Choose Us Section */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-background">
         <div className="container">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <ScrollAnimationWrapper>
               <div>
-                <div className="inline-flex items-center gap-2 bg-ds-primary-100 text-ds-primary-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
+                <div className="inline-flex items-center gap-2 bg-muted text-foreground px-4 py-2 rounded-full text-sm font-medium mb-6">
                   Why Choose Mr imot?
                 </div>
-                <h2 className="text-3xl md:text-4xl font-bold text-ds-text-primary mb-6">
+                <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
                   Your Success is Our Priority
                 </h2>
-                <p className="text-lg text-ds-text-secondary leading-relaxed mb-8">
+                <p className="text-lg text-muted-foreground leading-relaxed mb-8">
                   We've built Mr imot with one goal in mind: making real estate investment simple, transparent, and
                   profitable for everyone involved.
                 </p>
                 <div className="space-y-4">
                   {benefits.map((benefit, index) => (
                     <div key={index} className="flex items-start gap-3">
-                      <CheckCircle className="w-6 h-6 text-ds-accent-500 flex-shrink-0 mt-0.5" />
-                      <span className="text-ds-text-secondary">{benefit}</span>
+                      <CheckCircle className="w-6 h-6 text-primary flex-shrink-0 mt-0.5" />
+                      <span className="text-muted-foreground">{benefit}</span>
                     </div>
                   ))}
                 </div>
@@ -225,7 +225,7 @@ export default function AboutUsPage() {
             </ScrollAnimationWrapper>
             <ScrollAnimationWrapper delay={0.2}>
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-ds-accent-200 to-ds-primary-200 rounded-3xl transform rotate-2"></div>
+                 <div className="absolute inset-0 bg-gradient-to-br from-accent/20 to-primary/20 rounded-3xl transform rotate-2"></div>
                 <div className="relative bg-white p-3 rounded-3xl shadow-2xl">
                   <Image
                     src="/placeholder.svg?height=500&width=600"
@@ -242,7 +242,7 @@ export default function AboutUsPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-br from-ds-primary-600 via-ds-primary-700 to-ds-accent-600 text-white relative overflow-hidden">
+      <section className="py-20 bg-gradient-to-br from-primary via-primary to-accent text-primary-foreground relative overflow-hidden">
         <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
         <div className="container relative">
           <ScrollAnimationWrapper>
@@ -252,10 +252,10 @@ export default function AboutUsPage() {
                 Join thousands of satisfied customers who found their perfect home through Mr imot
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <button className="bg-white text-ds-primary-600 px-8 py-4 rounded-xl font-semibold hover:bg-ds-neutral-50 transition-colors duration-300 shadow-lg">
+                <button className="bg-card text-primary px-8 py-4 rounded-xl font-semibold hover:bg-muted transition-colors duration-300 shadow-lg">
                   Browse Properties
                 </button>
-                <button className="border-2 border-white text-white px-8 py-4 rounded-xl font-semibold hover:bg-white hover:text-ds-primary-600 transition-all duration-300">
+                <button className="border-2 border-primary-foreground text-primary-foreground px-8 py-4 rounded-xl font-semibold hover:bg-primary-foreground hover:text-primary transition-all duration-300">
                   Contact Us
                 </button>
               </div>

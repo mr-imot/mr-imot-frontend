@@ -3,6 +3,13 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
+import {
+  NavigationMenu,
+  NavigationMenuList,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu"
 
 export function MainNav() {
   const pathname = usePathname()
@@ -14,26 +21,25 @@ export function MainNav() {
   ]
 
   return (
-    <nav className="flex items-center space-x-8">
-      {navItems.map((item) => (
-        <Link
-          key={item.href}
-          href={item.href}
-          className={cn(
-            "relative text-base font-medium transition-all duration-200 hover:text-ds-primary-600 group",
-            pathname === item.href ? "text-ds-primary-600" : "text-ds-neutral-700 hover:text-ds-primary-600",
-          )}
-        >
-          {item.label}
-          {/* Active indicator */}
-          <span
-            className={cn(
-              "absolute -bottom-1 left-0 h-0.5 bg-ds-primary-600 transition-all duration-200",
-              pathname === item.href ? "w-full" : "w-0 group-hover:w-full",
-            )}
-          />
-        </Link>
-      ))}
-    </nav>
+    <NavigationMenu>
+      <NavigationMenuList>
+        {navItems.map((item) => (
+          <NavigationMenuItem key={item.href}>
+            <NavigationMenuLink
+              asChild
+              className={cn(
+                navigationMenuTriggerStyle(),
+                "bg-transparent",
+                pathname === item.href
+                  ? "text-primary"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <Link href={item.href}>{item.label}</Link>
+            </NavigationMenuLink>
+          </NavigationMenuItem>
+        ))}
+      </NavigationMenuList>
+    </NavigationMenu>
   )
 }

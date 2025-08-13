@@ -983,9 +983,9 @@ export default function ListingDetailPage({ params }: PageProps) {
   }, [property?.id])
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background">
       {/* Header with Back Button */}
-      <div className="sticky top-16 z-40 bg-white border-b border-ds-neutral-200 shadow-sm">
+      <div className="sticky top-16 z-40 bg-background border-b shadow-sm">
         <div className="container px-4 py-4">
           <div className="flex items-center justify-between">
             <Button
@@ -1017,10 +1017,10 @@ export default function ListingDetailPage({ params }: PageProps) {
           <div className="mb-8">
             <div className="flex items-start justify-between mb-4">
               <div>
-                <h1 className="text-3xl md:text-4xl font-bold text-ds-neutral-900 mb-2">{property.title}</h1>
-                <div className="flex items-center space-x-4 text-ds-neutral-600 mb-4">
+                <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">{property.title}</h1>
+                <div className="flex items-center space-x-4 text-muted-foreground mb-4">
                   <div className="flex items-center">
-                    <MapPin className="h-5 w-5 mr-2 text-ds-accent-500" />
+                    <MapPin className="h-5 w-5 mr-2 text-primary" />
                     <span>{property.location}</span>
                   </div>
                   <div className="flex items-center">
@@ -1030,9 +1030,9 @@ export default function ListingDetailPage({ params }: PageProps) {
                   </div>
                   <div className="flex items-center">
                     {property.type === "Residential Houses" ? (
-                      <Home className="h-5 w-5 mr-2 text-ds-primary-600" />
+                      <Home className="h-5 w-5 mr-2 text-primary" />
                     ) : (
-                      <Building className="h-5 w-5 mr-2 text-ds-primary-600" />
+                      <Building className="h-5 w-5 mr-2 text-primary" />
                     )}
                     <span>{property.type}</span>
                   </div>
@@ -1041,11 +1041,11 @@ export default function ListingDetailPage({ params }: PageProps) {
               <div className="text-right">
                 <div className="flex items-baseline space-x-2 mb-2">
                   {property.originalPrice && (
-                    <span className="text-lg text-ds-neutral-500 line-through">{property.originalPrice}</span>
+                    <span className="text-lg text-muted-foreground line-through">{property.originalPrice}</span>
                   )}
-                  <span className="text-3xl font-bold text-ds-primary-600">{property.priceRange.split(" - ")[0]}</span>
+                  <span className="text-3xl font-bold text-primary">{property.priceRange.split(" - ")[0]}</span>
                 </div>
-                <p className="text-sm text-ds-neutral-600">Starting price</p>
+                <p className="text-sm text-muted-foreground">Starting price</p>
                 <Badge variant="secondary" className="mt-2">
                   {property.status}
                 </Badge>
@@ -1070,13 +1070,13 @@ export default function ListingDetailPage({ params }: PageProps) {
                     onClick={prevImage}
                     className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-all duration-200 opacity-0 group-hover:opacity-100"
                   >
-                    <ChevronLeft className="h-5 w-5 text-ds-neutral-700" />
+                    <ChevronLeft className="h-5 w-5" />
                   </button>
                   <button
                     onClick={nextImage}
                     className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-all duration-200 opacity-0 group-hover:opacity-100"
                   >
-                    <ChevronRight className="h-5 w-5 text-ds-neutral-700" />
+                    <ChevronRight className="h-5 w-5" />
                   </button>
                   {/* Image Counter */}
                   <div className="absolute bottom-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
@@ -1099,7 +1099,7 @@ export default function ListingDetailPage({ params }: PageProps) {
                     className="object-cover transition-transform duration-300 group-hover:scale-105"
                   />
                   {currentImageIndex === index + 1 && (
-                    <div className="absolute inset-0 bg-ds-primary-600/20 border-2 border-ds-primary-600 rounded-xl"></div>
+                    <div className="absolute inset-0 bg-primary/20 border-2 border-primary rounded-xl"></div>
                   )}
                 </div>
               ))}
@@ -1137,22 +1137,22 @@ export default function ListingDetailPage({ params }: PageProps) {
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     {property.type === "Residential Houses" ? (
-                      <Home className="h-5 w-5 mr-2 text-ds-primary-600" />
+                      <Home className="h-5 w-5 mr-2 text-primary" />
                     ) : (
-                      <Building className="h-5 w-5 mr-2 text-ds-primary-600" />
+                      <Building className="h-5 w-5 mr-2 text-primary" />
                     )}
                     About This Property
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-ds-neutral-700 leading-relaxed mb-6">{property.longDescription}</p>
+                  <p className="text-muted-foreground leading-relaxed mb-6">{property.longDescription}</p>
 
                   {/* Key Features */}
                   <div className="mb-6">
-                    <h4 className="font-semibold text-ds-neutral-900 mb-3">Key Features</h4>
+                    <h4 className="font-semibold text-foreground mb-3">Key Features</h4>
                     <div className="flex flex-wrap gap-2">
                       {property.features.map((feature, index) => (
-                        <Badge key={index} variant="outline" className="text-ds-accent-600 border-ds-accent-200">
+                        <Badge key={index} variant="outline">
                           <CheckCircle className="h-3 w-3 mr-1" />
                           {feature}
                         </Badge>
@@ -1162,11 +1162,11 @@ export default function ListingDetailPage({ params }: PageProps) {
 
                   {/* Highlights */}
                   <div>
-                    <h4 className="font-semibold text-ds-neutral-900 mb-3">Property Highlights</h4>
+                    <h4 className="font-semibold text-foreground mb-3">Property Highlights</h4>
                     <ul className="space-y-2">
                       {property.highlights.map((highlight, index) => (
-                        <li key={index} className="flex items-center text-ds-neutral-700">
-                          <CheckCircle className="h-4 w-4 text-ds-accent-500 mr-2 flex-shrink-0" />
+                        <li key={index} className="flex items-center text-muted-foreground">
+                          <CheckCircle className="h-4 w-4 text-primary mr-2 flex-shrink-0" />
                           {highlight}
                         </li>
                       ))}
@@ -1179,47 +1179,47 @@ export default function ListingDetailPage({ params }: PageProps) {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
-                    <Ruler className="h-5 w-5 mr-2 text-ds-primary-600" />
+                    <Ruler className="h-5 w-5 mr-2 text-primary" />
                     Property Specifications
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    <div className="text-center p-4 bg-ds-neutral-50 rounded-lg">
-                      <div className="text-2xl font-bold text-ds-primary-600 mb-1">
+                    <div className="text-center p-4 bg-muted rounded-lg">
+                      <div className="text-2xl font-bold text-primary mb-1">
                         {property.specifications.totalUnits}
                       </div>
-                      <div className="text-sm text-ds-neutral-600">Total Units</div>
+                      <div className="text-sm text-muted-foreground">Total Units</div>
                     </div>
-                    <div className="text-center p-4 bg-ds-neutral-50 rounded-lg">
-                      <div className="text-2xl font-bold text-ds-primary-600 mb-1">
+                    <div className="text-center p-4 bg-muted rounded-lg">
+                      <div className="text-2xl font-bold text-primary mb-1">
                         {property.specifications.floors}
                       </div>
-                      <div className="text-sm text-ds-neutral-600">Floors</div>
+                      <div className="text-sm text-muted-foreground">Floors</div>
                     </div>
-                    <div className="text-center p-4 bg-ds-neutral-50 rounded-lg">
-                      <div className="text-2xl font-bold text-ds-primary-600 mb-1">
+                    <div className="text-center p-4 bg-muted rounded-lg">
+                      <div className="text-2xl font-bold text-primary mb-1">
                         {property.specifications.parkingSpaces}
                       </div>
-                      <div className="text-sm text-ds-neutral-600">Parking Spaces</div>
+                      <div className="text-sm text-muted-foreground">Parking Spaces</div>
                     </div>
-                    <div className="text-center p-4 bg-ds-neutral-50 rounded-lg">
-                      <div className="text-lg font-bold text-ds-primary-600 mb-1">
+                    <div className="text-center p-4 bg-muted rounded-lg">
+                      <div className="text-lg font-bold text-primary mb-1">
                         {property.specifications.unitSizes}
                       </div>
-                      <div className="text-sm text-ds-neutral-600">Unit Sizes</div>
+                      <div className="text-sm text-muted-foreground">Unit Sizes</div>
                     </div>
-                    <div className="text-center p-4 bg-ds-neutral-50 rounded-lg">
-                      <div className="text-lg font-bold text-ds-primary-600 mb-1">
+                    <div className="text-center p-4 bg-muted rounded-lg">
+                      <div className="text-lg font-bold text-primary mb-1">
                         {property.specifications.bedrooms}
                       </div>
-                      <div className="text-sm text-ds-neutral-600">Bedrooms</div>
+                      <div className="text-sm text-muted-foreground">Bedrooms</div>
                     </div>
-                    <div className="text-center p-4 bg-ds-neutral-50 rounded-lg">
-                      <div className="text-lg font-bold text-ds-primary-600 mb-1">
+                    <div className="text-center p-4 bg-muted rounded-lg">
+                      <div className="text-lg font-bold text-primary mb-1">
                         {property.specifications.bathrooms}
                       </div>
-                      <div className="text-sm text-ds-neutral-600">Bathrooms</div>
+                      <div className="text-sm text-muted-foreground">Bathrooms</div>
                     </div>
                   </div>
                 </CardContent>
@@ -1229,7 +1229,7 @@ export default function ListingDetailPage({ params }: PageProps) {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
-                    <Zap className="h-5 w-5 mr-2 text-ds-primary-600" />
+                    <Zap className="h-5 w-5 mr-2 text-primary" />
                     Amenities & Features
                   </CardTitle>
                 </CardHeader>
@@ -1238,9 +1238,9 @@ export default function ListingDetailPage({ params }: PageProps) {
                     {property.amenities.map((amenity, index) => {
                       const IconComponent = amenityIcons[amenity] || CheckCircle
                       return (
-                        <div key={index} className="flex items-center space-x-3 p-3 bg-ds-neutral-50 rounded-lg">
-                          <IconComponent className="h-5 w-5 text-ds-accent-500 flex-shrink-0" />
-                          <span className="font-medium text-ds-neutral-800">{amenity}</span>
+                        <div key={index} className="flex items-center space-x-3 p-3 bg-muted rounded-lg">
+                          <IconComponent className="h-5 w-5 text-primary flex-shrink-0" />
+                          <span className="font-medium text-foreground">{amenity}</span>
                         </div>
                       )
                     })}
@@ -1252,15 +1252,15 @@ export default function ListingDetailPage({ params }: PageProps) {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
-                    <MapPin className="h-5 w-5 mr-2 text-ds-primary-600" />
+                    <MapPin className="h-5 w-5 mr-2 text-primary" />
                     Nearby Attractions
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
                     {property.nearbyAttractions.map((attraction, index) => (
-                      <div key={index} className="flex items-center text-ds-neutral-700">
-                        <MapPin className="h-4 w-4 text-ds-accent-500 mr-3 flex-shrink-0" />
+                      <div key={index} className="flex items-center text-muted-foreground">
+                        <MapPin className="h-4 w-4 text-primary mr-3 flex-shrink-0" />
                         {attraction}
                       </div>
                     ))}
@@ -1275,11 +1275,11 @@ export default function ListingDetailPage({ params }: PageProps) {
               <Card>
                 <CardHeader>
                   <CardTitle>Contact Developer</CardTitle>
-                  <p className="text-sm text-ds-neutral-600">{property.developer}</p>
+                  <p className="text-sm text-muted-foreground">{property.developer}</p>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <Button
-                    className="w-full bg-ds-primary-600 hover:bg-ds-primary-700 text-white"
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
                     onClick={() => {
                       recordProjectPhoneClick(String(property.id)).catch(() => {})
                       window.open(`tel:${property.contact.phone}`)
@@ -1305,9 +1305,9 @@ export default function ListingDetailPage({ params }: PageProps) {
                       Visit Website
                     </Button>
                   )}
-                  <div className="pt-4 border-t border-ds-neutral-200">
-                    <p className="text-sm text-ds-neutral-600 mb-1">Developer Address:</p>
-                    <p className="text-sm text-ds-neutral-800">{property.contact.address}</p>
+                  <div className="pt-4 border-t">
+                    <p className="text-sm text-muted-foreground mb-1">Developer Address:</p>
+                    <p className="text-sm text-foreground">{property.contact.address}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -1316,7 +1316,7 @@ export default function ListingDetailPage({ params }: PageProps) {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
-                    <Calendar className="h-5 w-5 mr-2 text-ds-primary-600" />
+                    <Calendar className="h-5 w-5 mr-2 text-primary" />
                     Project Timeline
                   </CardTitle>
                 </CardHeader>
@@ -1328,11 +1328,11 @@ export default function ListingDetailPage({ params }: PageProps) {
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium">Expected Completion</span>
-                      <span className="text-sm text-ds-neutral-600">{property.completionDate}</span>
+                      <span className="text-sm text-muted-foreground">{property.completionDate}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium">Building Type</span>
-                      <span className="text-sm text-ds-neutral-600">{property.specifications.buildingType}</span>
+                      <span className="text-sm text-muted-foreground">{property.specifications.buildingType}</span>
                     </div>
                   </div>
                 </CardContent>
@@ -1342,7 +1342,7 @@ export default function ListingDetailPage({ params }: PageProps) {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
-                    <Euro className="h-5 w-5 mr-2 text-ds-primary-600" />
+                    <Euro className="h-5 w-5 mr-2 text-primary" />
                     Price Information
                   </CardTitle>
                 </CardHeader>
@@ -1350,15 +1350,15 @@ export default function ListingDetailPage({ params }: PageProps) {
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium">Price Range</span>
-                      <span className="text-sm font-bold text-ds-primary-600">{property.priceRange}</span>
+                      <span className="text-sm font-bold text-primary">{property.priceRange}</span>
                     </div>
                     {property.originalPrice && (
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium">Original Price</span>
-                        <span className="text-sm text-ds-neutral-500 line-through">{property.originalPrice}</span>
+                        <span className="text-sm text-muted-foreground line-through">{property.originalPrice}</span>
                       </div>
                     )}
-                    <div className="text-xs text-ds-neutral-600 pt-2 border-t border-ds-neutral-200">
+                    <div className="text-xs text-muted-foreground pt-2 border-t">
                       Prices may vary based on unit size, floor, and view. Contact developer for detailed pricing and
                       available units.
                     </div>
@@ -1374,12 +1374,12 @@ export default function ListingDetailPage({ params }: PageProps) {
                 <CardContent>
                   <div className="grid grid-cols-2 gap-4 text-center">
                     <div>
-                      <div className="text-2xl font-bold text-ds-primary-600">{property.rating.toFixed(1)}</div>
-                      <div className="text-xs text-ds-neutral-600">Rating</div>
+                      <div className="text-2xl font-bold text-primary">{property.rating.toFixed(1)}</div>
+                      <div className="text-xs text-muted-foreground">Rating</div>
                     </div>
                     <div>
-                      <div className="text-2xl font-bold text-ds-primary-600">{property.reviews}</div>
-                      <div className="text-xs text-ds-neutral-600">Reviews</div>
+                      <div className="text-2xl font-bold text-primary">{property.reviews}</div>
+                      <div className="text-xs text-muted-foreground">Reviews</div>
                     </div>
                   </div>
                 </CardContent>
@@ -1392,13 +1392,13 @@ export default function ListingDetailPage({ params }: PageProps) {
       {/* Contact Form Modal */}
       {showContactForm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-card rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-bold text-ds-neutral-900">Contact Developer</h3>
+                <h3 className="text-xl font-bold text-foreground">Contact Developer</h3>
                 <button
                   onClick={() => setShowContactForm(false)}
-                  className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-ds-neutral-100 transition-colors"
+                  className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-muted transition-colors"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -1406,7 +1406,7 @@ export default function ListingDetailPage({ params }: PageProps) {
 
               <form onSubmit={handleContactSubmit} className="space-y-4">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-ds-neutral-700 mb-1">
+                  <label htmlFor="name" className="block text-sm font-medium text-muted-foreground mb-1">
                     Full Name *
                   </label>
                   <Input
@@ -1421,7 +1421,7 @@ export default function ListingDetailPage({ params }: PageProps) {
                 </div>
 
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-ds-neutral-700 mb-1">
+                  <label htmlFor="email" className="block text-sm font-medium text-muted-foreground mb-1">
                     Email Address *
                   </label>
                   <Input
@@ -1436,7 +1436,7 @@ export default function ListingDetailPage({ params }: PageProps) {
                 </div>
 
                 <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-ds-neutral-700 mb-1">
+                  <label htmlFor="phone" className="block text-sm font-medium text-muted-foreground mb-1">
                     Phone Number
                   </label>
                   <Input
@@ -1450,7 +1450,7 @@ export default function ListingDetailPage({ params }: PageProps) {
                 </div>
 
                 <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-ds-neutral-700 mb-1">
+                  <label htmlFor="message" className="block text-sm font-medium text-muted-foreground mb-1">
                     Message *
                   </label>
                   <Textarea
@@ -1468,7 +1468,7 @@ export default function ListingDetailPage({ params }: PageProps) {
                   <Button type="button" variant="outline" onClick={() => setShowContactForm(false)} className="flex-1">
                     Cancel
                   </Button>
-                  <Button type="submit" className="flex-1 bg-ds-primary-600 hover:bg-ds-primary-700 text-white">
+                  <Button type="submit" className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground">
                     Send Message
                   </Button>
                 </div>

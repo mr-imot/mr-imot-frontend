@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Mail, ArrowLeft, Shield, CheckCircle } from 'lucide-react';
-import { FloatingInput } from '@/components/ui/floating-input';
-import { EnhancedButton } from '@/components/ui/enhanced-button';
+import { Mail, ArrowLeft, Shield, CheckCircle, Loader2 } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
 import { AuthError } from '@/components/ui/auth-error';
 import { RateLimitInfo } from '@/components/ui/rate-limit-info';
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/lib/auth-constants';
@@ -89,65 +90,52 @@ export default function ForgotPasswordPage() {
 
   if (emailSent) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 relative overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-30">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-500/5 to-transparent"></div>
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-indigo-500/5 to-transparent"></div>
-        </div>
-        
-        {/* Gradient Orbs */}
-        <div className="absolute top-0 left-0 w-72 h-72 bg-gradient-to-br from-blue-400/20 to-cyan-400/20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-br from-indigo-400/20 to-purple-400/20 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
-        
-        {/* Content */}
+      <div className="min-h-screen bg-background">
         <div className="relative z-10 flex items-center justify-center min-h-screen py-12 px-4 sm:px-6 lg:px-8">
           <div className="w-full max-w-md mx-auto">
             {/* Brand Header */}
             <div className="text-center mb-8">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-green-600 to-green-700 rounded-2xl shadow-xl shadow-green-500/25 mb-6">
-                <CheckCircle className="w-8 h-8 text-white" />
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-card/70 backdrop-blur border shadow mb-6">
+                <CheckCircle className="w-8 h-8 text-foreground" />
               </div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              <h1 className="text-3xl font-bold text-foreground mb-2">
                 Check your email
               </h1>
-              <p className="text-gray-600 text-lg">
+              <p className="text-muted-foreground text-lg">
                 Reset link sent successfully
               </p>
             </div>
 
             {/* Main Card */}
-            <div className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl shadow-blue-500/10 border border-white/20 overflow-hidden">
+            <div className="bg-card rounded-xl border overflow-hidden">
               <div className="p-8">
                 <div className="text-center space-y-6">
-                  <p className="text-gray-700 text-lg leading-relaxed">
+                  <p className="text-foreground text-lg leading-relaxed">
                     We've sent a password reset link to{' '}
-                    <span className="font-semibold text-gray-900">{email}</span>
+                    <span className="font-semibold text-foreground">{email}</span>
                   </p>
 
-                  <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-4">
+                  <div className="bg-muted rounded-xl border p-4">
                     <div className="flex items-start gap-3">
-                      <div className="flex-shrink-0 w-6 h-6 bg-amber-100 rounded-full flex items-center justify-center mt-0.5">
-                        <span className="text-amber-600 text-sm font-bold">!</span>
-                      </div>
+                      <span className="text-sm font-bold">!</span>
                       <div className="text-left">
-                        <p className="text-amber-800 font-semibold text-sm">Important</p>
-                        <p className="text-amber-700 text-sm">The reset link expires in 15 minutes for security.</p>
+                        <p className="text-foreground font-semibold text-sm">Important</p>
+                        <p className="text-muted-foreground text-sm">The reset link expires in 15 minutes for security.</p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="space-y-3 text-sm text-gray-600 bg-gray-50 rounded-2xl p-4">
+                  <div className="space-y-3 text-sm text-muted-foreground bg-muted rounded-2xl p-4">
                     <p className="flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+                      <span className="w-1.5 h-1.5 bg-primary rounded-full"></span>
                       Check your spam folder if you don't see the email
                     </p>
                     <p className="flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+                      <span className="w-1.5 h-1.5 bg-primary rounded-full"></span>
                       The link will only work once for security
                     </p>
                     <p className="flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+                      <span className="w-1.5 h-1.5 bg-primary rounded-full"></span>
                       You can close this page after clicking the link
                     </p>
                   </div>
@@ -158,25 +146,8 @@ export default function ForgotPasswordPage() {
                   />
 
                   <div className="flex gap-3">
-                    <EnhancedButton
-                      variant="outline"
-                      size="lg"
-                      onClick={() => router.push('/login')}
-                      className="flex-1"
-                    >
-                      Back to Sign In
-                    </EnhancedButton>
-                    <EnhancedButton
-                      variant="secondary"
-                      size="lg"
-                      onClick={handleResendReset}
-                      disabled={!canRequest() || isSubmitting}
-                      loading={isSubmitting}
-                      loadingText="Sending..."
-                      className="flex-1"
-                    >
-                      Resend
-                    </EnhancedButton>
+                    <Button variant="outline" onClick={() => router.push('/login')} className="flex-1">Back to Sign In</Button>
+                    <Button onClick={handleResendReset} disabled={!canRequest() || isSubmitting} className="flex-1">{isSubmitting ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Sending...</>) : 'Resend'}</Button>
                   </div>
                 </div>
               </div>
@@ -184,12 +155,7 @@ export default function ForgotPasswordPage() {
 
             {/* Back Link */}
             <div className="mt-6 text-center">
-              <button
-                onClick={() => setEmailSent(false)}
-                className="text-blue-600 hover:text-blue-700 font-medium text-sm transition-colors duration-200"
-              >
-                ← Back to forgot password form
-              </button>
+              <button onClick={() => setEmailSent(false)} className="text-primary hover:underline font-medium text-sm">← Back to forgot password form</button>
             </div>
           </div>
         </div>
@@ -198,35 +164,24 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 relative overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-30">
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-500/5 to-transparent"></div>
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-indigo-500/5 to-transparent"></div>
-      </div>
-      
-      {/* Gradient Orbs */}
-      <div className="absolute top-0 left-0 w-72 h-72 bg-gradient-to-br from-blue-400/20 to-cyan-400/20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-br from-indigo-400/20 to-purple-400/20 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
-      
-      {/* Content */}
+    <div className="min-h-screen bg-background">
       <div className="relative z-10 flex items-center justify-center min-h-screen py-12 px-4 sm:px-6 lg:px-8">
         <div className="w-full max-w-md mx-auto">
           {/* Brand Header */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl shadow-xl shadow-blue-500/25 mb-6">
-              <Shield className="w-8 h-8 text-white" />
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-card/70 backdrop-blur border shadow mb-6">
+              <Shield className="w-8 h-8 text-foreground" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-3xl font-bold text-foreground mb-2">
               Forgot password?
             </h1>
-            <p className="text-gray-600 text-lg">
+            <p className="text-muted-foreground text-lg">
               No worries, we'll send you reset instructions
             </p>
           </div>
 
           {/* Main Card */}
-          <div className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl shadow-blue-500/10 border border-white/20 overflow-hidden">
+          <div className="bg-card rounded-xl border overflow-hidden">
             <div className="p-8">
               {error && (
                 <div className="mb-6">
@@ -240,14 +195,10 @@ export default function ForgotPasswordPage() {
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Email Field */}
-                <FloatingInput
-                  label="Email Address"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  disabled={isSubmitting}
-                  required
-                />
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email Address <span className="text-destructive">*</span></Label>
+                  <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" disabled={isSubmitting} required />
+                </div>
 
                 <RateLimitInfo 
                   type="password-reset" 
@@ -255,43 +206,28 @@ export default function ForgotPasswordPage() {
                 />
 
                 {/* Send Reset Button */}
-                <EnhancedButton
-                  type="submit"
-                  variant="primary"
-                  size="lg"
-                  fullWidth
-                  loading={isSubmitting}
-                  loadingText="Sending reset link..."
-                  disabled={isSubmitting || !canRequest()}
-                  icon={!isSubmitting ? <Mail size={20} /> : undefined}
-                >
-                  Send Reset Link
-                </EnhancedButton>
+                <Button type="submit" className="w-full" disabled={isSubmitting || !canRequest()}>
+                  {isSubmitting ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Sending reset link...</>) : 'Send Reset Link'}
+                </Button>
               </form>
 
               {/* Back to Login */}
               <div className="mt-8">
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-200"></div>
+                    <div className="w-full border-t border-border"></div>
                   </div>
                   <div className="relative flex justify-center text-sm">
-                    <span className="px-4 bg-white text-gray-500 font-medium">
+                    <span className="px-4 bg-card text-muted-foreground">
                       Remember your password?
                     </span>
                   </div>
                 </div>
 
                 <div className="mt-6">
-                  <EnhancedButton
-                    variant="outline"
-                    size="lg"
-                    fullWidth
-                    onClick={() => router.push('/login')}
-                    icon={<ArrowLeft size={20} />}
-                  >
+                  <Button variant="outline" className="w-full" onClick={() => router.push('/login')}>
                     Back to Sign In
-                  </EnhancedButton>
+                  </Button>
                 </div>
               </div>
             </div>
@@ -299,12 +235,9 @@ export default function ForgotPasswordPage() {
 
           {/* Footer */}
           <div className="mt-8 text-center">
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-muted-foreground">
               Don't have an account?{' '}
-              <button
-                onClick={() => router.push('/register?type=developer')}
-                className="text-blue-600 hover:text-blue-700 font-medium"
-              >
+              <button onClick={() => router.push('/register?type=developer')} className="text-primary hover:underline font-medium">
                 Sign up
               </button>
             </p>

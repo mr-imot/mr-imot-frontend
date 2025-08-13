@@ -2,14 +2,16 @@
 
 import { useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { FloatingInput } from "@/components/ui/floating-input"
-import { EnhancedButton } from "@/components/ui/enhanced-button"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
+import { Checkbox } from "@/components/ui/checkbox"
 import { RememberMeCheckbox } from "@/components/ui/remember-me-checkbox"
 import { AuthError } from "@/components/ui/auth-error"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { Suspense, useEffect } from "react"
-import { LogIn, CheckCircle, Shield, ArrowRight, Sparkles, Mail } from "lucide-react"
+import { LogIn, CheckCircle, Shield, ArrowRight, Sparkles, Mail, Eye, EyeOff, Loader2 } from "lucide-react"
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from "@/lib/auth-constants"
 import { useAuth } from "@/lib/auth-context"
 import { useUnifiedAuth } from "@/lib/unified-auth"
@@ -131,19 +133,19 @@ function LoginFormContent() {
     <div className="w-full max-w-md mx-auto">
       {/* Brand Header */}
       <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl shadow-xl shadow-blue-500/25 mb-6">
-          <Shield className="w-8 h-8 text-white" />
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-card/70 backdrop-blur border shadow mb-6">
+          <Shield className="w-8 h-8 text-foreground" />
         </div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <h1 className="text-3xl font-bold text-foreground mb-2">
           Welcome back
         </h1>
-        <p className="text-gray-600 text-lg">
+        <p className="text-muted-foreground text-lg">
           Sign in to your Mr imot developer account
         </p>
       </div>
 
       {/* Main Card */}
-      <div className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl shadow-blue-500/10 border border-white/20 overflow-hidden">
+      <div className="bg-card rounded-xl border overflow-hidden">
         {/* Success Message */}
         {showSuccessMessage && (
           <div className="p-6 bg-gradient-to-r from-green-50 to-emerald-50 border-b border-green-100">
@@ -205,55 +207,40 @@ function LoginFormContent() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email Field */}
-            <FloatingInput
-              label="Email Address"
-              type="email"
-              value={formData.email}
-              onChange={(e) => handleInputChange('email', e.target.value)}
-              disabled={isLoading}
-              required
-            />
+            <div className="space-y-2">
+              <Label htmlFor="email">Email Address <span className="text-destructive">*</span></Label>
+              <Input id="email" type="email" autoComplete="email" value={formData.email} onChange={(e) => handleInputChange('email', e.target.value)} disabled={isLoading} required />
+            </div>
 
             {/* Password Field */}
-            <FloatingInput
-              label="Password"
-              type="password"
-              value={formData.password}
-              onChange={(e) => handleInputChange('password', e.target.value)}
-              showPasswordToggle={true}
-              disabled={isLoading}
-              required
-            />
+            <div className="space-y-2">
+              <Label htmlFor="password">Password <span className="text-destructive">*</span></Label>
+              <div className="relative">
+                <Input id="password" type={showPassword ? 'text' : 'password'} autoComplete="current-password" value={formData.password} onChange={(e) => handleInputChange('password', e.target.value)} disabled={isLoading} required />
+                <button type="button" aria-label={showPassword ? 'Hide password' : 'Show password'} onClick={() => setShowPassword((v) => !v)} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+              <p className="text-xs text-muted-foreground">We never store your password in plain text.</p>
+            </div>
 
             {/* Remember Me & Forgot Password */}
             <div className="flex items-center justify-between">
-              <RememberMeCheckbox
-                checked={rememberMe}
-                onChange={setRememberMe}
-                disabled={isLoading}
-              />
+              <div className="flex items-center gap-2">
+                <Checkbox id="rememberMe" checked={rememberMe} onCheckedChange={(v) => setRememberMe(v === true)} disabled={isLoading} />
+                <Label htmlFor="rememberMe" className="text-sm text-muted-foreground">Remember me for 30 days</Label>
+              </div>
               
               <Link 
                 href="/forgot-password"
-                className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors duration-200"
+                className="text-sm font-medium text-primary hover:underline"
               >
                 Forgot password?
               </Link>
             </div>
 
             {/* Sign In Button */}
-            <EnhancedButton
-              type="submit"
-              variant="primary"
-              size="lg"
-              fullWidth
-              loading={isLoading}
-              loadingText="Signing you in..."
-              disabled={isLoading}
-              icon={!isLoading ? <LogIn size={20} /> : undefined}
-            >
-              Sign In
-            </EnhancedButton>
+            <Button type="submit" className="w-full" disabled={isLoading}>{isLoading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Signing you in...</>) : 'Sign In'}</Button>
           </form>
 
           {/* Social Login (Future Enhancement) */}
@@ -263,7 +250,7 @@ function LoginFormContent() {
                 <div className="w-full border-t border-gray-200"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white text-gray-500 font-medium">
+                <span className="px-4 bg-card text-muted-foreground">
                   New to Mr imot?
                 </span>
               </div>
@@ -271,16 +258,10 @@ function LoginFormContent() {
 
             <div className="mt-6">
               <Link href="/register?type=developer">
-                <EnhancedButton
-                  variant="outline"
-                  size="lg"
-                  fullWidth
-                  icon={<Sparkles size={20} />}
-                  className="group"
-                >
+                <Button variant="outline" className="w-full group">
                   <span>Create your account</span>
-                  <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
-                </EnhancedButton>
+                  <ArrowRight size={16} className="ml-2 transition-transform group-hover:translate-x-1" />
+                </Button>
               </Link>
             </div>
           </div>
@@ -306,28 +287,17 @@ function LoginFormContent() {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 relative overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-30">
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-500/5 to-transparent"></div>
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-indigo-500/5 to-transparent"></div>
-      </div>
-      
-      {/* Gradient Orbs */}
-      <div className="absolute top-0 left-0 w-72 h-72 bg-gradient-to-br from-blue-400/20 to-cyan-400/20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-br from-indigo-400/20 to-purple-400/20 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
-      
-      {/* Content */}
+    <div className="min-h-screen bg-background">
       <div className="relative z-10 flex items-center justify-center min-h-screen py-12 px-4 sm:px-6 lg:px-8">
         <Suspense fallback={
           <div className="w-full max-w-md mx-auto">
-            <div className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl shadow-blue-500/10 border border-white/20 p-8">
+            <div className="bg-card rounded-xl border p-8">
               <div className="flex items-center justify-center space-x-3">
-                <div className="w-8 h-8 bg-blue-600 rounded-full animate-pulse"></div>
-                <div className="w-8 h-8 bg-blue-500 rounded-full animate-pulse delay-75"></div>
-                <div className="w-8 h-8 bg-blue-400 rounded-full animate-pulse delay-150"></div>
+                <div className="w-8 h-8 bg-muted rounded-full animate-pulse"></div>
+                <div className="w-8 h-8 bg-muted rounded-full animate-pulse delay-75"></div>
+                <div className="w-8 h-8 bg-muted rounded-full animate-pulse delay-150"></div>
               </div>
-              <p className="text-center mt-4 text-gray-600 font-medium">
+              <p className="text-center mt-4 text-muted-foreground">
                 Loading sign in form...
               </p>
             </div>

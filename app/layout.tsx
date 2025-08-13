@@ -1,6 +1,7 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
+import { GeistSans } from "geist/font/sans"
+import { GeistMono } from "geist/font/mono"
 import "./globals.css"
 import { cn } from "@/lib/utils"
 import { SiteHeader } from "@/components/site-header"
@@ -12,7 +13,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from "@vercel/analytics/next"
 
 
-const inter = Inter({ subsets: ["latin"] })
+// Geist fonts are configured via CSS variables in globals.css
 
 export const metadata: Metadata = {
   title: "Mr imot - Real Estate Development Directory",
@@ -26,8 +27,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <body className={cn("min-h-screen bg-nova-background font-sans antialiased", inter.className)}>
+    <html lang="en" className={cn(GeistSans.variable, GeistMono.variable)}>
+      <body className={cn("min-h-screen bg-background font-sans antialiased")}>
         <GlobalMaintenanceWrapper>
           <AuthProvider>
             <UnifiedAuthProvider>
