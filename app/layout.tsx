@@ -11,6 +11,7 @@ import { AuthProvider } from "@/lib/auth-context"
 import { UnifiedAuthProvider } from "@/lib/unified-auth"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from "@vercel/analytics/next"
+import { ThemeProvider } from "@/components/theme-provider"
 
 
 // Geist fonts are configured via CSS variables in globals.css
@@ -27,8 +28,9 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={cn(GeistSans.variable, GeistMono.variable)}>
-      <body className={cn("min-h-screen bg-background font-sans antialiased")}>
+    <html lang="en" suppressHydrationWarning className={cn(GeistSans.variable, GeistMono.variable)}>
+      <body className={cn("min-h-screen bg-background font-sans antialiased")}>      
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
         <GlobalMaintenanceWrapper>
           <AuthProvider>
             <UnifiedAuthProvider>
@@ -40,6 +42,7 @@ export default function RootLayout({
             </UnifiedAuthProvider>
           </AuthProvider>
         </GlobalMaintenanceWrapper>
+        </ThemeProvider>
         <Analytics />
         <SpeedInsights />
       </body>

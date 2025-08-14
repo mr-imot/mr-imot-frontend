@@ -2,7 +2,7 @@
 export const config = {
   // API Configuration
   api: {
-    baseUrl: process.env.NEXT_PUBLIC_API_URL || 'https://api.mrimot.com',
+    baseUrl: process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === 'development' ? '' : 'https://api.mrimot.com'),
     timeout: 5000, // Reduced from 10s to 5s for faster failures
     authTimeout: 3000, // Special timeout for auth calls
     retryAttempts: 2, // Reduced from 3 for faster failures

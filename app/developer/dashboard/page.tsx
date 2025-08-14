@@ -751,7 +751,7 @@ export default function DeveloperDashboardPage() {
         const token = localStorage.getItem('auth_token')
         if (!token) return
 
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://api.mrimot.com'}/api/v1/developers/me`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === 'development' ? '' : 'https://api.mrimot.com')}/api/v1/developers/me`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }

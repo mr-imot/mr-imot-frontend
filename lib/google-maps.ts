@@ -21,6 +21,8 @@ export async function ensureGoogleMaps(): Promise<typeof google> {
       apiKey,
       version: "weekly",
       libraries: ["places"],
+      language: "bg",
+      region: "BG",
     })
   }
 

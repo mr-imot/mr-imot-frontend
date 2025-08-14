@@ -3,7 +3,8 @@
 
 import { withRetry, isNetworkError, getConnectionErrorMessage, AUTH_RETRY_OPTIONS } from './network-utils'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.mrimot.com';
+// Use same-origin during development so Next.js rewrites proxy to the backend
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === 'development' ? '' : 'https://api.mrimot.com');
 
 // Types for API responses
 export interface Developer {
@@ -107,14 +108,22 @@ class ApiClient {
     options: RequestInit = {}
   ): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
-    const headers = await this.getAuthHeaders();
+    const baseHeaders = await this.getAuthHeaders();
+
+    // Build headers and automatically drop Content-Type for FormData bodies
+    const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
+    const mergedHeaders: HeadersInit = {
+      ...baseHeaders,
+      ...options.headers,
+    } as HeadersInit;
+    if (isFormData && 'Content-Type' in (mergedHeaders as Record<string, any>)) {
+      // Let the browser set the correct multipart boundary
+      delete (mergedHeaders as Record<string, any>)["Content-Type"];
+    }
 
     const config: RequestInit = {
       ...options,
-      headers: {
-        ...headers,
-        ...options.headers,
-      },
+      headers: mergedHeaders,
     };
 
     try {
@@ -247,6 +256,29 @@ class ApiClient {
     return this.request('/api/v1/projects/', {
       method: 'POST',
       body: JSON.stringify(projectData),
+    });
+  }
+
+  // Project images
+  async uploadProjectImages(projectId: number, files: File[]): Promise<{ images: any[] }> {
+    const formData = new FormData();
+    for (const file of files) {
+      formData.append('files', file);
+    }
+    return this.request(`/api/v1/projects/${projectId}/images`, {
+      method: 'POST',
+      body: formData,
+      // Do not set Content-Type; request() will drop JSON header automatically for FormData
+    });
+  }
+
+  async getProjectImages(projectId: number): Promise<any[]> {
+    return this.request(`/api/v1/projects/${projectId}/images`);
+  }
+
+  async deleteProjectImage(projectId: number, imageId: string | number): Promise<{ message: string }> {
+    return this.request(`/api/v1/projects/${projectId}/images/${imageId}`, {
+      method: 'DELETE',
     });
   }
 
@@ -401,6 +433,11 @@ export const resendVerification = (email: string) => apiClient.resendVerificatio
 export const loginDeveloper = (email: string, password: string) => apiClient.loginDeveloper(email, password);
 export const getAuthHealth = () => apiClient.getAuthHealth();
 export const testConnection = () => apiClient.testConnection(); 
+
+// Project images exports
+export const uploadProjectImages = (projectId: number, files: File[]) => apiClient.uploadProjectImages(projectId, files);
+export const getProjectImages = (projectId: number) => apiClient.getProjectImages(projectId);
+export const deleteProjectImage = (projectId: number, imageId: string | number) => apiClient.deleteProjectImage(projectId, imageId);
 
 
 

@@ -9,6 +9,7 @@ import { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
 import { Globe } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { ModeToggle } from "@/components/mode-toggle"
  
 import {
   DropdownMenu,
@@ -62,6 +63,8 @@ export function SiteHeader() {
 
         {/* Right Side Actions */}
         <div className="flex items-center space-x-4">
+          {/* Theme Toggle */}
+          <ModeToggle />
           {/* Language Selector */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

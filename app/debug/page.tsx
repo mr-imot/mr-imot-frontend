@@ -67,7 +67,7 @@ export default function DebugPage() {
   const testRealAPI = async () => {
     try {
       setProjectsStatus('Testing REAL API endpoint...')
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://api.mrimot.com'}/api/v1/projects/`)
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === 'development' ? '' : 'https://api.mrimot.com')}/api/v1/projects/`)
       console.log('Real API Response status:', response.status)
       
       if (!response.ok) {
