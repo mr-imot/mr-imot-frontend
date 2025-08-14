@@ -30,14 +30,14 @@ interface PropertyData {
   formatted_address?: string
   latitude: number
   longitude: number
-  project_type: "apartment_building" | "house"
+  project_type: "apartment_building" | "house_complex"
   completion_note?: string
   description?: string
   image?: string
 }
 
 type CityType = "Sofia" | "Plovdiv" | "Varna"
-type PropertyTypeFilter = "all" | "apartment_building" | "house"
+type PropertyTypeFilter = "all" | "apartment_building" | "house_complex"
 
 const CITY_COORDINATES = {
   Sofia: { lat: 42.6977, lng: 23.3219, zoom: 11 },
@@ -240,11 +240,11 @@ export default function HomePage() {
                               Apartments
                             </ToggleGroupItem>
                             <ToggleGroupItem 
-                              value="house" 
+                              value="house_complex" 
                               className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-md transition-all duration-200 px-4 min-h-[44px] hover:scale-105 active:scale-95 flex-1"
                             >
                               <Home className="w-4 h-4 mr-2" />
-                              Houses
+                              House Complex
                             </ToggleGroupItem>
                           </ToggleGroup>
                         </div>
@@ -279,11 +279,11 @@ export default function HomePage() {
                       Apartments
                     </ToggleGroupItem>
                     <ToggleGroupItem 
-                      value="house" 
-                      className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-md transition-all duration-200 px-4 min-h-[44px] hover:scale-105 active:scale-95"
+                      value="house_complex" 
+                      className="data-[state=ON]:bg-primary data-[state=ON]:text-primary-foreground data-[state=ON]:shadow-md transition-all duration-200 px-4 min-h-[44px] hover:scale-105 active:scale-95"
                     >
                       <Home className="w-4 h-4 mr-2" />
-                      Houses
+                      House Complex
                     </ToggleGroupItem>
                   </ToggleGroup>
                 </div>

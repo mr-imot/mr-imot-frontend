@@ -20,7 +20,7 @@ export async function ensureGoogleMaps(): Promise<typeof google> {
     loaderSingleton = new Loader({
       apiKey,
       version: "weekly",
-      libraries: ["places"],
+      libraries: ["places"], // This loads the classic Places API for Maps
       language: "bg",
       region: "BG",
     })
@@ -30,8 +30,13 @@ export async function ensureGoogleMaps(): Promise<typeof google> {
     loadPromise = loaderSingleton.load()
   }
 
-  await loadPromise
-  return window.google
+  try {
+    await loadPromise
+    return window.google
+  } catch (error) {
+    console.error("Failed to load Google Maps:", error)
+    throw error
+  }
 }
 
 
