@@ -12,6 +12,7 @@ import { UnifiedAuthProvider } from "@/lib/unified-auth"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme-provider"
+import { FeedbackButton } from "@/components/feedback-button"
 
 
 // Geist fonts are configured via CSS variables in globals.css
@@ -39,6 +40,7 @@ export default function RootLayout({
                 <main className="flex-1">{children}</main>
                 <Footer />
               </div>
+              <FeedbackButton />
             </UnifiedAuthProvider>
           </AuthProvider>
         </GlobalMaintenanceWrapper>
