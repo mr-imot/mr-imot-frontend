@@ -131,7 +131,7 @@ export default function NewPropertyPage() {
       city: "",
       country: "Bulgaria",
       address: "",
-      project_type: undefined,
+      project_type: "",
       completion_month: "",
       completion_year: "",
       website: "",
@@ -148,35 +148,9 @@ export default function NewPropertyPage() {
   const latitude = form.watch("latitude")
   const longitude = form.watch("longitude")
 
-  // Cloudinary upload function
-  const uploadToCloudinary = async (file: File): Promise<string> => {
-    try {
-      // Create FormData for Cloudinary upload
-      const formData = new FormData()
-      formData.append('file', file)
-      formData.append('upload_preset', 'mr_imot_projects') // You'll need to set this in your Cloudinary settings
-      formData.append('folder', 'projects')
-      
-      // Upload to Cloudinary
-      const response = await fetch('https://api.cloudinary.com/v1_1/YOUR_CLOUD_NAME/image/upload', {
-        method: 'POST',
-        body: formData,
-      })
-      
-      if (!response.ok) {
-        throw new Error('Failed to upload to Cloudinary')
-      }
-      
-      const data = await response.json()
-      return data.secure_url
-    } catch (error) {
-      console.error('Cloudinary upload failed:', error)
-      // Fallback to local preview
-      return URL.createObjectURL(file)
-    }
-  }
+  // Image handling is now done via backend API with ImageKit
 
-  // Enhanced file handling with Cloudinary
+  // Enhanced file handling
   const handleFileSelect = async (files: FileList | null) => {
     if (!files) return
 

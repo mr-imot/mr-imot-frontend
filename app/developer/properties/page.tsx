@@ -234,7 +234,12 @@ export default function DeveloperPropertiesPage() {
                     <Card key={p.id} className="overflow-hidden">
                       <div className="aspect-video bg-muted">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={p.cover_image_url || "/placeholder.jpg"} alt="cover" className="w-full h-full object-cover" />
+                        <img 
+                          src={p.cover_image_url || "/placeholder.jpg"} 
+                          alt={`${p.title} - Property image`}
+                          className="w-full h-full object-cover" 
+                          loading="lazy"
+                        />
                       </div>
                       <CardHeader className="pb-2">
                         <div className="flex items-start justify-between gap-3">
