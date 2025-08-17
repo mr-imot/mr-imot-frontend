@@ -3,9 +3,6 @@
 
 import { withRetry, isNetworkError, getConnectionErrorMessage, AUTH_RETRY_OPTIONS } from './network-utils'
 
-// Use same-origin during development so Next.js rewrites proxy to the backend
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === 'development' ? '' : 'https://api.mrimot.com');
-
 // Types for API responses
 export interface Developer {
   id: number;
@@ -79,24 +76,37 @@ class ApiClient {
   }
 
   private async getAuthHeaders(): Promise<HeadersInit> {
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json',
-    };
+    const headers: HeadersInit = {};
 
     // Get the stored auth token
     if (typeof window !== 'undefined') {
       const token = localStorage.getItem('auth_token');
       const expires = localStorage.getItem('auth_expires');
       
+      // Debug authentication state
+      console.log('🔐 Auth Debug:', {
+        hasToken: !!token,
+        tokenLength: token?.length || 0,
+        hasExpires: !!expires,
+        isExpired: expires ? Date.now() >= parseInt(expires) : true
+      });
+      
       if (token && expires) {
         const expiryTime = parseInt(expires);
         if (Date.now() < expiryTime) {
           headers.Authorization = `Bearer ${token}`;
+          // Some backends also accept 'Token' header as alternative
+          // headers['Token'] = token;
+          console.log('✅ Token added to headers');
+          console.log('🔐 Token being sent:', token.substring(0, 20) + '...');
         } else {
           // Token expired, clear it
+          console.log('❌ Token expired, clearing');
           localStorage.removeItem('auth_token');
           localStorage.removeItem('auth_expires');
         }
+      } else {
+        console.log('❌ No token or expires found');
       }
     }
 
@@ -108,6 +118,10 @@ class ApiClient {
     options: RequestInit = {}
   ): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
+    
+    // Debug URL construction
+    console.log('🔍 URL Debug:', { baseURL: this.baseURL, endpoint, finalUrl: url });
+    
     const baseHeaders = await this.getAuthHeaders();
 
     // Build headers and automatically drop Content-Type for FormData bodies
@@ -116,6 +130,12 @@ class ApiClient {
       ...baseHeaders,
       ...options.headers,
     } as HeadersInit;
+    
+    // Set default Content-Type to application/json if not specified and not FormData
+    if (!isFormData && !('Content-Type' in mergedHeaders)) {
+      (mergedHeaders as Record<string, string>)['Content-Type'] = 'application/json';
+    }
+    
     if (isFormData && 'Content-Type' in (mergedHeaders as Record<string, any>)) {
       // Let the browser set the correct multipart boundary
       delete (mergedHeaders as Record<string, any>)["Content-Type"];
@@ -127,39 +147,75 @@ class ApiClient {
     };
 
     try {
-      console.log(`Making API request to: ${url}`);
+      console.log(`🌐 Making API request to: ${url}`);
+      console.log('📤 Request headers:', mergedHeaders);
+      
       const response = await fetch(url, config);
 
-      console.log(`Response status: ${response.status}`);
-      console.log(`Response headers:`, Object.fromEntries(response.headers.entries()));
+      console.log(`📥 Response status: ${response.status}`);
 
       if (!response.ok) {
         const errorText = await response.text();
-        if (process.env.NODE_ENV === 'development') {
-          console.error(`API Error Response: ${errorText}`);
-        }
         
         // Try to parse the error as JSON to get a better error message
         let errorMessage = `HTTP error! status: ${response.status}, message: ${errorText}`;
+        let isVerificationError = false;
         
         try {
           const errorData = JSON.parse(errorText);
           if (errorData.message) {
             errorMessage = errorData.message;
           }
+          
+          // Handle specific error cases
+          if (response.status === 403 && errorData.message && 
+              (errorData.message.includes('verification required') || 
+               errorData.message.includes("don't have permission") ||
+               errorData.message.includes("access this resource"))) {
+            isVerificationError = true;
+            // Create a special error for verification required
+            const verificationError = new Error('Account verification required');
+            (verificationError as any).isVerificationRequired = true;
+            (verificationError as any).statusCode = 403;
+            (verificationError as any).originalMessage = errorData.message;
+            throw verificationError;
+          }
         } catch (parseError) {
-          // If parsing fails, use the generic error message
-          console.log('Failed to parse error as JSON, using generic error');
+          // If parsing fails, check if it might be a verification error based on status code
+          if (response.status === 403) {
+            isVerificationError = true;
+          }
+          // Don't log parsing failures for verification errors
+          if (!isVerificationError) {
+            console.log('Failed to parse error as JSON, using generic error');
+          }
+        }
+        
+        // Only log errors that are not verification-related
+        if (!isVerificationError) {
+          console.error(`❌ API Error Response (${response.status}): ${errorText}`);
+        } else {
+          console.log(`🔒 Verification required (${response.status}): User needs manual approval`);
+        }
+        
+        // For verification errors, create a special error even if JSON parsing failed
+        if (isVerificationError && response.status === 403) {
+          const verificationError = new Error('Account verification required');
+          (verificationError as any).isVerificationRequired = true;
+          (verificationError as any).statusCode = 403;
+          throw verificationError;
         }
         
         throw new Error(errorMessage);
       }
 
       const data = await response.json();
-      console.log(`API Response data:`, data);
       return data;
     } catch (error) {
-      console.error(`API request failed: ${url}`, error);
+      // Don't log verification errors as failures - they're expected
+      if (!(error as any).isVerificationRequired) {
+        console.error(`❌ API request failed: ${url}`, error);
+      }
       throw error;
     }
   }
@@ -306,36 +362,19 @@ class ApiClient {
     accept_terms: boolean;
     website?: string;
   }): Promise<{ message: string; developer_id?: string; email?: string; status?: string }> {
-    // Build query parameters
-    const params = new URLSearchParams();
-    params.append('company_name', developerData.company_name);
-    params.append('contact_person', developerData.contact_person);
-    params.append('email', developerData.email);
-    params.append('phone', developerData.phone);
-    params.append('password', developerData.password);
-    params.append('accept_terms', developerData.accept_terms.toString());
-    
-    // Add optional parameters if provided
-    if (developerData.website) {
-      params.append('website', developerData.website);
-    }
-    if (developerData.office_address) {
-      params.append('office_address', developerData.office_address);
-    }
-
-    return this.request(`/api/v1/auth/developers/register?${params.toString()}`, {
+    return this.request(`/api/v1/auth/developers/register`, {
       method: 'POST',
+      body: JSON.stringify(developerData),
+      headers: {
+        'Content-Type': 'application/json',
+      },
     });
   }
 
   // Email verification
   async verifyEmail(token: string): Promise<{ message: string; status?: string }> {
-    return this.request(`/api/v1/auth/developers/verify-email`, {
+    return this.request(`/api/v1/auth/developers/verify-email?token=${encodeURIComponent(token)}`, {
       method: 'POST',
-      body: new URLSearchParams({ token }),
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
     });
   }
 
@@ -355,7 +394,8 @@ class ApiClient {
     user_type: string;
   }> {
     return withRetry(async () => {
-      const response = await fetch(`${this.baseURL}/api/v1/auth/token`, {
+      // Use the request method to get proper authentication headers
+      return this.request(`/api/v1/auth/token`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -365,27 +405,6 @@ class ApiClient {
           password: password,
         }),
       });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        
-        // Handle verification status as special case (still needs JSON)
-        if (response.status === 422 && errorData.detail?.verification_status) {
-          throw new Error(JSON.stringify(errorData));
-        }
-        
-        // For all other errors, throw the appropriate message
-        const errorMessage = errorData.detail || errorData.message || `HTTP ${response.status}: Login failed`;
-        const error = new Error(errorMessage);
-        
-        // Add status code for better error handling downstream
-        (error as any).statusCode = response.status;
-        (error as any).details = errorData;
-        
-        throw error;
-      }
-
-      return response.json();
     }, AUTH_RETRY_OPTIONS); // Use optimized auth retry options
   }
 
@@ -397,7 +416,7 @@ class ApiClient {
   // Simple connectivity test
   async testConnection(): Promise<{ status: string; message: string }> {
     try {
-      const response = await fetch(`${this.baseURL}/docs`);
+      const response = await fetch(`/docs`);
       if (response.ok) {
         return { status: 'connected', message: 'Backend is reachable' };
       } else {
@@ -410,7 +429,7 @@ class ApiClient {
 }
 
 // Export singleton instance
-export const apiClient = new ApiClient(API_BASE_URL);
+export const apiClient = new ApiClient("");
 
 // Export convenience functions with proper context binding
 export const getDevelopers = () => apiClient.getDevelopers();

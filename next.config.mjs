@@ -14,8 +14,10 @@ const nextConfig = {
       {
         source: "/api/v1/:path*",
         destination: process.env.NODE_ENV === 'development' 
-          ? "http://localhost:8000/api/v1/:path*"
-          : "https://api.mrimot.com/api/v1/:path*",
+          ? "http://localhost:8000/api/v1/:path*"  // Always proxy to localhost:8000 in development
+          : (process.env.NEXT_PUBLIC_API_URL 
+              ? `${process.env.NEXT_PUBLIC_API_URL}/api/v1/:path*`
+              : "https://api.mrimot.com/api/v1/:path*"),
       },
     ]
   },

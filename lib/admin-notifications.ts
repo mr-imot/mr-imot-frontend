@@ -21,7 +21,7 @@ export interface NotificationTemplate {
 }
 
 export class AdminNotificationService {
-  private static baseURL = process.env.NEXT_PUBLIC_API_URL || 'https://api.mrimot.com';
+  private static baseURL = ""; // Use relative URLs - Next.js proxy handles routing
 
   // Send notification for developer verification
   static async notifyDeveloperVerified(developer: PendingDeveloper): Promise<{ success: boolean; message: string }> {

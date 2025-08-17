@@ -47,13 +47,7 @@ export const useHealthCheck = (options: UseHealthCheckOptions = {}) => {
     setHealthStatus(prev => ({ ...prev, isChecking: true }))
 
     try {
-      const response = await fetch(`${config.api.baseUrl}${config.api.healthCheckEndpoint}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        signal: AbortSignal.timeout(config.api.timeout)
-      })
+      const response = await fetch(`/api/v1/health`, { signal: AbortSignal.timeout(3000) });
 
       if (response.ok) {
         const healthData = await response.json()
@@ -91,7 +85,7 @@ export const useHealthCheck = (options: UseHealthCheckOptions = {}) => {
       if (config.features.debugLogging) {
         console.info('🔌 Health check failed (expected when backend is off):', {
           message: errorMessage,
-          endpoint: `${config.api.baseUrl}${config.api.healthCheckEndpoint}`
+          endpoint: `/api/v1/health`
         });
       } else {
         // Only log non-network errors for monitoring
@@ -99,7 +93,7 @@ export const useHealthCheck = (options: UseHealthCheckOptions = {}) => {
         if (!isNetworkError) {
           logError(error instanceof Error ? error : new Error(errorMessage), {
             context: 'health_check',
-            endpoint: `${config.api.baseUrl}${config.api.healthCheckEndpoint}`
+            endpoint: `/api/v1/health`
           });
         }
       }

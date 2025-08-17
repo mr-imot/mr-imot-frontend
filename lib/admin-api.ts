@@ -3,7 +3,7 @@
 
 import { getAdminAuthHeaders, SecureTokenStorage } from './admin-auth';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.mrimot.com';
+// Always use relative URLs - Next.js proxy handles the routing
 
 // Types for Admin API responses
 export interface PendingDeveloper {
@@ -508,7 +508,7 @@ class AdminApiClient {
 }
 
 // Export singleton instance
-export const adminApiClient = new AdminApiClient(API_BASE_URL);
+export const adminApiClient = new AdminApiClient("");
 
 // Export convenience functions
 export const getCurrentAdmin = () => adminApiClient.getCurrentAdmin();

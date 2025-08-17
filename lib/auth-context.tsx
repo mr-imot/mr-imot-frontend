@@ -6,12 +6,14 @@ import { loginDeveloper, getCurrentDeveloper } from './api';
 interface AuthUser {
   email: string;
   user_type: string;
+  verification_status?: string;
 }
 
 interface AuthContextType {
   user: AuthUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  isVerificationRequired: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   checkAuth: () => Promise<boolean>;
@@ -34,8 +36,10 @@ interface AuthProviderProps {
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isVerificationRequired, setIsVerificationRequired] = useState(false);
 
-  const isAuthenticated = !!user && !!localStorage.getItem('auth_token');
+  // User is only authenticated if they have a token AND are verified
+  const isAuthenticated = !!user && !!localStorage.getItem('auth_token') && user?.verification_status === 'verified';
 
   const login = async (email: string, password: string) => {
     try {
@@ -55,11 +59,43 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       localStorage.setItem('auth_expires', (Date.now() + response.expires_in * 1000).toString());
       localStorage.setItem('user_email', email); // Cache email for faster future loads
       
+      // Reset verification status on new login
+      setIsVerificationRequired(false);
+      
       // Set user info
       setUser({
         email,
         user_type: response.user_type
       });
+      
+      // Check if user needs verification by trying to get current developer info
+      try {
+        const userInfo = await getCurrentDeveloper();
+        // Set verification status based on backend response
+        setUser({
+          email,
+          user_type: response.user_type,
+          verification_status: userInfo.verification_status
+        });
+        setIsVerificationRequired(userInfo.verification_status !== 'verified');
+      } catch (error: any) {
+        // If failed with verification error, set verification required but don't fail login
+        if ((error as any).isVerificationRequired || 
+            (error.message && error.message.includes('verification required')) ||
+            (error.message && error.message.includes("don't have permission")) ||
+            (error as any).statusCode === 403) {
+          console.log('User needs verification - setting pending status');
+          setUser({
+            email,
+            user_type: response.user_type,
+            verification_status: 'pending_manual_approval' // Default for unverified users
+          });
+          setIsVerificationRequired(true);
+        } else {
+          // For other errors, still fail the login
+          throw error;
+        }
+      }
     } catch (error) {
       // Clear any existing tokens on login failure
       localStorage.removeItem('auth_token');
@@ -122,16 +158,56 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       // Update with fresh data from API
       setUser({
         email: userInfo.email,
-        user_type: 'developer'
+        user_type: 'developer',
+        verification_status: userInfo.verification_status
       });
       
       // Cache user email for faster future loads
       localStorage.setItem('user_email', userInfo.email);
       return true;
-    } catch (error) {
-      console.warn('Auth validation failed, using fallback:', error);
+    } catch (error: any) {
+      // Only log non-verification errors as warnings
+      if (!(error as any).isVerificationRequired) {
+        console.warn('Auth validation failed:', error);
+      }
       
-      // If we have cached user data, keep using it
+      // Handle specific error cases
+      if ((error as any).isVerificationRequired || 
+          (error.message && error.message.includes('verification required'))) {
+        // Account needs verification - don't logout, just return false
+        // This prevents the refresh loop
+        console.log('Account verification required - keeping user logged in but not authenticated');
+        setIsVerificationRequired(true);
+        
+        // Set user with unverified status if we have cached email
+        if (cachedUserEmail) {
+          setUser({
+            email: cachedUserEmail,
+            user_type: 'developer',
+            verification_status: 'pending_manual_approval' // Default to pending
+          });
+        }
+        return false;
+      }
+      
+      if ((error as any).statusCode === 403 || 
+          (error.message && error.message.includes('403'))) {
+        // Permission denied - likely verification required
+        console.log('Permission denied - likely verification required');
+        setIsVerificationRequired(true);
+        
+        // Set user with unverified status if we have cached email  
+        if (cachedUserEmail) {
+          setUser({
+            email: cachedUserEmail,
+            user_type: 'developer',
+            verification_status: 'pending_manual_approval' // Default to pending
+          });
+        }
+        return false;
+      }
+      
+      // If we have cached user data, keep using it for other errors
       if (cachedUserEmail) {
         return true;
       }
@@ -146,7 +222,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         });
         return true;
       } else {
-        // Clear invalid tokens
+        // Clear invalid tokens only for critical errors
         logout();
         return false;
       }
@@ -172,6 +248,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     user,
     isAuthenticated,
     isLoading,
+    isVerificationRequired,
     login,
     logout,
     checkAuth,

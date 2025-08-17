@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Forward to backend API
-    const response = await fetch(`${process.env.BACKEND_URL || 'http://localhost:8000'}/api/v1/feedback`, {
+    const response = await fetch(`/api/v1/feedback`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

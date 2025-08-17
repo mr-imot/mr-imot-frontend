@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { Alert, AlertDescription } from './ui/alert';
 import { AlertTriangle } from 'lucide-react';
+import { VerificationRequired } from './verification-required';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -20,14 +21,16 @@ export const ProtectedRoute = ({
   requiredRole,
   allowedRoles 
 }: ProtectedRouteProps) => {
-  const { isAuthenticated, isLoading, user } = useAuth();
+  const { isAuthenticated, isLoading, user, isVerificationRequired } = useAuth();
   const router = useRouter();
+  
+
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
+    if (!isLoading && !isAuthenticated && !isVerificationRequired) {
       router.push(redirectTo);
     }
-  }, [isAuthenticated, isLoading, router, redirectTo]);
+  }, [isAuthenticated, isLoading, router, redirectTo, isVerificationRequired]);
 
   // Check role authorization
   const isAuthorized = () => {
@@ -57,7 +60,25 @@ export const ProtectedRoute = ({
   }
 
   if (!isAuthenticated) {
-    return null; // Will redirect in useEffect
+    // Check if user needs verification
+    if (isVerificationRequired && user) {
+      return <VerificationRequired email={user.email} />;
+    }
+    
+    // Only redirect if not verification required
+    if (!isVerificationRequired) {
+      return null; // Will redirect in useEffect
+    }
+    
+    // If verification required, show loading while we determine what to show
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <LoadingSpinner size="lg" />
+          <p className="mt-4 text-gray-600">Checking account status...</p>
+        </div>
+      </div>
+    );
   }
 
   // Check role authorization

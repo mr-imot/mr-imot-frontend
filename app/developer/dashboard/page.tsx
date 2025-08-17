@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import { useDeveloperDashboard } from "@/hooks/use-developer-dashboard"
 import { ProtectedRoute } from "@/components/protected-route"
+import { useAuth } from "@/lib/auth-context"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -743,15 +744,16 @@ function DashboardContent() {
 export default function DeveloperDashboardPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [profile, setProfile] = useState<DeveloperProfile | null>(null)
+  const { user } = useAuth();
 
-  // Fetch developer profile for sidebar
+  // Only fetch developer profile for sidebar if user is verified
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const token = localStorage.getItem('auth_token')
-        if (!token) return
+        if (!token || user?.verification_status !== 'verified') return
 
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === 'development' ? '' : 'https://api.mrimot.com')}/api/v1/developers/me`, {
+        const response = await fetch(`/api/v1/developers/me`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -767,7 +769,7 @@ export default function DeveloperDashboardPage() {
     }
 
     fetchProfile()
-  }, [])
+  }, [user?.verification_status])
 
   return (
     <ProtectedRoute requiredRole="developer">

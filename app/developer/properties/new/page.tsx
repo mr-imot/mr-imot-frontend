@@ -18,6 +18,7 @@ import { createProject, uploadProjectImages } from "@/lib/api"
 import { ensureGoogleMaps } from "@/lib/google-maps"
 import { Info, Loader, Upload, X, Move, Star, Image as ImageIcon, Plus } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
+import { getCurrentDeveloper } from "@/lib/api"
 
 // Extend Window interface for Google Maps
 declare global {
@@ -131,7 +132,7 @@ export default function NewPropertyPage() {
       city: "",
       country: "Bulgaria",
       address: "",
-      project_type: "",
+      project_type: undefined as any,
       completion_month: "",
       completion_year: "",
       website: "",
@@ -500,6 +501,13 @@ export default function NewPropertyPage() {
   const onSubmit = async (values: FormValues) => {
     if (isSubmitting) return // Prevent duplicate submissions
     
+    // DEBUG: Show environment variables
+    console.log('🌍 Environment Debug:', {
+      NODE_ENV: process.env.NODE_ENV,
+      NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+      isDevelopment: process.env.NODE_ENV === 'development'
+    });
+    
     setLoading(true)
     setIsSubmitting(true)
     setSubmitError(null)
@@ -529,21 +537,21 @@ export default function NewPropertyPage() {
         throw new Error("At least one project image is required")
       }
       
-                     // First, create the project
-        const project = await createProject({
-          name: values.name,
-          description: values.description,
-          city: values.city,
-          country: values.country,
-          address: values.address,
-          project_type: values.project_type,
-          website: values.website || undefined,
-          price_label: values.requestPrice ? "Request price" : undefined,
-          price_per_m2: values.requestPrice ? undefined : values.price_per_m2,
-          latitude: values.latitude,
-          longitude: values.longitude,
-          completion_date: `${values.completion_month} ${values.completion_year}`,
-        })
+      // First, create the project
+      const project = await createProject({
+        name: values.name,
+        description: values.description,
+        city: values.city,
+        country: values.country,
+        address: values.address,
+        project_type: values.project_type,
+        website: values.website || undefined,
+        price_label: values.requestPrice ? "Request price" : undefined,
+        price_per_m2: values.requestPrice ? undefined : values.price_per_m2,
+        latitude: values.latitude,
+        longitude: values.longitude,
+        completion_date: `${values.completion_month} ${values.completion_year}`,
+      })
       
       setSubmitSuccess("Project created successfully!")
       setCreatedProjectId(project.id.toString())

@@ -3,12 +3,14 @@
 
 import { createContext, useContext, useCallback, useEffect, useState } from 'react';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.mrimot.com';
-
 // Admin-specific types
 export interface AdminUser {
   id: string;
   email: string;
+  first_name: string;
+  last_name: string;
+  role: string;
+  is_active: boolean;
   created_at: string;
 }
 
@@ -89,7 +91,7 @@ class SecureTokenStorage {
 // Admin API client for authentication
 class AdminAuthAPI {
   static async login(email: string, password: string): Promise<AdminLoginResponse> {
-    const response = await fetch(`${API_BASE_URL}/api/v1/auth/token`, {
+    const response = await fetch(`/api/v1/auth/token`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -122,7 +124,7 @@ class AdminAuthAPI {
       throw new Error('No authentication token available');
     }
 
-    const response = await fetch(`${API_BASE_URL}/api/v1/admin/me`, {
+    const response = await fetch(`/api/v1/admin/me`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -168,14 +170,33 @@ export const useAdminAuth = () => {
 export const useAdminAuthProvider = (): AdminAuthContextType => {
   const [user, setUser] = useState<AdminUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const isAuthenticated = !!user && !!SecureTokenStorage.getToken();
 
   // Login function
-  const login = useCallback(async (email: string, password: string): Promise<void> => {
-    setLoading(true);
+  const login = useCallback(async (email: string, password: string) => {
     try {
-      const authResponse = await AdminAuthAPI.login(email, password);
+      setLoading(true);
+      setError(null);
+
+      const response = await fetch(`/api/v1/auth/token`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          username: email,
+          password: password,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || 'Login failed');
+      }
+
+      const authResponse = await response.json();
       
       // Store token securely
       SecureTokenStorage.setToken(authResponse.access_token, authResponse.expires_in);
@@ -192,6 +213,7 @@ export const useAdminAuthProvider = (): AdminAuthContextType => {
     } catch (error) {
       SecureTokenStorage.clearToken();
       setUser(null);
+      setError('Login failed. Please check your credentials.');
       throw error;
     } finally {
       setLoading(false);

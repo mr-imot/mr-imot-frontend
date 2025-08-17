@@ -1,6 +1,7 @@
 import useSWR from 'swr'
 import { useMemo } from 'react'
 import { getDeveloperStats, getDeveloperAnalytics, getDeveloperProjects } from '@/lib/api';
+import { useAuth } from '@/lib/auth-context';
 
 interface DashboardStats {
   total_projects: number;
@@ -42,22 +43,45 @@ const transformProjectForDashboard = (project: any) => {
 };
 
 export const useDeveloperDashboard = (period: string = 'week'): UseDeveloperDashboardResult => {
+  const { user } = useAuth();
+  
+  // Only fetch data if user is verified
+  const shouldFetch = user?.verification_status === 'verified';
+  
   const { data: stats, error: statsErr, isLoading: statsLoading, mutate: refetchStats } = useSWR(
-    ['developer/stats'],
+    shouldFetch ? ['developer/stats'] : null,
     () => getDeveloperStats(),
-    { dedupingInterval: 30000, revalidateOnFocus: false }
+    { 
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      refreshWhenOffline: false,
+      refreshWhenHidden: false,
+      refreshInterval: 0 // Disable automatic refresh
+    }
   )
 
   const { data: analytics, error: analyticsErr, isLoading: analyticsLoading, mutate: refetchAnalytics } = useSWR(
-    ['developer/analytics', period],
+    shouldFetch ? ['developer/analytics', period] : null,
     () => getDeveloperAnalytics(period),
-    { dedupingInterval: 30000, revalidateOnFocus: false }
+    { 
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      refreshWhenOffline: false,
+      refreshWhenHidden: false,
+      refreshInterval: 0 // Disable automatic refresh
+    }
   )
 
   const { data: projectsResp, error: projectsErr, isLoading: projectsLoading, mutate: refetchProjects } = useSWR(
-    ['developer/projects'],
+    shouldFetch ? ['developer/projects'] : null,
     () => getDeveloperProjects({ per_page: 100 }),
-    { dedupingInterval: 30000, revalidateOnFocus: false }
+    { 
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      refreshWhenOffline: false,
+      refreshWhenHidden: false,
+      refreshInterval: 0 // Disable automatic refresh
+    }
   )
 
   const projects = useMemo(() => {
