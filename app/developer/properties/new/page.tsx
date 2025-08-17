@@ -860,7 +860,31 @@ export default function NewPropertyPage() {
                         type="button"
                         variant="outline"
                         size="sm"
-                        onClick={() => fileInputRef.current?.click()}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          
+                          // More robust cross-browser file input trigger
+                          const fileInput = fileInputRef.current;
+                          if (fileInput) {
+                            // Reset the input value to allow re-selecting the same file
+                            fileInput.value = '';
+                            
+                            // Try different methods for better browser compatibility
+                            try {
+                              fileInput.click();
+                            } catch (error) {
+                              // Fallback for older browsers
+                              console.warn('Direct click failed, trying alternative method:', error);
+                              const event = new MouseEvent('click', {
+                                view: window,
+                                bubbles: true,
+                                cancelable: true,
+                              });
+                              fileInput.dispatchEvent(event);
+                            }
+                          }
+                        }}
                         className="flex items-center gap-2"
                       >
                         <Plus className="h-4 w-4" />
@@ -875,14 +899,60 @@ export default function NewPropertyPage() {
                       accept="image/*"
                       multiple
                       className="hidden"
-                      onChange={(e) => handleFileSelect(e.target.files)}
+                      onChange={(e) => {
+                        handleFileSelect(e.target.files);
+                        // Reset the input value after handling to allow re-selecting the same file
+                        e.target.value = '';
+                      }}
+                      style={{ 
+                        position: 'absolute',
+                        left: '-9999px',
+                        top: '-9999px',
+                        opacity: 0,
+                        pointerEvents: 'none'
+                      }}
                     />
 
                     {/* Image Grid */}
                     {images.length === 0 ? (
-                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors">
+                      <div 
+                        className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors cursor-pointer"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          
+                          const fileInput = fileInputRef.current;
+                          if (fileInput) {
+                            fileInput.value = '';
+                            try {
+                              fileInput.click();
+                            } catch (error) {
+                              console.warn('Direct click failed, trying alternative method:', error);
+                              const event = new MouseEvent('click', {
+                                view: window,
+                                bubbles: true,
+                                cancelable: true,
+                              });
+                              fileInput.dispatchEvent(event);
+                            }
+                          }
+                        }}
+                        onDragOver={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                        }}
+                        onDrop={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          
+                          const files = e.dataTransfer.files;
+                          if (files) {
+                            handleFileSelect(files);
+                          }
+                        }}
+                      >
                         <ImageIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                        <p className="text-sm text-gray-600 mb-2">No images uploaded yet</p>
+                        <p className="text-sm text-gray-600 mb-2">Click here to upload images or drag and drop</p>
                         <p className="text-xs text-gray-500">Upload images to showcase your project</p>
                       </div>
                     ) : (

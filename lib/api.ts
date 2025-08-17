@@ -83,30 +83,15 @@ class ApiClient {
       const token = localStorage.getItem('auth_token');
       const expires = localStorage.getItem('auth_expires');
       
-      // Debug authentication state
-      console.log('🔐 Auth Debug:', {
-        hasToken: !!token,
-        tokenLength: token?.length || 0,
-        hasExpires: !!expires,
-        isExpired: expires ? Date.now() >= parseInt(expires) : true
-      });
-      
       if (token && expires) {
         const expiryTime = parseInt(expires);
         if (Date.now() < expiryTime) {
           headers.Authorization = `Bearer ${token}`;
-          // Some backends also accept 'Token' header as alternative
-          // headers['Token'] = token;
-          console.log('✅ Token added to headers');
-          console.log('🔐 Token being sent:', token.substring(0, 20) + '...');
         } else {
           // Token expired, clear it
-          console.log('❌ Token expired, clearing');
           localStorage.removeItem('auth_token');
           localStorage.removeItem('auth_expires');
         }
-      } else {
-        console.log('❌ No token or expires found');
       }
     }
 
@@ -118,10 +103,6 @@ class ApiClient {
     options: RequestInit = {}
   ): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
-    
-    // Debug URL construction
-    console.log('🔍 URL Debug:', { baseURL: this.baseURL, endpoint, finalUrl: url });
-    
     const baseHeaders = await this.getAuthHeaders();
 
     // Build headers and automatically drop Content-Type for FormData bodies
@@ -147,15 +128,28 @@ class ApiClient {
     };
 
     try {
-      console.log(`🌐 Making API request to: ${url}`);
-      console.log('📤 Request headers:', mergedHeaders);
-      
       const response = await fetch(url, config);
-
-      console.log(`📥 Response status: ${response.status}`);
 
       if (!response.ok) {
         const errorText = await response.text();
+        
+        // Handle 401 Unauthorized - token expired/invalid
+        if (response.status === 401) {
+          console.log('🔒 Token expired/invalid - clearing auth and redirecting to login');
+          localStorage.removeItem('auth_token');
+          localStorage.removeItem('auth_expires');
+          localStorage.removeItem('user_email');
+          
+          // Redirect to login page
+          if (typeof window !== 'undefined') {
+            window.location.href = '/login';
+          }
+          
+          const authError = new Error('Authentication expired. Please log in again.');
+          (authError as any).isAuthExpired = true;
+          (authError as any).statusCode = 401;
+          throw authError;
+        }
         
         // Try to parse the error as JSON to get a better error message
         let errorMessage = `HTTP error! status: ${response.status}, message: ${errorText}`;
@@ -212,8 +206,8 @@ class ApiClient {
       const data = await response.json();
       return data;
     } catch (error) {
-      // Don't log verification errors as failures - they're expected
-      if (!(error as any).isVerificationRequired) {
+      // Don't log verification errors or auth expired errors as failures - they're expected
+      if (!(error as any).isVerificationRequired && !(error as any).isAuthExpired) {
         console.error(`❌ API request failed: ${url}`, error);
       }
       throw error;
