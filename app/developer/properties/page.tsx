@@ -30,7 +30,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 
-import { getDeveloperProjects, updateProject, deleteProject } from "@/lib/api"
+import { getDeveloperProjects, updateProject, deleteProject, toggleProjectActive } from "@/lib/api"
 
 import { Building2, Home, BarChart3, MessageSquare, User, Settings, Plus, MapPin, Eye, Globe, Phone, Calendar, Pencil, Trash2, Power } from "lucide-react"
 
@@ -149,9 +149,14 @@ export default function DeveloperPropertiesPage() {
   const totalPages = Math.max(1, Math.ceil(total / pageSize))
 
   const handleToggle = async (id: number, current: string) => {
-    const next = current === 'active' ? 'inactive' : 'active'
-    await updateProject(id, { status: next })
-    mutate()
+    try {
+      await toggleProjectActive(id)
+      // Refresh the projects list
+      mutate()
+    } catch (error) {
+      console.error('Failed to toggle project status:', error)
+      // You could add a toast notification here
+    }
   }
 
   const handleDelete = async (id: number) => {
@@ -230,28 +235,38 @@ export default function DeveloperPropertiesPage() {
                 </div>
               ) : projects.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
-                  {projects.map((p: any) => (
-                    <Card key={p.id} className="overflow-hidden">
-                      <div className="aspect-video bg-muted">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img 
-                          src={p.cover_image_url || "/placeholder.jpg"} 
-                          alt={`${p.title} - Property image`}
-                          className="w-full h-full object-cover" 
-                          loading="lazy"
-                        />
-                      </div>
-                      <CardHeader className="pb-2">
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <CardTitle className="text-base">{p.title}</CardTitle>
-                            <CardDescription className="flex items-center gap-1">
-                              <MapPin className="h-3.5 w-3.5" /> {p.city || p.location || '—'}
-                            </CardDescription>
+                  {projects.map((p: any) => {
+                    const coverFromImages = Array.isArray(p.images) && p.images.length > 0
+                      ? (p.images.find((i:any)=>i.is_cover)?.urls?.card || p.images[0]?.urls?.card || p.images[0]?.image_url)
+                      : undefined
+                    const coverSrc = p.cover_image_url || coverFromImages || "/placeholder.jpg"
+                    const statusLabel = p.is_active ? 'active' : (p.status || 'inactive')
+                    return (
+                      <Card key={p.id} className="overflow-hidden">
+                        <Link href={`/developer/properties/new?id=${p.id}`} className="block">
+                          <div className="aspect-video bg-muted">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={coverSrc}
+                              alt={`${p.name || 'Property'} - ${p.city || ''}`}
+                              className="w-full h-full object-cover"
+                              loading="lazy"
+                            />
                           </div>
-                          <Badge variant={p.status === 'active' ? 'default' : 'secondary'} className="capitalize">{p.status}</Badge>
-                        </div>
-                      </CardHeader>
+                        </Link>
+                        <CardHeader className="pb-2">
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <CardTitle className="text-base line-clamp-1">
+                                <Link href={`/developer/properties/new?id=${p.id}`}>{p.name || p.title || 'Untitled project'}</Link>
+                              </CardTitle>
+                              <CardDescription className="flex items-center gap-1">
+                                <MapPin className="h-3.5 w-3.5" /> {p.city || p.location || '—'}
+                              </CardDescription>
+                            </div>
+                            <Badge variant={statusLabel === 'active' ? 'default' : 'secondary'} className="capitalize">{statusLabel}</Badge>
+                          </div>
+                        </CardHeader>
                       <CardContent className="flex items-center justify-between text-xs text-muted-foreground">
                         <div className="flex items-center gap-3">
                           <span className="inline-flex items-center gap-1"><Eye className="h-3.5 w-3.5" />{p.total_views ?? 0}</span>
@@ -284,7 +299,8 @@ export default function DeveloperPropertiesPage() {
                         </Button>
                       </CardContent>
                     </Card>
-                  ))}
+                    )
+                  })}
                 </div>
               ) : (
                 <Card className="p-8 text-center">

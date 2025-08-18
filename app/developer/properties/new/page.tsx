@@ -14,7 +14,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Checkbox } from "@/components/ui/checkbox"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { createProject, uploadProjectImages } from "@/lib/api"
+import { createProject, attachProjectImages } from "@/lib/api"
+import { upload } from "@imagekit/next";
 import { ensureGoogleMaps } from "@/lib/google-maps"
 import { Info, Loader, Upload, X, Move, Star, Image as ImageIcon, Plus } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
@@ -39,7 +40,7 @@ const formSchema = z.object({
   country: z.string().min(2, "Country is required"),
   address: z.string().min(5, "Address is required"),
   project_type: z.enum(["apartment_building", "house_complex"], {
-    required_error: "Choose a project type",
+    required_error: "Please select a project type",
   }),
   completion_month: z.string().min(1, "Project completion month is required"),
   completion_year: z.string().min(1, "Project completion year is required"),
@@ -377,21 +378,49 @@ export default function NewPropertyPage() {
     
     try {
       const files: File[] = []
-      
       if (coverImage) files.push(coverImage)
-      if (galleryImages && galleryImages.length > 0) {
-        files.push(...galleryImages)
+      if (galleryImages && galleryImages.length > 0) files.push(...galleryImages)
+
+      if (files.length === 0) return
+
+      // 1) Upload all files directly to ImageKit (fresh auth per file)
+      const uploaded = [] as Array<{ url: string; fileId: string; isCover?: boolean }>
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i]
+        try {
+          const authRes = await fetch("/api/upload-auth")
+          if (!authRes.ok) throw new Error("Failed to get upload auth params")
+          const { token, expire, signature, publicKey } = await authRes.json()
+
+          const res = await upload({
+            file,
+            fileName: file.name,
+            token,
+            expire,
+            signature,
+            publicKey,
+          })
+          if (res?.url && res?.fileId) {
+            uploaded.push({ url: res.url as string, fileId: res.fileId as string, isCover: i === 0 })
+          } else {
+            console.error("ImageKit upload missing url or fileId", res)
+          }
+        } catch (e) {
+          console.error("Failed to upload a file to ImageKit", e)
+        }
       }
-      
-      if (files.length > 0) {
-        await uploadProjectImages(parseInt(projectId), files)
-        setSubmitSuccess("Images uploaded successfully!")
-        
-        // Clear the images
-        setImages([])
-        form.setValue("coverImage", undefined)
-        form.setValue("galleryImages", undefined)
+
+      if (uploaded.length === 0) {
+        throw new Error("No images were uploaded to ImageKit")
       }
+
+      // 3) Attach metadata to backend project
+      await attachProjectImages(projectId, uploaded)
+
+      setSubmitSuccess("Images uploaded successfully!")
+      setImages([])
+      form.setValue("coverImage", undefined)
+      form.setValue("galleryImages", undefined)
     } catch (error: any) {
       setSubmitError("Failed to upload images. Please try again.")
     } finally {
@@ -501,6 +530,14 @@ export default function NewPropertyPage() {
   const onSubmit = async (values: FormValues) => {
     if (isSubmitting) return // Prevent duplicate submissions
     
+    // DEBUG: Show authentication info
+    console.log('🔐 Auth Debug:', {
+      token: localStorage.getItem('auth_token'),
+      expires: localStorage.getItem('auth_expires'),
+      currentTime: Date.now(),
+      tokenExpired: Date.now() > parseInt(localStorage.getItem('auth_expires') || '0')
+    });
+    
     // DEBUG: Show environment variables
     console.log('🌍 Environment Debug:', {
       NODE_ENV: process.env.NODE_ENV,
@@ -543,14 +580,13 @@ export default function NewPropertyPage() {
         description: values.description,
         city: values.city,
         country: values.country,
-        address: values.address,
+        formatted_address: values.address,  // Fixed: backend expects 'formatted_address'
         project_type: values.project_type,
-        website: values.website || undefined,
-        price_label: values.requestPrice ? "Request price" : undefined,
-        price_per_m2: values.requestPrice ? undefined : values.price_per_m2,
+        price_label: values.requestPrice ? "Request price" : 
+                    (values.price_per_m2 ? `From €${values.price_per_m2}/m²` : undefined),
         latitude: values.latitude,
         longitude: values.longitude,
-        completion_date: `${values.completion_month} ${values.completion_year}`,
+        completion_note: `${values.completion_month} ${values.completion_year}`,  // Fixed: backend expects 'completion_note'
       })
       
       setSubmitSuccess("Project created successfully!")
@@ -559,20 +595,11 @@ export default function NewPropertyPage() {
       // Then upload images if any
       if (values.coverImage || (values.galleryImages && values.galleryImages.length > 0)) {
         try {
-          const files: File[] = []
-          
-          // Add cover image first (it will be marked as cover)
-          if (values.coverImage) {
-            files.push(values.coverImage)
-          }
-          
-          // Add gallery images
-          if (values.galleryImages && values.galleryImages.length > 0) {
-            files.push(...values.galleryImages)
-          }
-          
-          // Upload images to the project
-          await uploadProjectImages(project.id, files)
+          await uploadImagesToProject(
+            project.id.toString(),
+            values.coverImage,
+            values.galleryImages
+          )
           setSubmitSuccess("Project created with images successfully!")
         } catch (imageError) {
           console.error("Failed to upload images", imageError)
@@ -591,10 +618,15 @@ export default function NewPropertyPage() {
       console.error("Failed to create project", err)
       let errorMessage = "Failed to create project. Please try again."
       
-      if (err.message) {
+      // Handle specific error types
+      if (err.isServerError) {
+        errorMessage = "Server error occurred. Please try again later."
+      } else if (err.message) {
         if (err.message.includes("Failed to fetch")) {
           errorMessage = "Connection error. Please check if the backend is running and try again."
         } else if (err.message.includes("required")) {
+          errorMessage = err.message
+        } else if (err.message.includes("Server error occurred")) {
           errorMessage = err.message
         } else {
           errorMessage = err.message
@@ -1130,11 +1162,14 @@ export default function NewPropertyPage() {
                   <div className="space-y-3">
                     <Button 
                       type="button"
-                      onClick={() => uploadImagesToProject(
-                        createdProjectId, 
-                        form.getValues("coverImage"),
-                        form.getValues("galleryImages")
-                      )}
+                      onClick={() => {
+                        if (!createdProjectId) return;
+                        uploadImagesToProject(
+                          createdProjectId as string,
+                          form.getValues("coverImage"),
+                          form.getValues("galleryImages")
+                        )
+                      }}
                       disabled={loading || (!form.getValues("coverImage") && !form.getValues("galleryImages")?.length)}
                       className="w-full lg:w-auto px-8 h-12 text-base"
                       variant="outline"

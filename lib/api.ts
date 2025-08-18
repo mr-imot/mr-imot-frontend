@@ -130,25 +130,47 @@ class ApiClient {
     try {
       const response = await fetch(url, config);
 
+      // DEBUG: Log the request details
+      console.log('🔍 API Request Debug:', {
+        url,
+        method: config.method,
+        headers: config.headers,
+        body: config.body,
+        hasAuthHeader: 'Authorization' in (config.headers as Record<string, any>)
+      });
+
       if (!response.ok) {
         const errorText = await response.text();
         
         // Handle 401 Unauthorized - token expired/invalid
         if (response.status === 401) {
           console.log('🔒 Token expired/invalid - clearing auth and redirecting to login');
-          localStorage.removeItem('auth_token');
-          localStorage.removeItem('auth_expires');
-          localStorage.removeItem('user_email');
+          console.log('🔍 DEBUG: Token that failed:', await this.getAuthHeaders());
+          console.log('🔍 DEBUG: Response details:', response.status, response.statusText);
           
-          // Redirect to login page
-          if (typeof window !== 'undefined') {
-            window.location.href = '/login';
-          }
+          // TEMPORARILY DISABLED FOR DEBUGGING
+          // localStorage.removeItem('auth_token');
+          // localStorage.removeItem('auth_expires');
+          // localStorage.removeItem('user_email');
           
-          const authError = new Error('Authentication expired. Please log in again.');
+          // TEMPORARILY DISABLED FOR DEBUGGING
+          // if (typeof window !== 'undefined') {
+          //   window.location.href = '/login';
+          // }
+          
+          const authError = new Error('Authentication failed - DEBUG MODE');
           (authError as any).isAuthExpired = true;
           (authError as any).statusCode = 401;
           throw authError;
+        }
+        
+        // Handle 500 errors more gracefully - don't log out user for server errors
+        if (response.status === 500) {
+          console.error(`❌ Server Error (${response.status}): ${errorText}`);
+          const serverError = new Error('Server error occurred. Please try again later.');
+          (serverError as any).statusCode = 500;
+          (serverError as any).isServerError = true;
+          throw serverError;
         }
         
         // Try to parse the error as JSON to get a better error message
@@ -280,9 +302,40 @@ class ApiClient {
 
     const queryString = searchParams.toString();
     // Use the real API endpoint now that database connection is fixed
-    const endpoint = `/api/v1/projects/${queryString ? `?${queryString}` : ''}`;
+    const endpoint = `/api/v1/projects${queryString ? `?${queryString}` : ''}`;
     
-    return this.request(endpoint);
+    // For public projects endpoint, don't send auth headers that might cause issues
+    return this.requestWithoutAuth(endpoint);
+  }
+
+  // Public request method without authentication headers
+  private async requestWithoutAuth<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    const url = `${this.baseURL}${endpoint}`;
+    
+    const config: RequestInit = {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      ...options,
+    };
+
+    try {
+      const response = await fetch(url, config);
+      console.log('🔍 Public API Request:', { url, status: response.status });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`❌ Public API Error (${response.status}): ${errorText}`);
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error(`❌ Public API request failed: ${url}`, error);
+      throw error;
+    }
   }
 
   // Analytics endpoints
@@ -302,8 +355,12 @@ class ApiClient {
     return this.request(`/api/v1/projects/${id}`);
   }
 
+  async getProjectFormData(): Promise<any> {
+    return this.request('/api/v1/projects/form-data');
+  }
+
   async createProject(projectData: any): Promise<Project> {
-    return this.request('/api/v1/projects/', {
+    return this.request('/api/v1/projects', {
       method: 'POST',
       body: JSON.stringify(projectData),
     });
@@ -319,6 +376,17 @@ class ApiClient {
       method: 'POST',
       body: formData,
       // Do not set Content-Type; request() will drop JSON header automatically for FormData
+    });
+  }
+
+  // Preferred: attach already-uploaded ImageKit files by URL + fileId
+  async attachProjectImages(
+    projectId: string | number,
+    images: Array<{ url: string; fileId: string; isCover?: boolean }>
+  ): Promise<{ images: any[] }> {
+    return this.request(`/api/v1/projects/${projectId}/images/attach`, {
+      method: 'POST',
+      body: JSON.stringify({ images }),
     });
   }
 
@@ -343,6 +411,24 @@ class ApiClient {
     return this.request(`/api/v1/projects/${id}`, {
       method: 'DELETE',
     });
+  }
+
+  // New subscription-based listing management
+  async toggleProjectActive(projectId: number): Promise<{ message: string }> {
+    return this.request(`/api/v1/projects/${projectId}/toggle-active`, {
+      method: 'PATCH',
+    });
+  }
+
+  async getDeveloperListingStats(): Promise<{
+    total_projects: number;
+    active_projects: number;
+    subscription_plan: string;
+    max_active_listings: string;
+    can_activate_more: boolean;
+    remaining_activations: string;
+  }> {
+    return this.request('/api/v1/projects/developer/listing-stats');
   }
 
   // Developer registration
@@ -434,6 +520,7 @@ export const getDeveloperSubscription = () => apiClient.getDeveloperSubscription
 export const getDeveloperProjects = (params?: any) => apiClient.getDeveloperProjects(params);
 export const getProjects = (params?: any) => apiClient.getProjects(params);
 export const getProject = (id: number) => apiClient.getProject(id);
+export const getProjectFormData = () => apiClient.getProjectFormData();
 export const createProject = (projectData: any) => apiClient.createProject(projectData);
 export const updateProject = (id: number, projectData: any) => apiClient.updateProject(id, projectData);
 export const deleteProject = (id: number) => apiClient.deleteProject(id);
@@ -451,6 +538,14 @@ export const testConnection = () => apiClient.testConnection();
 export const uploadProjectImages = (projectId: number, files: File[]) => apiClient.uploadProjectImages(projectId, files);
 export const getProjectImages = (projectId: number) => apiClient.getProjectImages(projectId);
 export const deleteProjectImage = (projectId: number, imageId: string | number) => apiClient.deleteProjectImage(projectId, imageId);
+export const attachProjectImages = (
+  projectId: string | number,
+  images: Array<{ url: string; fileId: string; isCover?: boolean }>
+) => apiClient.attachProjectImages(projectId, images);
+
+// New subscription-based listing management exports
+export const toggleProjectActive = (projectId: number) => apiClient.toggleProjectActive(projectId);
+export const getDeveloperListingStats = () => apiClient.getDeveloperListingStats(); 
 
 
 

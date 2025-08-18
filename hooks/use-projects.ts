@@ -28,17 +28,22 @@ const transformProjectToPropertyData = (project: any) => {
   const title: string = project.title || project.name || 'Project';
   const city: string = project.city || project.location || '';
   const priceLabel: string | undefined = project.price_label || project.price_per_m2;
+  const images: string[] = Array.isArray(project.images)
+    ? project.images.map((img: any) => img?.urls?.card || img?.image_url).filter(Boolean)
+    : [];
+  const cover = project.cover_image_url || images[0] || '/placeholder.svg?height=300&width=400';
   return {
-    id: project.id,
+    id: Number(project.id) || parseInt(project.id) || 0,
     slug: String(title).toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
     title,
     priceRange: priceLabel ? `${priceLabel}` : 'Price on request',
     shortPrice: priceLabel || '€0k',
     location: project.neighborhood ? `${project.neighborhood}, ${city}` : city,
-    image: project.cover_image_url || '/placeholder.svg?height=300&width=400',
+    image: cover,
+    images: images.length > 0 ? images : [cover],
     description: project.description || '',
-    lat: project.latitude ?? 42.6977, // Default to Sofia center if no coordinates
-    lng: project.longitude ?? 23.3219,
+    lat: typeof project.latitude === 'number' ? project.latitude : 42.6977,
+    lng: typeof project.longitude === 'number' ? project.longitude : 23.3219,
     color: getColorForProject(project.id),
     type: mapProjectType(project.project_type),
     status: mapProjectStatus(project.status),
@@ -74,8 +79,12 @@ const mapProjectType = (apiType: string) => {
   const typeMap: { [key: string]: string } = {
     'APARTMENT': 'Apartment Complex',
     'apartment': 'Apartment Complex',
+    'apartment_building': 'Apartment Complex',
+    'APARTMENT_BUILDING': 'Apartment Complex',
     'HOUSE': 'Residential Houses',
     'house': 'Residential Houses',
+    'house_complex': 'Residential Houses',
+    'HOUSE_COMPLEX': 'Residential Houses',
     'MIXED_USE': 'Mixed-Use Building',
     'mixed_use': 'Mixed-Use Building',
     'OFFICE': 'Mixed-Use Building',
@@ -112,10 +121,13 @@ export const useProjects = (params: UseProjectsParams = {}): UseProjectsResult =
       
       const data: ProjectListResponse = await getProjects(params);
       console.log('📡 Raw API response:', data);
+      console.log('📡 Raw API response projects count:', data.projects?.length || 0);
+      console.log('📡 Raw API response total:', data.total);
       
       // Transform the API data to PropertyData format
       const transformedProjects = (data.projects || []).map(transformProjectToPropertyData);
       console.log('🔄 Transformed projects:', transformedProjects);
+      console.log('🔄 Transformed projects count:', transformedProjects.length);
       
       // Always set projects, even if empty (this indicates successful API call)
       setProjects(transformedProjects);
