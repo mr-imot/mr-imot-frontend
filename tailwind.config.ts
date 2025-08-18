@@ -20,7 +20,13 @@ const config = {
     },
     extend: {
       colors: {
-        // Vercel OKLCH theme colors
+        // Brand design tokens
+        brand: 'var(--brand)',
+        'brand-ink': 'var(--brand-ink)',
+        ink: 'var(--ink)',
+        subtle: 'var(--subtle)',
+        
+        // Vercel OKLCH theme colors (updated)
         border: "var(--border)",
         input: "var(--input)",
         ring: "var(--ring)",
@@ -145,14 +151,25 @@ const config = {
         sm: "calc(var(--radius) - 4px)",
         // Design System Border Radius
         ds: "var(--radius)",
+        // Airbnb-style radius
+        'xl': 'var(--radius)', 
+        '2xl': '24px',
       },
       boxShadow: {
+        // Airbnb-style shadows using tokens
+        card: 'var(--shadow-card)',
+        hover: 'var(--shadow-hover)',
+        focus: 'var(--shadow-focus)',
+        
         // Design System Shadows
         "ds-sm": "0 1px 2px 0 rgb(0 0 0 / 0.05)",
         ds: "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
         "ds-md": "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
         "ds-lg": "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
         "ds-xl": "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)",
+      },
+      transitionTimingFunction: {
+        'soft': 'cubic-bezier(.2,.8,.2,1)',
       },
       keyframes: {
         "accordion-down": {

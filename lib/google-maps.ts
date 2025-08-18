@@ -4,7 +4,7 @@
 import { Loader } from "@googlemaps/js-api-loader"
 
 let loaderSingleton: Loader | null = null
-let loadPromise: Promise<void> | null = null
+let loadPromise: Promise<typeof google> | null = null
 
 export async function ensureGoogleMaps(): Promise<typeof google> {
   if (typeof window === "undefined") {
@@ -20,7 +20,7 @@ export async function ensureGoogleMaps(): Promise<typeof google> {
     loaderSingleton = new Loader({
       apiKey,
       version: "weekly",
-      libraries: ["places"], // This loads the classic Places API for Maps
+      libraries: ["places", "marker"], // Load Places API and Marker library for AdvancedMarkerElement
       language: "bg",
       region: "BG",
     })
@@ -39,15 +39,54 @@ export async function ensureGoogleMaps(): Promise<typeof google> {
   }
 }
 
-// Airbnb-style price chip marker
+// Create house/apartment SVG icon for markers
+export function createSvgHouseIcon(
+  type: "house" | "apartment",
+  state: "default" | "hovered" | "selected" = "default"
+): google.maps.Icon {
+  const fillColor = state === "default" ? "#FF385C" : "#E00B41"
+  const strokeColor = "#FFFFFF"
+  const size = state === "default" ? 32 : 36
+  
+  // House icon SVG path
+  const houseIcon = `<path d="M12 2L2 8v13h7v-6h6v6h7V8L12 2zm0 2.5L18.5 9v10h-3v-6h-7v6h-3V9L12 4.5z" fill="${fillColor}" stroke="${strokeColor}" stroke-width="1"/>`
+  
+  // Apartment building icon SVG path  
+  const apartmentIcon = `<path d="M3 21h18V9l-9-7-9 7v12zm2-2V10l7-5.75L19 10v9h-4v-6h-6v6H5zm2-8h2v2H7v-2zm4 0h2v2h-2v-2zm4 0h2v2h-2v-2zm-8 4h2v2H7v-2zm4 0h2v2h-2v-2zm4 0h2v2h-2v-2z" fill="${fillColor}" stroke="${strokeColor}" stroke-width="1"/>`
+  
+  const iconPath = type === "house" ? houseIcon : apartmentIcon
+  
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}' viewBox='0 0 24 24'>
+    ${iconPath}
+  </svg>`
+
+  return {
+    url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
+    scaledSize: new google.maps.Size(size, size),
+    anchor: new google.maps.Point(size / 2, size),
+  }
+}
+
+// Create HTML price pill element for AdvancedMarkerElement (kept for compatibility)
+export function createPricePillElement(price: string): HTMLElement {
+  const pill = document.createElement('div')
+  pill.className = 'map-price-pill'
+  pill.textContent = price
+  pill.setAttribute('role', 'button')
+  pill.setAttribute('tabindex', '0')
+  
+  return pill
+}
+
+// Legacy SVG marker (kept for backward compatibility)
 export function createSvgMarkerIcon(
   price: string,
   state: "default" | "hovered" | "selected" = "default"
 ): google.maps.Icon {
   // Airbnb-like color scheme
-  const fillColor = state === "default" ? "#FFFFFF" : "#FF385C"
-  const textColor = state === "default" ? "#111111" : "#FFFFFF"
-  const strokeColor = state === "default" ? "#111111" : "#FF385C"
+  const fillColor = state === "default" ? "#FFFFFF" : "var(--brand, #FF385C)"
+  const textColor = state === "default" ? "var(--ink, #111111)" : "#FFFFFF"
+  const strokeColor = state === "default" ? "var(--ink, #111111)" : "var(--brand, #FF385C)"
 
   // Slight zoom on hovered/selected
   const baseScale = state === "default" ? 1 : 1.1
@@ -55,7 +94,7 @@ export function createSvgMarkerIcon(
   // Airbnb-exact dimensions and proportions
   const textLength = price.length
   const minWidth = 64 // Slightly larger minimum for better readability
-  const maxWidth = 140 // Accommodate longer prices like "Request price"
+  const maxWidth = 140 // Accommodate longer prices and fallback symbols
   const charWidth = 7.5 // Optimized for the system font
   const padding = 24 // More breathing room like Airbnb
   const calculatedWidth = Math.min(maxWidth, Math.max(minWidth, textLength * charWidth + padding))
@@ -180,7 +219,7 @@ export function createClusterMarkerIcon(
   const width = Math.round(size * baseScale)
   const height = Math.round(size * baseScale)
   
-  const fillColor = state === "default" ? "#FF385C" : "#E00B41"
+  const fillColor = state === "default" ? "var(--brand, #FF385C)" : "var(--brand, #E00B41)"
   const textColor = "#FFFFFF"
   
   const fontSize = Math.round((size > 44 ? 14 : 12) * baseScale)

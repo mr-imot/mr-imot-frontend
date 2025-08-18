@@ -37,7 +37,7 @@ const transformProjectToPropertyData = (project: any) => {
     slug: String(title).toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
     title,
     priceRange: priceLabel ? `${priceLabel}` : 'Price on request',
-    shortPrice: priceLabel || '€0k',
+    shortPrice: priceLabel || 'Request price',
     location: project.neighborhood ? `${project.neighborhood}, ${city}` : city,
     image: cover,
     images: images.length > 0 ? images : [cover],
@@ -129,10 +129,20 @@ export const useProjects = (params: UseProjectsParams = {}): UseProjectsResult =
       console.log('🔄 Transformed projects:', transformedProjects);
       console.log('🔄 Transformed projects count:', transformedProjects.length);
       
+      // DEMO: Create multiple cards for grid testing (remove this when you have real data)
+      const demoProjects = transformedProjects.length > 0 ? [
+        transformedProjects[0],
+        { ...transformedProjects[0], id: 2, title: "Luxury Residence", location: "София", shortPrice: "€850k" },
+        { ...transformedProjects[0], id: 3, title: "Modern Apartments", location: "Варна", shortPrice: "€450k" },
+        { ...transformedProjects[0], id: 4, title: "Green Complex", location: "Пловдив", shortPrice: "Request price" },
+        { ...transformedProjects[0], id: 5, title: "Urban Living", location: "София", shortPrice: "€1.2M" },
+        { ...transformedProjects[0], id: 6, title: "Seaside Homes", location: "Варна", shortPrice: "€680k" },
+      ] : transformedProjects;
+      
       // Always set projects, even if empty (this indicates successful API call)
-      setProjects(transformedProjects);
-      setTotal(data.total || 0);
-      console.log('✅ Successfully set projects:', transformedProjects.length, 'total:', data.total);
+      setProjects(demoProjects);
+      setTotal(demoProjects.length);
+      console.log('✅ Successfully set projects:', demoProjects.length, 'total:', demoProjects.length);
     } catch (err) {
       console.error('❌ Error fetching projects:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch projects');

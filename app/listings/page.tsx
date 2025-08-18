@@ -7,6 +7,8 @@ import { useSearchParams } from "next/navigation"
 
 import { ensureGoogleMaps } from "@/lib/google-maps"
 import { MarkerManager, PropertyData } from "@/lib/marker-manager"
+import { ListingCard } from "@/components/ListingCard"
+import { propertyToListing } from "@/lib/listing-adapter"
 
 import { Card, CardContent } from "@/components/ui/card"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
@@ -114,6 +116,7 @@ export default function ListingsPage() {
           zoomControl: true,
           scrollwheel: true,
           gestureHandling: 'greedy',
+          mapId: 'DEMO_MAP_ID', // Required for AdvancedMarkerElement
         })
         googleMapRef.current = map
         google.maps.event.addListener(map, "idle", () => {
@@ -149,12 +152,45 @@ export default function ListingsPage() {
     setMapBounds(googleMapRef.current.getBounds() || null)
   }, [selectedCity])
 
-  // Render markers when data changes with clustering
+  // Apply city and property type filters to the fetched projects
+  const filteredProperties = (apiProjects as unknown as PropertyData[] | undefined)?.filter((p) => {
+    // Apply city filter - handle both English and Bulgarian city names
+    if (p.location) {
+      const locationLower = p.location.toLowerCase();
+      const cityLower = selectedCity.toLowerCase();
+      
+      // Map Bulgarian city names to English equivalents
+      const cityMap: Record<string, string[]> = {
+        'sofia': ['sofia', 'софия'],
+        'plovdiv': ['plovdiv', 'пловдив'],
+        'varna': ['varna', 'варна']
+      };
+      
+      const cityVariants = cityMap[cityLower] || [cityLower];
+      const locationMatches = cityVariants.some(variant => 
+        locationLower.includes(variant)
+      );
+      
+      if (!locationMatches) return false;
+    }
+
+    // Apply property type filter
+    if (propertyTypeFilter === "all") return true;
+    if (propertyTypeFilter === "apartments") {
+      return p.type === "Apartment Complex" || p.type === "Mixed-Use Building";
+    }
+    if (propertyTypeFilter === "houses") {
+      return p.type === "Residential Houses";
+    }
+    return true;
+  }) || [];
+
+  // Render markers when filtered data changes with clustering
   useEffect(() => {
-    if (!googleMapRef.current || !apiProjects) return
+    if (!googleMapRef.current || !filteredProperties) return
     
-    const list = apiProjects as unknown as PropertyData[]
-    console.log('🗺️ Creating markers for', list.length, 'projects')
+    const list = filteredProperties
+    console.log('🗺️ Creating markers for', list.length, 'filtered projects')
 
     // Initialize or update marker manager
     if (!markerManagerRef.current) {
@@ -186,11 +222,11 @@ export default function ListingsPage() {
         onPropertySelect: (propertyId) => {
           setSelectedPropertyId(propertyId)
           if (propertyId) {
-            const card = listContainerRef.current?.querySelector(
+        const card = listContainerRef.current?.querySelector(
               `[data-prop-id="${propertyId}"]`
-            ) as HTMLElement | null
-            if (card) {
-              card.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" })
+        ) as HTMLElement | null
+        if (card) {
+          card.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" })
             }
           }
         },
@@ -202,7 +238,7 @@ export default function ListingsPage() {
     }
 
     markerManagerRef.current.renderMarkers()
-  }, [apiProjects, mapBounds, selectedPropertyId, hoveredPropertyId])
+  }, [filteredProperties, mapBounds, selectedPropertyId, hoveredPropertyId])
 
 
 
@@ -246,7 +282,7 @@ export default function ListingsPage() {
           ) as HTMLElement | null
           if (card) {
             setIsMapExpanded(false)
-            setTimeout(() => {
+      setTimeout(() => {
               card.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" })
               setHoveredPropertyId(p.id)
             }, 50)
@@ -263,36 +299,18 @@ export default function ListingsPage() {
     setSelectedPropertyId(property.id)
     const marker = markerManagerRef.current?.getMarker(property.id)
     if (googleMapRef.current && marker) {
+      // Pan to marker and zoom to at least 14 (Airbnb-style behavior)
+      const currentZoom = googleMapRef.current.getZoom() || 10
+      const targetZoom = Math.max(currentZoom, 14)
+      
       googleMapRef.current.panTo({ lat: property.lat, lng: property.lng })
+      if (targetZoom > currentZoom) {
+        googleMapRef.current.setZoom(targetZoom)
+      }
     }
   }
 
-  // Apply city and property type filters to the fetched projects
-  const filteredProperties = (apiProjects as unknown as PropertyData[] | undefined)?.filter((p) => {
-    // Apply city filter - handle both English and Bulgarian city names
-    if (p.location) {
-      const locationLower = p.location.toLowerCase();
-      const cityLower = selectedCity.toLowerCase();
-      
-      // Map Bulgarian city names to English equivalents
-      const cityMap: Record<string, string[]> = {
-        'sofia': ['sofia', 'софия'],
-        'plovdiv': ['plovdiv', 'пловдив'],
-        'varna': ['varna', 'варна']
-      };
-      
-      const cityVariants = cityMap[cityLower] || [cityLower];
-      const cityMatch = cityVariants.some(variant => locationLower.includes(variant));
-      
-      if (!cityMatch) {
-        return false;
-      }
-    }
-    // Apply property type filter
-    if (propertyTypeFilter === "houses") return p.type === "Residential Houses"
-    if (propertyTypeFilter === "apartments") return p.type !== "Residential Houses"
-    return true
-  }) || []
+
 
   const showEmpty = !loading && filteredProperties.length === 0
 
@@ -305,12 +323,36 @@ export default function ListingsPage() {
   useEffect(() => {
     if (!googleMapRef.current) return
     if (!infoWindowRef.current) {
-      infoWindowRef.current = new google.maps.InfoWindow()
+      infoWindowRef.current = new google.maps.InfoWindow({
+        disableAutoPan: true, // Prevent automatic map panning/bouncing
+        maxWidth: 320,
+        pixelOffset: new google.maps.Size(0, -10), // Slight offset above marker
+      })
+      
+      // Close InfoWindow when user clicks the X button
+      infoWindowRef.current.addListener('closeclick', () => {
+        setSelectedPropertyId(null)
+      })
+      
+      // Close InfoWindow when clicking on the map (outside the card)
+      googleMapRef.current.addListener('click', (e: any) => {
+        // Only close if we're not clicking on a marker
+        if (selectedPropertyId && !e.placeId) {
+          setSelectedPropertyId(null)
+        }
+      })
     }
 
     const id = selectedPropertyId
     const selected = id ? filteredProperties.find((p) => p.id === id) : null
     const marker = markerManagerRef.current?.getMarker(id!)
+    
+    // If no selection, close InfoWindow
+    if (!id || !selected || !marker) {
+      infoWindowRef.current.close()
+      return
+    }
+    
     if (id && selected && marker) {
       const m = marker
       
@@ -354,6 +396,17 @@ export default function ListingsPage() {
       
       infoWindowRef.current.setContent(content)
       infoWindowRef.current.open({ map: googleMapRef.current, anchor: m, shouldFocus: false })
+      
+      // Add click handlers to InfoWindow content after it's opened
+      setTimeout(() => {
+        const infoWindow = document.querySelector('.gm-style-iw-d')
+        if (infoWindow) {
+          // Prevent clicks inside InfoWindow from closing it
+          infoWindow.addEventListener('click', (e) => {
+            e.stopPropagation()
+          })
+        }
+      }, 100)
       
       // Add carousel functionality
       if (hasMultipleImages) {
@@ -440,79 +493,105 @@ export default function ListingsPage() {
       >
         {ariaLiveMessage}
       </div>
-      {/* Filters - same style as homepage */}
-      <section className="py-6 bg-card/50 backdrop-blur-sm border-y">
-        <div className="container mx-auto px-4">
-          <Card>
-            <CardContent className="p-6">
+      {/* Filters - Professional styling */}
+      <section className="py-8 bg-gradient-to-r from-gray-50 to-white border-b border-gray-100">
+        <div className="container mx-auto px-4 max-w-[1800px]">
+          <Card className="border-0 shadow-sm bg-white/80 backdrop-blur-sm">
+            <CardContent className="p-8">
               {/* Mobile Map/List Toggle */}
-              <div className="md:hidden mb-6 flex justify-center">
+              <div className="md:hidden mb-8 flex justify-center">
                 <Button 
                   variant={isMobileMapView ? "default" : "outline"}
                   onClick={() => setIsMobileMapView(!isMobileMapView)}
-                  className="flex items-center gap-2 px-6 py-3"
+                  className="h-12 px-8 rounded-full border-2 border-brand/20 text-ink bg-brand text-white border-brand hover:bg-brand/90 shadow-lg hover:shadow-xl transition-all duration-300 ease-out font-semibold text-base"
                   size="lg"
                 >
-                  <span>{isMobileMapView ? "📋" : "🗺️"}</span>
+                  <span className="mr-2">{isMobileMapView ? "📋" : "🗺️"}</span>
                   {isMobileMapView ? "List View" : "Map View"}
                 </Button>
               </div>
-              <div className="flex flex-col lg:flex-row items-center justify-center gap-8">
+              <div className="flex flex-col lg:flex-row items-center justify-center gap-12">
                 {/* City Selector */}
                 <div className="flex flex-col items-center space-y-4 w-full lg:w-auto">
-                  <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-primary" />
+                  <h3 className="text-lg font-bold text-gray-800 flex items-center gap-3">
+                    <MapPin className="w-5 h-5 text-brand" />
                     Choose Your City
                   </h3>
                   <ToggleGroup
                     type="single"
                     value={selectedCity}
                     onValueChange={handleCityChange}
-                    className="bg-muted rounded-lg p-1.5 w-full lg:w-auto flex gap-1"
+                    className="flex gap-3 w-full lg:w-auto"
                   >
-                    <ToggleGroupItem value="Sofia" className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-md transition-all duration-200 min-w-[80px] min-h-[44px] hover:scale-105 active:scale-95">Sofia</ToggleGroupItem>
-                    <ToggleGroupItem value="Plovdiv" className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-md transition-all duration-200 min-w-[80px] min-h-[44px] hover:scale-105 active:scale-95">Plovdiv</ToggleGroupItem>
-                    <ToggleGroupItem value="Varna" className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-md transition-all duration-200 min-w-[80px] min-h-[44px] hover:scale-105 active:scale-95">Varna</ToggleGroupItem>
+                    <ToggleGroupItem 
+                      value="Sofia" 
+                      className="h-12 px-8 rounded-full border-2 border-brand/20 text-gray-700 data-[state=on]:bg-brand data-[state=on]:text-white data-[state=on]:border-brand hover:bg-brand/10 hover:border-brand/40 transition-all duration-300 ease-out font-semibold text-base shadow-sm hover:shadow-md"
+                    >
+                      Sofia
+                    </ToggleGroupItem>
+                    <ToggleGroupItem 
+                      value="Plovdiv" 
+                      className="h-12 px-8 rounded-full border-2 border-brand/20 text-gray-700 data-[state=on]:bg-brand data-[state=on]:text-white data-[state=on]:border-brand hover:bg-brand/10 hover:border-brand/40 transition-all duration-300 ease-out font-semibold text-base shadow-sm hover:shadow-md"
+                    >
+                      Plovdiv
+                    </ToggleGroupItem>
+                    <ToggleGroupItem 
+                      value="Varna" 
+                      className="h-12 px-8 rounded-full border-2 border-brand/20 text-gray-700 data-[state=on]:bg-brand data-[state=on]:text-white data-[state=on]:border-brand hover:bg-brand/10 hover:border-brand/40 transition-all duration-300 ease-out font-semibold text-base shadow-sm hover:shadow-md"
+                    >
+                      Varna
+                    </ToggleGroupItem>
                   </ToggleGroup>
-            </div>
+                </div>
 
                 {/* Divider */}
-                <Separator orientation="vertical" className="hidden lg:block h-16" />
-                <Separator className="lg:hidden w-full" />
+                <Separator orientation="vertical" className="hidden lg:block h-20 bg-gray-200" />
+                <Separator className="lg:hidden w-full bg-gray-200" />
 
-            {/* Property Type Filter */}
+                {/* Property Type Filter */}
                 <div className="flex flex-col items-center space-y-4 w-full lg:w-auto">
-                  <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                    <Building className="w-4 h-4 text-primary" />
+                  <h3 className="text-lg font-bold text-gray-800 flex items-center gap-3">
+                    <Building className="w-5 h-5 text-brand" />
                     Property Type
                   </h3>
-              <ToggleGroup
-                type="single"
-                value={propertyTypeFilter}
+                  <ToggleGroup
+                    type="single"
+                    value={propertyTypeFilter}
                     onValueChange={handlePropertyTypeFilter}
-                    className="bg-muted rounded-lg p-1.5 w-full lg:w-auto flex flex-wrap lg:flex-nowrap gap-1"
+                    className="flex flex-wrap gap-3 w-full lg:w-auto justify-center"
                   >
-                    <ToggleGroupItem value="all" className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-md transition-all duration-200 px-6 min-h-[44px] hover:scale-105 active:scale-95">All</ToggleGroupItem>
-                    <ToggleGroupItem value="apartments" className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-md transition-all duration-200 px-4 min-h-[44px] hover:scale-105 active:scale-95">
-                      <Building className="w-4 h-4 mr-2" /> Apartments
-                </ToggleGroupItem>
-                    <ToggleGroupItem value="houses" className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-md transition-all duration-200 px-4 min-h-[44px] hover:scale-105 active:scale-95">
-                      <Home className="w-4 h-4 mr-2" /> Houses
-                </ToggleGroupItem>
-              </ToggleGroup>
-            </div>
-          </div>
+                    <ToggleGroupItem 
+                      value="all" 
+                      className="h-12 px-8 rounded-full border-2 border-brand/20 text-gray-700 data-[state=on]:bg-brand data-[state=on]:text-white data-[state=on]:border-brand hover:bg-brand/10 hover:border-brand/40 transition-all duration-300 ease-out font-semibold text-base shadow-sm hover:shadow-md"
+                    >
+                      All
+                    </ToggleGroupItem>
+                    <ToggleGroupItem 
+                      value="apartments" 
+                      className="h-12 px-6 rounded-full border-2 border-brand/20 text-gray-700 data-[state=on]:bg-brand data-[state=on]:text-white data-[state=on]:border-brand hover:bg-brand/10 hover:border-brand/40 transition-all duration-300 ease-out font-semibold text-base shadow-sm hover:shadow-md flex items-center gap-2"
+                    >
+                      <Building className="w-4 h-4" /> Apartments
+                    </ToggleGroupItem>
+                    <ToggleGroupItem 
+                      value="houses" 
+                      className="h-12 px-6 rounded-full border-2 border-brand/20 text-gray-700 data-[state=on]:bg-brand data-[state=on]:text-white data-[state=on]:border-brand hover:bg-brand/10 hover:border-brand/40 transition-all duration-300 ease-out font-semibold text-base shadow-sm hover:shadow-md flex items-center gap-2"
+                    >
+                      <Home className="w-4 h-4" /> Houses
+                    </ToggleGroupItem>
+                  </ToggleGroup>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
       </section>
 
-      {/* List + Map layout (match Airbnb proportions) */}
-      <div className="mx-auto w-full max-w-[1600px] px-4 lg:px-6 py-8">
+      {/* Airbnb-style layout with exact proportions */}
+      <div className="mx-auto w-full max-w-[1800px] px-4 py-8">
         {/* Mobile: Full-screen Map or List View */}
-        <div className="md:hidden">
+        <div className="lg:hidden">
           {isMobileMapView ? (
-            <div className="h-[calc(100vh-300px)] min-h-[500px] w-full rounded-lg overflow-hidden">
+            <div className="h-[420px] w-full rounded-lg overflow-hidden">
               <div ref={mapRef} className="w-full h-full bg-muted" />
             </div>
           ) : (
@@ -531,48 +610,15 @@ export default function ListingsPage() {
                   <p className="text-muted-foreground">No properties found matching your criteria.</p>
                 </div>
               ) : (
-                <div className="grid gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {filteredProperties.map((property) => (
-                    <div
+                    <ListingCard
                       key={property.id}
-                      data-prop-id={property.id}
-                      className="group cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-[1.01] border rounded-lg"
-                      onMouseEnter={() => setDebouncedHover(property.id, 100)}
-                      onMouseLeave={() => setDebouncedHover(null, 150)}
-                      onClick={() => handleCardClick(property)}
-                    >
-                      <Card className="border-0 shadow-none">
-                        <CardContent className="p-0">
-                          <div className="flex flex-col">
-                            <div className="relative w-full h-48">
-                              <Image
-                                src={property.image}
-                                alt={property.title}
-                                fill
-                                className="object-cover rounded-t-lg"
-                                sizes="(max-width: 768px) 100vw, 50vw"
-                              />
-                              <div className="absolute top-2 right-2">
-                                <Button size="sm" variant="ghost" className="h-8 w-8 p-0 bg-white/20 hover:bg-white/30">
-                                  <Heart className="h-4 w-4 text-white" />
-                                </Button>
-                              </div>
-                            </div>
-                            <div className="p-3">
-                              <div className="flex justify-between items-start mb-1">
-                                <h3 className="font-semibold text-sm line-clamp-1">{property.title}</h3>
-                                <div className="flex items-center gap-1">
-                                  <Star className="h-3 w-3 fill-current" />
-                                  <span className="text-sm">{property.rating}</span>
-                                </div>
-                              </div>
-                              <p className="text-xs text-muted-foreground mb-2">{property.location}</p>
-                              <p className="font-semibold text-sm">{property.shortPrice}</p>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
+                      listing={propertyToListing(property)}
+                      isActive={selectedPropertyId === property.id}
+                      onCardClick={() => handleCardClick(property)}
+                      onCardHover={(id) => setDebouncedHover(id, 100)}
+                    />
                   ))}
                 </div>
               )}
@@ -580,84 +626,77 @@ export default function ListingsPage() {
           )}
         </div>
 
-        {/* Desktop: Side-by-side layout */}
-        <div className="hidden md:flex gap-6">
-          {/* Left: Listing grid */}
-          <div className="w-full lg:w-[62%] min-h-[calc(100vh-200px)]">
-                {loading ? (
-              <div className="flex items-center justify-center py-24">
-                <Loader2 className="h-6 w-6 animate-spin" />
-              </div>
-            ) : showEmpty ? (
-              <div className="bg-card rounded-xl border p-6">
-                <h3 className="text-xl font-bold mb-2">No exact matches</h3>
-                <p className="text-muted-foreground mb-4">Try changing or removing some of your filters, or adjust the search area.</p>
-                <div className="flex gap-3">
-                  <Button variant="secondary" onClick={() => setSelectedCity("Sofia")}>Show closest results</Button>
-                  <Button variant="outline" onClick={() => setPropertyTypeFilter("all")}>Clear filters</Button>
-                    </div>
+        {/* Desktop: Professional layout with 3 listings per row and wider map */}
+        <div className="hidden lg:flex gap-8">
+          {/* Left: Scrollable Listings Container (60% width) */}
+          <section className="w-[60%] flex-shrink-0">
+            <div className="h-[calc(100vh-120px)] overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+              {loading ? (
+                <div className="flex flex-col items-center justify-center py-24 space-y-6">
+                  <div className="relative">
+                    <Loader2 className="h-12 w-12 animate-spin text-brand" />
+                    <div className="absolute inset-0 rounded-full border-4 border-gray-200"></div>
                   </div>
-                ) : (
-              <div ref={listContainerRef} className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                {filteredProperties.map((property) => (
-                    <div
-                      key={property.id}
-                    data-prop-id={property.id}
-                    className="group cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-[1.01] border rounded-lg"
-                    onMouseEnter={() => setDebouncedHover(property.id, 100)}
-                    onMouseLeave={() => setDebouncedHover(null, 150)}
-                    onClick={() => handleCardClick(property)}
+                  <div className="text-center">
+                    <p className="text-lg font-semibold text-gray-700 mb-2">Loading Properties</p>
+                    <p className="text-gray-500">Finding the perfect properties for you...</p>
+                  </div>
+                </div>
+              ) : showEmpty ? (
+                <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl border border-gray-200 p-12 text-center shadow-sm">
+                  <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <Building className="w-10 h-10 text-gray-400" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-800 mb-3">No exact matches</h3>
+                  <p className="text-gray-600 mb-8 max-w-md mx-auto">Try changing or removing some of your filters, or adjust the search area to find more properties.</p>
+                  <div className="flex gap-4 justify-center">
+                    <Button 
+                      variant="secondary" 
+                      onClick={() => setSelectedCity("Sofia")}
+                      className="h-11 px-6 rounded-full font-semibold shadow-sm hover:shadow-md transition-all duration-200"
                     >
-                      <Card className="border-0 shadow-none">
-                        <CardContent className="p-0">
-                          <div className="flex flex-col">
-                          <div className="relative w-full h-48">
-                            <Image src={property.image || "/placeholder.svg"} alt={property.title} fill className="object-cover rounded-t-lg" />
-                            <button className="absolute top-3 right-3 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center shadow-md">
-                              <Heart className="h-4 w-4" />
-                              </button>
-                            <div className="absolute bottom-3 left-3 bg-primary text-primary-foreground px-3 py-1 rounded-full text-xs font-semibold">
-                                {property.status}
-                              </div>
-                            </div>
-                          <div className="p-4 space-y-2">
-                            <h3 className="text-base font-semibold leading-tight line-clamp-1 group-hover:text-primary transition-colors">{property.title}</h3>
-                            <p className="text-sm text-muted-foreground flex items-center">
-                              <MapPin className="h-3 w-3 mr-1" /> {property.location}
-                            </p>
-                              <div className="flex items-center justify-between text-sm">
-                              <div className="flex items-center gap-1">
-                                  <Star className="h-4 w-4 text-amber-400 fill-amber-400" />
-                                <span className="font-medium">{property.rating}</span>
-                                <span className="text-muted-foreground">({property.reviews})</span>
-                              </div>
-                              <span className="text-primary font-bold">{property.priceRange.split(" - ")[0]}</span>
-                              </div>
-                            <Button asChild className="w-full mt-2">
-                              <Link href={`/listing/${property.id}`} target="_blank" rel="noopener noreferrer">
-                                View Details
-                                <ExternalLink className="ml-2 h-4 w-4" />
-                              </Link>
-                              </Button>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
+                      Show closest results
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setPropertyTypeFilter("all")}
+                      className="h-11 px-6 rounded-full font-semibold border-2 hover:border-brand/40 transition-all duration-200"
+                    >
+                      Clear filters
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div ref={listContainerRef} className="grid grid-cols-3 gap-6">
+                  {filteredProperties.map((property, index) => (
+                    <div 
+                      key={property.id} 
+                      data-prop-id={property.id} 
+                      className="w-full animate-in fade-in-0 slide-in-from-bottom-4 duration-500"
+                      style={{ animationDelay: `${index * 100}ms` }}
+                    >
+                      <ListingCard
+                        listing={propertyToListing(property)}
+                        isActive={selectedPropertyId === property.id}
+                        onCardClick={() => handleCardClick(property)}
+                        onCardHover={(id) => setDebouncedHover(id, 100)}
+                      />
                     </div>
-                ))}
-              </div>
-            )}
-          </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </section>
 
-          {/* Right: Map */}
-          <div className="hidden lg:block lg:w-[38%]">
-            <div className="sticky top-24 h-[calc(100vh-128px)] bg-muted rounded-xl border relative overflow-hidden">
-              <div ref={mapRef} className="absolute inset-0" />
+          {/* Right: Sticky Map (40% width) */}
+          <aside className="w-[40%] flex-shrink-0">
+            <div className="sticky top-20 h-[calc(100vh-120px)] rounded-2xl overflow-hidden border border-gray-200 shadow-lg">
+              <div ref={mapRef} className="w-full h-full bg-muted" />
               
               {/* Expand control */}
               <button
                 type="button"
-                className="absolute top-4 right-4 z-20 w-9 h-9 rounded-full bg-card/95 border shadow flex items-center justify-center hover:bg-muted"
+                className="absolute top-4 right-4 z-20 w-11 h-11 rounded-full bg-white/95 border border-gray-200 shadow-lg flex items-center justify-center hover:bg-white hover:shadow-xl transition-all duration-200"
                 onClick={() => {
                   setIsMapExpanded(true)
                   setTimeout(async () => {
@@ -673,6 +712,7 @@ export default function ListingsPage() {
                           zoomControl: true,
                           scrollwheel: true,
                           gestureHandling: 'greedy',
+                          mapId: 'DEMO_MAP_ID', // Required for AdvancedMarkerElement
                         })
                       }
                       // Sync center/zoom and markers
@@ -691,15 +731,18 @@ export default function ListingsPage() {
                 }}
                 aria-label="Expand map"
               >
-                <Maximize2 className="h-4 w-4" />
-                      </button>
+                <Maximize2 className="h-5 w-5 text-gray-700" />
+              </button>
               {isMapLoading && (
-                <div className="absolute inset-0 bg-background/70 backdrop-blur-sm flex items-center justify-center">
-                  <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center">
+                  <div className="relative">
+                    <Loader2 className="h-8 w-8 animate-spin text-brand" />
+                    <div className="absolute inset-0 rounded-full border-4 border-gray-200"></div>
+                  </div>
                 </div>
               )}
             </div>
-          </div>
+          </aside>
         </div>
       </div>
 

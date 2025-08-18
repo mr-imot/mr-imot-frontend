@@ -1,5 +1,5 @@
 // Marker management utilities for Airbnb-style maps
-import { createSvgMarkerIcon, createClusterMarkerIcon, clusterProperties, PropertyCluster } from './google-maps'
+import { createPricePillElement, createSvgMarkerIcon, createSvgHouseIcon, createClusterMarkerIcon, clusterProperties, PropertyCluster } from './google-maps'
 
 export interface PropertyData {
   id: number
@@ -30,9 +30,9 @@ export interface MarkerManagerConfig {
 
 export class MarkerManager {
   private config: MarkerManagerConfig
-  private markers: Record<number, google.maps.Marker> = {}
-  private clusterMarkers: google.maps.Marker[] = []
-  private markerTypes: Record<number, "house" | "apartment"> = {}
+  private markers: Record<number, google.maps.marker.AdvancedMarkerElement> = {}
+  private clusterMarkers: google.maps.marker.AdvancedMarkerElement[] = []
+  private markerElements: Record<number, HTMLElement> = {}
   private markerPrices: Record<number, string> = {}
   private clusters: PropertyCluster[] = []
 
@@ -62,19 +62,38 @@ export class MarkerManager {
   updateMarkerStates() {
     Object.entries(this.markers).forEach(([id, marker]) => {
       const propertyId = Number(id)
-      const markerPrice = this.markerPrices[propertyId]
-      if (markerPrice) {
-        let state: "default" | "hovered" | "selected" = "default"
+      const pillElement = this.markerElements[propertyId]
+      
+      if (pillElement) {
+        // Remove all state classes
+        pillElement.classList.remove('map-price-pill--active')
         
+        // Add appropriate state class
         if (this.config.selectedPropertyId === propertyId) {
-          state = "selected"
+          pillElement.classList.add('map-price-pill--active')
+          marker.zIndex = 999
         } else if (this.config.hoveredPropertyId === propertyId) {
-          state = "hovered"
+          // Hover state is handled by CSS :hover
+          marker.zIndex = 500
+        } else {
+          marker.zIndex = 1
         }
-        
-        const icon = createSvgMarkerIcon(markerPrice, state)
-        marker.setIcon(icon)
-        marker.setZIndex(state === "selected" ? 999 : state === "hovered" ? 500 : 1)
+      } else {
+        // Fallback for legacy markers
+        const markerPrice = this.markerPrices[propertyId]
+        if (markerPrice && 'setIcon' in marker) {
+          let state: "default" | "hovered" | "selected" = "default"
+          
+          if (this.config.selectedPropertyId === propertyId) {
+            state = "selected"
+          } else if (this.config.hoveredPropertyId === propertyId) {
+            state = "hovered"
+          }
+          
+          const icon = createSvgMarkerIcon(markerPrice, state)
+          ;(marker as any).setIcon(icon)
+          ;(marker as any).setZIndex(state === "selected" ? 999 : state === "hovered" ? 500 : 1)
+        }
       }
     })
   }
@@ -85,7 +104,7 @@ export class MarkerManager {
   }
 
   // Get individual marker by property ID
-  getMarker(propertyId: number): google.maps.Marker | null {
+  getMarker(propertyId: number): google.maps.marker.AdvancedMarkerElement | google.maps.Marker | null {
     return this.markers[propertyId] || null
   }
 
@@ -95,10 +114,23 @@ export class MarkerManager {
   }
 
   private clearAllMarkers() {
-    Object.values(this.markers).forEach((m) => m.setMap(null))
-    this.clusterMarkers.forEach((m) => m.setMap(null))
+    Object.values(this.markers).forEach((m) => {
+      if ('setMap' in m) {
+        m.setMap(null) // Legacy Marker
+      } else {
+        m.map = null // AdvancedMarkerElement
+      }
+    })
+    this.clusterMarkers.forEach((m) => {
+      if ('setMap' in m) {
+        m.setMap(null) // Legacy Marker
+      } else {
+        m.map = null // AdvancedMarkerElement
+      }
+    })
     this.markers = {}
     this.clusterMarkers = []
+    this.markerElements = {}
   }
 
   private renderClustered() {
@@ -130,57 +162,108 @@ export class MarkerManager {
       return
     }
     
-    let marker: google.maps.Marker
-    const markerType = property.type === "Residential Houses" ? "house" : "apartment"
-    const markerPrice = property.shortPrice || "Request price"
+    // Use house icon for houses, building icon for apartments
+    const iconType = property.type === "Residential Houses" ? "house" : "apartment"
+    const markerIcon = createSvgHouseIcon(iconType, "default")
     
-    try {
-      const markerIcon = createSvgMarkerIcon(markerPrice, "default")
-      
-      marker = new google.maps.Marker({
-        position: { lat: property.lat, lng: property.lng },
-        map: this.config.map,
-        icon: markerIcon,
-        zIndex: 1,
-        title: property.title,
-      })
-    } catch (error) {
-      console.error('❌ Error creating custom marker:', error)
-      // Fallback: create basic marker without custom icon
-      marker = new google.maps.Marker({
-        position: { lat: property.lat, lng: property.lng },
-        map: this.config.map,
-        zIndex: 1,
-        title: property.title,
-      })
-    }
+    const marker = new google.maps.Marker({
+      position: { lat: property.lat, lng: property.lng },
+      map: this.config.map,
+      icon: markerIcon,
+      title: property.title,
+      zIndex: 1,
+    })
     
     this.markers[property.id] = marker
-    this.markerTypes[property.id] = markerType
-    this.markerPrices[property.id] = markerPrice
-
-    this.addMarkerEventListeners(marker, property)
+    this.addLegacyMarkerEventListeners(marker, property)
   }
 
   private createClusterMarker(cluster: PropertyCluster, clusterIndex: number) {
     const count = cluster.properties.length
-    const clusterIcon = createClusterMarkerIcon(count, "default")
     
-    const marker = new google.maps.Marker({
-      position: { lat: cluster.lat, lng: cluster.lng },
-      map: this.config.map,
-      icon: clusterIcon,
-      zIndex: 100,
-      title: `${count} properties`,
-    })
-    
-    this.clusterMarkers.push(marker)
-    this.addClusterEventListeners(marker, cluster, count)
+    try {
+      // Create HTML cluster pill element
+      const clusterElement = document.createElement('div')
+      clusterElement.className = 'map-price-pill map-price-pill--cluster'
+      clusterElement.textContent = count.toString()
+      clusterElement.setAttribute('role', 'button')
+      clusterElement.setAttribute('tabindex', '0')
+      
+      // Create AdvancedMarkerElement for cluster
+      const marker = new google.maps.marker.AdvancedMarkerElement({
+        position: { lat: cluster.lat, lng: cluster.lng },
+        map: this.config.map,
+        content: clusterElement,
+        title: `${count} properties`,
+        zIndex: 100,
+      })
+      
+      this.clusterMarkers.push(marker)
+      this.addClusterEventListeners(marker, cluster, count, clusterElement)
+    } catch (error) {
+      console.error('❌ Error creating cluster AdvancedMarkerElement:', error)
+      // Fallback to legacy SVG cluster
+      const clusterIcon = createClusterMarkerIcon(count, "default")
+      const fallbackMarker = new google.maps.Marker({
+        position: { lat: cluster.lat, lng: cluster.lng },
+        map: this.config.map,
+        icon: clusterIcon,
+        zIndex: 100,
+        title: `${count} properties`,
+      }) as any
+      
+      this.clusterMarkers.push(fallbackMarker)
+      this.addLegacyClusterEventListeners(fallbackMarker, cluster, count)
+    }
   }
 
-  private addMarkerEventListeners(marker: google.maps.Marker, property: PropertyData) {
+  private addMarkerEventListeners(marker: google.maps.marker.AdvancedMarkerElement, property: PropertyData, pillElement: HTMLElement) {
+    // Add accessibility attributes to the pill element
+    pillElement.setAttribute('aria-label', `Property: ${property.title} - ${property.shortPrice || 'Contact for price'}`)
+    
+    // Click marker to select/deselect
+    marker.addListener("click", () => {
+      if (this.config.selectedPropertyId === property.id) {
+        this.config.onPropertySelect(null)
+        this.config.onAriaAnnouncement("Property details closed")
+      } else {
+        this.config.onPropertySelect(property.id)
+        this.config.onAriaAnnouncement(`Selected property: ${property.title} - ${property.shortPrice || 'Contact for price'}`)
+        
+        // Airbnb-style: zoom to at least 14 and center on marker
+        const currentZoom = this.config.map.getZoom() || 10
+        const targetZoom = Math.max(currentZoom, 14)
+        
+        this.config.map.panTo({ lat: property.lat, lng: property.lng })
+        if (targetZoom > currentZoom) {
+          this.config.map.setZoom(targetZoom)
+        }
+      }
+    })
+    
+    // Add keyboard support directly to pill element
+    pillElement.addEventListener('keydown', (e: KeyboardEvent) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault()
+        // Trigger click on marker
+        google.maps.event.trigger(marker, 'click')
+      }
+    })
+
+    // Hover events on pill element (CSS handles visual effects)
+    pillElement.addEventListener('mouseenter', () => {
+      this.config.onPropertyHover(property.id)
+    })
+    
+    pillElement.addEventListener('mouseleave', () => {
+      this.config.onPropertyHover(null)
+    })
+  }
+
+  // Legacy fallback for old Marker API
+  private addLegacyMarkerEventListeners(marker: google.maps.Marker, property: PropertyData) {
     // Add accessibility attributes
-    marker.set('aria-label', `Property: ${property.title} - ${property.shortPrice || 'Request price'}`)
+    marker.set('aria-label', `Property: ${property.title} - ${property.shortPrice || 'Contact for price'}`)
     marker.set('role', 'button')
     marker.set('tabindex', '0')
     
@@ -191,27 +274,78 @@ export class MarkerManager {
         this.config.onAriaAnnouncement("Property details closed")
       } else {
         this.config.onPropertySelect(property.id)
-        this.config.onAriaAnnouncement(`Selected property: ${property.title} - ${property.shortPrice || 'Request price'}`)
+        this.config.onAriaAnnouncement(`Selected property: ${property.title} - ${property.shortPrice || 'Contact for price'}`)
+        
+        // Airbnb-style: zoom to at least 14 and center on marker
+        const currentZoom = this.config.map.getZoom() || 10
+        const targetZoom = Math.max(currentZoom, 14)
+        
+        this.config.map.panTo({ lat: property.lat, lng: property.lng })
+        if (targetZoom > currentZoom) {
+          this.config.map.setZoom(targetZoom)
+        }
       }
     })
     
-    // Add keyboard support
-    const markerElement = marker.get('element')
-    if (markerElement) {
-      markerElement.addEventListener('keydown', (e: KeyboardEvent) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          marker.trigger('click')
-        }
-      })
-    }
-
-    // Hover events
-    marker.addListener("mouseover", () => this.config.onPropertyHover(property.id))
-    marker.addListener("mouseout", () => this.config.onPropertyHover(null))
+    // Hover events with debouncing to prevent jittery behavior
+    let hoverTimeout: NodeJS.Timeout | null = null
+    
+    marker.addListener("mouseover", () => {
+      if (hoverTimeout) clearTimeout(hoverTimeout)
+      hoverTimeout = setTimeout(() => {
+        this.config.onPropertyHover(property.id)
+      }, 50) // Small delay to prevent jitter
+    })
+    
+    marker.addListener("mouseout", () => {
+      if (hoverTimeout) {
+        clearTimeout(hoverTimeout)
+        hoverTimeout = null
+      }
+      setTimeout(() => {
+        this.config.onPropertyHover(null)
+      }, 50)
+    })
   }
 
-  private addClusterEventListeners(marker: google.maps.Marker, cluster: PropertyCluster, count: number) {
+  private addClusterEventListeners(marker: google.maps.marker.AdvancedMarkerElement, cluster: PropertyCluster, count: number, clusterElement: HTMLElement) {
+    // Add accessibility attributes to the cluster element
+    clusterElement.setAttribute('aria-label', `Cluster of ${count} properties. Click to zoom in and expand.`)
+    
+    // Click cluster to zoom in
+    marker.addListener("click", () => {
+      this.config.map.fitBounds(cluster.bounds)
+      this.config.onAriaAnnouncement(`Expanded cluster of ${count} properties. Zooming to show individual listings.`)
+      setTimeout(() => {
+        const newZoom = this.config.map.getZoom() || 10
+        if (newZoom >= 12) {
+          console.log('🔍 Zoomed in enough to show individual markers')
+        }
+      }, 500)
+    })
+    
+    // Add keyboard support directly to cluster element
+    clusterElement.addEventListener('keydown', (e: KeyboardEvent) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault()
+        google.maps.event.trigger(marker, 'click')
+      }
+    })
+    
+    // Hover effects on cluster element (CSS handles visual effects)
+    clusterElement.addEventListener('mouseenter', () => {
+      clusterElement.style.transform = 'scale(1.06)'
+      clusterElement.style.boxShadow = '0 12px 28px rgba(0, 0, 0, 0.18)'
+    })
+    
+    clusterElement.addEventListener('mouseleave', () => {
+      clusterElement.style.transform = 'scale(1)'
+      clusterElement.style.boxShadow = '0 8px 20px rgba(0, 0, 0, 0.12)'
+    })
+  }
+
+  // Legacy fallback for old Marker API clusters
+  private addLegacyClusterEventListeners(marker: google.maps.Marker, cluster: PropertyCluster, count: number) {
     // Add accessibility attributes
     marker.set('aria-label', `Cluster of ${count} properties. Click to zoom in and expand.`)
     marker.set('role', 'button')
@@ -228,17 +362,6 @@ export class MarkerManager {
         }
       }, 500)
     })
-    
-    // Add keyboard support
-    const clusterElement = marker.get('element')
-    if (clusterElement) {
-      clusterElement.addEventListener('keydown', (e: KeyboardEvent) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          marker.trigger('click')
-        }
-      })
-    }
     
     // Hover effects
     marker.addListener("mouseover", () => {
