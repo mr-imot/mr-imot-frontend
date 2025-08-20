@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": ["*"],
+    "deny": [],
+    "ask": []
+  },
+  "mcpServers": {
+    "playwright": {
+      "command": "cmd",
+      "args": ["/c", "npx", "@modelcontextprotocol/server-playwright"],
+      "env": {}
+    }
+  }
+}
