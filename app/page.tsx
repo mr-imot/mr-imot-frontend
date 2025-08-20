@@ -1,359 +1,280 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
-import Image from "next/image"
 import Link from "next/link"
-import { ensureGoogleMaps } from "@/lib/google-maps"
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
 import {
-  MapPin,
-  Building,
-  Home,
   Shield,
   UserX,
   Clock,
   ExternalLink,
-  Loader2,
+  Search,
+  Phone,
+  CheckCircle,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-
-interface PropertyData {
-  id: string
-  name: string
-  price_label: string
-  city: string
-  neighborhood?: string
-  formatted_address?: string
-  latitude: number
-  longitude: number
-  project_type: "apartment_building" | "house"
-  completion_note?: string
-  description?: string
-  image?: string
-}
-
-type CityType = "Sofia" | "Plovdiv" | "Varna"
-type PropertyTypeFilter = "all" | "apartment_building" | "house"
-
-const CITY_COORDINATES = {
-  Sofia: { lat: 42.6977, lng: 23.3219, zoom: 11 },
-  Plovdiv: { lat: 42.1354, lng: 24.7453, zoom: 11 },
-  Varna: { lat: 43.2141, lng: 27.9147, zoom: 11 },
-}
+import { ElegantBlueprintBackground } from "@/components/elegant-blueprint-background"
 
 export default function HomePage() {
-  const [selectedCity, setSelectedCity] = useState<CityType>("Sofia")
-  const [propertyTypeFilter, setPropertyTypeFilter] = useState<PropertyTypeFilter>("all")
-  const [selectedProperty, setSelectedProperty] = useState<PropertyData | null>(null)
-  const [properties, setProperties] = useState<PropertyData[]>([])
-  const [isMapLoading, setIsMapLoading] = useState(false)
-  
-  const mapRef = useRef<HTMLDivElement>(null)
-  const googleMapRef = useRef<google.maps.Map | null>(null)
-
-  // Initialize Google Maps
-  useEffect(() => {
-    const initMap = async () => {
-      if (!mapRef.current) return
-      try {
-        await ensureGoogleMaps()
-        const map = new google.maps.Map(mapRef.current, {
-          center: CITY_COORDINATES[selectedCity],
-          zoom: CITY_COORDINATES[selectedCity].zoom,
-          styles: [
-            {
-              featureType: "poi",
-              elementType: "labels",
-              stylers: [{ visibility: "off" }]
-            }
-          ],
-          streetViewControl: false,
-          mapTypeControl: false,
-          fullscreenControl: false,
-          zoomControl: true,
-        })
-
-        googleMapRef.current = map
-      } catch (error) {
-        console.error("Error loading Google Maps:", error)
-      }
-    }
-
-    initMap()
-  }, [])
-
-  // Handle city change with smooth map panning
-  const handleCityChange = (city: string) => {
-    if (!city || city === selectedCity) return
-    
-    const newCity = city as CityType
-    setSelectedCity(newCity)
-    setSelectedProperty(null)
-    setIsMapLoading(true)
-
-    // Animate map to new city
-    if (googleMapRef.current) {
-      googleMapRef.current.panTo(CITY_COORDINATES[newCity])
-      googleMapRef.current.setZoom(CITY_COORDINATES[newCity].zoom)
-    }
-
-    // Simulate loading new properties for the city
-    setTimeout(() => {
-      setProperties([])
-      setIsMapLoading(false)
-    }, 800)
-  }
-
-  // Handle property type filter
-  const handlePropertyTypeFilter = (type: PropertyTypeFilter) => {
-    setPropertyTypeFilter(type)
-    setSelectedProperty(null)
-  }
-
-  // Filter properties based on current selections
-  const filteredProperties = properties.filter((property) => {
-    if (propertyTypeFilter === "all") return true
-    return property.project_type === propertyTypeFilter
-  })
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen relative">
+      {/* Elegant Blueprint Background */}
+      <ElegantBlueprintBackground />
+      
       {/* Hero Section */}
-      <section className="py-16 md:py-24 relative overflow-hidden">
-        {/* Background Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-background via-blue-50/30 to-purple-50/20"></div>
-        <div className="absolute inset-0 bg-gradient-to-tr from-emerald-50/10 via-transparent to-blue-50/20"></div>
-        {/* Decorative Elements */}
-        <div className="absolute top-10 left-10 w-72 h-72 bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
-        <div className="absolute top-40 right-10 w-64 h-64 bg-gradient-to-r from-purple-400/20 to-emerald-400/20 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse" style={{animationDelay: '2s'}}></div>
-        <div className="relative z-10">
-        <div className="container mx-auto px-4 text-center">
-          {/* Hero Content */}
-          <div className="max-w-5xl mx-auto space-y-8">
-            <div className="space-y-6">
-              <h1 className="text-5xl md:text-7xl font-bold tracking-tight leading-[1.1]">
-                Find Your Way{" "}
-                <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  Home
-                </span>
-              </h1>
-              <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
-                Connect directly with developers. No brokers, no commissions. Discover new construction properties in Bulgaria's top cities.
-              </p>
+      <section className="py-16 md:py-24 lg:py-32 relative overflow-hidden">
+        <div className="container mx-auto px-4">
+          <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
+            {/* Left Column - Content */}
+            <div className="space-y-8">
+              <div className="space-y-6">
+                <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1] text-white">
+                  Properties from{" "}
+                  <span className="block">developers</span>
+                </h1>
+                <p className="text-xl md:text-2xl text-white/80 leading-relaxed max-w-lg">
+                  Connect directly. No brokers, no commissions.
+                </p>
+              </div>
+
+              {/* CTA Button */}
+              <div className="pt-4">
+                <Button size="lg" className="text-lg px-8 py-4 h-auto" asChild>
+                  <Link href="/listings">
+                    What's listed?
+                  </Link>
+                </Button>
+              </div>
             </div>
 
-            {/* Trust Indicators */}
-            <div className="flex flex-wrap justify-center gap-3 pt-4">
-              <Badge variant="secondary" className="gap-2">
-                <Shield className="w-3.5 h-3.5" /> 100% Verified Listings
-              </Badge>
-              <Badge variant="secondary" className="gap-2">
-                <Building className="w-3.5 h-3.5" /> Direct Developer Contact
-              </Badge>
-              <Badge variant="secondary" className="gap-2">
-                <UserX className="w-3.5 h-3.5" /> Zero Commission
-              </Badge>
+            {/* Right Column - Empty for background visibility */}
+            <div className="hidden lg:block">
+              {/* This space allows the ElegantBlueprintBackground to be clearly visible */}
             </div>
           </div>
         </div>
-        </div>
       </section>
 
-      {/* Search & Filter Section */}
-      <section className="py-6 bg-card/50 backdrop-blur-sm border-y">
-        <div className="container mx-auto px-4">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex flex-col lg:flex-row items-center justify-center gap-8">
-              {/* City Selector */}
-              <div className="flex flex-col items-center space-y-4 w-full lg:w-auto">
-                <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-primary" />
-                  Choose Your City
-                </h3>
-                <ToggleGroup
-                  type="single"
-                  value={selectedCity}
-                  onValueChange={handleCityChange}
-                  className="bg-muted rounded-lg p-1.5 w-full lg:w-auto grid grid-cols-3 lg:flex gap-1"
-                >
-                  <ToggleGroupItem 
-                    value="Sofia" 
-                    className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-md transition-all duration-200 min-w-[80px] min-h-[44px] hover:scale-105 active:scale-95"
-                  >
-                    Sofia
-                  </ToggleGroupItem>
-                  <ToggleGroupItem 
-                    value="Plovdiv" 
-                    className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-md transition-all duration-200 min-w-[80px] min-h-[44px] hover:scale-105 active:scale-95"
-                  >
-                    Plovdiv
-                  </ToggleGroupItem>
-                  <ToggleGroupItem 
-                    value="Varna" 
-                    className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-md transition-all duration-200 min-w-[80px] min-h-[44px] hover:scale-105 active:scale-95"
-                  >
-                    Varna
-                  </ToggleGroupItem>
-                </ToggleGroup>
-              </div>
+      {/* How It Works Section */}
+      <section className="relative overflow-hidden" style={{backgroundColor: '#F5F2ED', paddingTop: '100px', paddingBottom: '100px'}}>
+        <div style={{maxWidth: '1200px', margin: '0 auto', padding: '0 40px'}}>
+          {/* Section Header */}
+          <div className="text-center" style={{marginBottom: '80px'}}>
+            <div className="inline-block px-4 py-2 bg-gray-200 rounded-full text-gray-600 text-sm font-medium mb-8 uppercase tracking-wide">
+              A 3-STEP PROCESS
+            </div>
+            <h2 style={{
+              fontSize: '56px', 
+              fontWeight: '400', 
+              color: '#2D3748', 
+              marginBottom: '0px', 
+              lineHeight: '1.1',
+              fontFamily: 'serif',
+              maxWidth: '800px',
+              margin: '0 auto'
+            }}>
+              Actionable insights to share<br />and implement with ease
+            </h2>
+          </div>
 
-              {/* Divider */}
-              <Separator orientation="vertical" className="hidden lg:block h-16" />
-              <Separator className="lg:hidden w-full" />
-
-              {/* Property Type Filter */}
-              <div className="w-full lg:w-auto">
-                {/* Mobile: Accordion */}
-                <div className="lg:hidden">
-                  <Accordion type="single" collapsible defaultValue="type">
-                    <AccordionItem value="type">
-                      <AccordionTrigger className="text-sm font-semibold">
-                        <span className="flex items-center gap-2">
-                          <Building className="w-4 h-4 text-primary" />
-                          Property Type
-                        </span>
-                      </AccordionTrigger>
-                      <AccordionContent>
-                        <div className="mt-4 flex justify-center">
-                          <ToggleGroup
-                            type="single"
-                            value={propertyTypeFilter}
-                            onValueChange={handlePropertyTypeFilter}
-                            className="bg-muted rounded-lg p-1.5 w-full lg:w-auto flex flex-wrap gap-1"
-                          >
-                            <ToggleGroupItem 
-                              value="all" 
-                              className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-md transition-all duration-200 px-6 min-h-[44px] hover:scale-105 active:scale-95 flex-1"
-                            >
-                              All
-                            </ToggleGroupItem>
-                            <ToggleGroupItem 
-                              value="apartment_building" 
-                              className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-md transition-all duration-200 px-4 min-h-[44px] hover:scale-105 active:scale-95 flex-1"
-                            >
-                              <Building className="w-4 h-4 mr-2" />
-                              Apartments
-                            </ToggleGroupItem>
-                            <ToggleGroupItem 
-                              value="house" 
-                              className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-md transition-all duration-200 px-4 min-h-[44px] hover:scale-105 active:scale-95 flex-1"
-                            >
-                              <Home className="w-4 h-4 mr-2" />
-                              Houses
-                            </ToggleGroupItem>
-                          </ToggleGroup>
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-                  </Accordion>
+          {/* Steps Grid */}
+          <div className="relative" style={{
+            display: 'flex',
+            alignItems: 'stretch',
+            gap: '32px',
+            justifyContent: 'center'
+          }}>
+            
+            {/* Step 1 */}
+            <div className="relative" style={{position: 'relative', flex: '0 0 300px'}}>
+              <div style={{
+                backgroundColor: '#FFFFFF',
+                borderRadius: '12px',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+                padding: '32px 24px',
+                position: 'relative',
+                height: '280px',
+                display: 'flex',
+                flexDirection: 'column'
+              }}>
+                {/* Number */}
+                <div style={{
+                  fontSize: '48px',
+                  fontWeight: '600',
+                  color: '#FF8C42',
+                  lineHeight: '1',
+                  marginBottom: '12px'
+                }}>
+                  01
                 </div>
-
-                {/* Desktop: static controls */}
-                <div className="hidden lg:flex flex-col items-center space-y-4">
-                  <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                    <Building className="w-4 h-4 text-primary" />
-                    Property Type
-                  </h3>
-                  <ToggleGroup
-                    type="single"
-                    value={propertyTypeFilter}
-                    onValueChange={handlePropertyTypeFilter}
-                    className="bg-muted rounded-lg p-1.5 w-full lg:w-auto flex flex-nowrap gap-1"
-                  >
-                    <ToggleGroupItem 
-                      value="all" 
-                      className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-md transition-all duration-200 px-6 min-h-[44px] hover:scale-105 active:scale-95"
-                    >
-                      All
-                    </ToggleGroupItem>
-                    <ToggleGroupItem 
-                      value="apartment_building" 
-                      className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-md transition-all duration-200 px-4 min-h-[44px] hover:scale-105 active:scale-95"
-                    >
-                      <Building className="w-4 h-4 mr-2" />
-                      Apartments
-                    </ToggleGroupItem>
-                    <ToggleGroupItem 
-                      value="house" 
-                      className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-md transition-all duration-200 px-4 min-h-[44px] hover:scale-105 active:scale-95"
-                    >
-                      <Home className="w-4 h-4 mr-2" />
-                      Houses
-                    </ToggleGroupItem>
-                  </ToggleGroup>
+                
+                {/* Label */}
+                <div style={{
+                  fontSize: '11px',
+                  color: '#718096',
+                  fontWeight: '500',
+                  textTransform: 'uppercase',
+                  letterSpacing: '1px',
+                  marginBottom: '16px'
+                }}>
+                  GET YOUR AUDIT
+                </div>
+                
+                {/* Content */}
+                <div style={{
+                  fontSize: '16px',
+                  color: '#2D3748',
+                  lineHeight: '1.4',
+                  fontWeight: '600',
+                  flex: 1
+                }}>
+                  We'll audit <span style={{color: '#FF8C42', fontWeight: '600'}}>your</span><br />
+                  eCommerce website<br />
+                  or design file in <span style={{color: '#FF8C42', fontWeight: '600'}}>3</span><br />
+                  days or less.
                 </div>
               </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
-      {/* Map Section */}
-      <section className="relative">
-        <div className="h-[70vh] relative">
-          {/* Google Map */}
-          <div
-            ref={mapRef}
-            className="w-full h-full"
-          />
-
-          {/* Loading Overlay */}
-          {isMapLoading && (
-            <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-20">
-              <div className="flex flex-col items-center space-y-4">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                <p className="text-sm font-medium">Loading {selectedCity} projects...</p>
+              
+              {/* Arrow */}
+              <div style={{
+                position: 'absolute',
+                right: '-24px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                zIndex: 10,
+                width: '48px',
+                height: '24px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <svg width="24" height="12" viewBox="0 0 24 12" fill="none">
+                  <path d="M1 6L23 6M23 6L18 1M23 6L18 11" stroke="#9CA3AF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
               </div>
             </div>
-          )}
 
-          {/* Empty State */}
-          {!isMapLoading && filteredProperties.length === 0 && (
-            <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-sm">
-              <div className="text-center p-8 bg-card rounded-lg shadow-lg border max-w-md mx-4">
-                <div className="mb-6">
-                  <Building className="w-16 h-16 mx-auto text-muted-foreground" />
+            {/* Step 2 */}
+            <div className="relative" style={{position: 'relative', flex: '0 0 300px'}}>
+              <div style={{
+                backgroundColor: '#FFFFFF',
+                borderRadius: '12px',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+                padding: '32px 24px',
+                position: 'relative',
+                height: '280px',
+                display: 'flex',
+                flexDirection: 'column'
+              }}>
+                {/* Number */}
+                <div style={{
+                  fontSize: '48px',
+                  fontWeight: '600',
+                  color: '#F7B801',
+                  lineHeight: '1',
+                  marginBottom: '12px'
+                }}>
+                  02
                 </div>
-                <h3 className="text-2xl font-bold mb-3">
-                  No properties found in {selectedCity}
-                </h3>
-                <p className="text-muted-foreground mb-6 leading-relaxed">
-                  We don't have any {propertyTypeFilter === "all" ? "" : propertyTypeFilter === "apartment_building" ? "apartment building" : "house"} projects in {selectedCity} yet.
-                </p>
-                <div className="space-y-4">
-                  <Button
-                    onClick={() => {
-                      setPropertyTypeFilter("all")
-                      setSelectedCity("Sofia")
-                    }}
-                    className="w-full"
-                    size="lg"
-                  >
-                    Browse Sofia Properties
-                  </Button>
-                  <p className="text-sm text-muted-foreground">
-                    Developers:{" "}
-                    <Button variant="link" className="p-0 h-auto font-normal" asChild>
-                      <Link href="/register?type=developer">
-                        List your project
-                      </Link>
-                    </Button>{" "}
-                    to be the first in {selectedCity}
-                  </p>
+                
+                {/* Label */}
+                <div style={{
+                  fontSize: '11px',
+                  color: '#718096',
+                  fontWeight: '500',
+                  textTransform: 'uppercase',
+                  letterSpacing: '1px',
+                  marginBottom: '16px'
+                }}>
+                  IMPLEMENT RECOMMENDATIONS
+                </div>
+                
+                {/* Content */}
+                <div style={{
+                  fontSize: '16px',
+                  color: '#2D3748',
+                  lineHeight: '1.4',
+                  fontWeight: '600',
+                  flex: 1
+                }}>
+                  You'll implement our<br />
+                  fixes on your own<br />
+                  timeline, or we'll do<br />
+                  <span style={{color: '#F7B801', fontWeight: '600'}}>design & development</span><br />
+                  for you.
+                </div>
+              </div>
+              
+              {/* Arrow */}
+              <div style={{
+                position: 'absolute',
+                right: '-24px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                zIndex: 10,
+                width: '48px',
+                height: '24px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <svg width="24" height="12" viewBox="0 0 24 12" fill="none">
+                  <path d="M1 6L23 6M23 6L18 1M23 6L18 11" stroke="#9CA3AF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+            </div>
+
+            {/* Step 3 */}
+            <div className="relative" style={{flex: '0 0 300px'}}>
+              <div style={{
+                backgroundColor: '#FFFFFF',
+                borderRadius: '12px',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+                padding: '32px 24px',
+                position: 'relative',
+                height: '280px',
+                display: 'flex',
+                flexDirection: 'column'
+              }}>
+                {/* Number */}
+                <div style={{
+                  fontSize: '48px',
+                  fontWeight: '600',
+                  color: '#10B981',
+                  lineHeight: '1',
+                  marginBottom: '12px'
+                }}>
+                  03
+                </div>
+                
+                {/* Label */}
+                <div style={{
+                  fontSize: '11px',
+                  color: '#718096',
+                  fontWeight: '500',
+                  textTransform: 'uppercase',
+                  letterSpacing: '1px',
+                  marginBottom: '16px'
+                }}>
+                  CONVERT MORE CUSTOMERS
+                </div>
+                
+                {/* Content */}
+                <div style={{
+                  fontSize: '16px',
+                  color: '#2D3748',
+                  lineHeight: '1.4',
+                  fontWeight: '600',
+                  flex: 1
+                }}>
+                  On average, our<br />
+                  clients see a <span style={{color: '#10B981', fontWeight: '600'}}>30% lift<br />
+                  in conversion rates</span><br />
+                  after implementing<br />
+                  the audit.
                 </div>
               </div>
             </div>
-          )}
-
-          {/* Results Counter - move to top-right for better contrast over map */}
-          <div className="absolute top-4 right-4 bg-primary text-primary-foreground px-3 py-1.5 rounded-full text-xs md:text-sm font-medium shadow-lg">
-            {filteredProperties.length} projects in {selectedCity}
           </div>
         </div>
       </section>

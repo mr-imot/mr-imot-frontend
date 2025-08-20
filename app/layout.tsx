@@ -29,11 +29,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning className={cn(GeistSans.variable, GeistMono.variable)}>
-      <body className={cn("min-h-screen bg-background font-sans antialiased")}>      
+      <body className={cn("min-h-screen font-sans antialiased")}>      
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
         <GlobalMaintenanceWrapper>
           <AuthProvider>
             <UnifiedAuthProvider>
+              {/* NEW: Header Fade Overlay */}
+              <div className="header-fade-overlay" />
+              
               <div className="relative flex min-h-screen flex-col">
                 <SiteHeader />
                 <main className="flex-1">{children}</main>

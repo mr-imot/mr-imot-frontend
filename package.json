@@ -11,6 +11,7 @@
   "dependencies": {
     "@googlemaps/js-api-loader": "^1.16.8",
     "@hookform/resolvers": "^3.9.1",
+    "@paper-design/shaders-react": "^0.0.46",
     "@radix-ui/react-accordion": "1.2.2",
     "@radix-ui/react-alert-dialog": "1.1.4",
     "@radix-ui/react-aspect-ratio": "1.1.1",
@@ -68,6 +69,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.54.2",
     "@types/google.maps": "^3.58.1",
     "@types/node": "^22",
     "@types/react": "^18.0.37",
