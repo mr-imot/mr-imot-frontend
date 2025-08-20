@@ -129,23 +129,30 @@ export const useProjects = (params: UseProjectsParams = {}): UseProjectsResult =
       console.log('🔄 Transformed projects:', transformedProjects);
       console.log('🔄 Transformed projects count:', transformedProjects.length);
       
-      // DEMO: Create multiple cards for grid testing (remove this when you have real data)
-      const demoProjects = transformedProjects.length > 0 ? [
-        transformedProjects[0],
-        { ...transformedProjects[0], id: 2, title: "Luxury Residence", location: "София", shortPrice: "€850k" },
-        { ...transformedProjects[0], id: 3, title: "Modern Apartments", location: "Варна", shortPrice: "€450k" },
-        { ...transformedProjects[0], id: 4, title: "Green Complex", location: "Пловдив", shortPrice: "Request price" },
-        { ...transformedProjects[0], id: 5, title: "Urban Living", location: "София", shortPrice: "€1.2M" },
-        { ...transformedProjects[0], id: 6, title: "Seaside Homes", location: "Варна", shortPrice: "€680k" },
-      ] : transformedProjects;
-      
       // Always set projects, even if empty (this indicates successful API call)
-      setProjects(demoProjects);
-      setTotal(demoProjects.length);
-      console.log('✅ Successfully set projects:', demoProjects.length, 'total:', demoProjects.length);
+      setProjects(transformedProjects);
+      setTotal(data.total || transformedProjects.length);
+      console.log('✅ Successfully set projects:', transformedProjects.length, 'total:', data.total || transformedProjects.length);
     } catch (err) {
       console.error('❌ Error fetching projects:', err);
-      setError(err instanceof Error ? err.message : 'Failed to fetch projects');
+      
+      // Provide more specific error messages
+      let errorMessage = 'Failed to load properties';
+      if (err instanceof Error) {
+        if (err.message.includes('fetch')) {
+          errorMessage = 'Unable to connect to server. Please check your internet connection.';
+        } else if (err.message.includes('timeout')) {
+          errorMessage = 'Request timeout. The server is taking too long to respond.';
+        } else if (err.message.includes('500')) {
+          errorMessage = 'Server error. Please try again later.';
+        } else if (err.message.includes('404')) {
+          errorMessage = 'Properties service is currently unavailable.';
+        } else {
+          errorMessage = err.message;
+        }
+      }
+      
+      setError(errorMessage);
       // Set projects to null only on actual API failure
       setProjects(null);
       setTotal(0);

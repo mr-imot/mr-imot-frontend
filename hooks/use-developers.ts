@@ -22,7 +22,6 @@ export const useDevelopers = (): UseDevelopersResult => {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch developers');
       console.error('Error fetching developers:', err);
-      // For now, keep using mock data if API fails
       setDevelopers([]);
     } finally {
       setLoading(false);

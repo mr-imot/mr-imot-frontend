@@ -17,6 +17,7 @@ import { Separator } from "@/components/ui/separator"
 
 import { MapPin, Building, Home, Loader2, Star, Heart, ExternalLink, Maximize2, X } from "lucide-react"
 import { useProjects } from "@/hooks/use-projects"
+import { PropertyMapCard } from "@/components/property-map-card"
 
 type CityType = "Sofia" | "Plovdiv" | "Varna"
  type PropertyTypeFilter = "all" | "apartments" | "houses"
@@ -44,6 +45,13 @@ export default function ListingsPage() {
   const [selectedPropertyId, setSelectedPropertyId] = useState<number | null>(null)
   const [ariaLiveMessage, setAriaLiveMessage] = useState<string>("")
   const [isMobileMapView, setIsMobileMapView] = useState(false)
+  const [cardPosition, setCardPosition] = useState<{
+    top?: number
+    left?: number
+    right?: number
+    bottom?: number
+  }>({})
+  const [localError, setLocalError] = useState<string | null>(null)
   
   // Debounce hover updates
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -198,8 +206,16 @@ export default function ListingsPage() {
         map: googleMapRef.current,
         properties: list,
         onPropertySelect: (propertyId) => {
+          console.log('🎯 Marker clicked, property ID:', propertyId)
           setSelectedPropertyId(propertyId)
           if (propertyId) {
+            const property = filteredProperties.find(p => p.id === propertyId)
+            console.log('🏠 Found property for card:', property)
+            if (property) {
+              const position = calculateCardPosition(property)
+              console.log('📍 Calculated card position:', position)
+              setCardPosition(position)
+            }
             // Scroll to card
             const card = listContainerRef.current?.querySelector(
               `[data-prop-id="${propertyId}"]`
@@ -222,11 +238,15 @@ export default function ListingsPage() {
         onPropertySelect: (propertyId) => {
           setSelectedPropertyId(propertyId)
           if (propertyId) {
-        const card = listContainerRef.current?.querySelector(
+            const property = filteredProperties.find(p => p.id === propertyId)
+            if (property) {
+              setCardPosition(calculateCardPosition(property))
+            }
+            const card = listContainerRef.current?.querySelector(
               `[data-prop-id="${propertyId}"]`
-        ) as HTMLElement | null
-        if (card) {
-          card.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" })
+            ) as HTMLElement | null
+            if (card) {
+              card.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" })
             }
           }
         },
@@ -294,9 +314,53 @@ export default function ListingsPage() {
     mountFullscreenMarkers()
   }, [isMapExpanded, apiProjects])
 
+  // Transform PropertyData to match PropertyMapCard interface (strictly from API values)
+  const transformToPropertyMapData = (property: PropertyData) => {
+    const image = property.image || (Array.isArray(property.images) ? property.images[0] : undefined)
+    return {
+      id: property.id,
+      title: property.title,
+      location: property.location,
+      image,
+      images: (property as any).images || (image ? [image] : undefined),
+      // Use API-provided shortPrice/price_label string directly; no parsing or mock fallbacks
+      priceLabel: property.shortPrice || undefined,
+      type: (property.type?.toLowerCase().includes('house') ? 'house' : 'apartment') as 'house' | 'apartment',
+    }
+  }
+
+  const calculateCardPosition = (property: PropertyData) => {
+    if (!mapRef.current || !googleMapRef.current) return {}
+    
+    const mapBounds = mapRef.current.getBoundingClientRect()
+    
+    // Simple positioning: center the card on the map with some offset
+    const cardWidth = 327
+    const cardHeight = 321
+    const padding = 20
+    
+    // Position card in center-right area of map
+    let left = mapBounds.left + mapBounds.width * 0.6 - cardWidth / 2
+    let top = mapBounds.top + mapBounds.height * 0.3
+    
+    // Adjust if too close to screen edges
+    if (left < padding) left = padding
+    if (left + cardWidth > window.innerWidth - padding) {
+      left = window.innerWidth - cardWidth - padding
+    }
+    if (top < padding) top = padding
+    if (top + cardHeight > window.innerHeight - padding) {
+      top = window.innerHeight - cardHeight - padding
+    }
+    
+    return { top, left }
+  }
+
   const handleCardClick = (property: PropertyData) => {
     setHoveredPropertyId(property.id)
     setSelectedPropertyId(property.id)
+    setCardPosition(calculateCardPosition(property))
+    
     const marker = markerManagerRef.current?.getMarker(property.id)
     if (googleMapRef.current && marker) {
       // Pan to marker and zoom to at least 14 (Airbnb-style behavior)
@@ -312,162 +376,31 @@ export default function ListingsPage() {
 
 
 
-  const showEmpty = !loading && filteredProperties.length === 0
+  const showEmpty = !loading && !error && filteredProperties.length === 0
+  const showError = !loading && (error || localError)
+  const hasData = !loading && !error && filteredProperties.length > 0
 
   // Get selected property data for info popup
   const selectedProperty = selectedPropertyId 
     ? filteredProperties.find(p => p.id === selectedPropertyId)
     : null
 
-  // Open/close a Google Maps InfoWindow anchored to the selected marker
+  // Close card when clicking on the map (outside the card)
   useEffect(() => {
     if (!googleMapRef.current) return
-    if (!infoWindowRef.current) {
-      infoWindowRef.current = new google.maps.InfoWindow({
-        disableAutoPan: true, // Prevent automatic map panning/bouncing
-        maxWidth: 320,
-        pixelOffset: new google.maps.Size(0, -10), // Slight offset above marker
-      })
-      
-      // Close InfoWindow when user clicks the X button
-      infoWindowRef.current.addListener('closeclick', () => {
+    
+    const handleMapClick = () => {
+      if (selectedPropertyId) {
         setSelectedPropertyId(null)
-      })
-      
-      // Close InfoWindow when clicking on the map (outside the card)
-      googleMapRef.current.addListener('click', (e: any) => {
-        // Only close if we're not clicking on a marker
-        if (selectedPropertyId && !e.placeId) {
-          setSelectedPropertyId(null)
-        }
-      })
+      }
     }
 
-    const id = selectedPropertyId
-    const selected = id ? filteredProperties.find((p) => p.id === id) : null
-    const marker = markerManagerRef.current?.getMarker(id!)
-    
-    // If no selection, close InfoWindow
-    if (!id || !selected || !marker) {
-      infoWindowRef.current.close()
-      return
+    const listener = googleMapRef.current.addListener('click', handleMapClick)
+
+    return () => {
+      google.maps.event.removeListener(listener)
     }
-    
-    if (id && selected && marker) {
-      const m = marker
-      
-      // Get all images for carousel
-      const images = selected.images || [selected.image || "/placeholder.svg"]
-      const hasMultipleImages = images.length > 1
-      
-      // Create carousel HTML
-      const carouselImages = images.map((img: string, index: number) => 
-        `<img src="${img}" alt="${selected.title}" style="width:100%;height:100%;object-fit:cover;display:${index === 0 ? 'block' : 'none'};" data-carousel-img="${index}" />`
-      ).join('')
-      
-      const carouselDots = hasMultipleImages ? images.map((_: string, index: number) => 
-        `<div style="width:6px;height:6px;border-radius:50%;background:${index === 0 ? '#fff' : 'rgba(255,255,255,0.5)'};cursor:pointer;" data-carousel-dot="${index}"></div>`
-      ).join('') : ''
-      
-      const content = `
-        <div style="width:320px;border-radius:12px;overflow:hidden;box-shadow:0 10px 24px rgba(0,0,0,0.15);font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif">
-          <div style="position:relative;width:100%;height:180px;background:#f2f2f2;overflow:hidden">
-            ${carouselImages}
-            ${hasMultipleImages ? `
-              <button style="position:absolute;left:8px;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.9);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:bold;color:#222;box-shadow:0 2px 8px rgba(0,0,0,0.1)" data-carousel-prev>‹</button>
-              <button style="position:absolute;right:8px;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.9);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:bold;color:#222;box-shadow:0 2px 8px rgba(0,0,0,0.1)" data-carousel-next>›</button>
-              <div style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:4px;">
-                ${carouselDots}
-              </div>
-            ` : ''}
-          </div>
-          <div style="padding:12px;background:#fff">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-              <div style="font-weight:600;font-size:14px;line-height:1.3;max-width:220px;color:#222">${selected.title}</div>
-              <div style="font-size:13px;color:#222;font-weight:600">${selected.shortPrice || ""}</div>
-            </div>
-            <div style="display:flex;align-items:center;gap:8px;color:#666;font-size:12px;margin-bottom:8px">
-              <span>📍 ${selected.location || ""}</span>
-              <span>⭐ ${selected.rating || "4.9"} (${selected.reviews || 0})</span>
-            </div>
-            <button style="width:100%;padding:8px;background:#FF385C;color:white;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:12px" data-listing-link="${id}">View Details</button>
-          </div>
-        </div>`
-      
-      infoWindowRef.current.setContent(content)
-      infoWindowRef.current.open({ map: googleMapRef.current, anchor: m, shouldFocus: false })
-      
-      // Add click handlers to InfoWindow content after it's opened
-      setTimeout(() => {
-        const infoWindow = document.querySelector('.gm-style-iw-d')
-        if (infoWindow) {
-          // Prevent clicks inside InfoWindow from closing it
-          infoWindow.addEventListener('click', (e) => {
-            e.stopPropagation()
-          })
-        }
-      }, 100)
-      
-      // Add carousel functionality
-      if (hasMultipleImages) {
-        let currentImageIndex = 0
-        
-        // Add event listeners for carousel
-        setTimeout(() => {
-          const infoWindow = document.querySelector('[data-carousel-prev]')?.closest('[role="dialog"]')
-          if (!infoWindow) return
-          
-          const prevBtn = infoWindow.querySelector('[data-carousel-prev]')
-          const nextBtn = infoWindow.querySelector('[data-carousel-next]')
-          const imgs = infoWindow.querySelectorAll('[data-carousel-img]')
-          const dots = infoWindow.querySelectorAll('[data-carousel-dot]')
-          
-          const updateCarousel = (newIndex: number) => {
-            // Hide all images
-            imgs.forEach((img, i) => {
-              (img as HTMLElement).style.display = i === newIndex ? 'block' : 'none'
-            })
-            // Update dots
-            dots.forEach((dot, i) => {
-              (dot as HTMLElement).style.background = i === newIndex ? '#fff' : 'rgba(255,255,255,0.5)'
-            })
-            currentImageIndex = newIndex
-          }
-          
-          prevBtn?.addEventListener('click', (e) => {
-            e.stopPropagation()
-            const newIndex = currentImageIndex === 0 ? images.length - 1 : currentImageIndex - 1
-            updateCarousel(newIndex)
-          })
-          
-          nextBtn?.addEventListener('click', (e) => {
-            e.stopPropagation()
-            const newIndex = currentImageIndex === images.length - 1 ? 0 : currentImageIndex + 1
-            updateCarousel(newIndex)
-          })
-          
-          dots.forEach((dot, index) => {
-            dot.addEventListener('click', (e) => {
-              e.stopPropagation()
-              updateCarousel(index)
-            })
-          })
-        }, 100)
-      }
-      
-      // Add click-through functionality for "View Details" button
-      setTimeout(() => {
-        const viewDetailsBtn = document.querySelector(`[data-listing-link="${id}"]`)
-        viewDetailsBtn?.addEventListener('click', (e) => {
-          e.stopPropagation()
-          // Open listing page in new tab
-          window.open(`/listing/${id}`, '_blank')
-        })
-      }, 100)
-    } else {
-      infoWindowRef.current?.close()
-    }
-  }, [selectedPropertyId, filteredProperties])
+  }, [selectedPropertyId])
 
   const handleCityChange = (city: string) => {
     if (!city || city === selectedCity) return
@@ -493,8 +426,8 @@ export default function ListingsPage() {
       >
         {ariaLiveMessage}
       </div>
-      {/* Filters - Professional styling */}
-      <section className="py-8 bg-gradient-to-r from-gray-50 to-white border-b border-gray-100">
+      {/* Filters - Professional styling (mobile & tablet only) */}
+      <section className="py-8 bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 lg:hidden">
         <div className="container mx-auto px-4 max-w-[1800px]">
           <Card className="border-0 shadow-sm bg-white/80 backdrop-blur-sm">
             <CardContent className="p-8">
@@ -587,7 +520,7 @@ export default function ListingsPage() {
       </section>
 
       {/* Airbnb-style layout with exact proportions */}
-      <div className="mx-auto w-full max-w-[1800px] px-4 py-8">
+      <div className="mx-auto w-full max-w-[1905px] px-4 py-8">
         {/* Mobile: Full-screen Map or List View */}
         <div className="lg:hidden">
           {isMobileMapView ? (
@@ -597,19 +530,55 @@ export default function ListingsPage() {
           ) : (
             <div className="space-y-4">
               {loading ? (
-                <div className="flex justify-center items-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin" />
-                  <span className="ml-2 text-muted-foreground">Loading properties...</span>
+                <div className="flex flex-col items-center justify-center py-16 space-y-4">
+                  <div className="relative">
+                    <Loader2 className="h-10 w-10 animate-spin text-brand" />
+                    <div className="absolute inset-0 rounded-full border-4 border-gray-200"></div>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-lg font-semibold text-gray-700 mb-1">Loading Properties</p>
+                    <p className="text-gray-500 text-sm">Finding the perfect properties for you...</p>
+                  </div>
                 </div>
-              ) : error ? (
-                <div className="flex justify-center items-center py-12">
-                  <p className="text-red-600">Error: {error}</p>
+              ) : showError ? (
+                <div className="bg-red-50 border border-red-200 rounded-2xl p-8 text-center">
+                  <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Building className="w-8 h-8 text-red-500" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-red-800 mb-2">Unable to Load Properties</h3>
+                  <p className="text-red-600 mb-6 text-sm">We're having trouble connecting to our servers. Please check your internet connection and try again.</p>
+                  <Button 
+                    onClick={() => window.location.reload()} 
+                    className="bg-red-600 hover:bg-red-700 text-white"
+                  >
+                    Try Again
+                  </Button>
                 </div>
-              ) : !filteredProperties || filteredProperties.length === 0 ? (
-                <div className="flex justify-center items-center py-12">
-                  <p className="text-muted-foreground">No properties found matching your criteria.</p>
+              ) : showEmpty ? (
+                <div className="bg-gray-50 border border-gray-200 rounded-2xl p-8 text-center">
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Building className="w-8 h-8 text-gray-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-2">No Properties Found</h3>
+                  <p className="text-gray-600 mb-6 text-sm">No properties match your current search criteria in {selectedCity}. Try adjusting your filters or search in a different city.</p>
+                  <div className="flex flex-col gap-3">
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setPropertyTypeFilter("all")}
+                      className="w-full"
+                    >
+                      Clear Property Type Filter
+                    </Button>
+                    <Button 
+                      variant="secondary" 
+                      onClick={() => setSelectedCity("Sofia")}
+                      className="w-full"
+                    >
+                      Search in Sofia
+                    </Button>
+                  </div>
                 </div>
-              ) : (
+              ) : hasData ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {filteredProperties.map((property) => (
                     <ListingCard
@@ -621,6 +590,14 @@ export default function ListingsPage() {
                     />
                   ))}
                 </div>
+              ) : (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-8 text-center">
+                  <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Building className="w-8 h-8 text-yellow-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-yellow-800 mb-2">Something Went Wrong</h3>
+                  <p className="text-yellow-700 text-sm">We encountered an unexpected issue. Please try refreshing the page.</p>
+                </div>
               )}
             </div>
           )}
@@ -629,7 +606,84 @@ export default function ListingsPage() {
         {/* Desktop: Professional layout with 3 listings per row and wider map */}
         <div className="hidden lg:flex gap-8">
           {/* Left: Scrollable Listings Container (60% width) */}
-          <section className="w-[60%] flex-shrink-0">
+          <section className="flex-1 min-w-0">
+            {/* Desktop Filters aligned with map top */}
+            <div className="mb-6">
+              <Card className="border-0 shadow-sm bg-white/80 backdrop-blur-sm">
+                <CardContent className="p-6">
+                  <div className="flex flex-row items-center justify-center gap-12">
+                    {/* City Selector */}
+                    <div className="flex flex-col items-center space-y-4 w-full lg:w-auto">
+                      <h3 className="text-lg font-bold text-gray-800 flex items-center gap-3">
+                        <MapPin className="w-5 h-5 text-brand" />
+                        Choose Your City
+                      </h3>
+                      <ToggleGroup
+                        type="single"
+                        value={selectedCity}
+                        onValueChange={handleCityChange}
+                        className="flex gap-3 w-full lg:w-auto"
+                      >
+                        <ToggleGroupItem 
+                          value="Sofia" 
+                          className="h-12 px-8 rounded-full border-2 border-brand/20 text-gray-700 data-[state=on]:bg-brand data-[state=on]:text-white data-[state=on]:border-brand hover:bg-brand/10 hover:border-brand/40 transition-all duration-300 ease-out font-semibold text-base shadow-sm hover:shadow-md"
+                        >
+                          Sofia
+                        </ToggleGroupItem>
+                        <ToggleGroupItem 
+                          value="Plovdiv" 
+                          className="h-12 px-8 rounded-full border-2 border-brand/20 text-gray-700 data-[state=on]:bg-brand data-[state=on]:text-white data-[state=on]:border-brand hover:bg-brand/10 hover:border-brand/40 transition-all duration-300 ease-out font-semibold text-base shadow-sm hover:shadow-md"
+                        >
+                          Plovdiv
+                        </ToggleGroupItem>
+                        <ToggleGroupItem 
+                          value="Varna" 
+                          className="h-12 px-8 rounded-full border-2 border-brand/20 text-gray-700 data-[state=on]:bg-brand data-[state=on]:text-white data-[state=on]:border-brand hover:bg-brand/10 hover:border-brand/40 transition-all duration-300 ease-out font-semibold text-base shadow-sm hover:shadow-md"
+                        >
+                          Varna
+                        </ToggleGroupItem>
+                      </ToggleGroup>
+                    </div>
+
+                    {/* Divider */}
+                    <Separator orientation="vertical" className="hidden lg:block h-20 bg-gray-200" />
+
+                    {/* Property Type Filter */}
+                    <div className="flex flex-col items-center space-y-4 w-full lg:w-auto">
+                      <h3 className="text-lg font-bold text-gray-800 flex items-center gap-3">
+                        <Building className="w-5 h-5 text-brand" />
+                        Property Type
+                      </h3>
+                      <ToggleGroup
+                        type="single"
+                        value={propertyTypeFilter}
+                        onValueChange={handlePropertyTypeFilter}
+                        className="flex flex-wrap gap-3 w-full lg:w-auto justify-center"
+                      >
+                        <ToggleGroupItem 
+                          value="all" 
+                          className="h-12 px-8 rounded-full border-2 border-brand/20 text-gray-700 data-[state=on]:bg-brand data-[state=on]:text-white data-[state=on]:border-brand hover:bg-brand/10 hover:border-brand/40 transition-all duration-300 ease-out font-semibold text-base shadow-sm hover:shadow-md"
+                        >
+                          All
+                        </ToggleGroupItem>
+                        <ToggleGroupItem 
+                          value="apartments" 
+                          className="h-12 px-6 rounded-full border-2 border-brand/20 text-gray-700 data-[state=on]:bg-brand data-[state=on]:text-white data-[state=on]:border-brand hover:bg-brand/10 hover:border-brand/40 transition-all duration-300 ease-out font-semibold text-base shadow-sm hover:shadow-md flex items-center gap-2"
+                        >
+                          <Building className="w-4 h-4" /> Apartments
+                        </ToggleGroupItem>
+                        <ToggleGroupItem 
+                          value="houses" 
+                          className="h-12 px-6 rounded-full border-2 border-brand/20 text-gray-700 data-[state=on]:bg-brand data-[state=on]:text-white data-[state=on]:border-brand hover:bg-brand/10 hover:border-brand/40 transition-all duration-300 ease-out font-semibold text-base shadow-sm hover:shadow-md flex items-center gap-2"
+                        >
+                          <Home className="w-4 h-4" /> Houses
+                        </ToggleGroupItem>
+                      </ToggleGroup>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
             <div className="h-[calc(100vh-120px)] overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
               {loading ? (
                 <div className="flex flex-col items-center justify-center py-24 space-y-6">
@@ -642,31 +696,54 @@ export default function ListingsPage() {
                     <p className="text-gray-500">Finding the perfect properties for you...</p>
                   </div>
                 </div>
+              ) : showError ? (
+                <div className="bg-red-50 border border-red-200 rounded-2xl p-12 text-center shadow-sm">
+                  <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <Building className="w-10 h-10 text-red-500" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-red-800 mb-3">Unable to Load Properties</h3>
+                  <p className="text-red-600 mb-8 max-w-md mx-auto">We're experiencing technical difficulties. Please check your internet connection and try again.</p>
+                  <div className="flex gap-4 justify-center">
+                    <Button 
+                      onClick={() => window.location.reload()}
+                      className="h-11 px-8 rounded-full font-semibold bg-red-600 hover:bg-red-700 text-white shadow-sm hover:shadow-md transition-all duration-200"
+                    >
+                      Refresh Page
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setLocalError(null)}
+                      className="h-11 px-6 rounded-full font-semibold border-2 border-red-300 text-red-700 hover:border-red-400 hover:bg-red-50 transition-all duration-200"
+                    >
+                      Try Again
+                    </Button>
+                  </div>
+                </div>
               ) : showEmpty ? (
                 <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl border border-gray-200 p-12 text-center shadow-sm">
                   <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
                     <Building className="w-10 h-10 text-gray-400" />
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-800 mb-3">No exact matches</h3>
-                  <p className="text-gray-600 mb-8 max-w-md mx-auto">Try changing or removing some of your filters, or adjust the search area to find more properties.</p>
+                  <h3 className="text-2xl font-bold text-gray-800 mb-3">No Properties Found</h3>
+                  <p className="text-gray-600 mb-8 max-w-md mx-auto">No properties match your search criteria in {selectedCity}. Try adjusting your filters or exploring other cities.</p>
                   <div className="flex gap-4 justify-center">
                     <Button 
                       variant="secondary" 
-                      onClick={() => setSelectedCity("Sofia")}
+                      onClick={() => setPropertyTypeFilter("all")}
                       className="h-11 px-6 rounded-full font-semibold shadow-sm hover:shadow-md transition-all duration-200"
                     >
-                      Show closest results
+                      Clear Filters
                     </Button>
                     <Button 
                       variant="outline" 
-                      onClick={() => setPropertyTypeFilter("all")}
+                      onClick={() => setSelectedCity("Sofia")}
                       className="h-11 px-6 rounded-full font-semibold border-2 hover:border-brand/40 transition-all duration-200"
                     >
-                      Clear filters
+                      Search Sofia
                     </Button>
                   </div>
                 </div>
-              ) : (
+              ) : hasData ? (
                 <div ref={listContainerRef} className="grid grid-cols-3 gap-6">
                   {filteredProperties.map((property, index) => (
                     <div 
@@ -684,13 +761,21 @@ export default function ListingsPage() {
                     </div>
                   ))}
                 </div>
+              ) : (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-12 text-center shadow-sm">
+                  <div className="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <Building className="w-10 h-10 text-yellow-600" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-yellow-800 mb-3">Something Went Wrong</h3>
+                  <p className="text-yellow-700 max-w-md mx-auto">We encountered an unexpected issue. Please try refreshing the page.</p>
+                </div>
               )}
             </div>
           </section>
 
-          {/* Right: Sticky Map (40% width) */}
-          <aside className="w-[40%] flex-shrink-0">
-            <div className="sticky top-20 h-[calc(100vh-120px)] rounded-2xl overflow-hidden border border-gray-200 shadow-lg">
+          {/* Right: Sticky Map (fixed width on 2XL to match Airbnb) */}
+          <aside className="w-[40%] 2xl:w-[752px] flex-shrink-0">
+            <div className="sticky top-8 h-[calc(100vh-120px)] rounded-2xl overflow-hidden border border-gray-200 shadow-lg">
               <div ref={mapRef} className="w-full h-full bg-muted" />
               
               {/* Expand control */}
@@ -748,7 +833,7 @@ export default function ListingsPage() {
 
       {/* Expanded map overlay */}
       {isMapExpanded && (
-        <div className="fixed left-6 right-6 bottom-6 top-20 z-50">
+        <div className="fixed left-6 right-6 bottom-6 top-8 z-50">
           <div className="absolute inset-0 rounded-2xl border shadow-xl overflow-hidden bg-muted" ref={fullscreenMapRef} />
           <button
             type="button"
@@ -759,6 +844,15 @@ export default function ListingsPage() {
             <X className="h-4 w-4" />
           </button>
         </div>
+      )}
+
+      {/* Airbnb-style Property Map Card */}
+      {selectedProperty && (
+        <PropertyMapCard
+          property={transformToPropertyMapData(selectedProperty)}
+          onClose={() => setSelectedPropertyId(null)}
+          position={cardPosition}
+        />
       )}
     </div>
   )

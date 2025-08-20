@@ -29,11 +29,15 @@ export function MainNav() {
               asChild
               className={cn(
                 navigationMenuTriggerStyle(),
-                "bg-transparent",
+                "bg-transparent font-semibold transition-all duration-200",
+                "hover:bg-white/60 hover:backdrop-blur-sm",
                 pathname === item.href
-                  ? "text-primary"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "text-gray-900 bg-white/40"
+                  : "text-gray-700 hover:text-gray-900"
               )}
+              style={{
+                textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
+              }}
             >
               <Link href={item.href}>{item.label}</Link>
             </NavigationMenuLink>

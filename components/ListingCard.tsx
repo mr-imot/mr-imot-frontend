@@ -1,8 +1,6 @@
 import { useState } from 'react'
 import Image from 'next/image'
-import { Star, Heart } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
 
 export interface Listing {
   id: number
@@ -10,6 +8,8 @@ export interface Listing {
   city: string
   coordinates: { lat: number; lng: number }
   price: { amount: number; currency: string } | null
+  priceLabel?: string | null
+  description?: string | null
   rating: number
   reviewCount: number
   status: string
@@ -24,19 +24,11 @@ interface ListingCardProps {
 }
 
 // Format price using Intl.NumberFormat
-function formatPrice(price: { amount: number; currency: string } | null) {
-  if (!price) return null
-  
-  try {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: price.currency,
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(price.amount)
-  } catch {
-    return `${price.currency}${price.amount}`
-  }
+function summarize(text: string | null | undefined, max = 100) {
+  if (!text) return null
+  const normalized = text.replace(/\s+/g, ' ').trim()
+  if (normalized.length <= max) return normalized
+  return normalized.slice(0, max - 1) + '…'
 }
 
 export function ListingCard({ listing, isActive, onCardClick, onCardHover }: ListingCardProps) {
@@ -139,16 +131,25 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover }: Lis
           {listing.title}
         </h3>
         
+        {/* Summary description */}
+        {summarize(listing.description) && (
+          <p className="text-xs text-[#717171] leading-snug mb-1 line-clamp-2">
+            {summarize(listing.description)}
+          </p>
+        )}
+
         {/* City - Balanced secondary text */}
         <p className="text-xs text-[#717171] leading-tight mb-1 flex items-center gap-1.5">
-          <span className="w-1 h-1 bg-brand rounded-full"></span>
+          <span className="w-1 h-1 bg-brand rounded-full" />
           {listing.city}
         </p>
         
         {/* Price - Balanced styling */}
         <div className="text-sm text-[#222222] leading-tight">
-          {listing.price ? (
-            <span className="font-bold text-base">{formatPrice(listing.price)}</span>
+          {listing.priceLabel ? (
+            <span className="font-bold text-base">{listing.priceLabel}</span>
+          ) : listing.price ? (
+            <span className="font-bold text-base">{`${listing.price.amount} ${listing.price.currency}`}</span>
           ) : (
             <span className="font-bold text-base text-brand">Request price</span>
           )}

@@ -301,8 +301,8 @@ class ApiClient {
     });
 
     const queryString = searchParams.toString();
-    // Use the real API endpoint now that database connection is fixed
-    const endpoint = `/api/v1/projects${queryString ? `?${queryString}` : ''}`;
+    // Use the real API endpoint now that database connection is fixed - add trailing slash to match backend
+    const endpoint = `/api/v1/projects/${queryString ? `?${queryString}` : ''}`;
     
     // For public projects endpoint, don't send auth headers that might cause issues
     return this.requestWithoutAuth(endpoint);
@@ -311,6 +311,7 @@ class ApiClient {
   // Public request method without authentication headers
   private async requestWithoutAuth<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
+    console.log('🔍 Making request to URL:', url, 'with baseURL:', this.baseURL, 'and endpoint:', endpoint);
     
     const config: RequestInit = {
       method: 'GET',
@@ -322,7 +323,7 @@ class ApiClient {
 
     try {
       const response = await fetch(url, config);
-      console.log('🔍 Public API Request:', { url, status: response.status });
+      console.log('🔍 Public API Request:', { url, status: response.status, method: config.method });
 
       if (!response.ok) {
         const errorText = await response.text();

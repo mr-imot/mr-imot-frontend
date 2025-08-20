@@ -2,6 +2,60 @@
 @tailwind components;
 @tailwind utilities;
 
+.instrument {
+  font-family: var(--font-instrument-serif), serif;
+}
+
+/* Enhanced Gooey Effects */
+.gooey-nav {
+  filter: url(#gooey-filter);
+}
+
+.gooey-nav a {
+  transition: all 0.3s ease;
+}
+
+.gooey-nav a:hover {
+  transform: scale(1.1);
+}
+
+/* Navigation items that blob together on hover */
+.nav-blob {
+  position: relative;
+  display: inline-block;
+  transition: all 0.3s ease;
+}
+
+.nav-blob::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: all 0.3s ease;
+  z-index: -1;
+}
+
+.nav-blob:hover::before {
+  width: 120%;
+  height: 200%;
+  border-radius: 50px;
+}
+
+/* Enhanced button morphing */
+.morph-button {
+  filter: url(#gooey-filter);
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
+}
+
+.morph-button:hover {
+  transform: scale(1.05);
+}
+
 /* Airbnb-style map price pills for AdvancedMarkerElement */
 .map-price-pill {
   background: #ffffff;
@@ -271,6 +325,70 @@
   to {
     transform: translateY(0);
   }
+}
+
+/* Property Map Card Animations */
+@keyframes cardSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes cardSlideOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.98);
+  }
+}
+
+/* Property Map Card Styles */
+.property-map-card {
+  animation: cardSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  backdrop-filter: blur(8px);
+  box-shadow: 
+    0 25px 50px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.property-map-card.closing {
+  animation: cardSlideOut 0.2s cubic-bezier(0.55, 0.055, 0.675, 0.19);
+}
+
+.property-card-image {
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.property-card-image:hover {
+  transform: scale(1.08);
+}
+
+/* Enhanced hover effects for interactive elements */
+.property-card-close-btn {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(8px);
+}
+
+.property-card-close-btn:hover {
+  transform: scale(1.1);
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.property-card-rating-badge {
+  transition: all 0.2s ease;
+}
+
+.property-card-rating-badge:hover {
+  transform: scale(1.05);
+  background: rgba(255, 255, 255, 0.95);
 }
 
 /* Header Fade Overlay for ElegantBlueprintBackground */

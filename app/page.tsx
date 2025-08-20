@@ -12,14 +12,14 @@ import {
   CheckCircle,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-import { ElegantBlueprintBackground } from "@/components/elegant-blueprint-background"
+import { EtchedGlassBackground } from "@/components/etched-glass-background"
 
 export default function HomePage() {
 
   return (
     <div className="min-h-screen relative">
-      {/* Elegant Blueprint Background */}
-      <ElegantBlueprintBackground />
+      {/* Etched Glass Background */}
+      <EtchedGlassBackground />
       
       {/* Hero Section */}
       <section className="py-16 md:py-24 lg:py-32 relative overflow-hidden">
@@ -28,28 +28,40 @@ export default function HomePage() {
             {/* Left Column - Content */}
             <div className="space-y-8">
               <div className="space-y-6">
-                <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1] text-white">
-                  Properties from{" "}
-                  <span className="block">developers</span>
+                <div
+                  className="inline-flex items-center px-3 py-1 rounded-full bg-gray-100/90 backdrop-blur-sm mb-4 relative border border-gray-200"
+                >
+                  <span className="text-gray-700 text-xs font-medium relative z-10">✨ New Mr. Imot Experience</span>
+                </div>
+
+                <h1 className="text-5xl md:text-6xl md:leading-16 tracking-tight font-light text-gray-900 mb-4 drop-shadow-sm">
+                  <span className="font-medium italic instrument">Real</span> Estate
+                  <br />
+                  <span className="font-light tracking-tight text-gray-900">Directly from Developers</span>
                 </h1>
-                <p className="text-xl md:text-2xl text-white/80 leading-relaxed max-w-lg">
-                  Connect directly. No brokers, no commissions.
+                <p className="text-sm font-medium text-gray-800 mb-4 leading-relaxed drop-shadow-sm">
+                  No brokers, no commissions.
                 </p>
               </div>
 
-              {/* CTA Button */}
-              <div className="pt-4">
-                <Button size="lg" className="text-lg px-8 py-4 h-auto" asChild>
-                  <Link href="/listings">
-                    What's listed?
-                  </Link>
-                </Button>
+              {/* Buttons */}
+              <div className="flex items-center gap-4 flex-wrap">
+                <Link href="/listings">
+                  <button className="px-8 py-3 rounded-full bg-transparent border-2 border-gray-700 text-gray-900 font-semibold text-sm transition-all duration-200 hover:bg-gray-900 hover:text-white shadow-lg hover:shadow-xl cursor-pointer">
+                    Browse Properties
+                  </button>
+                </Link>
+                <Link href="/register?type=developer">
+                  <button className="px-8 py-3 rounded-full bg-gray-900 text-white font-semibold text-sm transition-all duration-200 hover:bg-gray-800 shadow-lg hover:shadow-xl cursor-pointer">
+                    List Your Project
+                  </button>
+                </Link>
               </div>
             </div>
 
             {/* Right Column - Empty for background visibility */}
             <div className="hidden lg:block">
-              {/* This space allows the ElegantBlueprintBackground to be clearly visible */}
+              {/* This space allows the EtchedGlassBackground to be clearly visible */}
             </div>
           </div>
         </div>
@@ -73,7 +85,7 @@ export default function HomePage() {
               maxWidth: '800px',
               margin: '0 auto'
             }}>
-              Actionable insights to share<br />and implement with ease
+              Connect directly with developers<br />and secure your dream property
             </h2>
           </div>
 
@@ -117,7 +129,7 @@ export default function HomePage() {
                   letterSpacing: '1px',
                   marginBottom: '16px'
                 }}>
-                  GET YOUR AUDIT
+                  BROWSE VERIFIED PROJECTS
                 </div>
                 
                 {/* Content */}
@@ -128,10 +140,10 @@ export default function HomePage() {
                   fontWeight: '600',
                   flex: 1
                 }}>
-                  We'll audit <span style={{color: '#FF8C42', fontWeight: '600'}}>your</span><br />
-                  eCommerce website<br />
-                  or design file in <span style={{color: '#FF8C42', fontWeight: '600'}}>3</span><br />
-                  days or less.
+                  Explore <span style={{color: '#FF8C42', fontWeight: '600'}}>verified</span><br />
+                  new construction<br />
+                  projects from <span style={{color: '#FF8C42', fontWeight: '600'}}>trusted</span><br />
+                  developers.
                 </div>
               </div>
               
@@ -186,7 +198,7 @@ export default function HomePage() {
                   letterSpacing: '1px',
                   marginBottom: '16px'
                 }}>
-                  IMPLEMENT RECOMMENDATIONS
+                  CONNECT DIRECTLY
                 </div>
                 
                 {/* Content */}
@@ -197,11 +209,11 @@ export default function HomePage() {
                   fontWeight: '600',
                   flex: 1
                 }}>
-                  You'll implement our<br />
-                  fixes on your own<br />
-                  timeline, or we'll do<br />
-                  <span style={{color: '#F7B801', fontWeight: '600'}}>design & development</span><br />
-                  for you.
+                  Contact developers<br />
+                  directly for transparent<br />
+                  conversations and<br />
+                  <span style={{color: '#F7B801', fontWeight: '600'}}>schedule site visits</span><br />
+                  at your convenience.
                 </div>
               </div>
               
@@ -256,7 +268,7 @@ export default function HomePage() {
                   letterSpacing: '1px',
                   marginBottom: '16px'
                 }}>
-                  CONVERT MORE CUSTOMERS
+                  SAVE & SECURE
                 </div>
                 
                 {/* Content */}
@@ -267,11 +279,10 @@ export default function HomePage() {
                   fontWeight: '600',
                   flex: 1
                 }}>
-                  On average, our<br />
-                  clients see a <span style={{color: '#10B981', fontWeight: '600'}}>30% lift<br />
-                  in conversion rates</span><br />
-                  after implementing<br />
-                  the audit.
+                  Save <span style={{color: '#10B981', fontWeight: '600'}}>3-5% in broker<br />
+                  fees</span> and get access<br />
+                  to pre-launch prices<br />
+                  for new developments.
                 </div>
               </div>
             </div>

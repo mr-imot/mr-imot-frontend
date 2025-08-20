@@ -6,7 +6,7 @@ export const config = {
     timeout: 5000, // Reduced from 10s to 5s for faster failures
     authTimeout: 3000, // Special timeout for auth calls
     retryAttempts: 2, // Reduced from 3 for faster failures
-    healthCheckEndpoint: '/api/v1/health',
+    healthCheckEndpoint: '/health',
   },
 
   // Environment settings
@@ -18,9 +18,6 @@ export const config = {
 
   // Feature flags
   features: {
-    // DISABLED: No more mock data fallback - developers should see real production behavior
-    showMockDataFallback: false,
-
     // Show development indicators
     showDevIndicators: process.env.NODE_ENV === 'development',
 
@@ -102,14 +99,6 @@ export const config = {
   }
 };
 
-// Helper function to check if we should show mock data (DEVELOPMENT ONLY)
-export const shouldShowMockData = (hasError: boolean, hasApiData: boolean): boolean => {
-  // Only show mock data if:
-  // 1. Feature is enabled (development mode ONLY)
-  // 2. API has failed (hasError is true)
-  // 3. No API data is available
-  return config.features.showMockDataFallback && hasError && !hasApiData;
-};
 
 // Helper function to check if we should show dev indicators
 export const shouldShowDevIndicators = (): boolean => {

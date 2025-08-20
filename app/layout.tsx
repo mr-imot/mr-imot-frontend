@@ -2,6 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 import { GeistSans } from "geist/font/sans"
 import { GeistMono } from "geist/font/mono"
+import { Figtree, Instrument_Serif } from "next/font/google"
 import "./globals.css"
 import { cn } from "@/lib/utils"
 import { SiteHeader } from "@/components/site-header"
@@ -14,6 +15,21 @@ import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme-provider"
 import { FeedbackButton } from "@/components/feedback-button"
 
+
+const figtree = Figtree({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-figtree",
+  display: "swap",
+})
+
+const instrumentSerif = Instrument_Serif({
+  subsets: ["latin"],
+  weight: ["400"],
+  style: ["normal", "italic"],
+  variable: "--font-instrument-serif",
+  display: "swap",
+})
 
 // Geist fonts are configured via CSS variables in globals.css
 
@@ -29,8 +45,19 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning className={cn(GeistSans.variable, GeistMono.variable)}>
-      <body className={cn("min-h-screen font-sans antialiased")}>      
+    <html lang="en" suppressHydrationWarning className={cn(GeistSans.variable, GeistMono.variable, figtree.variable, instrumentSerif.variable)}>
+      <head>
+        <style>{`
+html {
+  font-family: ${figtree.style.fontFamily};
+  --font-sans: ${figtree.variable};
+  --font-mono: ${GeistMono.variable};
+  --font-figtree: ${figtree.variable};
+  --font-instrument-serif: ${instrumentSerif.variable};
+}
+        `}</style>
+      </head>
+      <body className={cn("min-h-screen font-sans antialiased", figtree.variable, instrumentSerif.variable)}>      
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
         <GlobalMaintenanceWrapper>
           <AuthProvider>

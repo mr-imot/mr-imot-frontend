@@ -9,7 +9,6 @@ import { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
 import { Globe } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { ModeToggle } from "@/components/mode-toggle"
  
 import {
   DropdownMenu,
@@ -32,70 +31,64 @@ export function SiteHeader() {
   }, [])
 
   return (
-    <header
-      className={cn(
-        "sticky top-0 z-50 w-full transition-all duration-300 ease-in-out",
-        isScrolled 
-          ? "bg-background/98 backdrop-blur-xl shadow-xl border-b border-border/60" 
-          : "bg-background/95 backdrop-blur-md shadow-sm border-b border-border/30",
-        "h-16 md:h-20"
-      )}
-    >
-      <div className="container flex h-16 md:h-20 items-center justify-between px-4 md:px-6">
-        {/* Logo/Brand Section */}
-        <div className="flex items-center space-x-2">
+    <>
+      
+      <header className="relative z-20 flex items-center justify-between p-6">
+        <div className="w-full flex items-center justify-between">
+        {/* Logo */}
+        <div className="flex items-center">
           <Link href="/" className="flex items-center space-x-3 group">
-            <div className="relative w-10 h-10 md:w-12 md:h-12 transition-transform duration-200 group-hover:scale-105">
-              <Image src="/images/mr-imot-logo-no-background.png" alt="Mr imot Logo" fill className="object-contain" priority />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-xl md:text-2xl font-bold text-foreground leading-none tracking-tight">
-                Mr imot
-              </span>
+            <div className="relative w-14 h-14 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-200 border border-white/20">
+              <Image
+                src="/images/mr-imot-logo-no-background.png"
+                alt="Mr. Imot Logo"
+                width={56}
+                height={56}
+                className="w-14 h-14 object-contain drop-shadow-lg"
+                style={{
+                  filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))'
+                }}
+              />
             </div>
           </Link>
         </div>
 
-        {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center space-x-8">
-          <MainNav />
-        </div>
+        {/* Navigation */}
+        <nav className="flex items-center space-x-3">
+          <a
+            href="/listings"
+            className="text-white/80 hover:text-white text-sm font-light px-4 py-2.5 rounded-full hover:bg-white/10 transition-all duration-200"
+          >
+            Listings
+          </a>
+          <a
+            href="/developers"
+            className="text-white/80 hover:text-white text-sm font-light px-4 py-2.5 rounded-full hover:bg-white/10 transition-all duration-200"
+          >
+            Developers
+          </a>
+          <a
+            href="/about-us"
+            className="text-white/80 hover:text-white text-sm font-light px-4 py-2.5 rounded-full hover:bg-white/10 transition-all duration-200"
+          >
+            About Us
+          </a>
+        </nav>
 
-        {/* Right Side Actions */}
-        <div className="flex items-center space-x-4">
-          {/* Theme Toggle */}
-          <ModeToggle />
-          {/* Language Selector */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="hidden md:flex items-center space-x-2">
-                <Globe className="h-4 w-4" />
-                <span className="text-sm">EN</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem>
-                🇬🇧 English
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                🇧🇬 Български
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          {/* Desktop Auth Nav */}
-          <div className="hidden md:flex">
-            <UserAuthNav />
-          </div>
-
-          {/* Mobile Navigation */}
-          <div className="md:hidden">
-            <MobileNav />
-          </div>
-        </div>
+        {/* Login Button with Smooth Arrow Animation */}
+        <Link href="/login">
+          <button className="group relative overflow-hidden px-6 py-2 rounded-full bg-white text-black font-normal text-xs transition-colors duration-300 hover:bg-white/90 cursor-pointer h-8 flex items-center justify-between w-24">
+            <span className="transition-transform duration-300 ease-out group-hover:-translate-x-1">
+              Login
+            </span>
+            <svg className="w-3 h-3 transition-all duration-300 ease-out transform translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 17L17 7M17 7H7M17 7V17" />
+            </svg>
+          </button>
+        </Link>
       </div>
-      {/* Sticky search bar removed per product decision */}
     </header>
+    </>
   )
 }
 
