@@ -2,6 +2,70 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Mr. Imot Brand Colors - CSS Custom Properties */
+:root {
+  /* Primary Grays */
+  --brand-gray-900: #111827;
+  --brand-gray-800: #1f2937;
+  --brand-gray-700: #374151;
+  --brand-gray-600: #4b5563;
+  --brand-gray-500: #6b7280;
+  --brand-gray-400: #9ca3af;
+  --brand-gray-300: #d1d5db;
+  --brand-gray-200: #e5e7eb;
+  --brand-gray-100: #f3f4f6;
+  --brand-gray-50: #f9fafb;
+  
+  /* Glass Background Tones */
+  --brand-glass-primary: #e8edf0;
+  --brand-glass-light: #f0f4f6;
+  --brand-glass-lighter: #eaf0f2;
+  
+  /* Navigation Colors */
+  --brand-nav-text: rgba(255, 255, 255, 0.8);
+  --brand-nav-text-hover: rgba(255, 255, 255, 1);
+  --brand-nav-bg-hover: rgba(255, 255, 255, 0.1);
+  --brand-nav-logo-bg: rgba(255, 255, 255, 0.1);
+  --brand-nav-logo-bg-hover: rgba(255, 255, 255, 0.2);
+  --brand-nav-logo-border: rgba(255, 255, 255, 0.2);
+  
+  /* Button Colors */
+  --brand-btn-primary-bg: #111827;
+  --brand-btn-primary-bg-hover: #1f2937;
+  --brand-btn-primary-text: #ffffff;
+  --brand-btn-secondary-bg: transparent;
+  --brand-btn-secondary-border: #374151;
+  --brand-btn-secondary-text: #111827;
+  --brand-btn-secondary-bg-hover: #111827;
+  --brand-btn-secondary-text-hover: #ffffff;
+  --brand-btn-login-bg: #ffffff;
+  --brand-btn-login-bg-hover: rgba(255, 255, 255, 0.9);
+  --brand-btn-login-text: #000000;
+  
+  /* Text Hierarchy */
+  --brand-text-primary: #111827;
+  --brand-text-secondary: #1f2937;
+  --brand-text-tertiary: #374151;
+  --brand-text-muted: #6b7280;
+  --brand-text-light: rgba(255, 255, 255, 0.8);
+  
+  /* Badge/Tag Colors */
+  --brand-badge-bg: rgba(243, 244, 246, 0.9);
+  --brand-badge-border: #e5e7eb;
+  --brand-badge-text: #374151;
+  
+  /* Status Colors */
+  --brand-success: #10b981;
+  --brand-warning: #f59e0b;
+  --brand-error: #ef4444;
+  --brand-info: #3b82f6;
+  
+  /* Effects */
+  --brand-white-overlay-10: rgba(255, 255, 255, 0.1);
+  --brand-white-overlay-20: rgba(255, 255, 255, 0.2);
+  --brand-white-overlay-90: rgba(255, 255, 255, 0.9);
+}
+
 .instrument {
   font-family: var(--font-instrument-serif), serif;
 }
