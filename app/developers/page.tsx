@@ -291,11 +291,11 @@ function DeveloperCard({
 }: { developer: Developer; index: number; isFeatured?: boolean }) {
   return (
     <ScrollAnimationWrapper delay={300 + index * 50}>
-      <Card className="group bg-white shadow-md hover:shadow-2xl border border-ds-neutral-200 hover:border-ds-primary-300 transition-all duration-300 hover:-translate-y-2 overflow-hidden h-full">
+      <Card className="group bg-white shadow-md hover:shadow-2xl border transition-all duration-300 hover:-translate-y-2 overflow-hidden h-full" style={{borderColor: 'var(--brand-gray-200)', ':hover': {borderColor: 'var(--brand-btn-primary-bg)'}}}>
         <CardContent className="p-6 h-full flex flex-col">
           <div className="flex items-start space-x-4 mb-4">
             {/* Logo */}
-            <div className="relative w-16 h-16 bg-ds-neutral-100 rounded-xl p-2 flex-shrink-0 group-hover:bg-ds-primary-50 transition-colors duration-300">
+            <div className="relative w-16 h-16 rounded-xl p-2 flex-shrink-0 transition-colors duration-300" style={{backgroundColor: 'var(--brand-gray-100)'}}>
               <Image
                 src={developer.logo || "/placeholder.svg"}
                 alt={`${developer.name} logo`}
@@ -307,12 +307,12 @@ function DeveloperCard({
             {/* Header Content */}
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between mb-2">
-                <h3 className="text-lg font-bold text-ds-neutral-900 group-hover:text-ds-primary-600 transition-colors duration-300 line-clamp-2 leading-tight">
+                <h3 className="text-lg font-bold transition-colors duration-300 line-clamp-2 leading-tight" style={{color: 'var(--brand-text-primary)'}}>
                   {developer.name}
                 </h3>
                 <div className="flex flex-col items-end space-y-1 ml-2">
                   {isFeatured && (
-                    <Badge className="bg-ds-accent-500 text-white text-xs font-semibold whitespace-nowrap">
+                    <Badge className="text-white text-xs font-semibold whitespace-nowrap" style={{backgroundColor: 'var(--brand-warning)'}}>
                       <Award className="h-3 w-3 mr-1" />
                       Featured
                     </Badge>
@@ -320,7 +320,8 @@ function DeveloperCard({
                   {developer.verified && (
                     <Badge
                       variant="outline"
-                      className="text-xs whitespace-nowrap border-ds-primary-200 text-ds-primary-600"
+                      className="text-xs whitespace-nowrap"
+                      style={{borderColor: 'var(--brand-gray-200)', color: 'var(--brand-success)'}}
                     >
                       <CheckCircle className="h-3 w-3 mr-1" />
                       Verified
@@ -329,31 +330,31 @@ function DeveloperCard({
                 </div>
               </div>
 
-              <div className="flex items-center text-ds-neutral-600 mb-2">
-                <MapPin className="h-3 w-3 mr-1 text-ds-accent-500 flex-shrink-0" />
+              <div className="flex items-center mb-2" style={{color: 'var(--brand-text-secondary)'}}>
+                <MapPin className="h-3 w-3 mr-1 flex-shrink-0" style={{color: 'var(--brand-warning)'}} />
                 <span className="text-sm truncate">{developer.location}</span>
               </div>
             </div>
           </div>
 
           {/* Description */}
-          <p className="text-sm text-ds-neutral-700 leading-relaxed line-clamp-3 mb-4 flex-grow">
+          <p className="text-sm leading-relaxed line-clamp-3 mb-4 flex-grow" style={{color: 'var(--brand-text-secondary)'}}>
             {developer.shortDescription}
           </p>
 
           {/* Stats Row */}
-          <div className="grid grid-cols-3 gap-3 py-3 mb-4 bg-ds-neutral-50 rounded-lg">
+          <div className="grid grid-cols-3 gap-3 py-3 mb-4 rounded-lg" style={{backgroundColor: 'var(--brand-gray-50)'}}>
             <div className="text-center">
-              <div className="text-lg font-bold text-ds-primary-600">{developer.totalProjects}</div>
-              <div className="text-xs text-ds-neutral-600">Projects</div>
+              <div className="text-lg font-bold" style={{color: 'var(--brand-btn-primary-bg)'}}>{developer.totalProjects}</div>
+              <div className="text-xs" style={{color: 'var(--brand-text-muted)'}}>Projects</div>
             </div>
             <div className="text-center">
-              <div className="text-lg font-bold text-ds-primary-600">{developer.rating}</div>
-              <div className="text-xs text-ds-neutral-600">Rating</div>
+              <div className="text-lg font-bold" style={{color: 'var(--brand-btn-primary-bg)'}}>{developer.rating}</div>
+              <div className="text-xs" style={{color: 'var(--brand-text-muted)'}}>Rating</div>
             </div>
             <div className="text-center">
-              <div className="text-lg font-bold text-ds-primary-600">{developer.reviews}</div>
-              <div className="text-xs text-ds-neutral-600">Reviews</div>
+              <div className="text-lg font-bold" style={{color: 'var(--brand-btn-primary-bg)'}}>{developer.reviews}</div>
+              <div className="text-xs" style={{color: 'var(--brand-text-muted)'}}>Reviews</div>
             </div>
           </div>
 
@@ -444,33 +445,33 @@ export default function DevelopersPage() {
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
       <ScrollAnimationWrapper>
-        <section className="relative w-full py-16 md:py-20 lg:py-24 bg-gradient-to-br from-ds-primary-50 to-white">
+        <section className="relative w-full py-16 md:py-20 lg:py-24" style={{background: 'linear-gradient(to bottom right, var(--brand-glass-lighter), #ffffff)'}}>
           <div className="container px-4 md:px-6">
             <div className="max-w-4xl mx-auto text-center space-y-6">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.1] tracking-tight text-ds-neutral-900">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.1] tracking-tight" style={{color: 'var(--brand-text-primary)'}}>
                 Meet Our
-                <span className="text-ds-primary-600 block">Verified Developers</span>
+                <span className="block" style={{color: 'var(--brand-btn-primary-bg)'}}>Verified Developers</span>
               </h1>
-              <p className="text-xl md:text-2xl text-ds-neutral-600 leading-relaxed max-w-3xl mx-auto">
+              <p className="text-xl md:text-2xl leading-relaxed max-w-3xl mx-auto" style={{color: 'var(--brand-text-secondary)'}}>
                 Connect directly with Bulgaria's most trusted real estate developers. No middlemen, no commissions, just
                 direct access to quality projects.
               </p>
               <div className="flex items-center justify-center space-x-8 pt-4">
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-ds-primary-600">{developers.length}</div>
-                  <div className="text-sm text-ds-neutral-600">Verified Developers</div>
+                  <div className="text-3xl font-bold" style={{color: 'var(--brand-btn-primary-bg)'}}>{developers.length}</div>
+                  <div className="text-sm" style={{color: 'var(--brand-text-muted)'}}>Verified Developers</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-ds-primary-600">
+                  <div className="text-3xl font-bold" style={{color: 'var(--brand-btn-primary-bg)'}}>
                     {developers.reduce((sum: number, dev: Developer) => sum + dev.totalProjects, 0)}
                   </div>
-                  <div className="text-sm text-ds-neutral-600">Total Projects</div>
+                  <div className="text-sm" style={{color: 'var(--brand-text-muted)'}}>Total Projects</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-ds-primary-600">
+                  <div className="text-3xl font-bold" style={{color: 'var(--brand-btn-primary-bg)'}}>
                     {developers.reduce((sum: number, dev: Developer) => sum + dev.activeProjects, 0)}
                   </div>
-                  <div className="text-sm text-ds-neutral-600">Active Projects</div>
+                  <div className="text-sm" style={{color: 'var(--brand-text-muted)'}}>Active Projects</div>
                 </div>
               </div>
             </div>

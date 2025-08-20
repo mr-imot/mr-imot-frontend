@@ -609,13 +609,13 @@ export default function ListingsPage() {
           <section className="flex-1 min-w-0">
             {/* Desktop Filters aligned with map top */}
             <div className="mb-6">
-              <Card className="border-0 shadow-sm bg-white/80 backdrop-blur-sm">
+              <Card className="shadow-lg border" style={{backgroundColor: '#ffffff', borderColor: 'var(--brand-gray-200)'}}>
                 <CardContent className="p-6">
                   <div className="flex flex-row items-center justify-center gap-12">
                     {/* City Selector */}
                     <div className="flex flex-col items-center space-y-4 w-full lg:w-auto">
-                      <h3 className="text-lg font-bold text-gray-800 flex items-center gap-3">
-                        <MapPin className="w-5 h-5 text-brand" />
+                      <h3 className="text-lg font-bold flex items-center gap-3" style={{color: 'var(--brand-text-primary)'}}>
+                        <MapPin className="w-5 h-5" style={{color: 'var(--brand-btn-primary-bg)'}} />
                         Choose Your City
                       </h3>
                       <ToggleGroup
@@ -626,19 +626,19 @@ export default function ListingsPage() {
                       >
                         <ToggleGroupItem 
                           value="Sofia" 
-                          className="h-12 px-8 rounded-full border-2 border-brand/20 text-gray-700 data-[state=on]:bg-brand data-[state=on]:text-white data-[state=on]:border-brand hover:bg-brand/10 hover:border-brand/40 transition-all duration-300 ease-out font-semibold text-base shadow-sm hover:shadow-md"
+                          className="h-12 px-8 rounded-full border-2 font-semibold text-base shadow-sm hover:shadow-md transition-all duration-300 ease-out bg-transparent border-gray-700 text-gray-900 data-[state=on]:bg-gray-900 data-[state=on]:text-white data-[state=on]:border-gray-900"
                         >
                           Sofia
                         </ToggleGroupItem>
                         <ToggleGroupItem 
                           value="Plovdiv" 
-                          className="h-12 px-8 rounded-full border-2 border-brand/20 text-gray-700 data-[state=on]:bg-brand data-[state=on]:text-white data-[state=on]:border-brand hover:bg-brand/10 hover:border-brand/40 transition-all duration-300 ease-out font-semibold text-base shadow-sm hover:shadow-md"
+                          className="h-12 px-8 rounded-full border-2 font-semibold text-base shadow-sm hover:shadow-md transition-all duration-300 ease-out bg-transparent border-gray-700 text-gray-900 data-[state=on]:bg-gray-900 data-[state=on]:text-white data-[state=on]:border-gray-900"
                         >
                           Plovdiv
                         </ToggleGroupItem>
                         <ToggleGroupItem 
                           value="Varna" 
-                          className="h-12 px-8 rounded-full border-2 border-brand/20 text-gray-700 data-[state=on]:bg-brand data-[state=on]:text-white data-[state=on]:border-brand hover:bg-brand/10 hover:border-brand/40 transition-all duration-300 ease-out font-semibold text-base shadow-sm hover:shadow-md"
+                          className="h-12 px-8 rounded-full border-2 font-semibold text-base shadow-sm hover:shadow-md transition-all duration-300 ease-out bg-transparent border-gray-700 text-gray-900 data-[state=on]:bg-gray-900 data-[state=on]:text-white data-[state=on]:border-gray-900"
                         >
                           Varna
                         </ToggleGroupItem>
@@ -646,12 +646,12 @@ export default function ListingsPage() {
                     </div>
 
                     {/* Divider */}
-                    <Separator orientation="vertical" className="hidden lg:block h-20 bg-gray-200" />
+                    <Separator orientation="vertical" className="hidden lg:block h-20" style={{backgroundColor: 'var(--brand-gray-200)'}} />
 
                     {/* Property Type Filter */}
                     <div className="flex flex-col items-center space-y-4 w-full lg:w-auto">
-                      <h3 className="text-lg font-bold text-gray-800 flex items-center gap-3">
-                        <Building className="w-5 h-5 text-brand" />
+                      <h3 className="text-lg font-bold flex items-center gap-3" style={{color: 'var(--brand-text-primary)'}}>
+                        <Building className="w-5 h-5" style={{color: 'var(--brand-btn-primary-bg)'}} />
                         Property Type
                       </h3>
                       <ToggleGroup
@@ -662,19 +662,19 @@ export default function ListingsPage() {
                       >
                         <ToggleGroupItem 
                           value="all" 
-                          className="h-12 px-8 rounded-full border-2 border-brand/20 text-gray-700 data-[state=on]:bg-brand data-[state=on]:text-white data-[state=on]:border-brand hover:bg-brand/10 hover:border-brand/40 transition-all duration-300 ease-out font-semibold text-base shadow-sm hover:shadow-md"
+                          className="h-12 px-8 rounded-full border-2 font-semibold text-base shadow-sm hover:shadow-md transition-all duration-300 ease-out bg-transparent border-gray-700 text-gray-900 data-[state=on]:bg-gray-900 data-[state=on]:text-white data-[state=on]:border-gray-900"
                         >
                           All
                         </ToggleGroupItem>
                         <ToggleGroupItem 
                           value="apartments" 
-                          className="h-12 px-6 rounded-full border-2 border-brand/20 text-gray-700 data-[state=on]:bg-brand data-[state=on]:text-white data-[state=on]:border-brand hover:bg-brand/10 hover:border-brand/40 transition-all duration-300 ease-out font-semibold text-base shadow-sm hover:shadow-md flex items-center gap-2"
+                          className="h-12 px-6 rounded-full border-2 font-semibold text-base shadow-sm hover:shadow-md transition-all duration-300 ease-out flex items-center gap-2 bg-transparent border-gray-700 text-gray-900 data-[state=on]:bg-gray-900 data-[state=on]:text-white data-[state=on]:border-gray-900"
                         >
                           <Building className="w-4 h-4" /> Apartments
                         </ToggleGroupItem>
                         <ToggleGroupItem 
                           value="houses" 
-                          className="h-12 px-6 rounded-full border-2 border-brand/20 text-gray-700 data-[state=on]:bg-brand data-[state=on]:text-white data-[state=on]:border-brand hover:bg-brand/10 hover:border-brand/40 transition-all duration-300 ease-out font-semibold text-base shadow-sm hover:shadow-md flex items-center gap-2"
+                          className="h-12 px-6 rounded-full border-2 font-semibold text-base shadow-sm hover:shadow-md transition-all duration-300 ease-out flex items-center gap-2 bg-transparent border-gray-700 text-gray-900 data-[state=on]:bg-gray-900 data-[state=on]:text-white data-[state=on]:border-gray-900"
                         >
                           <Home className="w-4 h-4" /> Houses
                         </ToggleGroupItem>
@@ -684,16 +684,18 @@ export default function ListingsPage() {
                 </CardContent>
               </Card>
             </div>
-            <div className="h-[calc(100vh-120px)] overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+            <div className="h-[calc(100vh-120px)] overflow-y-auto pr-4 scrollbar-thin" style={{
+              scrollbarColor: 'var(--brand-gray-300) var(--brand-gray-100)'
+            }}>
               {loading ? (
                 <div className="flex flex-col items-center justify-center py-24 space-y-6">
                   <div className="relative">
-                    <Loader2 className="h-12 w-12 animate-spin text-brand" />
-                    <div className="absolute inset-0 rounded-full border-4 border-gray-200"></div>
+                    <Loader2 className="h-12 w-12 animate-spin" style={{color: 'var(--brand-btn-primary-bg)'}} />
+                    <div className="absolute inset-0 rounded-full border-4" style={{borderColor: 'var(--brand-gray-200)'}}></div>
                   </div>
                   <div className="text-center">
-                    <p className="text-lg font-semibold text-gray-700 mb-2">Loading Properties</p>
-                    <p className="text-gray-500">Finding the perfect properties for you...</p>
+                    <p className="text-lg font-semibold mb-2" style={{color: 'var(--brand-text-primary)'}}>Loading Properties</p>
+                    <p style={{color: 'var(--brand-text-muted)'}}>Finding the perfect properties for you...</p>
                   </div>
                 </div>
               ) : showError ? (

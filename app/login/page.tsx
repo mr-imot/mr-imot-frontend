@@ -133,19 +133,22 @@ function LoginFormContent() {
     <div className="w-full max-w-md mx-auto">
       {/* Brand Header */}
       <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-card/70 backdrop-blur border shadow mb-6">
-          <Shield className="w-8 h-8 text-foreground" />
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl shadow mb-6 backdrop-blur border" style={{
+          backgroundColor: 'var(--brand-white-overlay-10)',
+          borderColor: 'var(--brand-gray-200)'
+        }}>
+          <Shield className="w-8 h-8" style={{color: 'var(--brand-btn-primary-bg)'}} />
         </div>
-        <h1 className="text-3xl font-bold text-foreground mb-2">
+        <h1 className="text-3xl font-bold mb-2" style={{color: 'var(--brand-text-primary)'}}>
           Welcome back
         </h1>
-        <p className="text-muted-foreground text-lg">
+        <p className="text-lg" style={{color: 'var(--brand-text-secondary)'}}>
           Sign in to your Mr imot developer account
         </p>
       </div>
 
       {/* Main Card */}
-      <div className="bg-card rounded-xl border overflow-hidden">
+      <div className="rounded-xl border overflow-hidden" style={{backgroundColor: '#ffffff', borderColor: 'var(--brand-gray-200)'}}>
         {/* Success Message */}
         {showSuccessMessage && (
           <div className="p-6 bg-gradient-to-r from-green-50 to-emerald-50 border-b border-green-100">
@@ -233,7 +236,8 @@ function LoginFormContent() {
               
               <Link 
                 href="/forgot-password"
-                className="text-sm font-medium text-primary hover:underline"
+                className="text-sm font-medium hover:underline"
+                style={{color: 'var(--brand-btn-primary-bg)'}}
               >
                 Forgot password?
               </Link>
@@ -270,13 +274,13 @@ function LoginFormContent() {
 
       {/* Footer */}
       <div className="mt-8 text-center">
-        <p className="text-sm text-gray-500">
+        <p className="text-sm" style={{color: 'var(--brand-text-muted)'}}>
           By signing in, you agree to our{' '}
-          <Link href="/terms-of-service.html" className="text-blue-600 hover:text-blue-700 font-medium">
+          <Link href="/terms-of-service.html" className="font-medium hover:underline" style={{color: 'var(--brand-btn-primary-bg)'}}>
             Terms of Service
           </Link>{' '}
           and{' '}
-          <Link href="/privacy-policy.html" className="text-blue-600 hover:text-blue-700 font-medium">
+          <Link href="/privacy-policy.html" className="font-medium hover:underline" style={{color: 'var(--brand-btn-primary-bg)'}}>
             Privacy Policy
           </Link>
         </p>
@@ -287,7 +291,7 @@ function LoginFormContent() {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen" style={{backgroundColor: 'var(--brand-glass-primary)'}}>
       <div className="relative z-10 flex items-center justify-center min-h-screen py-12 px-4 sm:px-6 lg:px-8">
         <Suspense fallback={
           <div className="w-full max-w-md mx-auto">

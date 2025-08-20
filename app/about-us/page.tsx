@@ -44,21 +44,24 @@ export default function AboutUsPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen" style={{backgroundColor: '#ffffff'}}>
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-muted via-background to-muted">
-        <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
+      <section className="relative overflow-hidden" style={{background: 'linear-gradient(to bottom right, var(--brand-glass-lighter), var(--brand-glass-primary), var(--brand-glass-light))'}}>
         <div className="container relative py-20 md:py-32">
           <ScrollAnimationWrapper>
             <div className="text-center max-w-4xl mx-auto">
-              <div className="inline-flex items-center gap-2 bg-muted text-foreground px-4 py-2 rounded-full text-sm font-medium mb-6">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-6 border" style={{
+                backgroundColor: 'var(--brand-badge-bg)',
+                color: 'var(--brand-badge-text)',
+                borderColor: 'var(--brand-badge-border)'
+              }}>
                 <Target className="w-4 h-4" />
                 Our Story
               </div>
-              <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
-                About <span className="text-primary">Mr imot</span>
+              <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight" style={{color: 'var(--brand-text-primary)'}}>
+                About <span style={{color: 'var(--brand-btn-primary-bg)'}}>Mr imot</span>
               </h1>
-              <p className="text-xl text-muted-foreground leading-relaxed">
+              <p className="text-xl leading-relaxed" style={{color: 'var(--brand-text-secondary)'}}>
                 Connecting you directly with the future of real estate through innovation, transparency, and trust.
               </p>
             </div>
@@ -68,23 +71,27 @@ export default function AboutUsPage() {
       </section>
 
       {/* Mission & Vision Section */}
-      <section className="py-20 bg-background">
+      <section className="py-20" style={{backgroundColor: '#ffffff'}}>
         <div className="container">
           <div className="grid lg:grid-cols-2 gap-16 items-center mb-20">
             <ScrollAnimationWrapper>
               <div>
-                <div className="inline-flex items-center gap-2 bg-muted text-foreground px-3 py-1 rounded-full text-sm font-medium mb-4">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium mb-4 border" style={{
+                  backgroundColor: 'var(--brand-badge-bg)',
+                  color: 'var(--brand-badge-text)',
+                  borderColor: 'var(--brand-badge-border)'
+                }}>
                   Mission
                 </div>
-                <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
+                <h2 className="text-3xl md:text-4xl font-bold mb-6" style={{color: 'var(--brand-text-primary)'}}>
                   Revolutionizing Real Estate
                 </h2>
-                <p className="text-lg text-muted-foreground leading-relaxed mb-6">
+                <p className="text-lg leading-relaxed mb-6" style={{color: 'var(--brand-text-secondary)'}}>
                   At Mr imot, our mission is to revolutionize the real estate market by creating a transparent and direct
                   connection between property buyers and real estate developers. We believe in cutting out unnecessary
                   intermediaries, reducing costs, and providing direct access to verified, under-construction projects.
                 </p>
-                <p className="text-lg text-muted-foreground leading-relaxed">
+                <p className="text-lg leading-relaxed" style={{color: 'var(--brand-text-secondary)'}}>
                   We empower buyers to make informed decisions and help developers showcase their work efficiently to a
                   targeted audience.
                 </p>
@@ -252,10 +259,17 @@ export default function AboutUsPage() {
                 Join thousands of satisfied customers who found their perfect home through Mr imot
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <button className="bg-card text-primary px-8 py-4 rounded-xl font-semibold hover:bg-muted transition-colors duration-300 shadow-lg">
+                <button className="px-8 py-4 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl" style={{
+                  backgroundColor: 'var(--brand-btn-primary-bg)',
+                  color: 'var(--brand-btn-primary-text)'
+                }}>
                   Browse Properties
                 </button>
-                <button className="border-2 border-primary-foreground text-primary-foreground px-8 py-4 rounded-xl font-semibold hover:bg-primary-foreground hover:text-primary transition-all duration-300">
+                <button className="border-2 px-8 py-4 rounded-xl font-semibold transition-all duration-300" style={{
+                  borderColor: '#ffffff',
+                  color: '#ffffff',
+                  backgroundColor: 'transparent'
+                }}>
                   Contact Us
                 </button>
               </div>
