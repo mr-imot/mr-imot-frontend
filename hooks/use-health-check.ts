@@ -83,10 +83,10 @@ export const useHealthCheck = (options: UseHealthCheckOptions = {}) => {
 
       // Log error for monitoring (only unexpected errors, not network failures)
       if (config.features.debugLogging) {
-        console.info('🔌 Health check failed (expected when backend is off):', {
-          message: errorMessage,
-          endpoint: `/api/v1/health`
-        });
+        // console.info('🔌 Health check failed (expected when backend is off):', {
+        //   message: errorMessage,
+        //   endpoint: `/api/v1/health`
+        // });
       } else {
         // Only log non-network errors for monitoring
         const isNetworkError = errorMessage.includes('Failed to fetch') || errorMessage.includes('fetch');

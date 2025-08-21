@@ -44,7 +44,7 @@ export const GlobalMaintenanceWrapper: React.FC<GlobalMaintenanceWrapperProps> =
       } else {
         setIsBackendDown(false)
         if (config.features.debugLogging) {
-          console.info('✅ Backend is responsive - normal operation')
+          // console.info('✅ Backend is responsive - normal operation')
         }
       }
     } catch (error) {

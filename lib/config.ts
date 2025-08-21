@@ -153,10 +153,10 @@ export const logError = (error: Error | string, context?: any): void => {
   
   // In development, show a clean message for expected network errors
   if (config.features.debugLogging && isNetworkError) {
-    console.info('🔌 Backend connection failed (expected when backend is off):', {
-      message: errorMessage,
-      context: context?.context || 'unknown'
-    });
+    // console.info('🔌 Backend connection failed (expected when backend is off):', {
+    //   message: errorMessage,
+    //   context: context?.context || 'unknown'
+    // });
     return;
   }
 
