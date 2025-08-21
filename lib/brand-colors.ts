@@ -1,8 +1,14 @@
 /**
- * Mr. Imot Brand Colors
+ * Mr. Imot Brand Colors - OFFICIAL BRAND SYSTEM
  * 
- * Extracted from hero section and main navigation for consistency across the application.
- * These colors work harmoniously with the Etched Glass background.
+ * Conservative gray-based brand system extracted from the homepage hero section,
+ * navigation, and buttons. This is the ONLY brand color system to use.
+ * 
+ * Key Brand Identity:
+ * - Primary: Conservative Gray (#111827) - Professional real estate
+ * - Typography: Figtree (main) + Instrument Serif (accents)  
+ * - Background: Etched glass effect with subtle gray tones
+ * - Navigation: White/transparent for header overlay
  */
 
 export const brandColors = {

@@ -142,7 +142,7 @@
 }
 
 .map-price-pill--active {
-  outline: 2px solid var(--brand);
+  outline: 2px solid var(--brand-gray-900);
   outline-offset: 2px;
 }
 
@@ -154,14 +154,14 @@
 
 @layer base {
   :root {
-    /* Brand design tokens - Airbnb-style with your brand identity */
-    --brand: #FF385C;        /* Primary brand color (Airbnb red adapted) */
-    --brand-ink: #111318;    /* Text on brand surfaces */
+    /* Brand design tokens - Mr. Imot Conservative Style */
+    --brand: #111827;        /* Primary brand color (Conservative Gray) */
+    --brand-ink: #ffffff;    /* Text on brand surfaces */
     --ink: #111111;          /* Primary text color */
     --subtle: #6B7280;       /* Secondary text color */
     --card: #ffffff;         /* Card background */
     --muted: #F4F5F7;        /* Muted background */
-    --ring: rgba(255,56,92,.35); /* Focus ring color */
+    --ring: rgba(17,24,39,.35); /* Focus ring color */
     --radius: 16px;          /* Base border radius */
     
     /* Shadows */

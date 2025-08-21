@@ -130,25 +130,45 @@ function MetricCard({
                         changeType === "negative" ? TrendingDown : Activity
   
   return (
-    <Card className={`transition-all duration-200 hover:shadow-md ${onClick ? 'cursor-pointer hover:border-primary/30' : ''}`} onClick={onClick}>
+    <Card className={`
+      transition-all duration-300 ease-out hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1 
+      border-border/50 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm
+      ${onClick ? 'cursor-pointer hover:border-primary/40 hover:bg-primary/5' : ''}
+    `} onClick={onClick}>
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <p className="text-sm font-medium text-muted-foreground">{title}</p>
+          <div className="space-y-2 flex-1">
+            <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">{title}</p>
             {loading ? (
-              <div className="w-16 h-8 bg-muted rounded animate-pulse" />
+              <div className="w-20 h-10 bg-gradient-to-r from-muted to-muted/50 rounded-lg animate-pulse" />
             ) : (
-              <p className="text-3xl font-bold text-foreground">{typeof value === 'number' ? value.toLocaleString() : value}</p>
+              <p className="text-4xl font-bold text-foreground tracking-tight">
+                {typeof value === 'number' ? value.toLocaleString() : value}
+              </p>
             )}
             {change && (
-              <div className="flex items-center gap-1 mt-1">
-                <IconComponent className="h-3 w-3" />
-                <span className={`text-sm font-medium ${changeColor}`}>{change}</span>
+              <div className="flex items-center gap-2 mt-3">
+                <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+                  changeType === 'positive' ? 'text-white' :
+                  changeType === 'negative' ? 'text-white' :
+                  'bg-muted text-muted-foreground'
+                }`} style={{
+                  backgroundColor: changeType === 'positive' ? 'var(--brand-success)' :
+                                   changeType === 'negative' ? 'var(--brand-error)' : undefined
+                }}>
+                  <IconComponent className="h-3 w-3" />
+                  <span>{change}</span>
+                </div>
               </div>
             )}
           </div>
-          <div className="p-3 bg-primary/10 rounded-full">
-            <Icon className="h-6 w-6 text-primary" />
+          <div className="ml-4">
+            <div className="relative">
+              <div className="p-4 bg-gradient-to-br from-primary/15 to-primary/25 rounded-2xl shadow-lg">
+                <Icon className="h-7 w-7 text-primary" />
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent rounded-2xl" />
+            </div>
           </div>
         </div>
       </CardContent>
@@ -156,18 +176,48 @@ function MetricCard({
   )
 }
 
-// Navigation using shadcn/ui Sidebar (Vercel theme)
+// Premium Navigation Sidebar with Mr imot Branding
 function DashboardSidebar({ profile }: { profile: DeveloperProfile | null }) {
   const router = useRouter()
   const pathname = usePathname()
   
   const navigationItems = [
-    { icon: Home, label: "Dashboard", href: "/developer/dashboard" },
-    { icon: Building2, label: "Properties", href: "/developer/properties" },
-    { icon: BarChart3, label: "Analytics", href: "/developer/analytics" },
-    { icon: MessageSquare, label: "Inquiries", href: "/developer/inquiries" },
-    { icon: User, label: "Profile", href: "/developer/profile" },
-    { icon: Settings, label: "Settings", href: "/developer/settings" },
+    { 
+      icon: Home, 
+      label: "Dashboard", 
+      href: "/developer/dashboard",
+      description: "Overview & insights"
+    },
+    { 
+      icon: Building2, 
+      label: "Properties", 
+      href: "/developer/properties",
+      description: "Manage listings"
+    },
+    { 
+      icon: BarChart3, 
+      label: "Analytics", 
+      href: "/developer/analytics",
+      description: "Performance metrics"
+    },
+    { 
+      icon: MessageSquare, 
+      label: "Inquiries", 
+      href: "/developer/inquiries",
+      description: "Customer messages"
+    },
+    { 
+      icon: User, 
+      label: "Profile", 
+      href: "/developer/profile",
+      description: "Company details"
+    },
+    { 
+      icon: Settings, 
+      label: "Settings", 
+      href: "/developer/settings",
+      description: "Account preferences"
+    },
   ]
 
   const handleNavigation = (href: string) => router.push(href)
@@ -180,22 +230,28 @@ function DashboardSidebar({ profile }: { profile: DeveloperProfile | null }) {
 
   return (
     <>
-      <Sidebar className="md:top-16" variant="inset">
-        <SidebarHeader>
-          <div className="flex items-center gap-3 p-2">
-            <div className="w-9 h-9 rounded-md bg-primary text-primary-foreground grid place-items-center">
-              <Building2 className="w-5 h-5" />
+      <Sidebar className="md:top-16 border-r border-border/50 bg-gradient-to-b from-background to-muted/30" variant="inset">
+        <SidebarHeader className="border-b border-border/50 bg-background/95 backdrop-blur-sm">
+          <div className="flex items-center gap-3 px-4 py-6">
+            <div className="relative">
+              <div 
+                className="w-11 h-11 rounded-xl shadow-lg grid place-items-center" 
+                style={{backgroundColor: 'var(--brand-gray-900)'}}
+              >
+                <Building2 className="w-6 h-6 text-white" />
+              </div>
+              <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white shadow-sm" style={{backgroundColor: 'var(--brand-success)'}} />
             </div>
-            <div>
-              <h1 className="font-semibold leading-none">Mr imot</h1>
-              <p className="text-xs text-muted-foreground">Developer Portal</p>
+            <div className="flex-1">
+              <h1 className="text-lg font-bold text-foreground tracking-tight">Mr imot</h1>
+              <p className="text-xs text-muted-foreground font-medium">Developer Portal</p>
             </div>
           </div>
         </SidebarHeader>
-        <SidebarContent>
+        
+        <SidebarContent className="px-3 py-4">
           <SidebarGroup>
-            <SidebarGroupLabel>Navigation</SidebarGroupLabel>
-            <SidebarMenu>
+            <SidebarMenu className="gap-2">
               {navigationItems.map((item) => {
                 const isActive = pathname ? pathname.startsWith(item.href) : false
                 return (
@@ -204,9 +260,27 @@ function DashboardSidebar({ profile }: { profile: DeveloperProfile | null }) {
                       isActive={isActive}
                       aria-current={isActive ? "page" : undefined}
                       onClick={() => handleNavigation(item.href)}
+                      className={`
+                        h-12 px-4 rounded-xl transition-all duration-200 ease-out group
+                        ${isActive 
+                          ? 'bg-primary text-primary-foreground shadow-md hover:bg-primary/90 font-medium' 
+                          : 'hover:bg-accent/70 hover:text-accent-foreground hover:shadow-sm'
+                        }
+                      `}
                     >
-                      <item.icon />
-                      <span>{item.label}</span>
+                      <item.icon className={`w-5 h-5 transition-transform group-hover:scale-110 ${
+                        isActive ? 'text-primary-foreground' : 'text-muted-foreground group-hover:text-foreground'
+                      }`} />
+                      <div className="flex flex-col items-start">
+                        <span className={`text-sm font-medium ${isActive ? 'text-primary-foreground' : 'text-foreground'}`}>
+                          {item.label}
+                        </span>
+                        <span className={`text-xs ${
+                          isActive ? 'text-primary-foreground/80' : 'text-muted-foreground group-hover:text-foreground/70'
+                        }`}>
+                          {item.description}
+                        </span>
+                      </div>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 )
@@ -214,20 +288,31 @@ function DashboardSidebar({ profile }: { profile: DeveloperProfile | null }) {
             </SidebarMenu>
           </SidebarGroup>
         </SidebarContent>
-        <SidebarFooter>
+        
+        <SidebarFooter className="border-t border-border/50 bg-background/95 backdrop-blur-sm p-4">
           {profile && (
-            <div className="flex items-center gap-3 rounded-md border p-2">
-              <Avatar className="h-8 w-8">
-                <AvatarFallback className="bg-primary/10 text-primary font-medium">
+            <div className="flex items-center gap-3 rounded-xl border border-border/50 bg-card/50 p-3 shadow-sm hover:shadow-md transition-all duration-200">
+              <Avatar className="h-10 w-10 ring-2 ring-primary/10">
+                <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/30 text-primary font-bold text-sm">
                   {profile.company_name.substring(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-foreground truncate">{profile.company_name}</p>
-                <p className="text-xs text-muted-foreground truncate">{profile.email}</p>
+                <p className="text-sm font-semibold text-foreground truncate leading-tight">
+                  {profile.company_name}
+                </p>
+                <p className="text-xs text-muted-foreground truncate">
+                  {profile.email}
+                </p>
               </div>
-              <Badge variant="outline" className="text-xs">
-                {profile.verification_status}
+              <Badge 
+                variant={profile.verification_status === 'verified' ? 'default' : 'secondary'} 
+                className="text-xs px-2 py-1 text-white"
+                style={{
+                  backgroundColor: profile.verification_status === 'verified' ? 'var(--brand-success)' : 'var(--brand-warning)'
+                }}
+              >
+                {profile.verification_status === 'verified' ? '✓ Verified' : 'Pending'}
               </Badge>
             </div>
           )}
@@ -307,18 +392,18 @@ function DashboardContent() {
   }
 
   return (
-    <div className="flex-1 bg-muted overflow-auto">
-      {/* Header */}
-      <header data-qa="dashboard-header" className="bg-card border-b border-border sticky top-0 z-30">
-        <div className="px-6 py-4">
+    <div className="flex-1 bg-gradient-to-br from-background via-background to-muted/20 overflow-auto">
+      {/* Premium Header */}
+      <header data-qa="dashboard-header" className="bg-card/95 backdrop-blur-sm border-b border-border/50 sticky top-0 z-30 shadow-sm">
+        <div className="px-8 py-6">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
-              <p className="text-muted-foreground">Welcome back! Here's what's happening with your properties.</p>
+            <div className="space-y-1">
+              <h1 className="text-3xl font-bold text-foreground tracking-tight">Dashboard</h1>
+              <p className="text-muted-foreground text-lg">Welcome back! Here's what's happening with your properties.</p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
-                <SelectTrigger className="w-36">
+                <SelectTrigger className="w-40 h-11 border-border/50 bg-background/50 hover:bg-background transition-colors">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -327,7 +412,14 @@ function DashboardContent() {
                   <SelectItem value="year">This Year</SelectItem>
                 </SelectContent>
               </Select>
-              <Button onClick={handleAddListing}>
+              <Button 
+                onClick={handleAddListing}
+                className="h-11 px-6 shadow-md hover:shadow-lg transition-all duration-200"
+                style={{
+                  backgroundColor: 'var(--brand-btn-primary-bg)',
+                  color: 'var(--brand-btn-primary-text)'
+                }}
+              >
                 <Plus className="h-4 w-4 mr-2" />
                 Add Property
               </Button>
@@ -336,8 +428,8 @@ function DashboardContent() {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="p-6 max-w-7xl mx-auto space-y-8">
+      {/* Main Content with Premium Spacing */}
+      <main className="p-8 max-w-7xl mx-auto space-y-12">
         {/* Key Metrics */}
         <section>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -381,40 +473,64 @@ function DashboardContent() {
 
         {/* Traffic & Engagement */}
         <section>
-          <Card>
-            <CardHeader>
+          <Card className="border-border/50 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm shadow-lg">
+            <CardHeader className="pb-8">
               <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="text-lg">Traffic & Engagement</CardTitle>
-                  <CardDescription>Views, website clicks and phone clicks</CardDescription>
+                <div className="space-y-2">
+                  <CardTitle className="text-2xl font-bold text-foreground tracking-tight">Traffic & Engagement</CardTitle>
+                  <CardDescription className="text-base text-muted-foreground">
+                    Comprehensive view of property views, website clicks and phone interactions
+                  </CardDescription>
                 </div>
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-0">
               {analytics ? (
                 <>
-                  <div className="flex items-center gap-4 pb-4">
-                  <div className="flex items-center gap-2">
-                    <Checkbox id="views-toggle" defaultChecked onCheckedChange={(v)=>setSeriesEnabled(s=>({ ...s, views: !!v }))} />
-                      <Label htmlFor="views-toggle" className="text-sm">Views</Label>
+                  <div className="flex items-center gap-6 pb-8 border-b border-border/30">
+                    <div className="flex items-center gap-3">
+                      <Checkbox 
+                        id="views-toggle" 
+                        defaultChecked 
+                        onCheckedChange={(v)=>setSeriesEnabled(s=>({ ...s, views: !!v }))}
+                        className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                      />
+                      <Label htmlFor="views-toggle" className="text-sm font-medium text-foreground cursor-pointer">
+                        Views
+                      </Label>
                     </div>
-                    <div className="flex items-center gap-2">
-                    <Checkbox id="website-toggle" defaultChecked onCheckedChange={(v)=>setSeriesEnabled(s=>({ ...s, website: !!v }))} />
-                      <Label htmlFor="website-toggle" className="text-sm">Website</Label>
+                    <div className="flex items-center gap-3">
+                      <Checkbox 
+                        id="website-toggle" 
+                        defaultChecked 
+                        onCheckedChange={(v)=>setSeriesEnabled(s=>({ ...s, website: !!v }))}
+                        className="data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
+                      />
+                      <Label htmlFor="website-toggle" className="text-sm font-medium text-foreground cursor-pointer">
+                        Website Clicks
+                      </Label>
                     </div>
-                    <div className="flex items-center gap-2">
-                    <Checkbox id="phone-toggle" defaultChecked onCheckedChange={(v)=>setSeriesEnabled(s=>({ ...s, phone: !!v }))} />
-                      <Label htmlFor="phone-toggle" className="text-sm">Phone</Label>
+                    <div className="flex items-center gap-3">
+                      <Checkbox 
+                        id="phone-toggle" 
+                        defaultChecked 
+                        onCheckedChange={(v)=>setSeriesEnabled(s=>({ ...s, phone: !!v }))}
+                        style={{accentColor: 'var(--brand-gray-900)'}}
+                      />
+                      <Label htmlFor="phone-toggle" className="text-sm font-medium text-foreground cursor-pointer">
+                        Phone Clicks
+                      </Label>
                     </div>
                   </div>
-                  <ChartContainer
-                  config={{
-                    views: { label: "Views", color: 'var(--chart-1)' },
-                    website: { label: "Website", color: 'var(--chart-2)' },
-                    phone: { label: "Phone", color: 'var(--chart-5)' },
-                  }}
-                  className="w-full"
-                >
+                  <div className="pt-8">
+                    <ChartContainer
+                      config={{
+                        views: { label: "Views", color: 'var(--brand-info)' },
+                        website: { label: "Website", color: 'var(--brand-success)' },
+                        phone: { label: "Phone", color: 'var(--brand)' },
+                      }}
+                      className="w-full h-80"
+                    >
                   <AreaChart
                     data={(analytics.projects_views || []).map((v: number, i: number) => ({
                       day: `D${i+1}`,
@@ -438,304 +554,18 @@ function DashboardContent() {
                     {seriesEnabled.phone && (
                       <Area type="monotone" dataKey="phone" stroke="var(--color-phone)" fill="var(--color-phone)" fillOpacity={0.18} />
                     )}
-                  </AreaChart>
-                  </ChartContainer>
+                    </AreaChart>
+                    </ChartContainer>
+                  </div>
                 </>
               ) : (
-                <div className="h-48 w-full rounded-md bg-muted animate-pulse" />
+                <div className="h-80 w-full rounded-xl bg-gradient-to-r from-muted/50 to-muted/80 animate-pulse" />
               )}
             </CardContent>
           </Card>
         </section>
 
-        {/* Quick Actions & Recent Activity */}
-        <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Quick Actions */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Activity className="h-5 w-5 text-primary" />
-                Quick Actions
-              </CardTitle>
-              <CardDescription>Common tasks and shortcuts</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <Button asChild variant="outline" className="w-full justify-start h-11">
-                <Link href="/developer/properties/new">
-                  <Plus className="h-5 w-5 mr-3 text-primary" />
-                  Add New Property
-                </Link>
-              </Button>
-              <Button asChild variant="outline" className="w-full justify-start h-11">
-                <Link href="/developer/analytics">
-                  <BarChart3 className="h-5 w-5 mr-3 text-emerald-600" />
-                  View Detailed Analytics
-                </Link>
-              </Button>
-              <Button asChild variant="outline" className="w-full justify-start h-11">
-                <Link href="/developer/profile">
-                  <User className="h-5 w-5 mr-3 text-purple-600" />
-                  Edit Company Profile
-                </Link>
-              </Button>
-              <Button asChild variant="outline" className="w-full justify-start h-11">
-                <Link href="/developer/settings">
-                  <Settings className="h-5 w-5 mr-3 text-muted-foreground" />
-                  Account Settings
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
 
-          {/* Recent Activity */}
-          <Card className="lg:col-span-2">
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Bell className="h-5 w-5 text-orange-600" />
-                Recent Activity
-              </CardTitle>
-              <CardDescription>Latest updates and notifications</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <div className="space-y-3">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="flex items-center gap-3 p-3">
-                      <div className="w-10 h-10 bg-muted rounded-full animate-pulse" />
-                      <div className="flex-1 space-y-2">
-                        <div className="w-3/4 h-4 bg-muted rounded animate-pulse" />
-                        <div className="w-1/2 h-3 bg-muted/70 rounded animate-pulse" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : stats?.recent_activity?.length > 0 ? (
-                <div className="space-y-1">
-                  {stats.recent_activity.map((activity: any) => (
-                    <div key={activity.id} className="flex items-center gap-3 p-3 rounded-lg hover:bg-accent transition-colors">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full" />
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-foreground">{activity.message}</p>
-                        <p className="text-xs text-muted-foreground">{activity.time}</p>
-                      </div>
-                      {activity.unread && (
-                        <div className="w-2 h-2 bg-red-500 rounded-full" />
-                      )}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <Activity className="h-12 w-12 text-muted mx-auto mb-4" />
-                  <p className="text-muted-foreground">No recent activity</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </section>
-
-        {/* Properties Table */}
-        <section>
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Building2 className="h-5 w-5 text-primary" />
-                    Your Properties
-                  </CardTitle>
-                  <CardDescription>Manage and monitor your property listings</CardDescription>
-                </div>
-                <Button asChild>
-                  <Link href="/developer/properties/new">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Property
-                  </Link>
-                </Button>
-              </div>
-              <div className="mt-4 grid gap-3 md:grid-cols-3">
-                <div className="md:col-span-2">
-                  <Input
-                    placeholder="Search by title or location"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Select value={statusFilter} onValueChange={(v)=> setStatusFilter(v as any)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All statuses</SelectItem>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="inactive">Inactive</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <div className="space-y-2">
-                  {[...Array(5)].map((_, i) => (
-                    <div key={i} className="h-10 w-full bg-muted rounded animate-pulse" />
-                  ))}
-                </div>
-              ) : (projects?.length || 0) > 0 ? (
-                <>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Title</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead className="text-right">
-                          <button
-                            className="inline-flex items-center gap-1"
-                            onClick={() => { setSortKey('views'); setSortDir(d => sortKey === 'views' && d === 'asc' ? 'desc' : 'asc'); setPage(1) }}
-                          >
-                            Views <ArrowUpDown className="h-3 w-3" />
-                          </button>
-                        </TableHead>
-                        <TableHead className="text-right">
-                          <button
-                            className="inline-flex items-center gap-1"
-                            onClick={() => { setSortKey('websiteClicks'); setSortDir(d => sortKey === 'websiteClicks' && d === 'asc' ? 'desc' : 'asc'); setPage(1) }}
-                          >
-                            Website <ArrowUpDown className="h-3 w-3" />
-                          </button>
-                        </TableHead>
-                        <TableHead className="text-right">
-                          <button
-                            className="inline-flex items-center gap-1"
-                            onClick={() => { setSortKey('phoneClicks'); setSortDir(d => sortKey === 'phoneClicks' && d === 'asc' ? 'desc' : 'asc'); setPage(1) }}
-                          >
-                            Phone <ArrowUpDown className="h-3 w-3" />
-                          </button>
-                        </TableHead>
-                        <TableHead>
-                          <button
-                            className="inline-flex items-center gap-1"
-                            onClick={() => { setSortKey('dateCreated'); setSortDir(d => sortKey === 'dateCreated' && d === 'asc' ? 'desc' : 'asc'); setPage(1) }}
-                          >
-                            Updated <ArrowUpDown className="h-3 w-3" />
-                          </button>
-                        </TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {(() => {
-                        const base = (projects || [])
-                          .filter((p: any) =>
-                            (!search ||
-                              p.title?.toLowerCase().includes(search.toLowerCase()) ||
-                              p.location?.toLowerCase().includes(search.toLowerCase())) &&
-                            (statusFilter === 'all' || p.status === statusFilter)
-                          )
-                          .sort((a: any, b: any) => {
-                            const dir = sortDir === 'asc' ? 1 : -1
-                            const get = (p: any) => {
-                              switch (sortKey) {
-                                case 'views': return p.views || 0
-                                case 'websiteClicks': return p.websiteClicks || 0
-                                case 'phoneClicks': return p.phoneClicks || 0
-                                case 'dateCreated': return new Date(p.dateCreated || p.created_at || 0).getTime()
-                                default: return 0
-                              }
-                            }
-                            return dir * (get(a) - get(b))
-                          })
-                        const total = base.length
-                        const totalPages = Math.max(1, Math.ceil(total / pageSize))
-                        const currentPage = Math.min(page, totalPages)
-                        const slice = base.slice((currentPage - 1) * pageSize, currentPage * pageSize)
-                        return slice.map((p: any) => (
-                          <TableRow key={p.id} className="hover:bg-accent/40">
-                            <TableCell>
-                              <div className="font-medium text-foreground">{p.title}</div>
-                              <div className="text-xs text-muted-foreground flex items-center gap-1">
-                                <MapPin className="h-3 w-3" />{p.location || '—'}
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <Badge variant={p.status === 'active' ? 'default' : 'secondary'} className="capitalize">
-                                {p.status}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="text-right tabular-nums">{p.views ?? 0}</TableCell>
-                            <TableCell className="text-right tabular-nums">{p.websiteClicks ?? 0}</TableCell>
-                            <TableCell className="text-right tabular-nums">{p.phoneClicks ?? 0}</TableCell>
-                            <TableCell className="whitespace-nowrap">{p.dateCreated ? new Date(p.dateCreated).toLocaleDateString() : '—'}</TableCell>
-                            <TableCell className="text-right">
-                              <Button asChild variant="ghost" size="sm">
-                                <Link href={`/developer/properties/${p.id}`}>
-                                  Edit
-                                </Link>
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        ))
-                      })()}
-                    </TableBody>
-                  </Table>
-                  {(() => {
-                    const total = (projects || [])
-                      .filter((p: any) =>
-                        (!search || p.title?.toLowerCase().includes(search.toLowerCase()) || p.location?.toLowerCase().includes(search.toLowerCase())) &&
-                        (statusFilter === 'all' || p.status === statusFilter)
-                      ).length
-                    const totalPages = Math.max(1, Math.ceil(total / pageSize))
-                    if (totalPages <= 1) return null
-                    return (
-                      <div className="mt-4">
-                        <Pagination>
-                          <PaginationContent>
-                            <PaginationItem>
-                              <PaginationPrevious onClick={() => setPage(Math.max(1, page - 1))} />
-                            </PaginationItem>
-                            <PaginationItem>
-                              <PaginationLink isActive>{page}</PaginationLink>
-                            </PaginationItem>
-                            {page < totalPages && (
-                              <>
-                                <PaginationItem>
-                                  <PaginationNext onClick={() => setPage(Math.min(totalPages, page + 1))} />
-                                </PaginationItem>
-                                <PaginationItem>
-                                  <PaginationEllipsis />
-                                </PaginationItem>
-                              </>
-                            )}
-                          </PaginationContent>
-                        </Pagination>
-                      </div>
-                    )
-                  })()}
-                  {((projects || [])
-                    .filter((p: any) =>
-                      (!search || p.title?.toLowerCase().includes(search.toLowerCase()) || p.location?.toLowerCase().includes(search.toLowerCase())) &&
-                      (statusFilter === 'all' || p.status === statusFilter)
-                    ).length === 0) && (
-                    <div className="text-center py-10 text-muted-foreground">No properties match your filters.</div>
-                  )}
-                </>
-              ) : (
-                <div className="text-center py-12">
-                  <Building2 className="h-16 w-16 text-muted mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-foreground mb-2">No properties yet</h3>
-                  <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                    Start building your portfolio by adding your first property listing. It only takes a few minutes!
-                  </p>
-                  <Button onClick={handleAddListing} size="lg">
-                    <Plus className="h-5 w-5 mr-2" />
-                    Add Your First Property
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </section>
       </main>
     </div>
   )
