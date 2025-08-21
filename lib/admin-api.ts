@@ -155,7 +155,6 @@ class AdminApiClient {
     };
 
     try {
-      console.log(`[Admin API] Making request to: ${endpoint}`);
       const response = await fetch(url, config);
 
       // Handle authentication errors
@@ -193,7 +192,6 @@ class AdminApiClient {
       }
 
       const data = await response.json();
-      console.log(`[Admin API] Success response for: ${endpoint}`);
       return data;
     } catch (error) {
       console.error(`[Admin API] Request failed for: ${endpoint}`, error);
@@ -237,7 +235,6 @@ class AdminApiClient {
   async getAdminStats(): Promise<AdminStats> {
     try {
       const stats = await this.request<AdminStats>('/api/v1/admin/stats');
-      console.log('Successfully fetched comprehensive admin stats:', stats);
       return stats;
     } catch (error) {
       console.error('Failed to fetch admin stats:', error);
@@ -267,7 +264,6 @@ class AdminApiClient {
     for (const endpoint of endpoints) {
       try {
         const stats = await this.request<DeveloperStats>(endpoint);
-        console.log(`Successfully fetched stats from ${endpoint}:`, stats);
         return stats;
       } catch (error) {
         console.warn(`Stats endpoint ${endpoint} not available:`, error);
@@ -305,7 +301,6 @@ class AdminApiClient {
   async getAdminActivity(): Promise<AdminActivity[]> {
     try {
       const activity = await this.request<AdminActivity[]>('/api/v1/admin/activity');
-      console.log('Successfully fetched admin activity:', activity);
       return activity;
     } catch (error) {
       console.error('Failed to fetch admin activity:', error);
@@ -324,7 +319,6 @@ class AdminApiClient {
     for (const endpoint of endpoints) {
       try {
         const activity = await this.request<any[]>(endpoint);
-        console.log(`Successfully fetched activity from ${endpoint}:`, activity);
         return activity;
       } catch (error) {
         console.warn(`Activity endpoint ${endpoint} not available:`, error);
@@ -359,7 +353,6 @@ class AdminApiClient {
   async getAdminAudit(): Promise<AdminAuditLog[]> {
     try {
       const audit = await this.request<AdminAuditLog[]>('/api/v1/admin/audit');
-      console.log('Successfully fetched admin audit logs:', audit);
       return audit;
     } catch (error) {
       console.error('Failed to fetch admin audit logs:', error);
@@ -374,7 +367,6 @@ class AdminApiClient {
         method: 'POST',
         body: JSON.stringify(request),
       });
-      console.log('Successfully sent notification:', response);
       return response;
     } catch (error) {
       console.error('Failed to send notification:', error);
@@ -394,7 +386,6 @@ class AdminApiClient {
     for (const endpoint of endpoints) {
       try {
         const health = await this.request<any>(endpoint);
-        console.log(`Successfully fetched health from ${endpoint}:`, health);
         
         // Normalize response format
         if (health.status) {

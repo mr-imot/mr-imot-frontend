@@ -26,29 +26,36 @@ export class AdminNotificationService {
   // Send notification for developer verification
   static async notifyDeveloperVerified(developer: PendingDeveloper): Promise<{ success: boolean; message: string }> {
     try {
-      console.log(`Sending verification notification to ${developer.email}`);
-      
-      // In a real implementation, this would call the backend email service
-      const notification: EmailNotification = {
-        id: `notif_${Date.now()}`,
-        to: developer.email,
-        subject: '🎉 Your Developer Application has been Approved!',
-        template: 'developer_verified',
-        data: {
-          companyName: developer.company_name,
-          contactPerson: developer.contact_person,
-          dashboardUrl: `${window.location.origin}/developer/dashboard`
-        },
-        status: 'pending',
-        createdAt: new Date().toISOString()
-      };
+      const response = await fetch('/api/v1/admin/developers/verify', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${this.getAuthToken()}`
+          },
+          body: JSON.stringify({
+            email: developer.email,
+            companyName: developer.company_name,
+            contactPerson: developer.contact_person
+          })
+        });
 
-      // Try to send via backend API
-      const response = await this.sendEmailNotification(notification);
-      
-      if (response.success) {
+      if (response.ok) {
+        const result = await response.json();
         // Store notification history in localStorage for demo purposes
-        this.storeNotificationHistory(notification);
+        this.storeNotificationHistory({
+          id: `notif_${Date.now()}`,
+          to: developer.email,
+          subject: '🎉 Your Developer Application has been Approved!',
+          template: 'developer_verified',
+          data: {
+            companyName: developer.company_name,
+            contactPerson: developer.contact_person,
+            dashboardUrl: `${window.location.origin}/developer/dashboard`
+          },
+          status: 'sent',
+          createdAt: new Date().toISOString(),
+          sentAt: new Date().toISOString()
+        });
         return { success: true, message: 'Verification email sent successfully' };
       } else {
         return { success: false, message: 'Failed to send verification email' };
@@ -62,27 +69,37 @@ export class AdminNotificationService {
   // Send notification for developer rejection
   static async notifyDeveloperRejected(developer: PendingDeveloper, reason?: string): Promise<{ success: boolean; message: string }> {
     try {
-      console.log(`Sending rejection notification to ${developer.email}`);
-      
-      const notification: EmailNotification = {
-        id: `notif_${Date.now()}`,
-        to: developer.email,
-        subject: 'Update on Your Developer Application',
-        template: 'developer_rejected',
-        data: {
-          companyName: developer.company_name,
-          contactPerson: developer.contact_person,
-          reason: reason || 'Application did not meet our current requirements',
-          supportEmail: 'support@Mr imot.com'
-        },
-        status: 'pending',
-        createdAt: new Date().toISOString()
-      };
+      const response = await fetch('/api/v1/admin/developers/reject', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${this.getAuthToken()}`
+          },
+          body: JSON.stringify({
+            email: developer.email,
+            companyName: developer.company_name,
+            contactPerson: developer.contact_person,
+            reason: reason || 'Application did not meet our current requirements'
+          })
+        });
 
-      const response = await this.sendEmailNotification(notification);
-      
-      if (response.success) {
-        this.storeNotificationHistory(notification);
+      if (response.ok) {
+        const result = await response.json();
+        this.storeNotificationHistory({
+          id: `notif_${Date.now()}`,
+          to: developer.email,
+          subject: 'Update on Your Developer Application',
+          template: 'developer_rejected',
+          data: {
+            companyName: developer.company_name,
+            contactPerson: developer.contact_person,
+            reason: reason || 'Application did not meet our current requirements',
+            supportEmail: 'support@Mr imot.com'
+          },
+          status: 'sent',
+          createdAt: new Date().toISOString(),
+          sentAt: new Date().toISOString()
+        });
         return { success: true, message: 'Rejection email sent successfully' };
       } else {
         return { success: false, message: 'Failed to send rejection email' };
@@ -96,29 +113,40 @@ export class AdminNotificationService {
   // Notify admin about new developer application
   static async notifyAdminNewApplication(developer: PendingDeveloper): Promise<{ success: boolean; message: string }> {
     try {
-      console.log('Sending new application notification to admin');
-      
-      const notification: EmailNotification = {
-        id: `notif_${Date.now()}`,
-        to: 'admin@Mr imot.com', // Admin email
-        subject: `New Developer Application: ${developer.company_name}`,
-        template: 'new_application',
-        data: {
-          companyName: developer.company_name,
-          contactPerson: developer.contact_person,
-          email: developer.email,
-          phone: developer.phone,
-          website: developer.website,
-          adminDashboardUrl: `${window.location.origin}/admin/dashboard`
-        },
-        status: 'pending',
-        createdAt: new Date().toISOString()
-      };
+      const response = await fetch('/api/v1/admin/notifications/new-application', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${this.getAuthToken()}`
+          },
+          body: JSON.stringify({
+            email: developer.email,
+            companyName: developer.company_name,
+            contactPerson: developer.contact_person,
+            phone: developer.phone,
+            website: developer.website
+          })
+        });
 
-      const response = await this.sendEmailNotification(notification);
-      
-      if (response.success) {
-        this.storeNotificationHistory(notification);
+      if (response.ok) {
+        const result = await response.json();
+        this.storeNotificationHistory({
+          id: `notif_${Date.now()}`,
+          to: 'admin@Mr imot.com', // Admin email
+          subject: `New Developer Application: ${developer.company_name}`,
+          template: 'new_application',
+          data: {
+            companyName: developer.company_name,
+            contactPerson: developer.contact_person,
+            email: developer.email,
+            phone: developer.phone,
+            website: developer.website,
+            adminDashboardUrl: `${window.location.origin}/admin/dashboard`
+          },
+          status: 'sent',
+          createdAt: new Date().toISOString(),
+          sentAt: new Date().toISOString()
+        });
         return { success: true, message: 'Admin notification sent successfully' };
       } else {
         return { success: false, message: 'Failed to send admin notification' };
@@ -139,9 +167,7 @@ export class AdminNotificationService {
 
     for (const endpoint of endpoints) {
       try {
-        console.log(`Attempting to send email via ${endpoint}`);
-        
-        const response = await fetch(`${this.baseURL}${endpoint}`, {
+        const response = await fetch(endpoint, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -157,10 +183,7 @@ export class AdminNotificationService {
 
         if (response.ok) {
           const result = await response.json();
-          console.log(`Email sent successfully via ${endpoint}:`, result);
-          notification.status = 'sent';
-          notification.sentAt = new Date().toISOString();
-          return { success: true };
+          return result;
         } else {
           console.warn(`Email endpoint ${endpoint} failed with status ${response.status}`);
           continue;
@@ -172,10 +195,7 @@ export class AdminNotificationService {
     }
 
     // If all endpoints fail, simulate success for demo purposes
-    console.log('All email endpoints failed, simulating successful email send for demo');
-    notification.status = 'sent';
-    notification.sentAt = new Date().toISOString();
-    return { success: true };
+    return { success: true, message: 'Email sent successfully (demo mode)' };
   }
 
   // Get auth token from session storage

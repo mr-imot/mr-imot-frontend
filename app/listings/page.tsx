@@ -101,12 +101,12 @@ export default function ListingsPage() {
   
   // Debug API data
   useEffect(() => {
-    console.log('🔍 API Data Debug:', { 
-      loading, 
-      error, 
-      projectsCount: apiProjects?.length || 0,
-      firstProject: apiProjects?.[0]
-    })
+    // console.log('🔍 API Data Debug:', { 
+    //   loading, 
+    //   error, 
+    //   projectsCount: apiProjects?.length || 0,
+    //   firstProject: apiProjects?.[0]
+    // })
   }, [apiProjects, loading, error])
 
   // Initialize Google Maps like the homepage
@@ -136,7 +136,7 @@ export default function ListingsPage() {
           // Debounce zoom change to avoid excessive re-clustering
           setTimeout(() => {
             if (googleMapRef.current) {
-              console.log('🔍 Zoom changed, re-clustering markers')
+              // console.log('🔍 Zoom changed, re-clustering markers')
               // This will trigger the markers useEffect to re-run
               setMapBounds(googleMapRef.current.getBounds() || null)
             }
@@ -198,22 +198,22 @@ export default function ListingsPage() {
     if (!googleMapRef.current || !filteredProperties) return
     
     const list = filteredProperties
-    console.log('🗺️ Creating markers for', list.length, 'filtered projects')
+    // console.log('🗺️ Updating markers for', list.length, 'filtered projects')
 
-    // Initialize or update marker manager
+    // Initialize marker manager only once
     if (!markerManagerRef.current) {
       markerManagerRef.current = new MarkerManager({
         map: googleMapRef.current,
         properties: list,
         onPropertySelect: (propertyId) => {
-          console.log('🎯 Marker clicked, property ID:', propertyId)
+          // console.log('🎯 Marker clicked, property ID:', propertyId)
           setSelectedPropertyId(propertyId)
           if (propertyId) {
             const property = filteredProperties.find(p => p.id === propertyId)
-            console.log('🏠 Found property for card:', property)
+            // console.log('🏠 Found property for card:', property)
             if (property) {
               const position = calculateCardPosition(property)
-              console.log('📍 Calculated card position:', position)
+              // console.log('📍 Calculated card position:', position)
               setCardPosition(position)
             }
             // Scroll to card
@@ -230,11 +230,14 @@ export default function ListingsPage() {
         selectedPropertyId,
         hoveredPropertyId,
       })
+      
+      // Initial render
+      markerManagerRef.current.renderMarkers()
     } else {
-      // Update the configuration
-      markerManagerRef.current = new MarkerManager({
-        map: googleMapRef.current,
-        properties: list,
+      // Update configuration for callbacks that depend on current state
+      markerManagerRef.current.updateConfig({
+        selectedPropertyId,
+        hoveredPropertyId,
         onPropertySelect: (propertyId) => {
           setSelectedPropertyId(propertyId)
           if (propertyId) {
@@ -252,12 +255,11 @@ export default function ListingsPage() {
         },
         onPropertyHover: (propertyId) => setDebouncedHover(propertyId, 50),
         onAriaAnnouncement: setAriaLiveMessage,
-        selectedPropertyId,
-        hoveredPropertyId,
       })
+      
+      // Update properties efficiently without recreating markers
+      markerManagerRef.current.updateProperties(list)
     }
-
-    markerManagerRef.current.renderMarkers()
   }, [filteredProperties, mapBounds, selectedPropertyId, hoveredPropertyId])
 
 

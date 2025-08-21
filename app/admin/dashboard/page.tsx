@@ -58,6 +58,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { toast } from 'react-hot-toast';
 
 function AdminDashboardContent() {
   const [stats, setStats] = useState<DeveloperStats | null>(null);
@@ -118,11 +119,14 @@ function AdminDashboardContent() {
         // Send verification notification
         if (developer) {
           try {
-            const notificationResult = await notifyDeveloperVerified(developer);
-            if (notificationResult.success) {
-              console.log('Verification notification sent successfully');
+            const result = await notifyDeveloperVerified(developer);
+            if (result.success) {
+              toast.success('Verification email sent successfully');
+              setPendingDevelopers(prev => 
+                prev.filter(d => d.email !== developer.email)
+              );
             } else {
-              console.warn('Failed to send verification notification:', notificationResult.message);
+              console.warn('Failed to send verification notification:', result.message);
             }
           } catch (notificationError) {
             console.error('Error sending verification notification:', notificationError);
@@ -134,11 +138,14 @@ function AdminDashboardContent() {
         // Send rejection notification
         if (developer) {
           try {
-            const notificationResult = await notifyDeveloperRejected(developer);
-            if (notificationResult.success) {
-              console.log('Rejection notification sent successfully');
+            const result = await notifyDeveloperRejected(developer);
+            if (result.success) {
+              toast.success('Rejection email sent successfully');
+              setPendingDevelopers(prev => 
+                prev.filter(d => d.email !== developer.email)
+              );
             } else {
-              console.warn('Failed to send rejection notification:', notificationResult.message);
+              console.warn('Failed to send rejection notification:', result.message);
             }
           } catch (notificationError) {
             console.error('Error sending rejection notification:', notificationError);

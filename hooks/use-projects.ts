@@ -117,22 +117,13 @@ export const useProjects = (params: UseProjectsParams = {}): UseProjectsResult =
     try {
       setLoading(true);
       setError(null);
-      console.log('🔍 Fetching projects with params:', params);
       
       const data: ProjectListResponse = await getProjects(params);
-      console.log('📡 Raw API response:', data);
-      console.log('📡 Raw API response projects count:', data.projects?.length || 0);
-      console.log('📡 Raw API response total:', data.total);
       
-      // Transform the API data to PropertyData format
       const transformedProjects = (data.projects || []).map(transformProjectToPropertyData);
-      console.log('🔄 Transformed projects:', transformedProjects);
-      console.log('🔄 Transformed projects count:', transformedProjects.length);
       
-      // Always set projects, even if empty (this indicates successful API call)
       setProjects(transformedProjects);
       setTotal(data.total || transformedProjects.length);
-      console.log('✅ Successfully set projects:', transformedProjects.length, 'total:', data.total || transformedProjects.length);
     } catch (err) {
       console.error('❌ Error fetching projects:', err);
       

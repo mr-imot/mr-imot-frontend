@@ -13,8 +13,6 @@ export default function TestAPIPage() {
       
       // Test 1: Basic connectivity
       const response = await fetch(`/api/v1/projects/`)
-      console.log('Response status:', response.status)
-      console.log('Response headers:', Object.fromEntries(response.headers.entries()))
       
       if (!response.ok) {
         const errorText = await response.text()
@@ -24,7 +22,6 @@ export default function TestAPIPage() {
       }
       
       const jsonData = await response.json()
-      console.log('API Data:', jsonData)
       setData(jsonData)
       setStatus(`Success! Found ${jsonData.projects?.length || 0} projects`)
       
@@ -39,7 +36,6 @@ export default function TestAPIPage() {
       setStatus('Testing Mock API...')
       
       const response = await fetch(`/api/v1/mock-projects/`)
-      console.log('Mock API Response status:', response.status)
       
       if (!response.ok) {
         const errorText = await response.text()
@@ -48,7 +44,6 @@ export default function TestAPIPage() {
       }
       
       const jsonData = await response.json()
-      console.log('Mock API Data:', jsonData)
       setData(jsonData)
       setStatus(`Mock API Success! Found ${jsonData.projects?.length || 0} projects`)
       
@@ -74,7 +69,6 @@ export default function TestAPIPage() {
       }
       
       const result = await registerDeveloper(testData)
-      console.log('Registration result:', result)
       setData(result)
       setStatus(`Registration Success! Check email: ${testData.email}`)
       
@@ -90,7 +84,6 @@ export default function TestAPIPage() {
       
       // This will likely fail since the account needs to be verified and approved
       const result = await loginDeveloper('test@example.com', 'testpass123')
-      console.log('Login result:', result)
       setData(result)
       setStatus('Login Success!')
       

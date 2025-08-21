@@ -133,7 +133,9 @@ function DeveloperManagementContent() {
         if (developer) {
           try {
             const notificationResult = await notifyDeveloperVerified(developer);
-            console.log('Verification notification:', notificationResult.message);
+            if (notificationResult.success) {
+              // console.log('Verification notification:', notificationResult.message);
+            }
           } catch (notificationError) {
             console.error('Error sending verification notification:', notificationError);
           }
@@ -145,7 +147,9 @@ function DeveloperManagementContent() {
         if (developer) {
           try {
             const notificationResult = await notifyDeveloperRejected(developer);
-            console.log('Rejection notification:', notificationResult.message);
+            if (notificationResult.success) {
+              // console.log('Rejection notification:', notificationResult.message);
+            }
           } catch (notificationError) {
             console.error('Error sending rejection notification:', notificationError);
           }

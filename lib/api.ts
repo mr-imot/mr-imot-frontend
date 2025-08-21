@@ -130,38 +130,27 @@ class ApiClient {
     try {
       const response = await fetch(url, config);
 
-      // DEBUG: Log the request details
-      console.log('🔍 API Request Debug:', {
-        url,
-        method: config.method,
-        headers: config.headers,
-        body: config.body,
-        hasAuthHeader: 'Authorization' in (config.headers as Record<string, any>)
-      });
+      // Debug logging for development
+      // console.log('🔍 API Request Debug:', {
+      //   url,
+      //   method: config.method,
+      //   headers: config.headers,
+      //   body: config.body,
+      //   hasAuthHeader: 'Authorization' in (config.headers as Record<string, any>)
+      // });
 
       if (!response.ok) {
         const errorText = await response.text();
         
         // Handle 401 Unauthorized - token expired/invalid
         if (response.status === 401) {
-          console.log('🔒 Token expired/invalid - clearing auth and redirecting to login');
-          console.log('🔍 DEBUG: Token that failed:', await this.getAuthHeaders());
-          console.log('🔍 DEBUG: Response details:', response.status, response.statusText);
-          
-          // TEMPORARILY DISABLED FOR DEBUGGING
-          // localStorage.removeItem('auth_token');
-          // localStorage.removeItem('auth_expires');
-          // localStorage.removeItem('user_email');
-          
-          // TEMPORARILY DISABLED FOR DEBUGGING
-          // if (typeof window !== 'undefined') {
-          //   window.location.href = '/login';
-          // }
-          
-          const authError = new Error('Authentication failed - DEBUG MODE');
-          (authError as any).isAuthExpired = true;
-          (authError as any).statusCode = 401;
-          throw authError;
+          // Token expired/invalid - clearing auth and redirecting to login
+          // console.log('🔒 Token expired/invalid - clearing auth and redirecting to login');
+          // console.log('🔍 DEBUG: Token that failed:', await this.getAuthHeaders());
+          // console.log('🔍 DEBUG: Response details:', response.status, response.statusText);
+          this.clearAuth();
+          window.location.href = '/login';
+          throw new Error('Authentication failed');
         }
         
         // Handle 500 errors more gracefully - don't log out user for server errors
@@ -203,7 +192,8 @@ class ApiClient {
           }
           // Don't log parsing failures for verification errors
           if (!isVerificationError) {
-            console.log('Failed to parse error as JSON, using generic error');
+            // console.log('Failed to parse error as JSON, using generic error');
+            errorMessage = 'An unexpected error occurred';
           }
         }
         
@@ -211,7 +201,8 @@ class ApiClient {
         if (!isVerificationError) {
           console.error(`❌ API Error Response (${response.status}): ${errorText}`);
         } else {
-          console.log(`🔒 Verification required (${response.status}): User needs manual approval`);
+          // console.log(`🔒 Verification required (${response.status}): User needs manual approval`);
+          throw new Error('Account verification required');
         }
         
         // For verification errors, create a special error even if JSON parsing failed
@@ -311,7 +302,8 @@ class ApiClient {
   // Public request method without authentication headers
   private async requestWithoutAuth<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
-    console.log('🔍 Making request to URL:', url, 'with baseURL:', this.baseURL, 'and endpoint:', endpoint);
+    // Debug logging for development
+    // console.log('🔍 Making request to URL:', url, 'with baseURL:', this.baseURL, 'and endpoint:', endpoint);
     
     const config: RequestInit = {
       method: 'GET',
@@ -323,7 +315,8 @@ class ApiClient {
 
     try {
       const response = await fetch(url, config);
-      console.log('🔍 Public API Request:', { url, status: response.status, method: config.method });
+      // Debug logging for development
+      // console.log('🔍 Public API Request:', { url, status: response.status, method: config.method });
 
       if (!response.ok) {
         const errorText = await response.text();

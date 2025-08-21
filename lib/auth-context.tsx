@@ -84,7 +84,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             (error.message && error.message.includes('verification required')) ||
             (error.message && error.message.includes("don't have permission")) ||
             (error as any).statusCode === 403) {
-          console.log('User needs verification - setting pending status');
           setUser({
             email,
             user_type: response.user_type,
@@ -168,7 +167,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     } catch (error: any) {
       // Only log non-verification errors as warnings
       if (!(error as any).isVerificationRequired) {
-        console.warn('Auth validation failed:', error);
+        // console.warn('Auth validation failed:', error); // Removed console.warn
       }
       
       // Handle specific error cases
@@ -176,7 +175,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           (error.message && error.message.includes('verification required'))) {
         // Account needs verification - don't logout, just return false
         // This prevents the refresh loop
-        console.log('Account verification required - keeping user logged in but not authenticated');
+        // console.log('Account verification required - keeping user logged in but not authenticated'); // Removed console.log
         setIsVerificationRequired(true);
         
         // Set user with unverified status if we have cached email
@@ -193,7 +192,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       if ((error as any).statusCode === 403 || 
           (error.message && error.message.includes('403'))) {
         // Permission denied - likely verification required
-        console.log('Permission denied - likely verification required');
+        // console.log('Permission denied - likely verification required'); // Removed console.log
         setIsVerificationRequired(true);
         
         // Set user with unverified status if we have cached email  
@@ -234,7 +233,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       try {
         await checkAuth();
       } catch (error) {
-        console.error('Auth initialization failed:', error);
+        // console.error('Auth initialization failed:', error); // Removed console.error
         logout();
       } finally {
         setIsLoading(false);

@@ -35,6 +35,8 @@ export class MarkerManager {
   private markerElements: Record<number, HTMLElement> = {}
   private markerPrices: Record<number, string> = {}
   private clusters: PropertyCluster[] = []
+  private markerCache: Record<number, google.maps.marker.AdvancedMarkerElement | google.maps.Marker> = {}
+  private isInitialized: boolean = false
 
   constructor(config: MarkerManagerConfig) {
     this.config = config
@@ -42,20 +44,23 @@ export class MarkerManager {
 
   // Main method to render all markers with clustering
   renderMarkers() {
+    // Only render if not initialized yet
+    if (this.isInitialized) {
+      return
+    }
+
     this.clearAllMarkers()
 
     const currentZoom = this.config.map.getZoom() || 10
     const shouldCluster = currentZoom < 12 && this.config.properties.length > 3
 
     if (shouldCluster) {
-      console.log('🎯 Using clustering at zoom level', currentZoom)
       this.renderClustered()
     } else {
-      console.log('🎯 Not clustering - showing individual markers')
       this.renderIndividual()
     }
 
-    console.log('✅ Created', Object.keys(this.markers).length, 'individual markers and', this.clusterMarkers.length, 'cluster markers')
+    this.isInitialized = true
   }
 
   // Update marker states based on hover/selection
@@ -111,6 +116,68 @@ export class MarkerManager {
   // Clean up all markers
   cleanup() {
     this.clearAllMarkers()
+    this.clearCache()
+  }
+
+  // Clear marker cache (use when properties are fundamentally changed)
+  clearCache() {
+    Object.values(this.markerCache).forEach((m) => {
+      if ('setMap' in m) {
+        m.setMap(null)
+      } else {
+        m.map = null
+      }
+    })
+    this.markerCache = {}
+    this.isInitialized = false
+  }
+
+  // Check if markers already exist
+  hasMarkers(): boolean {
+    return Object.keys(this.markers).length > 0
+  }
+
+  // Update properties without recreating markers
+  updateProperties(newProperties: PropertyData[]) {
+    const newPropertyIds = new Set(newProperties.map(p => p.id))
+    const currentPropertyIds = new Set(Object.keys(this.markers).map(Number))
+    
+    // Remove markers for properties that are no longer in the list
+    currentPropertyIds.forEach(id => {
+      if (!newPropertyIds.has(id)) {
+        this.removeMarker(id)
+      }
+    })
+    
+    // Add markers for new properties
+    newProperties.forEach(property => {
+      if (!this.markers[property.id]) {
+        this.createSingleMarker(property)
+      }
+    })
+    
+    // Update marker states
+    this.updateMarkerStates()
+  }
+
+  // Remove a specific marker
+  private removeMarker(propertyId: number) {
+    const marker = this.markers[propertyId]
+    if (marker) {
+      if ('setMap' in marker) {
+        marker.setMap(null)
+      } else {
+        marker.map = null
+      }
+      delete this.markers[propertyId]
+      delete this.markerElements[propertyId]
+      delete this.markerPrices[propertyId]
+    }
+  }
+
+  // Update configuration without recreating manager
+  updateConfig(config: Partial<MarkerManagerConfig>) {
+    this.config = { ...this.config, ...config }
   }
 
   private clearAllMarkers() {
@@ -131,6 +198,7 @@ export class MarkerManager {
     this.markers = {}
     this.clusterMarkers = []
     this.markerElements = {}
+    // Note: We preserve markerCache for reuse
   }
 
   private renderClustered() {
@@ -158,7 +226,18 @@ export class MarkerManager {
 
   private createSingleMarker(property: PropertyData) {
     if (typeof property.lat !== "number" || typeof property.lng !== "number") {
-      console.log('🚫 Skipping property due to invalid coordinates:', property.id)
+      return
+    }
+    
+    // Check if marker is already cached
+    if (this.markerCache[property.id]) {
+      const cachedMarker = this.markerCache[property.id]
+      if ('setMap' in cachedMarker) {
+        cachedMarker.setMap(this.config.map)
+      } else {
+        cachedMarker.map = this.config.map
+      }
+      this.markers[property.id] = cachedMarker
       return
     }
     
@@ -174,6 +253,8 @@ export class MarkerManager {
       zIndex: 1,
     })
     
+    // Cache the marker for future use
+    this.markerCache[property.id] = marker
     this.markers[property.id] = marker
     this.addLegacyMarkerEventListeners(marker, property)
   }
@@ -319,7 +400,7 @@ export class MarkerManager {
       setTimeout(() => {
         const newZoom = this.config.map.getZoom() || 10
         if (newZoom >= 12) {
-          console.log('🔍 Zoomed in enough to show individual markers')
+          // console.log('🔍 Zoomed in enough to show individual markers')
         }
       }, 500)
     })
@@ -358,7 +439,7 @@ export class MarkerManager {
       setTimeout(() => {
         const newZoom = this.config.map.getZoom() || 10
         if (newZoom >= 12) {
-          console.log('🔍 Zoomed in enough to show individual markers')
+          // console.log('🔍 Zoomed in enough to show individual markers')
         }
       }, 500)
     })

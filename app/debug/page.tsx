@@ -68,7 +68,6 @@ export default function DebugPage() {
     try {
       setProjectsStatus('Testing REAL API endpoint...')
       const response = await fetch(`/api/v1/projects/`)
-      console.log('Real API Response status:', response.status)
       
       if (!response.ok) {
         const errorText = await response.text()
@@ -78,7 +77,6 @@ export default function DebugPage() {
       }
       
       const data = await response.json()
-      console.log('Real API Data:', data)
       setProjectsData(data)
       setProjectsStatus(`Real API Success! Found ${data.projects?.length || 0} projects`)
     } catch (error) {

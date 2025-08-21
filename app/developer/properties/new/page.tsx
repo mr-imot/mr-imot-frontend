@@ -441,11 +441,8 @@ export default function NewPropertyPage() {
     if (!mapInstanceRef.current || !addressInputRef.current) return
     
     const initAutocomplete = async () => {
-      console.log('Map is ready, initializing autocomplete...')
-      
       try {
         const google = await ensureGoogleMaps()
-        console.log('Google Maps loaded successfully')
         
         // Create Google Places Autocomplete (defensive against blocked Places API)
         let autocomplete: google.maps.places.Autocomplete | null = null
@@ -462,13 +459,9 @@ export default function NewPropertyPage() {
           return
         }
         
-        console.log('Autocomplete created successfully')
-        
         // Handle place selection
         autocomplete.addListener('place_changed', () => {
-          console.log('Place changed event fired')
           const place = autocomplete.getPlace()
-          console.log('Selected place:', place)
           
           if (place.geometry && place.geometry.location && mapInstanceRef.current && markerRef.current) {
             const location = place.geometry.location
@@ -506,8 +499,6 @@ export default function NewPropertyPage() {
             // Set the full address
             form.setValue("address", place.formatted_address || (addressInputRef.current?.value || ''), { shouldValidate: true })
             setAddressSelected(true)
-            
-            console.log('Form updated with place data')
           }
         })
       } catch (error) {
@@ -531,19 +522,19 @@ export default function NewPropertyPage() {
     if (isSubmitting) return // Prevent duplicate submissions
     
     // DEBUG: Show authentication info
-    console.log('🔐 Auth Debug:', {
-      token: localStorage.getItem('auth_token'),
-      expires: localStorage.getItem('auth_expires'),
-      currentTime: Date.now(),
-      tokenExpired: Date.now() > parseInt(localStorage.getItem('auth_expires') || '0')
-    });
+    // console.log('🔐 Auth Debug:', {
+    //   token: localStorage.getItem('auth_token'),
+    //   expires: localStorage.getItem('auth_expires'),
+    //   currentTime: Date.now(),
+    //   tokenExpired: Date.now() > parseInt(localStorage.getItem('auth_expires') || '0')
+    // });
     
     // DEBUG: Show environment variables
-    console.log('🌍 Environment Debug:', {
-      NODE_ENV: process.env.NODE_ENV,
-      NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
-      isDevelopment: process.env.NODE_ENV === 'development'
-    });
+    // console.log('🌍 Environment Debug:', {
+    //   NODE_ENV: process.env.NODE_ENV,
+    //   NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+    //   isDevelopment: process.env.NODE_ENV === 'development'
+    // });
     
     setLoading(true)
     setIsSubmitting(true)
