@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState, useRef } from 'react'
 import { GoogleMap, Marker, OverlayView, useJsApiLoader } from '@react-google-maps/api'
 import { createSvgMarkerIcon } from '@/lib/google-maps'
 import { PropertyMapCard } from './property-map-card'
@@ -120,6 +120,7 @@ export function PropertyMapWithCards({
     right?: number
     bottom?: number
   }>({})
+  const mapRef = useRef<google.maps.Map | null>(null)
 
   useEffect(() => {
     if (!useRealData) {
@@ -151,23 +152,74 @@ export function PropertyMapWithCards({
 
   const containerStyle = useMemo(() => ({ width: '100%', height }), [height])
 
-  // Calculate Airbnb-style card position relative to map container
-  const calculateCardPosition = () => {
+  // Calculate Airbnb-style intelligent card position based on marker location
+  const calculateCardPosition = (property: any, mapInstance: google.maps.Map) => {
     const mapContainer = document.querySelector('.property-map-container')
-    if (!mapContainer) return {}
+    if (!mapContainer || !mapInstance) return {}
     
     const mapBounds = mapContainer.getBoundingClientRect()
-    
-    // Card dimensions
     const cardWidth = 327
     const cardHeight = 321
     const padding = 20
     
-    // Position card in center-right area of map
-    let left = mapBounds.left + mapBounds.width * 0.6 - cardWidth / 2
-    let top = mapBounds.top + mapBounds.height * 0.3
+    // Convert property lat/lng to screen coordinates
+    const projection = mapInstance.getProjection()
+    if (!projection) {
+      // Fallback to center positioning
+      return {
+        top: mapBounds.top + mapBounds.height * 0.3,
+        left: mapBounds.left + mapBounds.width * 0.6 - cardWidth / 2
+      }
+    }
     
-    // Adjust if too close to screen edges
+    const markerLatLng = new google.maps.LatLng(property.lat, property.lng)
+    const markerPoint = projection.fromLatLngToPoint(markerLatLng)
+    const bounds = mapInstance.getBounds()
+    
+    if (!markerPoint || !bounds) {
+      return {
+        top: mapBounds.top + mapBounds.height * 0.3,
+        left: mapBounds.left + mapBounds.width * 0.6 - cardWidth / 2
+      }
+    }
+    
+    // Calculate marker's position within viewport
+    const sw = projection.fromLatLngToPoint(bounds.getSouthWest())
+    const ne = projection.fromLatLngToPoint(bounds.getNorthEast())
+    
+    if (!sw || !ne) return { top: mapBounds.top + 100, left: mapBounds.left + 100 }
+    
+    // Normalize marker position to 0-1 range within viewport
+    const markerX = (markerPoint.x - sw.x) / (ne.x - sw.x)
+    const markerY = (markerPoint.y - ne.y) / (sw.y - ne.y)
+    
+    // Convert to screen coordinates
+    const markerScreenX = mapBounds.left + markerX * mapBounds.width
+    const markerScreenY = mapBounds.top + markerY * mapBounds.height
+    
+    // Airbnb-style intelligent positioning
+    let left: number
+    let top: number
+    
+    // Horizontal positioning: avoid overlapping marker
+    if (markerScreenX < mapBounds.left + mapBounds.width / 2) {
+      // Marker on left side → place card on right
+      left = markerScreenX + 60
+    } else {
+      // Marker on right side → place card on left  
+      left = markerScreenX - cardWidth - 60
+    }
+    
+    // Vertical positioning: prefer above marker, adapt if needed
+    if (markerScreenY > mapBounds.top + cardHeight + 60) {
+      // Enough space above → place above marker
+      top = markerScreenY - cardHeight - 40
+    } else {
+      // Not enough space above → place below
+      top = markerScreenY + 60
+    }
+    
+    // Ensure card stays within screen bounds
     if (left < padding) left = padding
     if (left + cardWidth > window.innerWidth - padding) {
       left = window.innerWidth - cardWidth - padding
@@ -188,6 +240,7 @@ export function PropertyMapWithCards({
           mapContainerClassName={`property-map-container ${className}`}
           center={defaultCenter}
           zoom={defaultZoom}
+          onLoad={(map: google.maps.Map) => { mapRef.current = map }}
           options={{
             mapTypeControl: false,
             streetViewControl: false,
@@ -210,7 +263,9 @@ export function PropertyMapWithCards({
                 position={{ lat: p.lat, lng: p.lng }}
                 onClick={() => {
                   setSelected(p)
-                  setCardPosition(calculateCardPosition())
+                  if (mapRef.current) {
+                    setCardPosition(calculateCardPosition(p, mapRef.current))
+                  }
                 }}
                 onMouseOver={() => setHoveredId(p.id)}
                 onMouseOut={() => setHoveredId(prev => (prev === p.id ? null : prev))}

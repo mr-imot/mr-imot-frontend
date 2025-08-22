@@ -389,17 +389,69 @@ export default function ListingsPage() {
     if (!mapRef.current || !googleMapRef.current) return {}
     
     const mapBounds = mapRef.current.getBoundingClientRect()
-    
-    // Simple positioning: center the card on the map with some offset
     const cardWidth = 327
     const cardHeight = 321
     const padding = 20
     
-    // Position card in center-right area of map
-    let left = mapBounds.left + mapBounds.width * 0.6 - cardWidth / 2
-    let top = mapBounds.top + mapBounds.height * 0.3
+    // Convert property lat/lng to screen coordinates
+    const projection = googleMapRef.current.getProjection()
+    if (!projection) {
+      // Fallback to center positioning if projection not available
+      return {
+        top: mapBounds.top + mapBounds.height * 0.3,
+        left: mapBounds.left + mapBounds.width * 0.6 - cardWidth / 2
+      }
+    }
     
-    // Adjust if too close to screen edges
+    const markerLatLng = new google.maps.LatLng(property.lat, property.lng)
+    const markerPoint = projection.fromLatLngToPoint(markerLatLng)
+    const bounds = googleMapRef.current.getBounds()
+    
+    if (!markerPoint || !bounds) {
+      // Fallback positioning
+      return {
+        top: mapBounds.top + mapBounds.height * 0.3,
+        left: mapBounds.left + mapBounds.width * 0.6 - cardWidth / 2
+      }
+    }
+    
+    // Calculate marker's position within the map viewport
+    const sw = projection.fromLatLngToPoint(bounds.getSouthWest())
+    const ne = projection.fromLatLngToPoint(bounds.getNorthEast())
+    
+    if (!sw || !ne) return { top: mapBounds.top + 100, left: mapBounds.left + 100 }
+    
+    // Normalize marker position to 0-1 range within viewport
+    const markerX = (markerPoint.x - sw.x) / (ne.x - sw.x)
+    const markerY = (markerPoint.y - ne.y) / (sw.y - ne.y)
+    
+    // Convert to screen coordinates
+    const markerScreenX = mapBounds.left + markerX * mapBounds.width
+    const markerScreenY = mapBounds.top + markerY * mapBounds.height
+    
+    // Airbnb-style intelligent positioning
+    let left: number
+    let top: number
+    
+    // Horizontal positioning: avoid overlapping marker
+    if (markerScreenX < mapBounds.left + mapBounds.width / 2) {
+      // Marker on left side → place card on right
+      left = markerScreenX + 60 // Offset from marker
+    } else {
+      // Marker on right side → place card on left  
+      left = markerScreenX - cardWidth - 60
+    }
+    
+    // Vertical positioning: prefer above marker, but adapt
+    if (markerScreenY > mapBounds.top + cardHeight + 60) {
+      // Enough space above → place above marker
+      top = markerScreenY - cardHeight - 40
+    } else {
+      // Not enough space above → place below or beside
+      top = markerScreenY + 60
+    }
+    
+    // Ensure card stays within screen bounds
     if (left < padding) left = padding
     if (left + cardWidth > window.innerWidth - padding) {
       left = window.innerWidth - cardWidth - padding
