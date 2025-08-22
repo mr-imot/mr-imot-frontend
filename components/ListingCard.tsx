@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
+import { Home, Building } from 'lucide-react'
 
 export interface Listing {
   id: number
@@ -13,6 +14,7 @@ export interface Listing {
   rating: number
   reviewCount: number
   status: string
+  propertyType?: "Apartment Complex" | "Residential Houses"
   images: string[]
 }
 
@@ -126,32 +128,38 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover }: Lis
 
       {/* Content - 35-40% of card height like Airbnb */}
       <div className="p-3 flex flex-col justify-between">
-        {/* Project name - Balanced typography */}
-        <h3 className="text-sm font-semibold text-[#222222] leading-tight mb-1 line-clamp-2">
+        {/* Project name - Premium typography */}
+        <h3 className="font-outfit text-[#222222] text-[16px] font-semibold leading-tight mb-2 line-clamp-2 tracking-[-0.01em]">
           {listing.title}
         </h3>
         
         {/* Summary description */}
         {summarize(listing.description) && (
-          <p className="text-xs text-[#717171] leading-snug mb-1 line-clamp-2">
+          <p className="font-source-sans text-[#717171] text-[13px] font-normal leading-snug mb-2 line-clamp-2">
             {summarize(listing.description)}
           </p>
         )}
 
-        {/* City - Balanced secondary text */}
-        <p className="text-xs text-[#717171] leading-tight mb-1 flex items-center gap-1.5">
-          <span className="w-1 h-1 bg-brand rounded-full" />
-          {listing.city}
-        </p>
+        {/* City with property type icon */}
+        <div className="flex items-center gap-2 mb-2">
+          {listing.propertyType === 'Residential Houses' ? (
+            <Home className="h-3.5 w-3.5 text-brand flex-shrink-0" />
+          ) : (
+            <Building className="h-3.5 w-3.5 text-brand flex-shrink-0" />
+          )}
+          <p className="font-source-sans text-[#717171] text-[14px] font-normal leading-tight truncate">
+            {listing.city}
+          </p>
+        </div>
         
-        {/* Price - Balanced styling */}
+        {/* Price - Premium typography */}
         <div className="text-sm text-[#222222] leading-tight">
           {listing.priceLabel ? (
-            <span className="font-bold text-base">{listing.priceLabel}</span>
+            <span className="font-outfit text-[15px] font-medium tracking-[-0.005em]">{listing.priceLabel}</span>
           ) : listing.price ? (
-            <span className="font-bold text-base">{`${listing.price.amount} ${listing.price.currency}`}</span>
+            <span className="font-outfit text-[15px] font-medium tracking-[-0.005em]">{`${listing.price.amount} ${listing.price.currency}`}</span>
           ) : (
-            <span className="font-bold text-base text-brand">Request price</span>
+            <span className="font-outfit text-[15px] font-medium text-brand tracking-[-0.005em]">Request price</span>
           )}
         </div>
       </div>

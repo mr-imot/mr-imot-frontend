@@ -15,6 +15,7 @@ export function propertyToListing(property: PropertyData): Listing {
     rating: 0,
     reviewCount: 0,
     status: property.status,
+    propertyType: property.type, // Add property type for icon display
     images: (property as any).images || property.images || [property.image],
   }
 }
