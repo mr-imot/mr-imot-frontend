@@ -419,13 +419,21 @@ export default function ListingsPage() {
     
     const marker = markerManagerRef.current?.getMarker(property.id)
     if (googleMapRef.current && marker) {
-      // Pan to marker and zoom to at least 14 (Airbnb-style behavior)
-      const currentZoom = googleMapRef.current.getZoom() || 10
-      const targetZoom = Math.max(currentZoom, 14)
-      
-      googleMapRef.current.panTo({ lat: property.lat, lng: property.lng })
-      if (targetZoom > currentZoom) {
-        googleMapRef.current.setZoom(targetZoom)
+      // Airbnb-style: Only pan/zoom if marker is not visible in current viewport
+      const bounds = googleMapRef.current.getBounds()
+      if (bounds) {
+        const markerLatLng = new google.maps.LatLng(property.lat, property.lng)
+        const isVisible = bounds.contains(markerLatLng)
+        const currentZoom = googleMapRef.current.getZoom() || 10
+        
+        // Only move map if marker is outside viewport OR zoom is too low
+        if (!isVisible || currentZoom < 12) {
+          const targetZoom = Math.max(currentZoom, 14)
+          googleMapRef.current.panTo({ lat: property.lat, lng: property.lng })
+          if (targetZoom > currentZoom) {
+            googleMapRef.current.setZoom(targetZoom)
+          }
+        }
       }
     }
   }

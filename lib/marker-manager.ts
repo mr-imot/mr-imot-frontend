@@ -315,13 +315,21 @@ export class MarkerManager {
         this.config.onPropertySelect(property.id)
         this.config.onAriaAnnouncement(`Selected property: ${property.title} - ${property.shortPrice || 'Contact for price'}`)
         
-        // Airbnb-style: zoom to at least 14 and center on marker
-        const currentZoom = this.config.map.getZoom() || 10
-        const targetZoom = Math.max(currentZoom, 14)
-        
-        this.config.map.panTo({ lat: property.lat, lng: property.lng })
-        if (targetZoom > currentZoom) {
-          this.config.map.setZoom(targetZoom)
+        // Airbnb-style: Only pan/zoom if marker is not visible in current viewport
+        const bounds = this.config.map.getBounds()
+        if (bounds) {
+          const markerLatLng = new google.maps.LatLng(property.lat, property.lng)
+          const isVisible = bounds.contains(markerLatLng)
+          const currentZoom = this.config.map.getZoom() || 10
+          
+          // Only move map if marker is outside viewport OR zoom is too low
+          if (!isVisible || currentZoom < 12) {
+            const targetZoom = Math.max(currentZoom, 14)
+            this.config.map.panTo({ lat: property.lat, lng: property.lng })
+            if (targetZoom > currentZoom) {
+              this.config.map.setZoom(targetZoom)
+            }
+          }
         }
       }
     })
@@ -361,13 +369,21 @@ export class MarkerManager {
         this.config.onPropertySelect(property.id)
         this.config.onAriaAnnouncement(`Selected property: ${property.title} - ${property.shortPrice || 'Contact for price'}`)
         
-        // Airbnb-style: zoom to at least 14 and center on marker
-        const currentZoom = this.config.map.getZoom() || 10
-        const targetZoom = Math.max(currentZoom, 14)
-        
-        this.config.map.panTo({ lat: property.lat, lng: property.lng })
-        if (targetZoom > currentZoom) {
-          this.config.map.setZoom(targetZoom)
+        // Airbnb-style: Only pan/zoom if marker is not visible in current viewport
+        const bounds = this.config.map.getBounds()
+        if (bounds) {
+          const markerLatLng = new google.maps.LatLng(property.lat, property.lng)
+          const isVisible = bounds.contains(markerLatLng)
+          const currentZoom = this.config.map.getZoom() || 10
+          
+          // Only move map if marker is outside viewport OR zoom is too low
+          if (!isVisible || currentZoom < 12) {
+            const targetZoom = Math.max(currentZoom, 14)
+            this.config.map.panTo({ lat: property.lat, lng: property.lng })
+            if (targetZoom > currentZoom) {
+              this.config.map.setZoom(targetZoom)
+            }
+          }
         }
       }
     })
