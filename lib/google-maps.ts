@@ -44,9 +44,10 @@ export function createSvgHouseIcon(
   type: "house" | "apartment",
   state: "default" | "hovered" | "selected" = "default"
 ): google.maps.Icon {
-  const fillColor = state === "default" ? "#FF385C" : "#E00B41"
+  // Use black for hover, brand red for selected, default red for normal
+  const fillColor = state === "hovered" ? "#000000" : state === "selected" ? "#E00B41" : "#FF385C"
   const strokeColor = "#FFFFFF"
-  const size = state === "default" ? 32 : 36
+  const size = state === "default" ? 32 : state === "hovered" ? 34 : 36
   
   // House icon SVG path (matches Lucide Home icon used in property type buttons)
   const houseIcon = `<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" fill="${fillColor}" stroke="${strokeColor}" stroke-width="1.5"/>

@@ -797,7 +797,7 @@ export default function ListingsPage() {
                   </div>
                 </div>
               ) : hasData ? (
-                <div ref={listContainerRef} className="grid grid-cols-3 gap-6">
+                <div ref={listContainerRef} className="grid grid-cols-3 gap-6 pt-3">
                   {filteredProperties.map((property, index) => (
                     <div 
                       key={property.id} 
