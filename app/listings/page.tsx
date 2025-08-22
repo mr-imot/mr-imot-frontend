@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, useCallback } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useSearchParams } from "next/navigation"
@@ -19,6 +19,15 @@ import { MapPin, Building, Home, Loader2, Star, Heart, ExternalLink, Maximize2, 
 import { useProjects } from "@/hooks/use-projects"
 import { PropertyMapCard } from "@/components/property-map-card"
 
+// Debounce utility for map bounds updates
+function debounce<T extends (...args: any[]) => any>(func: T, wait: number): T {
+  let timeout: NodeJS.Timeout
+  return ((...args: any[]) => {
+    clearTimeout(timeout)
+    timeout = setTimeout(() => func(...args), wait)
+  }) as T
+}
+
 type CityType = "Sofia" | "Plovdiv" | "Varna"
  type PropertyTypeFilter = "all" | "apartments" | "houses"
 
@@ -36,7 +45,7 @@ export default function ListingsPage() {
   const urlType = searchParams.get("type") as PropertyTypeFilter | null
 
   const [selectedCity, setSelectedCity] = useState<CityType>(
-    urlCity && ["Sofia", "Plovdiv", "Varna"].includes(urlCity) ? urlCity : "Plovdiv",
+    urlCity && ["Sofia", "Plovdiv", "Varna"].includes(urlCity) ? urlCity : "Sofia",
   )
   const [propertyTypeFilter, setPropertyTypeFilter] = useState<PropertyTypeFilter>(urlType || "all")
   const [isMapLoading, setIsMapLoading] = useState(false)
@@ -52,6 +61,15 @@ export default function ListingsPage() {
     bottom?: number
   }>({})
   const [localError, setLocalError] = useState<string | null>(null)
+  
+  // Map bounds state for API calls
+  const [currentBounds, setCurrentBounds] = useState<{
+    sw_lat: number
+    sw_lng: number
+    ne_lat: number
+    ne_lng: number
+  } | null>(null)
+  const [isBoundsLoading, setIsBoundsLoading] = useState(false)
   
   // Debounce hover updates
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -96,18 +114,52 @@ export default function ListingsPage() {
   const listContainerRef = useRef<HTMLDivElement>(null)
   const [mapBounds, setMapBounds] = useState<google.maps.LatLngBounds | null>(null)
 
-  // Fetch projects from API (client filters city/bounds)
-  const { projects: apiProjects, loading, error } = useProjects({ per_page: 50 })
+  // Fetch projects from API using map bounds
+  const { projects: apiProjects, loading, error } = useProjects({
+    per_page: 100,
+    ...(currentBounds && {
+      sw_lat: currentBounds.sw_lat,
+      sw_lng: currentBounds.sw_lng,
+      ne_lat: currentBounds.ne_lat,
+      ne_lng: currentBounds.ne_lng,
+    })
+  })
   
+  // Debounced bounds update to avoid spamming API
+  const debouncedBoundsUpdate = useCallback(
+    debounce((bounds: google.maps.LatLngBounds) => {
+      const sw = bounds.getSouthWest()
+      const ne = bounds.getNorthEast()
+      
+      setIsBoundsLoading(true)
+      setCurrentBounds({
+        sw_lat: sw.lat(),
+        sw_lng: sw.lng(),
+        ne_lat: ne.lat(),
+        ne_lng: ne.lng(),
+      })
+    }, 500),
+    []
+  )
+
+  // Clear bounds loading when API call completes
+  useEffect(() => {
+    if (!loading && isBoundsLoading) {
+      setIsBoundsLoading(false)
+    }
+  }, [loading, isBoundsLoading])
+
   // Debug API data
   useEffect(() => {
-    // console.log('🔍 API Data Debug:', { 
-    //   loading, 
-    //   error, 
-    //   projectsCount: apiProjects?.length || 0,
-    //   firstProject: apiProjects?.[0]
-    // })
-  }, [apiProjects, loading, error])
+    console.log('🔍 API Data Debug:', { 
+      loading, 
+      error, 
+      projectsCount: apiProjects?.length || 0,
+      currentBounds,
+      hasProjects: !!apiProjects?.length,
+      isBoundsLoading
+    })
+  }, [apiProjects, loading, error, currentBounds, isBoundsLoading])
 
   // Initialize Google Maps like the homepage
   useEffect(() => {
@@ -127,23 +179,34 @@ export default function ListingsPage() {
           mapId: 'DEMO_MAP_ID', // Required for AdvancedMarkerElement
         })
         googleMapRef.current = map
+        
+        // Set initial bounds for API call
+        const initialBounds = map.getBounds()
+        if (initialBounds) {
+          debouncedBoundsUpdate(initialBounds)
+        }
+        
+        // Listen for map idle (after pan/zoom/resize)
         google.maps.event.addListener(map, "idle", () => {
-          setMapBounds(map.getBounds() || null)
+          const bounds = map.getBounds()
+          if (bounds) {
+            setMapBounds(bounds)
+            debouncedBoundsUpdate(bounds)
+          }
         })
         
-        // Listen for zoom changes to re-cluster
+        // Listen for zoom changes to re-cluster markers
         google.maps.event.addListener(map, "zoom_changed", () => {
           // Debounce zoom change to avoid excessive re-clustering
           setTimeout(() => {
             if (googleMapRef.current) {
-              // console.log('🔍 Zoom changed, re-clustering markers')
-              // This will trigger the markers useEffect to re-run
-              setMapBounds(googleMapRef.current.getBounds() || null)
+              const bounds = googleMapRef.current.getBounds()
+              if (bounds) {
+                setMapBounds(bounds)
+              }
             }
           }, 300)
         })
-        
-        setMapBounds(map.getBounds() || null)
       } catch (e) {
         console.error("Error initializing Google Maps:", e)
       }
@@ -152,37 +215,17 @@ export default function ListingsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Recenter when city changes
+  // Recenter when city changes (navigation only, not filtering)
   useEffect(() => {
     if (!googleMapRef.current) return
     googleMapRef.current.panTo(CITY_COORDINATES[selectedCity])
     googleMapRef.current.setZoom(CITY_COORDINATES[selectedCity].zoom)
-    setMapBounds(googleMapRef.current.getBounds() || null)
+    // Bounds will update via the idle listener and trigger API call
   }, [selectedCity])
 
-  // Apply city and property type filters to the fetched projects
+  // Apply only property type filters (map bounds drive the data, not city)
   const filteredProperties = (apiProjects as unknown as PropertyData[] | undefined)?.filter((p) => {
-    // Apply city filter - handle both English and Bulgarian city names
-    if (p.location) {
-      const locationLower = p.location.toLowerCase();
-      const cityLower = selectedCity.toLowerCase();
-      
-      // Map Bulgarian city names to English equivalents
-      const cityMap: Record<string, string[]> = {
-        'sofia': ['sofia', 'софия'],
-        'plovdiv': ['plovdiv', 'пловдив'],
-        'varna': ['varna', 'варна']
-      };
-      
-      const cityVariants = cityMap[cityLower] || [cityLower];
-      const locationMatches = cityVariants.some(variant => 
-        locationLower.includes(variant)
-      );
-      
-      if (!locationMatches) return false;
-    }
-
-    // Apply property type filter
+    // Apply property type filter only
     if (propertyTypeFilter === "all") return true;
     if (propertyTypeFilter === "apartments") {
       return p.type === "Apartment Complex";
@@ -409,7 +452,8 @@ export default function ListingsPage() {
     const newCity = city as CityType
     setSelectedCity(newCity)
     setIsMapLoading(true)
-    setTimeout(() => setIsMapLoading(false), 800)
+    // Loading will be cleared when map finishes animating and bounds update
+    setTimeout(() => setIsMapLoading(false), 1000)
   }
 
   const handlePropertyTypeFilter = (type: PropertyTypeFilter) => {
@@ -531,15 +575,19 @@ export default function ListingsPage() {
             </div>
           ) : (
             <div className="space-y-4">
-              {loading ? (
+              {loading || isBoundsLoading ? (
                 <div className="flex flex-col items-center justify-center py-16 space-y-4">
                   <div className="relative">
                     <Loader2 className="h-10 w-10 animate-spin text-brand" />
                     <div className="absolute inset-0 rounded-full border-4 border-gray-200"></div>
                   </div>
                   <div className="text-center">
-                    <p className="text-lg font-semibold text-gray-700 mb-1">Loading Properties</p>
-                    <p className="text-gray-500 text-sm">Finding the perfect properties for you...</p>
+                    <p className="text-lg font-semibold text-gray-700 mb-1">
+                      {isBoundsLoading ? 'Updating Properties' : 'Loading Properties'}
+                    </p>
+                    <p className="text-gray-500 text-sm">
+                      {isBoundsLoading ? 'Finding properties in this area...' : 'Finding the perfect properties for you...'}
+                    </p>
                   </div>
                 </div>
               ) : showError ? (
@@ -561,8 +609,8 @@ export default function ListingsPage() {
                   <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Building className="w-8 h-8 text-gray-400" />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">No Properties Found</h3>
-                  <p className="text-gray-600 mb-6 text-sm">No properties match your current search criteria in {selectedCity}. Try adjusting your filters or search in a different city.</p>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-2">No Properties in This Area</h3>
+                  <p className="text-gray-600 mb-6 text-sm">No properties found in the current map view. Try zooming out to see more properties or explore nearby areas.</p>
                   <div className="flex flex-col gap-3">
                     <Button 
                       variant="outline" 
@@ -570,13 +618,6 @@ export default function ListingsPage() {
                       className="w-full"
                     >
                       Clear Property Type Filter
-                    </Button>
-                    <Button 
-                      variant="secondary" 
-                      onClick={() => setSelectedCity("Sofia")}
-                      className="w-full"
-                    >
-                      Search in Sofia
                     </Button>
                   </div>
                 </div>
@@ -689,15 +730,19 @@ export default function ListingsPage() {
             <div className="h-[calc(100vh-120px)] overflow-y-auto pr-4 scrollbar-thin" style={{
               scrollbarColor: 'var(--brand-gray-300) var(--brand-gray-100)'
             }}>
-              {loading ? (
+              {loading || isBoundsLoading ? (
                 <div className="flex flex-col items-center justify-center py-24 space-y-6">
                   <div className="relative">
                     <Loader2 className="h-12 w-12 animate-spin" style={{color: 'var(--brand-btn-primary-bg)'}} />
                     <div className="absolute inset-0 rounded-full border-4" style={{borderColor: 'var(--brand-gray-200)'}}></div>
                   </div>
                   <div className="text-center">
-                    <p className="text-lg font-semibold mb-2" style={{color: 'var(--brand-text-primary)'}}>Loading Properties</p>
-                    <p style={{color: 'var(--brand-text-muted)'}}>Finding the perfect properties for you...</p>
+                    <p className="text-lg font-semibold mb-2" style={{color: 'var(--brand-text-primary)'}}>
+                      {isBoundsLoading ? 'Updating Properties' : 'Loading Properties'}
+                    </p>
+                    <p style={{color: 'var(--brand-text-muted)'}}>
+                      {isBoundsLoading ? 'Finding properties in this area...' : 'Finding the perfect properties for you...'}
+                    </p>
                   </div>
                 </div>
               ) : showError ? (
@@ -728,8 +773,8 @@ export default function ListingsPage() {
                   <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
                     <Building className="w-10 h-10 text-gray-400" />
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-800 mb-3">No Properties Found</h3>
-                  <p className="text-gray-600 mb-8 max-w-md mx-auto">No properties match your search criteria in {selectedCity}. Try adjusting your filters or exploring other cities.</p>
+                  <h3 className="text-2xl font-bold text-gray-800 mb-3">No Properties in This Area</h3>
+                  <p className="text-gray-600 mb-8 max-w-md mx-auto">No properties found in the current map view. Try zooming out to see more properties or explore nearby areas.</p>
                   <div className="flex gap-4 justify-center">
                     <Button 
                       variant="secondary" 
@@ -737,13 +782,6 @@ export default function ListingsPage() {
                       className="h-11 px-6 rounded-full font-semibold shadow-sm hover:shadow-md transition-all duration-200"
                     >
                       Clear Filters
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      onClick={() => setSelectedCity("Sofia")}
-                      className="h-11 px-6 rounded-full font-semibold border-2 hover:border-brand/40 transition-all duration-200"
-                    >
-                      Search Sofia
                     </Button>
                   </div>
                 </div>
