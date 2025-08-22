@@ -125,6 +125,8 @@ const config = {
         serif: "var(--font-serif)",
         mono: "var(--font-mono)",
         ds: "var(--font-sans)",
+        outfit: "var(--font-outfit)",
+        'source-sans': "var(--font-source-sans)",
       },
       fontSize: {
         // Design System Typography Scale

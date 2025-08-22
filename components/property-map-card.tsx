@@ -162,18 +162,18 @@ export function PropertyMapCard({
         <div className="px-4 py-4">
           <div className="flex items-start justify-between">
             <div className="min-w-0">
-              <h3 className="text-[#222222] text-[14px] font-semibold leading-snug line-clamp-2">
+              <h3 className="font-outfit text-[#222222] text-[16px] font-semibold leading-snug line-clamp-2 tracking-[-0.01em]">
                 {property.title}
               </h3>
-              <p className="text-[#717171] text-[13px] leading-snug mt-1 truncate">
+              <p className="font-source-sans text-[#717171] text-[14px] font-normal leading-relaxed mt-1.5 truncate">
                 {property.location}
               </p>
             </div>
             {/* Rating removed by design */}
           </div>
 
-          <div className="mt-3">
-            <span className="text-[#222222] text-[14px] font-semibold">
+          <div className="mt-4">
+            <span className="font-outfit text-[#222222] text-[15px] font-medium leading-tight tracking-[-0.005em]">
               {formatPrice()}
             </span>
           </div>

@@ -2,7 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 import { GeistSans } from "geist/font/sans"
 import { GeistMono } from "geist/font/mono"
-import { Figtree, Instrument_Serif } from "next/font/google"
+import { Figtree, Instrument_Serif, Outfit, Source_Sans_3 } from "next/font/google"
 import "./globals.css"
 import { cn } from "@/lib/utils"
 import { SiteHeader } from "@/components/site-header"
@@ -31,6 +31,20 @@ const instrumentSerif = Instrument_Serif({
   display: "swap",
 })
 
+const outfit = Outfit({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-outfit",
+  display: "swap",
+})
+
+const sourceSans = Source_Sans_3({
+  subsets: ["latin", "cyrillic"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-source-sans",
+  display: "swap",
+})
+
 // Geist fonts are configured via CSS variables in globals.css
 
 export const metadata: Metadata = {
@@ -54,10 +68,12 @@ html {
   --font-mono: ${GeistMono.variable};
   --font-figtree: ${figtree.variable};
   --font-instrument-serif: ${instrumentSerif.variable};
+  --font-outfit: ${outfit.variable};
+  --font-source-sans: ${sourceSans.variable};
 }
         `}</style>
       </head>
-      <body className={cn("min-h-screen font-sans antialiased", figtree.variable, instrumentSerif.variable)}>      
+      <body className={cn("min-h-screen font-sans antialiased", figtree.variable, instrumentSerif.variable, outfit.variable, sourceSans.variable)}>      
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
         <GlobalMaintenanceWrapper>
           <AuthProvider>
