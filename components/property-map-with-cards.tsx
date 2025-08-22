@@ -114,6 +114,12 @@ export function PropertyMapWithCards({
   const [hoveredId, setHoveredId] = useState<string | number | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loadingData, setLoadingData] = useState(false)
+  const [cardPosition, setCardPosition] = useState<{
+    top?: number
+    left?: number
+    right?: number
+    bottom?: number
+  }>({})
 
   useEffect(() => {
     if (!useRealData) {
@@ -145,13 +151,42 @@ export function PropertyMapWithCards({
 
   const containerStyle = useMemo(() => ({ width: '100%', height }), [height])
 
+  // Calculate Airbnb-style card position relative to map container
+  const calculateCardPosition = () => {
+    const mapContainer = document.querySelector('.property-map-container')
+    if (!mapContainer) return {}
+    
+    const mapBounds = mapContainer.getBoundingClientRect()
+    
+    // Card dimensions
+    const cardWidth = 327
+    const cardHeight = 321
+    const padding = 20
+    
+    // Position card in center-right area of map
+    let left = mapBounds.left + mapBounds.width * 0.6 - cardWidth / 2
+    let top = mapBounds.top + mapBounds.height * 0.3
+    
+    // Adjust if too close to screen edges
+    if (left < padding) left = padding
+    if (left + cardWidth > window.innerWidth - padding) {
+      left = window.innerWidth - cardWidth - padding
+    }
+    if (top < padding) top = padding
+    if (top + cardHeight > window.innerHeight - padding) {
+      top = window.innerHeight - cardHeight - padding
+    }
+    
+    return { top, left }
+  }
+
   return (
     <div className="relative">
       {isLoaded && (
         <GoogleMap
           mapContainerStyle={containerStyle}
-          mapContainerClassName={className}
-          center={selected ? { lat: selected.lat, lng: selected.lng } : defaultCenter}
+          mapContainerClassName={`property-map-container ${className}`}
+          center={defaultCenter}
           zoom={defaultZoom}
           options={{
             mapTypeControl: false,
@@ -173,7 +208,10 @@ export function PropertyMapWithCards({
               <Marker
                 key={p.id}
                 position={{ lat: p.lat, lng: p.lng }}
-                onClick={() => setSelected(p)}
+                onClick={() => {
+                  setSelected(p)
+                  setCardPosition(calculateCardPosition())
+                }}
                 onMouseOver={() => setHoveredId(p.id)}
                 onMouseOut={() => setHoveredId(prev => (prev === p.id ? null : prev))}
                 options={{ icon }}
@@ -181,18 +219,7 @@ export function PropertyMapWithCards({
             )
           })}
 
-          {selected && (
-            <OverlayView
-              position={{ lat: selected.lat, lng: selected.lng }}
-              mapPaneName={OverlayView.FLOAT_PANE}
-              getPixelPositionOffset={(width: number | undefined, height: number | undefined) => ({
-                x: Math.round(-((width ?? 0) / 2)),
-                y: Math.round(-(((height ?? 0)) + 16))
-              })}
-            >
-              <PropertyMapCard property={selected} onClose={() => setSelected(null)} floating />
-            </OverlayView>
-          )}
+          {/* No OverlayView - card will be positioned outside GoogleMap */}
         </GoogleMap>
       )}
 
@@ -206,6 +233,15 @@ export function PropertyMapWithCards({
         <div className="absolute top-4 left-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
           {error}
         </div>
+      )}
+
+      {/* Airbnb-style Property Card - positioned relative to map container */}
+      {selected && (
+        <PropertyMapCard
+          property={selected}
+          onClose={() => setSelected(null)}
+          position={cardPosition}
+        />
       )}
     </div>
   )
