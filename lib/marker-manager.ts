@@ -11,7 +11,7 @@ export interface PropertyData {
   description: string
   lat: number
   lng: number
-  type: "Apartment Complex" | "Residential Houses" | "Mixed-Use Building"
+  type: "Apartment Complex" | "Residential Houses"
   status: string
   rating: number
   reviews: number
@@ -84,9 +84,8 @@ export class MarkerManager {
           marker.zIndex = 1
         }
       } else {
-        // Fallback for legacy markers
-        const markerPrice = this.markerPrices[propertyId]
-        if (markerPrice && 'setIcon' in marker) {
+        // Update house/apartment icon markers based on state
+        if ('setIcon' in marker) {
           let state: "default" | "hovered" | "selected" = "default"
           
           if (this.config.selectedPropertyId === propertyId) {
@@ -95,9 +94,14 @@ export class MarkerManager {
             state = "hovered"
           }
           
-          const icon = createSvgMarkerIcon(markerPrice, state)
-          ;(marker as any).setIcon(icon)
-          ;(marker as any).setZIndex(state === "selected" ? 999 : state === "hovered" ? 500 : 1)
+          // Find the property to get its type
+          const property = this.config.properties.find(p => p.id === propertyId)
+          if (property) {
+            const iconType = property.type === "Residential Houses" ? "house" : "apartment"
+            const icon = createSvgHouseIcon(iconType, state)
+            ;(marker as any).setIcon(icon)
+            ;(marker as any).setZIndex(state === "selected" ? 999 : state === "hovered" ? 500 : 1)
+          }
         }
       }
     })

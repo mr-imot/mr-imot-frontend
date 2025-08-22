@@ -31,27 +31,7 @@ export default function TestAPIPage() {
     }
   }
 
-  const testMockAPI = async () => {
-    try {
-      setStatus('Testing Mock API...')
-      
-      const response = await fetch(`/api/v1/mock-projects/`)
-      
-      if (!response.ok) {
-        const errorText = await response.text()
-        setStatus(`Mock API Error: ${response.status} - ${errorText}`)
-        return
-      }
-      
-      const jsonData = await response.json()
-      setData(jsonData)
-      setStatus(`Mock API Success! Found ${jsonData.projects?.length || 0} projects`)
-      
-    } catch (error) {
-      console.error('Mock API Fetch Error:', error)
-      setStatus(`Mock API Fetch Error: ${error}`)
-    }
-  }
+
 
   const testRegistration = async () => {
     try {
@@ -108,12 +88,7 @@ export default function TestAPIPage() {
             >
               Test Real API
             </button>
-            <button 
-              onClick={testMockAPI}
-              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-            >
-              Test Mock API
-            </button>
+
             <button 
               onClick={testRegistration}
               className="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600"

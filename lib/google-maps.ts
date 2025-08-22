@@ -39,7 +39,7 @@ export async function ensureGoogleMaps(): Promise<typeof google> {
   }
 }
 
-// Create house/apartment SVG icon for markers
+// Create house/apartment SVG icon for markers using same icons as property type buttons
 export function createSvgHouseIcon(
   type: "house" | "apartment",
   state: "default" | "hovered" | "selected" = "default"
@@ -48,15 +48,17 @@ export function createSvgHouseIcon(
   const strokeColor = "#FFFFFF"
   const size = state === "default" ? 32 : 36
   
-  // House icon SVG path
-  const houseIcon = `<path d="M12 2L2 8v13h7v-6h6v6h7V8L12 2zm0 2.5L18.5 9v10h-3v-6h-7v6h-3V9L12 4.5z" fill="${fillColor}" stroke="${strokeColor}" stroke-width="1"/>`
+  // House icon SVG path (matches Lucide Home icon used in property type buttons)
+  const houseIcon = `<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" fill="${fillColor}" stroke="${strokeColor}" stroke-width="1.5"/>
+    <polyline points="9,22 9,12 15,12 15,22" fill="none" stroke="${strokeColor}" stroke-width="1.5"/>`
   
-  // Apartment building icon SVG path  
-  const apartmentIcon = `<path d="M3 21h18V9l-9-7-9 7v12zm2-2V10l7-5.75L19 10v9h-4v-6h-6v6H5zm2-8h2v2H7v-2zm4 0h2v2h-2v-2zm4 0h2v2h-2v-2zm-8 4h2v2H7v-2zm4 0h2v2h-2v-2zm4 0h2v2h-2v-2z" fill="${fillColor}" stroke="${strokeColor}" stroke-width="1"/>`
+  // Apartment/Building icon SVG path (matches Lucide Building icon used in property type buttons)
+  const apartmentIcon = `<path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z" fill="${fillColor}" stroke="${strokeColor}" stroke-width="1.5"/>
+    <path d="M6 12h4m0 0h4m-4 0v6m-4-3h4m0 0h4" fill="none" stroke="${strokeColor}" stroke-width="1.5"/>`
   
   const iconPath = type === "house" ? houseIcon : apartmentIcon
   
-  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}' viewBox='0 0 24 24'>
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}' viewBox='0 0 24 24' fill="none">
     ${iconPath}
   </svg>`
 

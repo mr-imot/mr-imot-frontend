@@ -85,10 +85,7 @@ const mapProjectType = (apiType: string) => {
     'house': 'Residential Houses',
     'house_complex': 'Residential Houses',
     'HOUSE_COMPLEX': 'Residential Houses',
-    'MIXED_USE': 'Mixed-Use Building',
-    'mixed_use': 'Mixed-Use Building',
-    'OFFICE': 'Mixed-Use Building',
-    'office': 'Mixed-Use Building',
+
   };
   return typeMap[apiType] || 'Apartment Complex';
 };

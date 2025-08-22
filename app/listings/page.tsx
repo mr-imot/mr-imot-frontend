@@ -185,7 +185,7 @@ export default function ListingsPage() {
     // Apply property type filter
     if (propertyTypeFilter === "all") return true;
     if (propertyTypeFilter === "apartments") {
-      return p.type === "Apartment Complex" || p.type === "Mixed-Use Building";
+      return p.type === "Apartment Complex";
     }
     if (propertyTypeFilter === "houses") {
       return p.type === "Residential Houses";
