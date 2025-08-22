@@ -234,71 +234,109 @@ export default function DeveloperPropertiesPage() {
                   ))}
                 </div>
               ) : projects.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                   {projects.map((p: any) => {
                     const coverFromImages = Array.isArray(p.images) && p.images.length > 0
                       ? (p.images.find((i:any)=>i.is_cover)?.urls?.card || p.images[0]?.urls?.card || p.images[0]?.image_url)
                       : undefined
                     const coverSrc = p.cover_image_url || coverFromImages || "/placeholder.jpg"
-                    const statusLabel = p.is_active ? 'active' : (p.status || 'inactive')
+                    
+                    // Get property type icon
+                    const getPropertyIcon = (type: string) => {
+                      if (type === 'house_complex' || type === 'HOUSE_COMPLEX') {
+                        return <Home className="h-4 w-4 text-brand" />
+                      }
+                      return <Building2 className="h-4 w-4 text-brand" />
+                    }
+                    
                     return (
-                      <Card key={p.id} className="overflow-hidden">
+                      <article
+                        key={p.id}
+                        className="group bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 ease-out overflow-hidden"
+                      >
+                        {/* Image Container */}
                         <Link href={`/developer/properties/new?id=${p.id}`} className="block">
-                          <div className="aspect-video bg-muted">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                              src={coverSrc}
-                              alt={`${p.name || 'Property'} - ${p.city || ''}`}
-                              className="w-full h-full object-cover"
-                              loading="lazy"
-                            />
+                          <div className="relative overflow-hidden">
+                            <div className="aspect-[4/3] w-full">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={coverSrc}
+                                alt={`${p.name || 'Property'} - ${p.city || ''}`}
+                                className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                                loading="lazy"
+                              />
+                            </div>
                           </div>
                         </Link>
-                        <CardHeader className="pb-2">
-                          <div className="flex items-start justify-between gap-3">
-                            <div>
-                              <CardTitle className="text-base line-clamp-1">
-                                <Link href={`/developer/properties/new?id=${p.id}`}>{p.name || p.title || 'Untitled project'}</Link>
-                              </CardTitle>
-                              <CardDescription className="flex items-center gap-1">
-                                <MapPin className="h-3.5 w-3.5" /> {p.city || p.location || '—'}
-                              </CardDescription>
-                            </div>
-                            <Badge variant={statusLabel === 'active' ? 'default' : 'secondary'} className="capitalize">{statusLabel}</Badge>
+
+                        {/* Content */}
+                        <div className="p-4">
+                          {/* Property Name with Typography */}
+                          <h3 className="font-outfit text-[#222222] text-[18px] font-semibold leading-tight mb-2 line-clamp-2 tracking-[-0.01em]">
+                            <Link href={`/developer/properties/new?id=${p.id}`} className="hover:text-brand transition-colors">
+                              {p.name || p.title || 'Untitled project'}
+                            </Link>
+                          </h3>
+                          
+                          {/* City with Icon */}
+                          <div className="flex items-center gap-2 mb-3">
+                            {getPropertyIcon(p.project_type)}
+                            <p className="font-source-sans text-[#717171] text-[15px] font-normal leading-relaxed">
+                              {p.city || p.location || '—'}
+                            </p>
                           </div>
-                        </CardHeader>
-                      <CardContent className="flex items-center justify-between text-xs text-muted-foreground">
-                        <div className="flex items-center gap-3">
-                          <span className="inline-flex items-center gap-1"><Eye className="h-3.5 w-3.5" />{p.total_views ?? 0}</span>
-                          <span className="inline-flex items-center gap-1"><Globe className="h-3.5 w-3.5" />{p.total_clicks_website ?? 0}</span>
-                          <span className="inline-flex items-center gap-1"><Phone className="h-3.5 w-3.5" />{p.total_clicks_phone ?? 0}</span>
+
+                          {/* Analytics Stats */}
+                          <div className="flex items-center justify-between text-xs text-[#717171] mb-4 py-2 border-t border-gray-100">
+                            <div className="flex items-center gap-3">
+                              <span className="inline-flex items-center gap-1">
+                                <Eye className="h-3.5 w-3.5" />
+                                {p.total_views ?? 0}
+                              </span>
+                              <span className="inline-flex items-center gap-1">
+                                <Globe className="h-3.5 w-3.5" />
+                                {p.total_clicks_website ?? 0}
+                              </span>
+                              <span className="inline-flex items-center gap-1">
+                                <Phone className="h-3.5 w-3.5" />
+                                {p.total_clicks_phone ?? 0}
+                              </span>
+                            </div>
+                            <div className="inline-flex items-center gap-1">
+                              <Calendar className="h-3.5 w-3.5" />
+                              {new Date(p.updated_at || p.created_at).toLocaleDateString()}
+                            </div>
+                          </div>
+
+                          {/* Action Buttons */}
+                          <div className="flex items-center gap-2">
+                            <Button asChild variant="outline" size="sm" className="flex-1">
+                              <Link href={`/developer/properties/new?id=${p.id}`}>
+                                <Pencil className="h-3.5 w-3.5 mr-1" />
+                                Edit
+                              </Link>
+                            </Button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="destructive" size="sm" className="flex-1">
+                                  <Trash2 className="h-3.5 w-3.5 mr-1" />
+                                  Delete
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Delete this listing?</AlertDialogTitle>
+                                  <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => handleDelete(p.id)}>Delete</AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
                         </div>
-                        <div className="inline-flex items-center gap-1"><Calendar className="h-3.5 w-3.5" />{new Date(p.updated_at || p.created_at).toLocaleDateString()}</div>
-                      </CardContent>
-                      <CardContent className="flex items-center justify-between gap-2 pt-0">
-                        <div className="flex items-center gap-2">
-                          <Button asChild variant="outline" size="sm"><Link href={`/developer/properties/new?id=${p.id}`}><Pencil className="h-3.5 w-3.5 mr-1" />Edit</Link></Button>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="destructive" size="sm"><Trash2 className="h-3.5 w-3.5 mr-1" />Delete</Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Delete this listing?</AlertDialogTitle>
-                                <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => handleDelete(p.id)}>Delete</AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </div>
-                        <Button variant="outline" size="sm" onClick={() => handleToggle(p.id, p.status)}>
-                          <Power className="h-3.5 w-3.5 mr-1" /> {p.status === 'active' ? 'Deactivate' : 'Activate'}
-                        </Button>
-                      </CardContent>
-                    </Card>
+                      </article>
                     )
                   })}
                 </div>
