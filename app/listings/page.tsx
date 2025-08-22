@@ -114,16 +114,19 @@ export default function ListingsPage() {
   const listContainerRef = useRef<HTMLDivElement>(null)
   const [mapBounds, setMapBounds] = useState<google.maps.LatLngBounds | null>(null)
 
-  // Fetch projects from API using map bounds
-  const { projects: apiProjects, loading, error } = useProjects({
-    per_page: 100,
-    ...(currentBounds && {
+  // Fetch projects from API using map bounds (only when bounds are available)
+  const { projects: apiProjects, loading, error } = useProjects(
+    currentBounds ? {
+      per_page: 100,
       sw_lat: currentBounds.sw_lat,
       sw_lng: currentBounds.sw_lng,
       ne_lat: currentBounds.ne_lat,
       ne_lng: currentBounds.ne_lng,
-    })
-  })
+    } : {
+      // Empty params when no bounds - useProjects will not fetch
+      per_page: 0
+    }
+  )
   
   // Debounced bounds update to avoid spamming API
   const debouncedBoundsUpdate = useCallback(
@@ -180,10 +183,18 @@ export default function ListingsPage() {
         })
         googleMapRef.current = map
         
-        // Set initial bounds for API call
+        // Set initial bounds immediately for API call (no debounce on first load)
         const initialBounds = map.getBounds()
         if (initialBounds) {
-          debouncedBoundsUpdate(initialBounds)
+          const sw = initialBounds.getSouthWest()
+          const ne = initialBounds.getNorthEast()
+          
+          setCurrentBounds({
+            sw_lat: sw.lat(),
+            sw_lng: sw.lng(),
+            ne_lat: ne.lat(),
+            ne_lng: ne.lng(),
+          })
         }
         
         // Listen for map idle (after pan/zoom/resize)

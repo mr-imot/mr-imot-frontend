@@ -150,6 +150,14 @@ export const useProjects = (params: UseProjectsParams = {}): UseProjectsResult =
   };
 
   useEffect(() => {
+    // Don't fetch if per_page is 0 (indicates no bounds available yet)
+    if (params.per_page === 0) {
+      setLoading(false);
+      setProjects([]);
+      setTotal(0);
+      return;
+    }
+    
     fetchProjects();
   }, [
     params.search,
