@@ -6,12 +6,12 @@ import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Menu, LogOut, User, Settings } from "lucide-react"
-import { useUnifiedAuth } from "@/lib/unified-auth"
+import { useAuth } from "@/lib/auth-context"
 import { cn } from "@/lib/utils"
 
 // Auth Actions Component for Mobile
 function AuthActionsSection({ onLinkClick }: { onLinkClick: () => void }) {
-  const { user, isAuthenticated, logout, getDashboardUrl } = useUnifiedAuth();
+  const { user, isAuthenticated, logout, getDashboardUrl } = useAuth();
 
   if (isAuthenticated && user) {
     return (

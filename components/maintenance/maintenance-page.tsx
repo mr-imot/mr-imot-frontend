@@ -1,9 +1,11 @@
 "use client"
 
 import React from 'react'
-import { Clock, Mail, Phone, AlertCircle, RefreshCw } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Clock, Mail, Phone, RefreshCw } from 'lucide-react'
+import Image from 'next/image'
+import { BrandButton } from '@/components/ui/brand-button'
 import { config } from '@/lib/config'
+import { EtchedGlassBackground } from '@/components/etched-glass-background'
 
 interface MaintenancePageProps {
   /** Custom maintenance message */
@@ -46,96 +48,109 @@ export const MaintenancePage: React.FC<MaintenancePageProps> = ({
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center">
-        {/* Logo/Brand */}
-        <div className="mb-6">
-          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <AlertCircle className="w-8 h-8 text-blue-600" />
+    <div className="min-h-screen relative">
+      {/* Etched Glass Background - Same as homepage */}
+      <EtchedGlassBackground />
+      
+      <div className="min-h-screen flex items-center justify-center p-4 relative z-10">
+        <div className="max-w-md w-full bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-8 text-center border border-white/20">
+          {/* Logo/Brand - Same as header */}
+          <div className="mb-8">
+            <div className="relative w-20 h-20 flex items-center justify-center rounded-full bg-white mx-auto mb-6 shadow-lg">
+              <Image
+                src="/images/mr-imot-logo-no-background.png"
+                alt="Mr. Imot Logo"
+                width={80}
+                height={80}
+                className="w-20 h-20 object-contain"
+              />
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2 font-instrument-serif">Mr imot</h1>
+            <p className="text-sm text-gray-600 font-figtree">Real Estate Directory</p>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Mr imot</h1>
-          <p className="text-sm text-gray-500">Real Estate Directory</p>
-        </div>
 
-        {/* Maintenance Message */}
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
-            Scheduled Maintenance
-          </h2>
-          <p className="text-gray-600 leading-relaxed mb-6">
-            {message}
-          </p>
+          {/* Maintenance Message */}
+          <div className="mb-8">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4 font-figtree">
+              Scheduled Maintenance
+            </h2>
+            <p className="text-gray-600 leading-relaxed mb-6 font-figtree">
+              {message}
+            </p>
 
-          {/* Expected Return Time */}
-          {getEstimatedReturn() && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-              <div className="flex items-center justify-center mb-2">
-                <Clock className="w-5 h-5 text-blue-600 mr-2" />
-                <span className="text-sm font-medium text-blue-800">
-                  Expected Duration
-                </span>
+            {/* Expected Return Time */}
+            {getEstimatedReturn() && (
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
+                <div className="flex items-center justify-center mb-2">
+                  <Clock className="w-5 h-5 text-gray-700 mr-2" />
+                  <span className="text-sm font-medium text-gray-800 font-figtree">
+                    Expected Duration
+                  </span>
+                </div>
+                <p className="text-gray-900 font-semibold font-figtree">
+                  {getEstimatedReturn()}
+                </p>
               </div>
-              <p className="text-blue-700 font-semibold">
-                {getEstimatedReturn()}
+            )}
+          </div>
+
+          {/* Contact Information */}
+          {showContact && (
+            <div className="mb-8">
+              <h3 className="text-lg font-medium text-gray-900 mb-4 font-figtree">
+                Need Urgent Assistance?
+              </h3>
+              <div className="space-y-3">
+                {config.maintenance.supportEmail && (
+                  <a
+                    href={`mailto:${config.maintenance.supportEmail}`}
+                    className="flex items-center justify-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors border border-gray-200"
+                  >
+                    <Mail className="w-5 h-5 text-gray-600 mr-3" />
+                    <span className="text-gray-700 font-medium font-figtree">
+                      {config.maintenance.supportEmail}
+                    </span>
+                  </a>
+                )}
+                {config.maintenance.supportPhone && (
+                  <a
+                    href={`tel:${config.maintenance.supportPhone}`}
+                    className="flex items-center justify-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors border border-gray-200"
+                  >
+                    <Phone className="w-5 h-5 text-gray-600 mr-3" />
+                    <span className="text-gray-700 font-medium font-figtree">
+                      {config.maintenance.supportPhone}
+                    </span>
+                  </a>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Retry Button - Using Brand Button */}
+          {showRetry && (
+            <div>
+              <BrandButton
+                variant="primary"
+                size="lg"
+                onClick={handleRetry}
+                className="w-full"
+              >
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Check Again
+              </BrandButton>
+              <p className="text-xs text-gray-500 mt-3 font-figtree">
+                We'll automatically check if our services are back online
               </p>
             </div>
           )}
-        </div>
 
-        {/* Contact Information */}
-        {showContact && (
-          <div className="mb-8">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">
-              Need Urgent Assistance?
-            </h3>
-            <div className="space-y-3">
-              {config.maintenance.supportEmail && (
-                <a
-                  href={`mailto:${config.maintenance.supportEmail}`}
-                  className="flex items-center justify-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                >
-                  <Mail className="w-5 h-5 text-gray-600 mr-3" />
-                  <span className="text-gray-700 font-medium">
-                    {config.maintenance.supportEmail}
-                  </span>
-                </a>
-              )}
-              {config.maintenance.supportPhone && (
-                <a
-                  href={`tel:${config.maintenance.supportPhone}`}
-                  className="flex items-center justify-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                >
-                  <Phone className="w-5 h-5 text-gray-600 mr-3" />
-                  <span className="text-gray-700 font-medium">
-                    {config.maintenance.supportPhone}
-                  </span>
-                </a>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Retry Button */}
-        {showRetry && (
-          <div>
-            <Button
-              onClick={handleRetry}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg transition-colors"
-            >
-              <RefreshCw className="w-4 h-4 mr-2" />
-              Check Again
-            </Button>
-            <p className="text-xs text-gray-500 mt-3">
-              We'll automatically check if our services are back online
+          {/* Footer */}
+          <div className="mt-8 pt-6 border-t border-gray-200">
+            <p className="text-xs text-gray-500 font-figtree">
+              Thank you for your patience. We'll be back soon!
             </p>
           </div>
-        )}
-
-        {/* Footer */}
-        <div className="mt-8 pt-6 border-t border-gray-200">
-          <p className="text-xs text-gray-500">
-            Thank you for your patience. We'll be back soon!
-          </p>
         </div>
       </div>
     </div>

@@ -9,7 +9,6 @@ import { SiteHeader } from "@/components/site-header"
 import { Footer } from "@/components/footer"
 import GlobalMaintenanceWrapper from "@/components/maintenance/global-maintenance-wrapper"
 import { AuthProvider } from "@/lib/auth-context"
-import { UnifiedAuthProvider } from "@/lib/unified-auth"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme-provider"
@@ -77,17 +76,15 @@ html {
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
         <GlobalMaintenanceWrapper>
           <AuthProvider>
-            <UnifiedAuthProvider>
-              {/* NEW: Header Fade Overlay */}
-              <div className="header-fade-overlay" />
-              
-              <div className="relative flex min-h-screen flex-col">
-                <SiteHeader />
-                <main className="flex-1">{children}</main>
-                <Footer />
-              </div>
-              <FeedbackButton />
-            </UnifiedAuthProvider>
+            {/* NEW: Header Fade Overlay */}
+            <div className="header-fade-overlay" />
+            
+            <div className="relative flex min-h-screen flex-col">
+              <SiteHeader />
+              <main className="flex-1">{children}</main>
+              <Footer />
+            </div>
+            <FeedbackButton />
           </AuthProvider>
         </GlobalMaintenanceWrapper>
         </ThemeProvider>

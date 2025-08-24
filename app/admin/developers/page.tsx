@@ -57,7 +57,7 @@ import {
   Download,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { UnifiedAuthProvider } from '@/lib/unified-auth';
+
 
 function DeveloperManagementContent() {
   const [developers, setDevelopers] = useState<PendingDeveloper[]>([]);
@@ -644,12 +644,10 @@ function DeveloperManagementSkeleton() {
 // Main component with providers
 export default function DeveloperManagementPage() {
   return (
-    <UnifiedAuthProvider>
-      <ProtectedRoute>
-        <AdminLayout>
-          <DeveloperManagementContent />
-        </AdminLayout>
-      </ProtectedRoute>
-    </UnifiedAuthProvider>
+    <ProtectedRoute>
+      <AdminLayout>
+        <DeveloperManagementContent />
+      </AdminLayout>
+    </ProtectedRoute>
   );
 } 

@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { AdminLayout } from '@/components/admin/admin-layout';
 import { ProtectedRoute } from '@/components/admin/protected-route';
-import { UnifiedAuthProvider } from '@/lib/unified-auth';
+
 import { SessionTimeoutWarning } from '@/components/admin/session-timeout-warning';
 import { NotificationCenter } from '@/components/admin/notification-center';
 import { AuditLogs } from '@/components/admin/audit-logs';
@@ -627,13 +627,11 @@ function DashboardSkeleton() {
 // Main component with providers
 export default function AdminDashboardPage() {
   return (
-    <UnifiedAuthProvider>
-      <ProtectedRoute>
-        <AdminLayout>
-          <AdminDashboardContent />
-          <SessionTimeoutWarning />
-        </AdminLayout>
-      </ProtectedRoute>
-    </UnifiedAuthProvider>
+    <ProtectedRoute>
+      <AdminLayout>
+        <AdminDashboardContent />
+        <SessionTimeoutWarning />
+      </AdminLayout>
+    </ProtectedRoute>
   );
 } 

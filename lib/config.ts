@@ -27,8 +27,7 @@ export const config = {
     // Enable maintenance mode (can be controlled via env var)
     maintenanceMode: process.env.NEXT_PUBLIC_MAINTENANCE_MODE === 'true',
 
-    // Enable graceful degradation
-    gracefulDegradation: true,
+
 
     // Enable backend health monitoring
     healthChecking: true, // Enable in all environments
@@ -119,13 +118,8 @@ export const shouldShowMaintenancePage = (hasError: boolean): boolean => {
          (config.environment.isProduction && hasError);
 };
 
-// Helper function to check if we should use graceful degradation
-export const shouldUseGracefulDegradation = (): boolean => {
-  return config.features.gracefulDegradation && config.environment.isProduction;
-};
-
 // Helper function to get error handling strategy
-export const getErrorHandlingStrategy = (hasError: boolean, isPartialFailure: boolean = false): 'maintenance' | 'graceful' => {
+export const getErrorHandlingStrategy = (hasError: boolean): 'maintenance' | 'normal' => {
   // If maintenance mode is explicitly enabled
   if (config.features.maintenanceMode) {
     return 'maintenance';
@@ -133,16 +127,12 @@ export const getErrorHandlingStrategy = (hasError: boolean, isPartialFailure: bo
 
   // For any environment (development or production)
   if (hasError) {
-    // Complete backend failure -> maintenance page
-    if (!isPartialFailure) {
-      return 'maintenance';
-    }
-    // Partial failure -> graceful degradation
-    return 'graceful';
+    // Backend failure -> maintenance page
+    return 'maintenance';
   }
 
-  // No error, should never reach here, but default to graceful
-  return 'graceful';
+  // No error, normal operation
+  return 'normal';
 };
 
 // Helper function to log errors (production-ready)

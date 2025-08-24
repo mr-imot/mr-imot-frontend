@@ -18,7 +18,7 @@ import { validateForm, getFieldError, type FormData, type ValidationError } from
 import { cn } from "@/lib/utils"
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from "@/lib/auth-constants"
 import { createAuthError, getErrorDisplayMessage } from "@/lib/auth-errors"
-import { useUnifiedAuth } from "@/lib/unified-auth"
+import { useAuth } from "@/lib/auth-context"
 import Link from "next/link"
 import { Suspense, useEffect } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
@@ -31,14 +31,14 @@ function RegisterFormContent() {
   const searchParams = useSearchParams()
   const userType = searchParams.get("type")
   const router = useRouter()
-  const { isAuthenticated, isLoading: unifiedLoading, getDashboardUrl } = useUnifiedAuth()
+  const { isAuthenticated, isLoading: authLoading, getDashboardUrl } = useAuth()
 
   // Redirect if already authenticated
   useEffect(() => {
-    if (!unifiedLoading && isAuthenticated) {
+    if (!authLoading && isAuthenticated) {
       router.replace(getDashboardUrl())
     }
-  }, [isAuthenticated, unifiedLoading, router, getDashboardUrl])
+  }, [isAuthenticated, authLoading, router, getDashboardUrl])
 
   const [formData, setFormData] = useState<FormData>({
     companyName: "",

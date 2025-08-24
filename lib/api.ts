@@ -1,5 +1,5 @@
-// API service layer for NovaDom Real Estate Platform
-// Handles all backend communication with proper authentication
+// API service layer for Mr. Imot Real Estate Platform
+// Now uses HttpOnly cookies for secure authentication
 
 import { withRetry, isNetworkError, getConnectionErrorMessage, AUTH_RETRY_OPTIONS } from './network-utils'
 
@@ -20,20 +20,19 @@ export interface Project {
   id: number;
   title: string;
   description: string;
-  location?: string; // Optional for backward compatibility
+  location?: string;
   city: string;
   neighborhood?: string;
   project_type: string;
   status: string;
   price_from?: number;
   price_to?: number;
-  price_per_m2?: string; // New field from mock API
+  price_per_m2?: string;
   completion_date?: string;
-  expected_completion_date?: string; // New field from mock API
+  expected_completion_date?: string;
   developer_id: number;
   created_at: string;
   updated_at: string;
-  // New fields from mock API
   latitude?: number;
   longitude?: number;
   cover_image_url?: string;
@@ -67,7 +66,7 @@ export interface DeveloperStats {
   total_inquiries: number;
 }
 
-// API client class
+// API client class with HttpOnly cookie support
 class ApiClient {
   private baseURL: string;
 
@@ -75,40 +74,15 @@ class ApiClient {
     this.baseURL = baseURL;
   }
 
-  private async getAuthHeaders(): Promise<HeadersInit> {
-    const headers: HeadersInit = {};
-
-    // Get the stored auth token
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('auth_token');
-      const expires = localStorage.getItem('auth_expires');
-      
-      if (token && expires) {
-        const expiryTime = parseInt(expires);
-        if (Date.now() < expiryTime) {
-          headers.Authorization = `Bearer ${token}`;
-        } else {
-          // Token expired, clear it
-          localStorage.removeItem('auth_token');
-          localStorage.removeItem('auth_expires');
-        }
-      }
-    }
-
-    return headers;
-  }
-
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
-    const baseHeaders = await this.getAuthHeaders();
 
-    // Build headers and automatically drop Content-Type for FormData bodies
+    // Build headers - no manual token handling needed
     const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
     const mergedHeaders: HeadersInit = {
-      ...baseHeaders,
       ...options.headers,
     } as HeadersInit;
     
@@ -125,92 +99,59 @@ class ApiClient {
     const config: RequestInit = {
       ...options,
       headers: mergedHeaders,
+      credentials: 'include', // Always include cookies for authentication
     };
 
     try {
       const response = await fetch(url, config);
 
-      // Debug logging for development
-      // console.log('🔍 API Request Debug:', {
-      //   url,
-      //   method: config.method,
-      //   headers: config.headers,
-      //   body: config.body,
-      //   hasAuthHeader: 'Authorization' in (config.headers as Record<string, any>)
-      // });
-
       if (!response.ok) {
         const errorText = await response.text();
         
-        // Handle 401 Unauthorized - token expired/invalid
+        // Handle 401 Unauthorized - user not authenticated
         if (response.status === 401) {
-          // Token expired/invalid - clearing auth and redirecting to login
-          // console.log('🔒 Token expired/invalid - clearing auth and redirecting to login');
-          // console.log('🔍 DEBUG: Token that failed:', await this.getAuthHeaders());
-          // console.log('🔍 DEBUG: Response details:', response.status, response.statusText);
-          this.clearAuth();
-          window.location.href = '/login';
-          throw new Error('Authentication failed');
+          // Redirect to login - the auth context will handle this properly
+          if (typeof window !== 'undefined') {
+            window.location.href = '/login';
+          }
+          throw new Error('Authentication required');
         }
         
-        // Handle 500 errors more gracefully - don't log out user for server errors
+        // Handle 403 Forbidden - user authenticated but not authorized
+        if (response.status === 403) {
+          let errorMessage = 'Access denied';
+          try {
+            const errorData = JSON.parse(errorText);
+            if (errorData.detail && errorData.detail.includes('verification required')) {
+              errorMessage = 'Account verification required';
+              const verificationError = new Error(errorMessage);
+              (verificationError as any).isVerificationRequired = true;
+              (verificationError as any).statusCode = 403;
+              throw verificationError;
+            }
+            errorMessage = errorData.detail || errorData.message || errorMessage;
+          } catch (parseError) {
+            // If parsing fails, use default message
+          }
+          throw new Error(errorMessage);
+        }
+        
+        // Handle 500 errors gracefully
         if (response.status === 500) {
-          console.error(`❌ Server Error (${response.status}): ${errorText}`);
+          console.error(`Server Error (${response.status}): ${errorText}`);
           const serverError = new Error('Server error occurred. Please try again later.');
           (serverError as any).statusCode = 500;
           (serverError as any).isServerError = true;
           throw serverError;
         }
         
-        // Try to parse the error as JSON to get a better error message
-        let errorMessage = `HTTP error! status: ${response.status}, message: ${errorText}`;
-        let isVerificationError = false;
-        
+        // Try to parse error message
+        let errorMessage = `HTTP error! status: ${response.status}`;
         try {
           const errorData = JSON.parse(errorText);
-          if (errorData.message) {
-            errorMessage = errorData.message;
-          }
-          
-          // Handle specific error cases
-          if (response.status === 403 && errorData.message && 
-              (errorData.message.includes('verification required') || 
-               errorData.message.includes("don't have permission") ||
-               errorData.message.includes("access this resource"))) {
-            isVerificationError = true;
-            // Create a special error for verification required
-            const verificationError = new Error('Account verification required');
-            (verificationError as any).isVerificationRequired = true;
-            (verificationError as any).statusCode = 403;
-            (verificationError as any).originalMessage = errorData.message;
-            throw verificationError;
-          }
-        } catch (parseError) {
-          // If parsing fails, check if it might be a verification error based on status code
-          if (response.status === 403) {
-            isVerificationError = true;
-          }
-          // Don't log parsing failures for verification errors
-          if (!isVerificationError) {
-            // console.log('Failed to parse error as JSON, using generic error');
-            errorMessage = 'An unexpected error occurred';
-          }
-        }
-        
-        // Only log errors that are not verification-related
-        if (!isVerificationError) {
-          console.error(`❌ API Error Response (${response.status}): ${errorText}`);
-        } else {
-          // console.log(`🔒 Verification required (${response.status}): User needs manual approval`);
-          throw new Error('Account verification required');
-        }
-        
-        // For verification errors, create a special error even if JSON parsing failed
-        if (isVerificationError && response.status === 403) {
-          const verificationError = new Error('Account verification required');
-          (verificationError as any).isVerificationRequired = true;
-          (verificationError as any).statusCode = 403;
-          throw verificationError;
+          errorMessage = errorData.detail || errorData.message || errorMessage;
+        } catch {
+          errorMessage = errorText || errorMessage;
         }
         
         throw new Error(errorMessage);
@@ -219,12 +160,71 @@ class ApiClient {
       const data = await response.json();
       return data;
     } catch (error) {
-      // Don't log verification errors or auth expired errors as failures - they're expected
-      if (!(error as any).isVerificationRequired && !(error as any).isAuthExpired) {
-        console.error(`❌ API request failed: ${url}`, error);
-      }
+      console.error(`API request failed: ${url}`, error);
       throw error;
     }
+  }
+
+  // Public request method without authentication (for public endpoints)
+  private async requestWithoutAuth<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    const url = `${this.baseURL}${endpoint}`;
+    
+    const config: RequestInit = {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      ...options,
+      // Don't include credentials for public endpoints
+    };
+
+    try {
+      const response = await fetch(url, config);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`Public API Error (${response.status}): ${errorText}`);
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error(`Public API request failed: ${url}`, error);
+      throw error;
+    }
+  }
+
+  // Authentication endpoints
+  async login(email: string, password: string): Promise<{
+    message: string;
+    user_type: string;
+    expires_in: number;
+  }> {
+    return withRetry(async () => {
+      return this.request(`/api/v1/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          username: email,
+          password: password,
+        }),
+      });
+    }, AUTH_RETRY_OPTIONS);
+  }
+
+  async logout(): Promise<{ message: string }> {
+    return this.request('/api/v1/auth/logout', {
+      method: 'POST',
+    });
+  }
+
+  async getCurrentUser(): Promise<any> {
+    return withRetry(async () => {
+      return this.request('/api/v1/auth/me');
+    }, AUTH_RETRY_OPTIONS);
   }
 
   // Developer endpoints
@@ -233,10 +233,8 @@ class ApiClient {
   }
 
   async getCurrentDeveloper(): Promise<Developer> {
-    // Use optimized retry options for auth calls
-    return withRetry(async () => {
-      return this.request('/api/v1/developers/me');
-    }, AUTH_RETRY_OPTIONS);
+    // This is now handled by the unified /me endpoint
+    return this.getCurrentUser();
   }
 
   async getDeveloperStats(): Promise<DeveloperStats> {
@@ -292,44 +290,10 @@ class ApiClient {
     });
 
     const queryString = searchParams.toString();
-    // Use the real API endpoint now that database connection is fixed - add trailing slash to match backend
     const endpoint = `/api/v1/projects/${queryString ? `?${queryString}` : ''}`;
     
-    // For public projects endpoint, don't send auth headers that might cause issues
+    // Public endpoint - no auth needed
     return this.requestWithoutAuth(endpoint);
-  }
-
-  // Public request method without authentication headers
-  private async requestWithoutAuth<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-    const url = `${this.baseURL}${endpoint}`;
-    // Debug logging for development
-    // console.log('🔍 Making request to URL:', url, 'with baseURL:', this.baseURL, 'and endpoint:', endpoint);
-    
-    const config: RequestInit = {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      ...options,
-    };
-
-    try {
-      const response = await fetch(url, config);
-      // Debug logging for development
-      // console.log('🔍 Public API Request:', { url, status: response.status, method: config.method });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`❌ Public API Error (${response.status}): ${errorText}`);
-        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
-      }
-
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error(`❌ Public API request failed: ${url}`, error);
-      throw error;
-    }
   }
 
   // Analytics endpoints
@@ -369,11 +333,9 @@ class ApiClient {
     return this.request(`/api/v1/projects/${projectId}/images`, {
       method: 'POST',
       body: formData,
-      // Do not set Content-Type; request() will drop JSON header automatically for FormData
     });
   }
 
-  // Preferred: attach already-uploaded ImageKit files by URL + fileId
   async attachProjectImages(
     projectId: string | number,
     images: Array<{ url: string; fileId: string; isCover?: boolean }>
@@ -407,7 +369,7 @@ class ApiClient {
     });
   }
 
-  // New subscription-based listing management
+  // Subscription-based listing management
   async toggleProjectActive(projectId: number): Promise<{ message: string }> {
     return this.request(`/api/v1/projects/${projectId}/toggle-active`, {
       method: 'PATCH',
@@ -460,34 +422,11 @@ class ApiClient {
     });
   }
 
-  // Developer login with retry logic
-  async loginDeveloper(email: string, password: string): Promise<{
-    access_token: string;
-    token_type: string;
-    expires_in: number;
-    user_type: string;
-  }> {
-    return withRetry(async () => {
-      // Use the request method to get proper authentication headers
-      return this.request(`/api/v1/auth/token`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({
-          username: email,
-          password: password,
-        }),
-      });
-    }, AUTH_RETRY_OPTIONS); // Use optimized auth retry options
-  }
-
-  // Auth health check
+  // Health check endpoints
   async getAuthHealth(): Promise<{ status: string; auth_provider: string }> {
-    return this.request('/api/v1/health');
+    return this.request('/api/v1/auth/health');
   }
 
-  // Simple connectivity test
   async testConnection(): Promise<{ status: string; message: string }> {
     try {
       const response = await fetch(`/docs`);
@@ -506,6 +445,9 @@ class ApiClient {
 export const apiClient = new ApiClient("");
 
 // Export convenience functions with proper context binding
+export const login = (email: string, password: string) => apiClient.login(email, password);
+export const logout = () => apiClient.logout();
+export const getCurrentUser = () => apiClient.getCurrentUser();
 export const getDevelopers = () => apiClient.getDevelopers();
 export const getCurrentDeveloper = () => apiClient.getCurrentDeveloper();
 export const getDeveloperStats = () => apiClient.getDeveloperStats();
@@ -524,7 +466,6 @@ export const recordProjectPhoneClick = (projectId: string) => apiClient.recordPr
 export const registerDeveloper = (developerData: any) => apiClient.registerDeveloper(developerData);
 export const verifyEmail = (token: string) => apiClient.verifyEmail(token);
 export const resendVerification = (email: string) => apiClient.resendVerification(email);
-export const loginDeveloper = (email: string, password: string) => apiClient.loginDeveloper(email, password);
 export const getAuthHealth = () => apiClient.getAuthHealth();
 export const testConnection = () => apiClient.testConnection(); 
 
@@ -537,15 +478,9 @@ export const attachProjectImages = (
   images: Array<{ url: string; fileId: string; isCover?: boolean }>
 ) => apiClient.attachProjectImages(projectId, images);
 
-// New subscription-based listing management exports
+// Subscription-based listing management exports
 export const toggleProjectActive = (projectId: number) => apiClient.toggleProjectActive(projectId);
-export const getDeveloperListingStats = () => apiClient.getDeveloperListingStats(); 
+export const getDeveloperListingStats = () => apiClient.getDeveloperListingStats();
 
-
-
-
-
-
-
-
-
+// Keep legacy function names for compatibility during migration
+export const loginDeveloper = login; // Deprecated: use login instead

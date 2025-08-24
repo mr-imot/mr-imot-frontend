@@ -1,22 +1,32 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { loginDeveloper, getCurrentDeveloper } from './api';
 
-interface AuthUser {
+// User types
+export interface AuthUser {
+  id: string;
   email: string;
-  user_type: string;
+  user_type: 'admin' | 'developer' | 'buyer';
+  first_name?: string;
+  last_name?: string;
+  company_name?: string;
+  contact_person?: string;
+  phone?: string;
+  address?: string;
+  website?: string;
   verification_status?: string;
+  created_at?: string;
 }
 
+// Auth context interface
 interface AuthContextType {
   user: AuthUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  isVerificationRequired: boolean;
   login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   checkAuth: () => Promise<boolean>;
+  getDashboardUrl: () => string;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -36,79 +46,65 @@ interface AuthProviderProps {
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isVerificationRequired, setIsVerificationRequired] = useState(false);
 
-  // User is only authenticated if they have a token AND are verified
-  const isAuthenticated = !!user && !!localStorage.getItem('auth_token') && user?.verification_status === 'verified';
+  // User is authenticated if we have user data (cookies handle the session)
+  const isAuthenticated = !!user;
 
+  // API call to login with credentials
   const login = async (email: string, password: string) => {
     try {
-      const response = await loginDeveloper(email, password);
-      
-      // Validate user role for developer login
-      if (response.user_type !== 'developer') {
-        // Clear any stored tokens
-        localStorage.removeItem('auth_token');
-        localStorage.removeItem('auth_expires');
-        setUser(null);
-        throw new Error('Access denied. This login is for developers only. Please use the admin login if you have an admin account.');
-      }
-      
-      // Store the token securely
-      localStorage.setItem('auth_token', response.access_token);
-      localStorage.setItem('auth_expires', (Date.now() + response.expires_in * 1000).toString());
-      localStorage.setItem('user_email', email); // Cache email for faster future loads
-      
-      // Reset verification status on new login
-      setIsVerificationRequired(false);
-      
-      // Set user info
-      setUser({
-        email,
-        user_type: response.user_type
+      const response = await fetch('/api/v1/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        credentials: 'include', // Include cookies
+        body: new URLSearchParams({
+          username: email,
+          password: password,
+        }),
       });
-      
-      // Check if user needs verification by trying to get current developer info
-      try {
-        const userInfo = await getCurrentDeveloper();
-        // Set verification status based on backend response
-        setUser({
-          email,
-          user_type: response.user_type,
-          verification_status: userInfo.verification_status
-        });
-        setIsVerificationRequired(userInfo.verification_status !== 'verified');
-      } catch (error: any) {
-        // If failed with verification error, set verification required but don't fail login
-        if ((error as any).isVerificationRequired || 
-            (error.message && error.message.includes('verification required')) ||
-            (error.message && error.message.includes("don't have permission")) ||
-            (error as any).statusCode === 403) {
-          setUser({
-            email,
-            user_type: response.user_type,
-            verification_status: 'pending_manual_approval' // Default for unverified users
-          });
-          setIsVerificationRequired(true);
-        } else {
-          // For other errors, still fail the login
-          throw error;
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        let errorMessage = 'Login failed';
+        
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMessage = errorData.detail || errorData.message || errorMessage;
+        } catch {
+          // If JSON parsing fails, use the raw text or default message
+          errorMessage = errorText || errorMessage;
         }
+        
+        throw new Error(errorMessage);
       }
+
+      const data = await response.json();
+      
+      // After successful login, fetch user info
+      await checkAuth();
+      
+      return data;
     } catch (error) {
-      // Clear any existing tokens on login failure
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('auth_expires');
-      setUser(null);
+      console.error('Login error:', error);
       throw error;
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('auth_expires');
-    localStorage.removeItem('remember_me');
-    localStorage.removeItem('user_email'); // Clear cached email
+  // Logout by calling backend endpoint and clearing state
+  const logout = async () => {
+    try {
+      await fetch('/api/v1/auth/logout', {
+        method: 'POST',
+        credentials: 'include', // Include cookies
+      });
+    } catch (error) {
+      console.error('Logout request failed:', error);
+      // Continue with local logout even if backend call fails
+    }
+    
+    // Clear local state
     setUser(null);
     
     // Redirect to login page
@@ -117,124 +113,57 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
+  // Check authentication status by calling /me endpoint
   const checkAuth = async (): Promise<boolean> => {
-    const token = localStorage.getItem('auth_token');
-    const expires = localStorage.getItem('auth_expires');
-    
-    if (!token || !expires) {
+    try {
+      const response = await fetch('/api/v1/auth/me', {
+        method: 'GET',
+        credentials: 'include', // Include cookies
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          // Not authenticated
+          setUser(null);
+          return false;
+        }
+        throw new Error(`Auth check failed: ${response.status}`);
+      }
+
+      const userData = await response.json();
+      setUser(userData);
+      return true;
+    } catch (error) {
+      console.error('Auth check failed:', error);
       setUser(null);
       return false;
     }
+  };
 
-    const expiryTime = parseInt(expires);
-    if (Date.now() >= expiryTime) {
-      // Token expired
-      logout();
-      return false;
-    }
-
-    // OPTIMIZATION: Try cached user data first for faster initial load
-    const cachedUserEmail = localStorage.getItem('user_email');
-    if (cachedUserEmail) {
-      setUser({
-        email: cachedUserEmail,
-        user_type: 'developer'
-      });
-    }
-
-    // Validate token with backend in background (non-blocking)
-    try {
-      // Use Promise.race with timeout for faster failure detection
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Auth validation timeout')), 5000)
-      );
-      
-      const userInfo = await Promise.race([
-        getCurrentDeveloper(),
-        timeoutPromise
-      ]);
-      
-      // Update with fresh data from API
-      setUser({
-        email: userInfo.email,
-        user_type: 'developer',
-        verification_status: userInfo.verification_status
-      });
-      
-      // Cache user email for faster future loads
-      localStorage.setItem('user_email', userInfo.email);
-      return true;
-    } catch (error: any) {
-      // Only log non-verification errors as warnings
-      if (!(error as any).isVerificationRequired) {
-        // console.warn('Auth validation failed:', error); // Removed console.warn
-      }
-      
-      // Handle specific error cases
-      if ((error as any).isVerificationRequired || 
-          (error.message && error.message.includes('verification required'))) {
-        // Account needs verification - don't logout, just return false
-        // This prevents the refresh loop
-        // console.log('Account verification required - keeping user logged in but not authenticated'); // Removed console.log
-        setIsVerificationRequired(true);
-        
-        // Set user with unverified status if we have cached email
-        if (cachedUserEmail) {
-          setUser({
-            email: cachedUserEmail,
-            user_type: 'developer',
-            verification_status: 'pending_manual_approval' // Default to pending
-          });
-        }
-        return false;
-      }
-      
-      if ((error as any).statusCode === 403 || 
-          (error.message && error.message.includes('403'))) {
-        // Permission denied - likely verification required
-        // console.log('Permission denied - likely verification required'); // Removed console.log
-        setIsVerificationRequired(true);
-        
-        // Set user with unverified status if we have cached email  
-        if (cachedUserEmail) {
-          setUser({
-            email: cachedUserEmail,
-            user_type: 'developer',
-            verification_status: 'pending_manual_approval' // Default to pending
-          });
-        }
-        return false;
-      }
-      
-      // If we have cached user data, keep using it for other errors
-      if (cachedUserEmail) {
-        return true;
-      }
-      
-      // Check if remember me is enabled
-      const rememberMe = localStorage.getItem('remember_me');
-      if (rememberMe) {
-        // Keep minimal user state for remember me
-        setUser({
-          email: 'user@example.com', // This should come from stored data
-          user_type: 'developer'
-        });
-        return true;
-      } else {
-        // Clear invalid tokens only for critical errors
-        logout();
-        return false;
-      }
+  // Get dashboard URL based on user type
+  const getDashboardUrl = (): string => {
+    if (!user) return '/login';
+    
+    switch (user.user_type) {
+      case 'admin':
+        return '/admin/dashboard';
+      case 'developer':
+        return '/developer/dashboard';
+      case 'buyer':
+        return '/buyer/dashboard';
+      default:
+        return '/login';
     }
   };
 
+  // Check auth on component mount
   useEffect(() => {
     const initAuth = async () => {
       try {
         await checkAuth();
       } catch (error) {
-        // console.error('Auth initialization failed:', error); // Removed console.error
-        logout();
+        console.error('Auth initialization failed:', error);
+        setUser(null);
       } finally {
         setIsLoading(false);
       }
@@ -247,10 +176,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     user,
     isAuthenticated,
     isLoading,
-    isVerificationRequired,
     login,
     logout,
     checkAuth,
+    getDashboardUrl,
   };
 
   return (

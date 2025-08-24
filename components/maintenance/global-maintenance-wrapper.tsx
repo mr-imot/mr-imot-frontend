@@ -31,10 +31,24 @@ export const GlobalMaintenanceWrapper: React.FC<GlobalMaintenanceWrapperProps> =
       setIsChecking(true)
       
       // Try multiple endpoints to confirm backend is completely down
-      const healthStatus = await fetch(`/api/v1/health`, { signal: AbortSignal.timeout(3000) })
-      const projectsStatus = await fetch(`/api/v1/projects`, { signal: AbortSignal.timeout(3000) })
+      let healthFailed = false
+      let projectsFailed = false
 
-      const allFailed = healthStatus.status === 503 && projectsStatus.status === 503
+      try {
+        const healthStatus = await fetch(`/api/v1/health`, { signal: AbortSignal.timeout(3000) })
+        healthFailed = !healthStatus.ok || healthStatus.status >= 500
+      } catch {
+        healthFailed = true
+      }
+
+      try {
+        const projectsStatus = await fetch(`/api/v1/projects`, { signal: AbortSignal.timeout(3000) })
+        projectsFailed = !projectsStatus.ok || projectsStatus.status >= 500
+      } catch {
+        projectsFailed = true
+      }
+
+      const allFailed = healthFailed && projectsFailed
 
       if (allFailed) {
         setIsBackendDown(true)
@@ -44,14 +58,14 @@ export const GlobalMaintenanceWrapper: React.FC<GlobalMaintenanceWrapperProps> =
       } else {
         setIsBackendDown(false)
         if (config.features.debugLogging) {
-          // console.info('✅ Backend is responsive - normal operation')
+          console.info('✅ Backend is responsive - normal operation')
         }
       }
     } catch (error) {
       // Complete network failure
       setIsBackendDown(true)
       if (config.features.debugLogging) {
-        console.warn('🚨 Network failure detected - showing global maintenance page')
+        console.warn('🚨 Network failure detected - showing global maintenance page', error)
       }
     } finally {
       setIsChecking(false)
@@ -66,13 +80,13 @@ export const GlobalMaintenanceWrapper: React.FC<GlobalMaintenanceWrapperProps> =
     // No automatic polling to prevent UX interruptions
   }, [])
 
-  // If we're still checking on initial load, show a simple loading
+  // If we're still checking on initial load, show a simple loading with brand colors
   if (isChecking) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-800 mx-auto mb-4"></div>
+          <p className="text-gray-700 font-figtree">Loading...</p>
         </div>
       </div>
     )

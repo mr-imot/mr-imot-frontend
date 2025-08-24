@@ -4,7 +4,7 @@
 // Provides the main layout structure for all admin pages
 
 import React, { useState } from 'react';
-import { useUnifiedAuth } from '@/lib/unified-auth';
+import { useAuth } from '@/lib/auth-context';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
@@ -70,7 +70,7 @@ const navigation: NavItem[] = [
 ];
 
 export function AdminLayout({ children }: AdminLayoutProps) {
-  const { user, logout } = useUnifiedAuth();
+  const { user, logout } = useAuth();
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 

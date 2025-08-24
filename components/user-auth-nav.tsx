@@ -2,11 +2,11 @@
 
 import Link from "next/link"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { useUnifiedAuth } from "@/lib/unified-auth"
+import { useAuth } from "@/lib/auth-context"
 import { LogOut } from "lucide-react"
 
 export function UserAuthNav() {
-  const { user, isAuthenticated, isLoading, logout, getDashboardUrl } = useUnifiedAuth();
+  const { user, isAuthenticated, isLoading, logout, getDashboardUrl } = useAuth();
 
   if (isLoading) {
     return (

@@ -14,22 +14,21 @@ import { Suspense, useEffect } from "react"
 import { LogIn, CheckCircle, Shield, ArrowRight, Sparkles, Mail, Eye, EyeOff, Loader2 } from "lucide-react"
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from "@/lib/auth-constants"
 import { useAuth } from "@/lib/auth-context"
-import { useUnifiedAuth } from "@/lib/unified-auth"
+
 import { createAuthError, getErrorDisplayMessage, AuthenticationError } from "@/lib/auth-errors"
 
 function LoginFormContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const message = searchParams.get('message')
-  const { login } = useAuth()
-  const { isAuthenticated, isLoading: unifiedLoading, getDashboardUrl } = useUnifiedAuth()
+  const { login, isAuthenticated, isLoading: authLoading, getDashboardUrl } = useAuth()
 
   // Redirect if already authenticated
   useEffect(() => {
-    if (!unifiedLoading && isAuthenticated) {
+    if (!authLoading && isAuthenticated) {
       router.replace(getDashboardUrl())
     }
-  }, [isAuthenticated, unifiedLoading, router, getDashboardUrl])
+  }, [isAuthenticated, authLoading, router, getDashboardUrl])
   
   const [formData, setFormData] = useState({
     email: '',
@@ -63,13 +62,8 @@ function LoginFormContent() {
 
       await login(formData.email, formData.password)
 
-      // Store remember me preference
-      if (rememberMe) {
-        localStorage.setItem('remember_me', 'true')
-      }
-
-      // Redirect to dashboard on success
-      router.push('/developer/dashboard')
+      // After successful login, redirect to appropriate dashboard
+      router.push(getDashboardUrl())
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Login failed'
       

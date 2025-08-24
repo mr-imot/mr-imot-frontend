@@ -222,10 +222,10 @@ function DashboardSidebar({ profile }: { profile: DeveloperProfile | null }) {
 
   const handleNavigation = (href: string) => router.push(href)
 
-  const handleLogout = () => {
-    localStorage.removeItem('auth_token')
-    localStorage.removeItem('auth_expires')
-    router.push('/login')
+  const { logout } = useAuth()
+  
+  const handleLogout = async () => {
+    await logout()
   }
 
   return (
@@ -576,30 +576,23 @@ export default function DeveloperDashboardPage() {
   const [profile, setProfile] = useState<DeveloperProfile | null>(null)
   const { user } = useAuth();
 
-  // Only fetch developer profile for sidebar if user is verified
+  // Set profile from auth context if user is verified
   useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const token = localStorage.getItem('auth_token')
-        if (!token || user?.verification_status !== 'verified') return
-
-        const response = await fetch(`/api/v1/developers/me`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        })
-        
-        if (response.ok) {
-          const profileData = await response.json()
-          setProfile(profileData)
-        }
-      } catch (error) {
-        console.error('Failed to fetch profile:', error)
-      }
+    if (user?.verification_status === 'verified') {
+      // User data from auth context contains all needed profile info
+      setProfile({
+        id: user.id,
+        email: user.email,
+        company_name: user.company_name || '',
+        contact_person: user.contact_person || '',
+        phone: user.phone || '',
+        office_address: user.address || '',
+        website: user.website || '',
+        verification_status: user.verification_status,
+        created_at: user.created_at || '',
+      })
     }
-
-    fetchProfile()
-  }, [user?.verification_status])
+  }, [user])
 
   return (
     <ProtectedRoute requiredRole="developer">

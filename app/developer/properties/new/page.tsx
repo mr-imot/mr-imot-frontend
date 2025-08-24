@@ -521,13 +521,7 @@ export default function NewPropertyPage() {
   const onSubmit = async (values: FormValues) => {
     if (isSubmitting) return // Prevent duplicate submissions
     
-    // DEBUG: Show authentication info
-    // console.log('🔐 Auth Debug:', {
-    //   token: localStorage.getItem('auth_token'),
-    //   expires: localStorage.getItem('auth_expires'),
-    //   currentTime: Date.now(),
-    //   tokenExpired: Date.now() > parseInt(localStorage.getItem('auth_expires') || '0')
-    // });
+    // Authentication is now handled by HttpOnly cookies automatically
     
     // DEBUG: Show environment variables
     // console.log('🌍 Environment Debug:', {
