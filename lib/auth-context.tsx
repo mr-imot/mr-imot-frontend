@@ -27,6 +27,8 @@ interface AuthContextType {
   logout: () => Promise<void>;
   checkAuth: () => Promise<boolean>;
   getDashboardUrl: () => string;
+  // Simple verification helper
+  canCreateProjects: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -172,6 +174,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     initAuth();
   }, []);
 
+  // Simple verification helper - only for creating projects
+  const canCreateProjects = user?.verification_status === 'verified';
+
   const value: AuthContextType = {
     user,
     isAuthenticated,
@@ -180,6 +185,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     logout,
     checkAuth,
     getDashboardUrl,
+    canCreateProjects,
   };
 
   return (

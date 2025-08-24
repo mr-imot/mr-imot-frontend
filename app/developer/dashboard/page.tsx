@@ -6,6 +6,9 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import { useDeveloperDashboard } from "@/hooks/use-developer-dashboard"
 import { ProtectedRoute } from "@/components/protected-route"
 import { useAuth } from "@/lib/auth-context"
+import { PendingApprovalMessage } from "@/components/pending-approval-message"
+
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -86,7 +89,7 @@ import {
   Zap,
   ArrowUpRight,
   ArrowUpDown,
-  Cube,
+  Box,
   Sparkles,
 } from "lucide-react"
 
@@ -329,6 +332,7 @@ function DashboardContent() {
   const [selectedPeriod, setSelectedPeriod] = useState('week')
   const [seriesEnabled, setSeriesEnabled] = useState({ views: true, website: true, phone: true })
   const { stats, analytics, projects, loading, error } = useDeveloperDashboard(selectedPeriod)
+  const { canCreateProjects } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -412,17 +416,29 @@ function DashboardContent() {
                   <SelectItem value="year">This Year</SelectItem>
                 </SelectContent>
               </Select>
-              <Button 
-                onClick={handleAddListing}
-                className="h-11 px-6 shadow-md hover:shadow-lg transition-all duration-200"
-                style={{
-                  backgroundColor: 'var(--brand-btn-primary-bg)',
-                  color: 'var(--brand-btn-primary-text)'
-                }}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Add Property
-              </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      onClick={canCreateProjects ? handleAddListing : undefined}
+                      disabled={!canCreateProjects}
+                      className="h-11 px-6 shadow-md hover:shadow-lg transition-all duration-200"
+                      style={{
+                        backgroundColor: canCreateProjects ? 'var(--brand-btn-primary-bg)' : 'var(--muted)',
+                        color: canCreateProjects ? 'var(--brand-btn-primary-text)' : 'var(--muted-foreground)'
+                      }}
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Property
+                    </Button>
+                  </TooltipTrigger>
+                  {!canCreateProjects && (
+                    <TooltipContent>
+                      <p>Available after account approval</p>
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+              </TooltipProvider>
             </div>
           </div>
         </div>
@@ -430,6 +446,10 @@ function DashboardContent() {
 
       {/* Main Content with Premium Spacing */}
       <main className="p-8 max-w-7xl mx-auto space-y-12">
+        
+        {/* Pending Approval Message */}
+        <PendingApprovalMessage />
+
         {/* Key Metrics */}
         <section>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -574,7 +594,9 @@ function DashboardContent() {
 export default function DeveloperDashboardPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [profile, setProfile] = useState<DeveloperProfile | null>(null)
-  const { user } = useAuth();
+  const { user, canCreateProjects } = useAuth();
+
+
 
   // Set profile from auth context if user is verified
   useEffect(() => {

@@ -6,6 +6,9 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import useSWR from "swr"
 
 import { ProtectedRoute } from "@/components/protected-route"
+import { useAuth } from "@/lib/auth-context"
+import { PendingApprovalMessage } from "@/components/pending-approval-message"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -88,6 +91,7 @@ function DeveloperSidebar() {
 type StatusFilter = "all" | "active" | "draft" | "paused"
 
 export default function DeveloperPropertiesPage() {
+  const { canCreateProjects } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -98,6 +102,12 @@ export default function DeveloperPropertiesPage() {
   const [pageSize, setPageSize] = useState(12)
   const [sortKey, setSortKey] = useState<'date' | 'views' | 'clicks' | 'website' | 'phone'>('date')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
+
+  const handleAddProperty = () => {
+    if (canCreateProjects) {
+      router.push('/developer/properties/new')
+    }
+  }
 
   // Init from URL
   useEffect(() => {
@@ -171,15 +181,33 @@ export default function DeveloperPropertiesPage() {
           <DeveloperSidebar />
           <SidebarInset>
             <div className="p-6 w-full">
+              {/* Pending Approval Message */}
+              <PendingApprovalMessage />
+              
               <div className="sticky top-16 z-20 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b mb-6">
                 <div className="flex items-center justify-between py-4">
                 <div>
                   <h1 className="text-2xl font-bold">Your Properties</h1>
                   <p className="text-muted-foreground">Create, update and manage your listings</p>
                 </div>
-                <Button asChild>
-                  <Link href="/developer/properties/new"><Plus className="h-4 w-4 mr-2" />Add Property</Link>
-                </Button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button 
+                        onClick={handleAddProperty}
+                        disabled={!canCreateProjects}
+                        className={!canCreateProjects ? "opacity-50 cursor-not-allowed" : ""}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />Add Property
+                      </Button>
+                    </TooltipTrigger>
+                    {!canCreateProjects && (
+                      <TooltipContent>
+                        <p>Available after account approval</p>
+                      </TooltipContent>
+                    )}
+                  </Tooltip>
+                </TooltipProvider>
                 </div>
               </div>
 
@@ -344,7 +372,24 @@ export default function DeveloperPropertiesPage() {
                 <Card className="p-8 text-center">
                   <CardTitle className="mb-2">No properties yet</CardTitle>
                   <CardDescription className="mb-6">Create your first listing to get started.</CardDescription>
-                  <Button asChild><Link href="/developer/properties/new"><Plus className="h-4 w-4 mr-2" />Add Property</Link></Button>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button 
+                          onClick={handleAddProperty}
+                          disabled={!canCreateProjects}
+                          className={!canCreateProjects ? "opacity-50 cursor-not-allowed" : ""}
+                        >
+                          <Plus className="h-4 w-4 mr-2" />Add Property
+                        </Button>
+                      </TooltipTrigger>
+                      {!canCreateProjects && (
+                        <TooltipContent>
+                          <p>Available after account approval</p>
+                        </TooltipContent>
+                      )}
+                    </Tooltip>
+                  </TooltipProvider>
                 </Card>
               )}
 

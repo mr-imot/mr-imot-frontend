@@ -1,0 +1,472 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Mr. Imot Brand Colors - CSS Custom Properties */
+:root {
+  /* Primary Grays */
+  --brand-gray-900: #111827;
+  --brand-gray-800: #1f2937;
+  --brand-gray-700: #374151;
+  --brand-gray-600: #4b5563;
+  --brand-gray-500: #6b7280;
+  --brand-gray-400: #9ca3af;
+  --brand-gray-300: #d1d5db;
+  --brand-gray-200: #e5e7eb;
+  --brand-gray-100: #f3f4f6;
+  --brand-gray-50: #f9fafb;
+  
+  /* Glass Background Tones */
+  --brand-glass-primary: #e8edf0;
+  --brand-glass-light: #f0f4f6;
+  --brand-glass-lighter: #eaf0f2;
+  
+  /* Navigation Colors */
+  --brand-nav-text: rgba(255, 255, 255, 0.8);
+  --brand-nav-text-hover: rgba(255, 255, 255, 1);
+  --brand-nav-bg-hover: rgba(255, 255, 255, 0.1);
+  --brand-nav-logo-bg: rgba(255, 255, 255, 0.1);
+  --brand-nav-logo-bg-hover: rgba(255, 255, 255, 0.2);
+  --brand-nav-logo-border: rgba(255, 255, 255, 0.2);
+  
+  /* Button Colors */
+  --brand-btn-primary-bg: #111827;
+  --brand-btn-primary-bg-hover: #1f2937;
+  --brand-btn-primary-text: #ffffff;
+  --brand-btn-secondary-bg: transparent;
+  --brand-btn-secondary-border: #374151;
+  --brand-btn-secondary-text: #111827;
+  --brand-btn-secondary-bg-hover: #111827;
+  --brand-btn-secondary-text-hover: #ffffff;
+  --brand-btn-login-bg: #ffffff;
+  --brand-btn-login-bg-hover: rgba(255, 255, 255, 0.9);
+  --brand-btn-login-text: #000000;
+  
+  /* Text Hierarchy */
+  --brand-text-primary: #111827;
+  --brand-text-secondary: #1f2937;
+  --brand-text-tertiary: #374151;
+  --brand-text-muted: #6b7280;
+  --brand-text-light: rgba(255, 255, 255, 0.8);
+  
+  /* Badge/Tag Colors */
+  --brand-badge-bg: rgba(243, 244, 246, 0.9);
+  --brand-badge-border: #e5e7eb;
+  --brand-badge-text: #374151;
+  
+  /* Status Colors */
+  --brand-success: #10b981;
+  --brand-warning: #f59e0b;
+  --brand-error: #ef4444;
+  --brand-info: #3b82f6;
+  
+  /* Effects */
+  --brand-white-overlay-10: rgba(255, 255, 255, 0.1);
+  --brand-white-overlay-20: rgba(255, 255, 255, 0.2);
+  --brand-white-overlay-90: rgba(255, 255, 255, 0.9);
+}
+
+.instrument {
+  font-family: var(--font-instrument-serif), serif;
+}
+
+/* Enhanced Gooey Effects */
+.gooey-nav {
+  filter: url(#gooey-filter);
+}
+
+.gooey-nav a {
+  transition: all 0.3s ease;
+}
+
+.gooey-nav a:hover {
+  transform: scale(1.1);
+}
+
+/* Navigation items that blob together on hover */
+.nav-blob {
+  position: relative;
+  display: inline-block;
+  transition: all 0.3s ease;
+}
+
+.nav-blob::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: all 0.3s ease;
+  z-index: -1;
+}
+
+.nav-blob:hover::before {
+  width: 120%;
+  height: 200%;
+  border-radius: 50px;
+}
+
+/* Enhanced button morphing */
+.morph-button {
+  filter: url(#gooey-filter);
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
+}
+
+.morph-button:hover {
+  transform: scale(1.05);
+}
+
+/* Airbnb-style map price pills for AdvancedMarkerElement */
+.map-price-pill {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 6px 10px;
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 18px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  will-change: transform;
+  user-select: none;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.map-price-pill:hover {
+  transform: scale(1.06);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+  cursor: pointer;
+}
+
+.map-price-pill--active {
+  outline: 2px solid var(--brand-gray-900);
+  outline-offset: 2px;
+}
+
+.map-price-pill--cluster {
+  background: var(--subtle);
+  color: #ffffff;
+  border-color: var(--subtle);
+}
+
+@layer base {
+  :root {
+    /* Brand design tokens - Mr. Imot Conservative Style */
+    --brand: #111827;        /* Primary brand color (Conservative Gray) */
+    --brand-ink: #ffffff;    /* Text on brand surfaces */
+    --ink: #111111;          /* Primary text color */
+    --subtle: #6B7280;       /* Secondary text color */
+    --card: #ffffff;         /* Card background */
+    --muted: #F4F5F7;        /* Muted background */
+    --ring: rgba(17,24,39,.35); /* Focus ring color */
+    --radius: 16px;          /* Base border radius */
+    
+    /* Shadows */
+    --shadow-card: 0 8px 24px rgba(0,0,0,.08);
+    --shadow-hover: 0 12px 28px rgba(0,0,0,.12);
+    --shadow-focus: 0 0 0 3px var(--ring);
+    
+    /* Existing shadcn variables (updated to align) */
+    --background: oklch(0.9900 0 0);
+    --foreground: var(--ink);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0 0 0);
+    --popover: oklch(0.9900 0 0);
+    --popover-foreground: oklch(0 0 0);
+    --primary: var(--brand);
+    --primary-foreground: #ffffff;
+    --secondary: oklch(0.9400 0 0);
+    --secondary-foreground: oklch(0 0 0);
+    --muted: var(--muted);
+    --muted-foreground: var(--subtle);
+    --accent: oklch(0.9400 0 0);
+    --accent-foreground: oklch(0 0 0);
+    --destructive: oklch(0.6300 0.1900 23.0300);
+    --destructive-foreground: oklch(1 0 0);
+    --border: oklch(0.9200 0 0);
+    --input: oklch(0.9400 0 0);
+    --ring: var(--ring);
+    --chart-1: oklch(0.8100 0.1700 75.3500);
+    --chart-2: oklch(0.5500 0.2200 264.5300);
+    --chart-3: oklch(0.7200 0 0);
+    --chart-4: oklch(0.9200 0 0);
+    --chart-5: oklch(0.5600 0 0);
+    --sidebar: oklch(0.9900 0 0);
+    --sidebar-foreground: oklch(0 0 0);
+    --sidebar-primary: oklch(0 0 0);
+    --sidebar-primary-foreground: oklch(1 0 0);
+    --sidebar-accent: oklch(0.9400 0 0);
+    --sidebar-accent-foreground: oklch(0 0 0);
+    --sidebar-border: oklch(0.9400 0 0);
+    --sidebar-ring: oklch(0 0 0);
+    --font-sans: Geist, sans-serif;
+    --font-serif: Georgia, serif;
+    --font-mono: Geist Mono, monospace;
+    --radius: 0.5rem;
+    --shadow-2xs: 0px 1px 2px 0px hsl(0 0% 0% / 0.09);
+    --shadow-xs: 0px 1px 2px 0px hsl(0 0% 0% / 0.09);
+    --shadow-sm: 0px 1px 2px 0px hsl(0 0% 0% / 0.18), 0px 1px 2px -1px hsl(0 0% 0% / 0.18);
+    --shadow: 0px 1px 2px 0px hsl(0 0% 0% / 0.18), 0px 1px 2px -1px hsl(0 0% 0% / 0.18);
+    --shadow-md: 0px 1px 2px 0px hsl(0 0% 0% / 0.18), 0px 2px 4px -1px hsl(0 0% 0% / 0.18);
+    --shadow-lg: 0px 1px 2px 0px hsl(0 0% 0% / 0.18), 0px 4px 6px -1px hsl(0 0% 0% / 0.18);
+    --shadow-xl: 0px 1px 2px 0px hsl(0 0% 0% / 0.18), 0px 8px 10px -1px hsl(0 0% 0% / 0.18);
+    --shadow-2xl: 0px 1px 2px 0px hsl(0 0% 0% / 0.45);
+    --tracking-normal: 0em;
+    --spacing: 0.25rem;
+    --shadow-color: hsl(0 0% 0%);
+    --shadow-opacity: 0.18;
+    --shadow-blur: 2px;
+    --shadow-spread: 0px;
+    --shadow-offset-x: 0px;
+    --shadow-offset-y: 1px;
+    --letter-spacing: 0em;
+  }
+
+  .dark {
+    --background: oklch(0 0 0);
+    --foreground: oklch(1 0 0);
+    --card: oklch(0.1400 0 0);
+    --card-foreground: oklch(1 0 0);
+    --popover: oklch(0.1800 0 0);
+    --popover-foreground: oklch(1 0 0);
+    --primary: oklch(1 0 0);
+    --primary-foreground: oklch(0 0 0);
+    --secondary: oklch(0.2500 0 0);
+    --secondary-foreground: oklch(1 0 0);
+    --muted: oklch(0.2300 0 0);
+    --muted-foreground: oklch(0.7200 0 0);
+    --accent: oklch(0.3200 0 0);
+    --accent-foreground: oklch(1 0 0);
+    --destructive: oklch(0.6900 0.2000 23.9100);
+    --destructive-foreground: oklch(0 0 0);
+    --border: oklch(0.2600 0 0);
+    --input: oklch(0.3200 0 0);
+    --ring: oklch(0.7200 0 0);
+    --chart-1: oklch(0.8100 0.1700 75.3500);
+    --chart-2: oklch(0.5800 0.2100 260.8400);
+    --chart-3: oklch(0.5600 0 0);
+    --chart-4: oklch(0.4400 0 0);
+    --chart-5: oklch(0.9200 0 0);
+    --sidebar: oklch(0.1800 0 0);
+    --sidebar-foreground: oklch(1 0 0);
+    --sidebar-primary: oklch(1 0 0);
+    --sidebar-primary-foreground: oklch(0 0 0);
+    --sidebar-accent: oklch(0.3200 0 0);
+    --sidebar-accent-foreground: oklch(1 0 0);
+    --sidebar-border: oklch(0.3200 0 0);
+    --sidebar-ring: oklch(0.7200 0 0);
+    --font-sans: Geist, sans-serif;
+    --font-serif: Georgia, serif;
+    --font-mono: Geist Mono, monospace;
+    --radius: 0.5rem;
+    --shadow-2xs: 0px 1px 2px 0px hsl(0 0% 0% / 0.09);
+    --shadow-xs: 0px 1px 2px 0px hsl(0 0% 0% / 0.09);
+    --shadow-sm: 0px 1px 2px 0px hsl(0 0% 0% / 0.18), 0px 1px 2px -1px hsl(0 0% 0% / 0.18);
+    --shadow: 0px 1px 2px 0px hsl(0 0% 0% / 0.18), 0px 1px 2px -1px hsl(0 0% 0% / 0.18);
+    --shadow-md: 0px 1px 2px 0px hsl(0 0% 0% / 0.18), 0px 2px 4px -1px hsl(0 0% 0% / 0.18);
+    --shadow-lg: 0px 1px 2px 0px hsl(0 0% 0% / 0.18), 0px 4px 6px -1px hsl(0 0% 0% / 0.18);
+    --shadow-xl: 0px 1px 2px 0px hsl(0 0% 0% / 0.18), 0px 8px 10px -1px hsl(0 0% 0% / 0.18);
+    --shadow-2xl: 0px 1px 2px 0px hsl(0 0% 0% / 0.45);
+    --shadow-color: hsl(0 0% 0%);
+    --shadow-opacity: 0.18;
+    --shadow-blur: 2px;
+    --shadow-spread: 0px;
+    --shadow-offset-x: 0px;
+    --shadow-offset-y: 1px;
+    --letter-spacing: 0em;
+    --spacing: 0.25rem;
+  }
+  .theme {
+    --font-sans: Geist, sans-serif;
+    --font-mono: Geist Mono, monospace;
+    --font-serif: Georgia, serif;
+    --radius: 0.5rem;
+    --tracking-tighter: calc(var(--tracking-normal) - 0.05em);
+    --tracking-tight: calc(var(--tracking-normal) - 0.025em);
+    --tracking-wide: calc(var(--tracking-normal) + 0.025em);
+    --tracking-wider: calc(var(--tracking-normal) + 0.05em);
+    --tracking-widest: calc(var(--tracking-normal) + 0.1em);
+  }
+  body {
+    letter-spacing: var(--tracking-normal);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+  }
+}
+
+/* Custom scrollbar styles for professional look */
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #d1d5db #f3f4f6;
+  }
+  
+  .scrollbar-thumb-gray-300::-webkit-scrollbar-thumb {
+    background-color: #d1d5db;
+    border-radius: 6px;
+  }
+  
+  .scrollbar-track-gray-100::-webkit-scrollbar-track {
+    background-color: #f3f4f6;
+    border-radius: 6px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: #f3f4f6;
+    border-radius: 6px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 6px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+  }
+}
+
+/* Line clamp utility for text truncation */
+@layer utilities {
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+/* Animation utilities for smooth transitions */
+@layer utilities {
+  .animate-in {
+    animation-fill-mode: both;
+  }
+  
+  .fade-in-0 {
+    animation-name: fadeIn;
+  }
+  
+  .slide-in-from-bottom-4 {
+    animation-name: slideInFromBottom;
+  }
+  
+  .duration-500 {
+    animation-duration: 500ms;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromBottom {
+  from {
+    transform: translateY(1rem);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* Property Map Card Animations */
+@keyframes cardSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes cardSlideOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.98);
+  }
+}
+
+/* Property Map Card Styles */
+.property-map-card {
+  animation: cardSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  backdrop-filter: blur(8px);
+  box-shadow: 
+    0 25px 50px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.property-map-card.closing {
+  animation: cardSlideOut 0.2s cubic-bezier(0.55, 0.055, 0.675, 0.19);
+}
+
+.property-card-image {
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.property-card-image:hover {
+  transform: scale(1.08);
+}
+
+/* Enhanced hover effects for interactive elements */
+.property-card-close-btn {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(8px);
+}
+
+.property-card-close-btn:hover {
+  transform: scale(1.1);
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.property-card-rating-badge {
+  transition: all 0.2s ease;
+}
+
+.property-card-rating-badge:hover {
+  transform: scale(1.05);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+/* Header Fade Overlay for ElegantBlueprintBackground */
+.header-fade-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 200px; /* Adjust height to be taller than your header */
+  z-index: 1;
+
+  /* Gradient from 60% black to transparent for header readability */
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.6), transparent);
+
+  /* Makes the overlay non-interactive so you can click links behind it */
+  pointer-events: none;
+}

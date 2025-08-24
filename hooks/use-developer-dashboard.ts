@@ -45,8 +45,8 @@ const transformProjectForDashboard = (project: any) => {
 export const useDeveloperDashboard = (period: string = 'week'): UseDeveloperDashboardResult => {
   const { user } = useAuth();
   
-  // Only fetch data if user is verified
-  const shouldFetch = user?.verification_status === 'verified';
+  // Fetch data for all logged-in developers (authentication gate handles email verification)
+  const shouldFetch = user?.user_type === 'developer';
   
   const { data: stats, error: statsErr, isLoading: statsLoading, mutate: refetchStats } = useSWR(
     shouldFetch ? ['developer/stats'] : null,
