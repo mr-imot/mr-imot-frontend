@@ -73,7 +73,7 @@ html {
         `}</style>
       </head>
       <body className={cn("min-h-screen font-sans antialiased", figtree.variable, instrumentSerif.variable, outfit.variable, sourceSans.variable)}>      
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+        <ThemeProvider>
         <GlobalMaintenanceWrapper>
           <AuthProvider>
             {/* NEW: Header Fade Overlay */}

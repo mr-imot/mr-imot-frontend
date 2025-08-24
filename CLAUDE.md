@@ -35,7 +35,6 @@ The application uses JWT-based authentication with tokens stored in localStorage
 - **State Management**: React Context (AuthProvider, UnifiedAuthProvider)
 - **API Client**: Custom ApiClient class with retry logic and error handling
 - **Maps**: Google Maps integration for property locations
-- **Theme**: Dark/light mode support with next-themes
 
 ### Authentication Flow
 - **Dual Auth Providers**: `AuthProvider` for developer auth, `UnifiedAuthProvider` for unified auth
@@ -57,7 +56,6 @@ The application uses JWT-based authentication with tokens stored in localStorage
 
 ### Styling System
 - **Custom Design System**: `ds-*` prefixed classes for colors, typography, spacing
-- **Theme Variables**: CSS custom properties for light/dark theme support
 - **Responsive Design**: Mobile-first approach with custom breakpoints
 - **Component Styling**: Tailwind utility classes with design system tokens
 
@@ -82,7 +80,7 @@ The application uses JWT-based authentication with tokens stored in localStorage
 - Type all API responses with TypeScript interfaces
 
 ### State Management
-- Use React Context for global state (auth, theme)
+- Use React Context for global state (auth)
 - Local component state for UI-specific state
 - Custom hooks for reusable stateful logic
 - No external state management library required
