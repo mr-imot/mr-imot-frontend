@@ -442,7 +442,7 @@ class ApiClient {
 }
 
 // Export singleton instance
-export const apiClient = new ApiClient("");
+export const apiClient = new ApiClient(process.env.NEXT_PUBLIC_API_URL || "");
 
 // Export convenience functions with proper context binding
 export const login = (email: string, password: string) => apiClient.login(email, password);
