@@ -7,6 +7,7 @@ import { useDeveloperDashboard } from "@/hooks/use-developer-dashboard"
 import { ProtectedRoute } from "@/components/protected-route"
 import { useAuth } from "@/lib/auth-context"
 import { PendingApprovalMessage } from "@/components/pending-approval-message"
+import { DeveloperSidebar } from "@/components/developer-sidebar"
 
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -15,21 +16,7 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import {
-  SidebarProvider,
-  Sidebar,
-  SidebarHeader,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarInset,
-  SidebarTrigger,
-  SidebarRail,
-} from "@/components/ui/sidebar"
+
 import {
   ChartContainer,
   ChartTooltip,
@@ -179,156 +166,9 @@ function MetricCard({
   )
 }
 
-// Premium Navigation Sidebar with Mr imot Branding
-function DashboardSidebar({ profile }: { profile: DeveloperProfile | null }) {
-  const router = useRouter()
-  const pathname = usePathname()
-  
-  const navigationItems = [
-    { 
-      icon: Home, 
-      label: "Dashboard", 
-      href: "/developer/dashboard",
-      description: "Overview & insights"
-    },
-    { 
-      icon: Building2, 
-      label: "Properties", 
-      href: "/developer/properties",
-      description: "Manage listings"
-    },
-    { 
-      icon: BarChart3, 
-      label: "Analytics", 
-      href: "/developer/analytics",
-      description: "Performance metrics"
-    },
-    { 
-      icon: MessageSquare, 
-      label: "Inquiries", 
-      href: "/developer/inquiries",
-      description: "Customer messages"
-    },
-    { 
-      icon: User, 
-      label: "Profile", 
-      href: "/developer/profile",
-      description: "Company details"
-    },
-    { 
-      icon: Settings, 
-      label: "Settings", 
-      href: "/developer/settings",
-      description: "Account preferences"
-    },
-  ]
 
-  const handleNavigation = (href: string) => router.push(href)
-
-  const { logout } = useAuth()
-  
-  const handleLogout = async () => {
-    await logout()
-  }
-
-  return (
-    <>
-      <Sidebar className="md:top-16 border-r border-border/50 bg-gradient-to-b from-background to-muted/30" variant="inset">
-        <SidebarHeader className="border-b border-border/50 bg-background/95 backdrop-blur-sm">
-          <div className="flex items-center gap-3 px-4 py-6">
-            <div className="relative">
-              <div 
-                className="w-11 h-11 rounded-xl shadow-lg grid place-items-center" 
-                style={{backgroundColor: 'var(--brand-gray-900)'}}
-              >
-                <Building2 className="w-6 h-6 text-white" />
-              </div>
-              <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white shadow-sm" style={{backgroundColor: 'var(--brand-success)'}} />
-            </div>
-            <div className="flex-1">
-              <h1 className="text-lg font-bold text-foreground tracking-tight">Mr imot</h1>
-              <p className="text-xs text-muted-foreground font-medium">Developer Portal</p>
-            </div>
-          </div>
-        </SidebarHeader>
-        
-        <SidebarContent className="px-3 py-4">
-          <SidebarGroup>
-            <SidebarMenu className="gap-2">
-              {navigationItems.map((item) => {
-                const isActive = pathname ? pathname.startsWith(item.href) : false
-                return (
-                  <SidebarMenuItem key={item.href}>
-                    <SidebarMenuButton
-                      isActive={isActive}
-                      aria-current={isActive ? "page" : undefined}
-                      onClick={() => handleNavigation(item.href)}
-                      className={`
-                        h-12 px-4 rounded-xl transition-all duration-200 ease-out group
-                        ${isActive 
-                          ? 'bg-primary text-primary-foreground shadow-md hover:bg-primary/90 font-medium' 
-                          : 'hover:bg-accent/70 hover:text-accent-foreground hover:shadow-sm'
-                        }
-                      `}
-                    >
-                      <item.icon className={`w-5 h-5 transition-transform group-hover:scale-110 ${
-                        isActive ? 'text-primary-foreground' : 'text-muted-foreground group-hover:text-foreground'
-                      }`} />
-                      <div className="flex flex-col items-start">
-                        <span className={`text-sm font-medium ${isActive ? 'text-primary-foreground' : 'text-foreground'}`}>
-                          {item.label}
-                        </span>
-                        <span className={`text-xs ${
-                          isActive ? 'text-primary-foreground/80' : 'text-muted-foreground group-hover:text-foreground/70'
-                        }`}>
-                          {item.description}
-                        </span>
-                      </div>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                )
-              })}
-            </SidebarMenu>
-          </SidebarGroup>
-        </SidebarContent>
-        
-        <SidebarFooter className="border-t border-border/50 bg-background/95 backdrop-blur-sm p-4">
-          {profile && (
-            <div className="flex items-center gap-3 rounded-xl border border-border/50 bg-card/50 p-3 shadow-sm hover:shadow-md transition-all duration-200">
-              <Avatar className="h-10 w-10 ring-2 ring-primary/10">
-                <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/30 text-primary font-bold text-sm">
-                  {profile.company_name.substring(0, 2).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-foreground truncate leading-tight">
-                  {profile.company_name}
-                </p>
-                <p className="text-xs text-muted-foreground truncate">
-                  {profile.email}
-                </p>
-              </div>
-              <Badge 
-                variant={profile.verification_status === 'verified' ? 'default' : 'secondary'} 
-                className="text-xs px-2 py-1 text-white"
-                style={{
-                  backgroundColor: profile.verification_status === 'verified' ? 'var(--brand-success)' : 'var(--brand-warning)'
-                }}
-              >
-                {profile.verification_status === 'verified' ? '✓ Verified' : 'Pending'}
-              </Badge>
-            </div>
-          )}
-        </SidebarFooter>
-      </Sidebar>
-      <SidebarRail className="md:top-16" />
-      <SidebarTrigger className="fixed top-4 left-4 z-50 md:hidden" />
-    </>
-  )
-}
-
-// Main Dashboard Content
-function DashboardContent() {
+// Dashboard content without header since header is now separate  
+function DashboardContentWithoutHeader() {
   const [selectedPeriod, setSelectedPeriod] = useState('week')
   const [seriesEnabled, setSeriesEnabled] = useState({ views: true, website: true, phone: true })
   const { stats, analytics, projects, loading, error } = useDeveloperDashboard(selectedPeriod)
@@ -372,12 +212,6 @@ function DashboardContent() {
     router.replace(`${pathname}${qs ? `?${qs}` : ''}`, { scroll: false })
   }, [search, statusFilter, page, sortKey, sortDir, router, pathname])
 
-  // UI-only refactor: no auth/profile fetch here
-
-  const handleAddListing = () => {
-    router.push('/developer/properties/new')
-  }
-
   const handleViewAnalytics = () => {
     router.push('/developer/analytics')
   }
@@ -396,56 +230,9 @@ function DashboardContent() {
   }
 
   return (
-    <div className="flex-1 bg-gradient-to-br from-background via-background to-muted/20 overflow-auto">
-      {/* Premium Header */}
-      <header data-qa="dashboard-header" className="bg-card/95 backdrop-blur-sm border-b border-border/50 sticky top-0 z-30 shadow-sm">
-        <div className="px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <h1 className="text-3xl font-bold text-foreground tracking-tight">Dashboard</h1>
-              <p className="text-muted-foreground text-lg">Welcome back! Here's what's happening with your properties.</p>
-            </div>
-            <div className="flex items-center gap-4">
-              <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
-                <SelectTrigger className="w-40 h-11 border-border/50 bg-background/50 hover:bg-background transition-colors">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="week">This Week</SelectItem>
-                  <SelectItem value="month">This Month</SelectItem>
-                  <SelectItem value="year">This Year</SelectItem>
-                </SelectContent>
-              </Select>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button 
-                      onClick={canCreateProjects ? handleAddListing : undefined}
-                      disabled={!canCreateProjects}
-                      className="h-11 px-6 shadow-md hover:shadow-lg transition-all duration-200"
-                      style={{
-                        backgroundColor: canCreateProjects ? 'var(--brand-btn-primary-bg)' : 'var(--muted)',
-                        color: canCreateProjects ? 'var(--brand-btn-primary-text)' : 'var(--muted-foreground)'
-                      }}
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Property
-                    </Button>
-                  </TooltipTrigger>
-                  {!canCreateProjects && (
-                    <TooltipContent>
-                      <p>Available after account approval</p>
-                    </TooltipContent>
-                  )}
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content with Premium Spacing */}
-      <main className="p-8 max-w-7xl mx-auto space-y-12">
+    <div className="flex-1 overflow-auto">
+      {/* Main Content with proper constraints */}
+      <main className="px-8 py-8 max-w-7xl mx-auto space-y-12">
         
         {/* Pending Approval Message */}
         <PendingApprovalMessage />
@@ -592,40 +379,67 @@ function DashboardContent() {
 }
 
 export default function DeveloperDashboardPage() {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [profile, setProfile] = useState<DeveloperProfile | null>(null)
-  const { user, canCreateProjects } = useAuth();
-
-
-
-  // Set profile from auth context if user is verified
-  useEffect(() => {
-    if (user?.verification_status === 'verified') {
-      // User data from auth context contains all needed profile info
-      setProfile({
-        id: user.id,
-        email: user.email,
-        company_name: user.company_name || '',
-        contact_person: user.contact_person || '',
-        phone: user.phone || '',
-        office_address: user.address || '',
-        website: user.website || '',
-        verification_status: user.verification_status,
-        created_at: user.created_at || '',
-      })
-    }
-  }, [user])
-
   return (
     <ProtectedRoute requiredRole="developer">
-      <SidebarProvider>
-        <div className="min-h-screen bg-background flex">
-          <DashboardSidebar profile={profile} />
-          <SidebarInset>
-            <DashboardContent />
-          </SidebarInset>
+      <div className="flex flex-col h-screen bg-gradient-to-br from-background via-background to-muted/20">
+        {/* Full-width Dashboard Header spanning sidebar and content */}
+        <DashboardHeader />
+        
+        {/* Layout with sidebar and content below header */}
+        <div className="flex flex-1">
+          <DeveloperSidebar>
+            <DashboardContentWithoutHeader />
+          </DeveloperSidebar>
         </div>
-      </SidebarProvider>
+      </div>
     </ProtectedRoute>
+  )
+}
+
+// Separate header component
+function DashboardHeader() {
+  const { canCreateProjects } = useAuth()
+  const router = useRouter()
+  
+  const handleAddListing = () => {
+    router.push('/developer/properties/new')
+  }
+
+  return (
+    <header className="bg-card/95 backdrop-blur-sm border-b border-border/50 shadow-sm">
+      <div className="px-8 py-6">
+        <div className="flex items-center justify-between">
+          <div className="space-y-1 ml-72"> {/* Align with content area */}
+            <h1 className="text-3xl font-bold text-foreground tracking-tight">Dashboard</h1>
+            <p className="text-muted-foreground text-lg">Welcome back! Here's what's happening with your properties.</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    onClick={canCreateProjects ? handleAddListing : undefined}
+                    disabled={!canCreateProjects}
+                    className="h-11 px-6 shadow-md hover:shadow-lg transition-all duration-200"
+                    style={{
+                      backgroundColor: canCreateProjects ? 'var(--brand-btn-primary-bg)' : 'var(--muted)',
+                      color: canCreateProjects ? 'var(--brand-btn-primary-text)' : 'var(--muted-foreground)'
+                    }}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Property
+                  </Button>
+                </TooltipTrigger>
+                {!canCreateProjects && (
+                  <TooltipContent>
+                    <p>Available after account approval</p>
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        </div>
+      </div>
+    </header>
   )
 }

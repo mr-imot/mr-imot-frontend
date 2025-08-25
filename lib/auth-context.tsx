@@ -175,7 +175,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, []);
 
   // Simple verification helper - only for creating projects
-  const canCreateProjects = user?.verification_status === 'verified';
+  // For now, check if user exists and is developer type until we fix the verification_status field
+  const canCreateProjects = user?.user_type === 'developer';
 
   const value: AuthContextType = {
     user,

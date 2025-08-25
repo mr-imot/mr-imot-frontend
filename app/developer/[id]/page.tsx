@@ -1,17 +1,19 @@
 "use client"
 
+import { use } from "react"
 import { notFound } from "next/navigation"
 import { useDevelopers } from "@/hooks/use-developers"
 import { useProjects } from "@/hooks/use-projects"
 
 interface PageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default function DeveloperPage({ params }: PageProps) {
-  const developerId = parseInt(params.id)
+  const resolvedParams = use(params)
+  const developerId = parseInt(resolvedParams.id)
   
   if (isNaN(developerId)) {
     notFound()
