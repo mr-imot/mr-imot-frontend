@@ -26,27 +26,37 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
             {/* Left Column - Content */}
-            <div className="space-y-8">
-                             <div className="space-y-6">
-                 <h1 className="text-5xl md:text-6xl md:leading-16 tracking-tight font-light text-gray-900 mb-4 drop-shadow-sm">
-                  <span className="font-medium italic instrument">Real</span> Estate
+            <div className="space-y-6">
+              {/* Main Headline */}
+              <div className="space-y-2">
+                <h1 className="text-5xl md:text-6xl md:leading-16 tracking-tight font-bold text-gray-900 drop-shadow-sm">
+                  <span className="font-bold italic instrument">Get</span> Tomorrow's
                   <br />
-                  <span className="font-light tracking-tight text-gray-900">Directly from Developers</span>
+                  <span className="font-bold tracking-tight text-gray-900">Property Prices Today</span>
                 </h1>
-                <p className="text-sm font-medium text-gray-800 mb-4 leading-relaxed drop-shadow-sm">
-                  No brokers, no commissions.
+                
+                {/* Enhanced Directory Messaging */}
+                <p className="text-xl font-semibold text-gray-800 leading-relaxed drop-shadow-sm">
+                  Browse hundreds of off-plan projects directly from developers
+                </p>
+              </div>
+              
+              {/* Subline with better contrast - separated for better spacing control */}
+              <div className="pt-1">
+                <p className="text-lg font-medium text-gray-700 leading-relaxed drop-shadow-sm">
+                  Skip the middleman. Skip the markup.
                 </p>
               </div>
 
-              {/* Buttons */}
-              <div className="flex items-center gap-4 flex-wrap">
+              {/* Enhanced Buttons */}
+              <div className="flex items-center gap-4 flex-wrap pt-4">
                 <Link href="/listings">
-                  <button className="px-8 py-3 rounded-full bg-transparent border-2 border-gray-700 text-gray-900 font-semibold text-sm transition-all duration-200 hover:bg-gray-900 hover:text-white shadow-lg hover:shadow-xl cursor-pointer">
+                  <button className="px-10 py-4 rounded-full bg-transparent border-2 border-gray-700 text-gray-900 font-bold text-base transition-all duration-200 hover:bg-gray-900 hover:text-white shadow-lg hover:shadow-xl cursor-pointer transform hover:scale-105">
                     Browse Properties
                   </button>
                 </Link>
                 <Link href="/register?type=developer">
-                  <button className="px-8 py-3 rounded-full bg-gray-900 text-white font-semibold text-sm transition-all duration-200 hover:bg-gray-800 shadow-lg hover:shadow-xl cursor-pointer">
+                  <button className="px-10 py-4 rounded-full bg-gray-900 text-white font-bold text-base transition-all duration-200 hover:bg-gray-800 shadow-lg hover:shadow-xl cursor-pointer transform hover:scale-105">
                     List Your Project
                   </button>
                 </Link>
@@ -92,11 +102,11 @@ export default function HomePage() {
              </div>
              
                            {/* Video Caption - Underneath the video container */}
-              <div className="mt-4 text-center">
-                <p className="text-base font-medium text-gray-700" style={{
+              <div className="mt-6 text-center">
+                <p className="text-xl font-semibold text-gray-800 leading-relaxed" style={{
                   fontFamily: 'var(--font-instrument-serif)'
                 }}>
-                  ✨ Locate properties effortlessly
+                  ✨ Explore verified developments on our interactive map
                 </p>
               </div>
            </div>
