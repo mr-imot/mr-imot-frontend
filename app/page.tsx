@@ -27,23 +27,23 @@ export default function HomePage() {
           <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
             {/* Left Column - Content */}
             <div className="space-y-6">
-              {/* Main Headline */}
-              <div className="space-y-2">
+                            {/* Main Headline */}
+              <div className="space-y-1">
                 <h1 className="text-5xl md:text-6xl md:leading-16 tracking-tight font-bold text-gray-900 drop-shadow-sm">
-                  <span className="font-bold italic instrument">Get</span> Tomorrow's
+                  <span className="font-bold italic instrument">Find</span> Your
                   <br />
-                  <span className="font-bold tracking-tight text-gray-900">Property Prices Today</span>
+                  <span className="font-bold tracking-tight text-gray-900">Perfect Property Directly from Developers</span>
                 </h1>
                 
                 {/* Enhanced Directory Messaging */}
-                <p className="text-xl font-semibold text-gray-800 leading-relaxed drop-shadow-sm">
-                  Browse hundreds of off-plan projects directly from developers
+                <p className="text-2xl font-semibold text-gray-800 leading-relaxed drop-shadow-sm">
+                  Browse off-plan projects in Bulgaria.
                 </p>
               </div>
               
               {/* Subline with better contrast - separated for better spacing control */}
-              <div className="pt-1">
-                <p className="text-lg font-medium text-gray-700 leading-relaxed drop-shadow-sm">
+              <div className="pt-2">
+                <p className="text-base font-medium text-gray-700 leading-relaxed drop-shadow-sm">
                   Skip the middleman. Skip the markup.
                 </p>
               </div>
@@ -106,161 +106,171 @@ export default function HomePage() {
                 <p className="text-xl font-semibold text-gray-800 leading-relaxed" style={{
                   fontFamily: 'var(--font-instrument-serif)'
                 }}>
-                  ✨ Explore verified developments on our interactive map
+                  ✨ See exactly what's being built near you on our interactive map
                 </p>
               </div>
            </div>
         </div>
       </section>
 
-      {/* How It Works Section */}
-      <section className="relative overflow-hidden py-24" style={{backgroundColor: 'var(--brand-glass-light)'}}>
-        <div className="max-w-6xl mx-auto px-8">
-          {/* Section Header */}
-          <div className="text-center mb-20">
-            <div className="inline-block px-4 py-2 rounded-full text-sm font-medium mb-8 uppercase tracking-wide border" style={{
-              backgroundColor: 'var(--brand-badge-bg)',
-              color: 'var(--brand-badge-text)',
-              borderColor: 'var(--brand-badge-border)'
-            }}>
-              A 3-STEP PROCESS
-            </div>
-            <h2 className="text-4xl md:text-5xl font-light max-w-4xl mx-auto leading-tight" style={{
-              color: 'var(--brand-text-primary)',
-              fontFamily: 'var(--font-instrument-serif)'
-            }}>
-              Connect directly with developers<br />and secure your dream property
-            </h2>
-          </div>
-
-          {/* Steps Grid */}
-          <div className="flex items-stretch gap-8 justify-center flex-wrap">
-            
-            {/* Step 1 */}
-            <div className="relative flex-none w-80">
-              <div className="p-8 relative h-72 flex flex-col rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl border" style={{
-                backgroundColor: '#ffffff',
-                borderColor: 'var(--brand-gray-200)'
+             {/* 3-Step Process Section - Moved up for better psychological flow */}
+       <section className="relative overflow-hidden py-24" style={{backgroundColor: 'var(--brand-glass-light)'}}>
+         <div className="max-w-6xl mx-auto px-8">
+           {/* Section Header */}
+           <div className="text-center mb-20">
+                           <div className="inline-block px-4 py-2 rounded-full text-sm font-medium mb-8 uppercase tracking-wide border" style={{
+                backgroundColor: 'var(--brand-badge-bg)',
+                color: 'var(--brand-badge-text)',
+                borderColor: 'var(--brand-badge-border)'
               }}>
-                {/* Number */}
-                <div className="text-5xl font-semibold mb-3 leading-none" style={{
-                  color: 'var(--brand-btn-primary-bg)'
-                }}>
-                  01
-                </div>
-                
-                {/* Label */}
-                <div className="text-xs font-medium uppercase tracking-wider mb-4" style={{
-                  color: 'var(--brand-text-muted)'
-                }}>
-                  BROWSE VERIFIED PROJECTS
-                </div>
-                
-                {/* Content */}
-                <div className="text-base leading-relaxed font-medium flex-1" style={{
-                  color: 'var(--brand-text-primary)'
-                }}>
-                  Explore <span style={{color: 'var(--brand-btn-primary-bg)', fontWeight: '600'}}>verified</span><br />
-                  new construction<br />
-                  projects from <span style={{color: 'var(--brand-btn-primary-bg)', fontWeight: '600'}}>trusted</span><br />
-                  developers.
-                </div>
+                FROM DISCOVERY TO PURCHASE IN 3 SIMPLE STEPS
               </div>
-              
-              {/* Arrow */}
-              <div className="absolute -right-6 top-1/2 transform -translate-y-1/2 z-10 w-12 h-6 flex items-center justify-center">
-                <svg width="24" height="12" viewBox="0 0 24 12" fill="none">
-                  <path d="M1 6L23 6M23 6L18 1M23 6L18 11" stroke="var(--brand-gray-400)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
-            </div>
+             <h2 className="text-4xl md:text-5xl font-bold max-w-4xl mx-auto leading-tight" style={{
+               color: 'var(--brand-text-primary)',
+               fontFamily: 'var(--font-instrument-serif)'
+             }}>
+               From discovery to ownership<br />in three simple steps
+             </h2>
+           </div>
 
-            {/* Step 2 */}
-            <div className="relative flex-none w-80">
-              <div className="p-8 relative h-72 flex flex-col rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl border" style={{
-                backgroundColor: '#ffffff',
-                borderColor: 'var(--brand-gray-200)'
-              }}>
-                {/* Number */}
-                <div className="text-5xl font-semibold mb-3 leading-none" style={{
-                  color: 'var(--brand-warning)'
-                }}>
-                  02
-                </div>
-                
-                {/* Label */}
-                <div className="text-xs font-medium uppercase tracking-wider mb-4" style={{
-                  color: 'var(--brand-text-muted)'
-                }}>
-                  CONNECT DIRECTLY
-                </div>
-                
-                {/* Content */}
-                <div className="text-base leading-relaxed font-medium flex-1" style={{
-                  color: 'var(--brand-text-primary)'
-                }}>
-                  Contact developers<br />
-                  directly for transparent<br />
-                  conversations and<br />
-                  <span style={{color: 'var(--brand-warning)', fontWeight: '600'}}>schedule site visits</span><br />
-                  at your convenience.
-                </div>
-              </div>
-              
-              {/* Arrow */}
-              <div className="absolute -right-6 top-1/2 transform -translate-y-1/2 z-10 w-12 h-6 flex items-center justify-center">
-                <svg width="24" height="12" viewBox="0 0 24 12" fill="none">
-                  <path d="M1 6L23 6M23 6L18 1M23 6L18 11" stroke="var(--brand-gray-400)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
-            </div>
+           {/* Steps Grid */}
+           <div className="flex items-stretch gap-8 justify-center flex-wrap">
+             
+             {/* Step 1 - DISCOVER HIDDEN GEMS */}
+             <div className="relative flex-none w-80">
+               <div className="p-8 relative h-72 flex flex-col rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl border" style={{
+                 backgroundColor: '#ffffff',
+                 borderColor: 'var(--brand-gray-200)'
+               }}>
+                 {/* Number */}
+                 <div className="text-5xl font-semibold mb-3 leading-none" style={{
+                   color: 'var(--brand-btn-primary-bg)'
+                 }}>
+                   01
+                 </div>
+                 
+                                   {/* Label */}
+                  <div className="text-xs font-medium uppercase tracking-wider mb-4" style={{
+                    color: 'var(--brand-text-muted)'
+                  }}>
+                    DISCOVER NEW PROJECTS
+                  </div>
+                  
+                  {/* Content */}
+                  <div className="text-base leading-relaxed font-medium flex-1" style={{
+                    color: 'var(--brand-text-primary)'
+                  }}>
+                    Find off-plan developments on our<br />
+                    <span style={{color: 'var(--brand-btn-primary-bg)', fontWeight: '600'}}>exclusive map</span> before<br />
+                    public launch. Access<br />
+                    <span style={{color: 'var(--brand-btn-primary-bg)', fontWeight: '600'}}>verified</span> projects<br />
+                    first.
+                  </div>
+               </div>
+               
+               {/* Arrow */}
+               <div className="absolute -right-6 top-1/2 transform -translate-y-1/2 z-10 w-12 h-6 flex items-center justify-center">
+                 <svg width="24" height="12" viewBox="0 0 24 12" fill="none">
+                   <path d="M1 6L23 6M23 6L18 1M23 6L18 11" stroke="var(--brand-gray-400)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                 </svg>
+               </div>
+             </div>
 
-            {/* Step 3 */}
-            <div className="relative flex-none w-80">
-              <div className="p-8 relative h-72 flex flex-col rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl border" style={{
-                backgroundColor: '#ffffff',
-                borderColor: 'var(--brand-gray-200)'
-              }}>
-                {/* Number */}
-                <div className="text-5xl font-semibold mb-3 leading-none" style={{
-                  color: 'var(--brand-success)'
-                }}>
-                  03
-                </div>
-                
-                {/* Label */}
-                <div className="text-xs font-medium uppercase tracking-wider mb-4" style={{
-                  color: 'var(--brand-text-muted)'
-                }}>
-                  SAVE & SECURE
-                </div>
-                
-                {/* Content */}
-                <div className="text-base leading-relaxed font-medium flex-1" style={{
-                  color: 'var(--brand-text-primary)'
-                }}>
-                  Save <span style={{color: 'var(--brand-success)', fontWeight: '600'}}>3-5% in broker<br />
-                  fees</span> and get access<br />
-                  to pre-launch prices<br />
-                  for new developments.
-                </div>
-              </div>
+             {/* Step 2 - NEGOTIATE LIKE AN INSIDER */}
+             <div className="relative flex-none w-80">
+               <div className="p-8 relative h-72 flex flex-col rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl border" style={{
+                 backgroundColor: '#ffffff',
+                 borderColor: 'var(--brand-gray-200)'
+               }}>
+                 {/* Number */}
+                 <div className="text-5xl font-semibold mb-3 leading-none" style={{
+                   color: 'var(--brand-warning)'
+                 }}>
+                   02
+                 </div>
+                 
+                                   {/* Label */}
+                  <div className="text-xs font-medium uppercase tracking-wider mb-4" style={{
+                    color: 'var(--brand-text-muted)'
+                  }}>
+                    CONNECT DIRECTLY
+                  </div>
+                  
+                  {/* Content */}
+                  <div className="text-base leading-relaxed font-medium flex-1" style={{
+                    color: 'var(--brand-text-primary)'
+                  }}>
+                    Contact verified developers for<br />
+                    <span style={{color: 'var(--brand-warning)', fontWeight: '600'}}>transparent pricing</span> and<br />
+                    site visits. Get direct access<br />
+                    without intermediaries.
+                  </div>
+               </div>
+               
+               {/* Arrow */}
+               <div className="absolute -right-6 top-1/2 transform -translate-y-1/2 z-10 w-12 h-6 flex items-center justify-center">
+                 <svg width="24" height="12" viewBox="0 0 24 12" fill="none">
+                   <path d="M1 6L23 6M23 6L18 1M23 6L18 11" stroke="var(--brand-gray-400)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                 </svg>
+               </div>
+             </div>
+
+             {/* Step 3 - LOCK IN FUTURE VALUE */}
+             <div className="relative flex-none w-80">
+               <div className="p-8 relative h-72 flex flex-col rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl border" style={{
+                 backgroundColor: '#ffffff',
+                 borderColor: 'var(--brand-gray-200)'
+               }}>
+                 {/* Number */}
+                 <div className="text-5xl font-semibold mb-3 leading-none" style={{
+                   color: 'var(--brand-success)'
+                 }}>
+                   03
+                 </div>
+                 
+                                   {/* Label */}
+                  <div className="text-xs font-medium uppercase tracking-wider mb-4" style={{
+                    color: 'var(--brand-text-muted)'
+                  }}>
+                    SECURE YOUR PROPERTY
+                  </div>
+                  
+                  {/* Content */}
+                  <div className="text-base leading-relaxed font-medium flex-1" style={{
+                    color: 'var(--brand-text-primary)'
+                  }}>
+                    Get developer prices without<br />
+                    broker fees. Save <span style={{color: 'var(--brand-success)', fontWeight: '600'}}>3-5%</span> on<br />
+                    every purchase. Choose from<br />
+                    the best units available.
+                  </div>
+               </div>
+             </div>
+           </div>
+
+                       {/* Social Proof */}
+            <div className="text-center mt-16">
+              <p className="text-lg font-semibold text-gray-700 mb-4">
+                Join <span className="text-2xl font-bold" style={{color: 'var(--brand-btn-primary-bg)'}}>2,847+</span> buyers who found their perfect property
+              </p>
+              <p className="text-base text-gray-600 max-w-2xl mx-auto">
+                "Found my dream property 6 months before launch. Saved $45,000 in broker fees and got the best unit in the building."
+              </p>
             </div>
-          </div>
-        </div>
-      </section>
+         </div>
+       </section>
 
       {/* Benefits Section */}
       <section className="py-16 md:py-24" style={{backgroundColor: 'var(--brand-glass-primary)'}}>
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4" style={{color: 'var(--brand-text-primary)'}}>
-              Why Choose Mr. Imot
-            </h2>
-            <p className="text-xl max-w-3xl mx-auto" style={{color: 'var(--brand-text-secondary)'}}>
-              Direct access to new construction projects. No brokers, no commissions.
-            </p>
-          </div>
+                     <div className="text-center mb-12">
+             <h2 className="text-3xl md:text-4xl font-bold mb-4" style={{color: 'var(--brand-text-primary)'}}>
+               Why Choose Mr. Imot
+             </h2>
+             <p className="text-xl max-w-3xl mx-auto" style={{color: 'var(--brand-text-secondary)'}}>
+               Direct access to new construction projects. Perfect for families, first-time buyers, and investors.
+             </p>
+           </div>
 
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             <div className="text-center group">
