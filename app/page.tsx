@@ -27,14 +27,8 @@ export default function HomePage() {
           <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
             {/* Left Column - Content */}
             <div className="space-y-8">
-              <div className="space-y-6">
-                <div
-                  className="inline-flex items-center px-3 py-1 rounded-full bg-gray-100/90 backdrop-blur-sm mb-4 relative border border-gray-200"
-                >
-                  <span className="text-gray-700 text-xs font-medium relative z-10">✨ New Mr. Imot Experience</span>
-                </div>
-
-                <h1 className="text-5xl md:text-6xl md:leading-16 tracking-tight font-light text-gray-900 mb-4 drop-shadow-sm">
+                             <div className="space-y-6">
+                 <h1 className="text-5xl md:text-6xl md:leading-16 tracking-tight font-light text-gray-900 mb-4 drop-shadow-sm">
                   <span className="font-medium italic instrument">Real</span> Estate
                   <br />
                   <span className="font-light tracking-tight text-gray-900">Directly from Developers</span>
@@ -64,6 +58,48 @@ export default function HomePage() {
               {/* This space allows the EtchedGlassBackground to be clearly visible */}
             </div>
           </div>
+          
+                     {/* Video Container - Positioned absolutely outside the grid */}
+                       <div className="hidden lg:block absolute top-0 w-[500px] h-[500px]" style={{ top: '128px', left: '1100px' }}>
+                           <div className="relative overflow-hidden rounded-2xl transition-all duration-300 h-full backdrop-blur-xl"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.1) 100%)',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    boxShadow: `
+                      0 8px 32px rgba(31, 38, 135, 0.37),
+                      0 0 0 1px rgba(255, 255, 255, 0.1),
+                      inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                      inset 0 -1px 0 rgba(0, 0, 0, 0.1)
+                    `,
+                    backdropFilter: 'blur(20px)',
+                    WebkitBackdropFilter: 'blur(20px)'
+                  }}>
+                                            <video
+                 autoPlay
+                 loop
+                 muted
+                 playsInline
+                 preload="auto"
+                 className="w-full h-full object-cover"
+                 style={{
+                   willChange: 'transform',
+                   transform: 'translateZ(0)'
+                 }}
+               >
+                 <source src="https://ik.imagekit.io/ts59gf2ul/Video_hero/mr-imot-demo.mp4?updatedAt=1756133338645" type="video/mp4" />
+                 Your browser does not support the video tag.
+               </video>
+             </div>
+             
+                           {/* Video Caption - Underneath the video container */}
+              <div className="mt-4 text-center">
+                <p className="text-base font-medium text-gray-700" style={{
+                  fontFamily: 'var(--font-instrument-serif)'
+                }}>
+                  ✨ Locate properties effortlessly
+                </p>
+              </div>
+           </div>
         </div>
       </section>
 

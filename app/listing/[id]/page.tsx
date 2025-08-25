@@ -1,23 +1,44 @@
 "use client"
 
 import { notFound } from "next/navigation"
+import { useEffect, useState, use } from "react"
 import { useProjects } from "@/hooks/use-projects"
+import { Button } from "@/components/ui/button"
+import { Phone, Globe } from "lucide-react"
+import { recordProjectView, recordProjectPhoneClick, recordProjectWebsiteClick } from "@/lib/api"
 
 interface PageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default function ListingPage({ params }: PageProps) {
-  const propertyId = parseInt(params.id)
+  const resolvedParams = use(params)
+  const propertyId = resolvedParams.id // Keep as string since IDs are UUIDs
+  const [hasTrackedView, setHasTrackedView] = useState(false)
   
-  if (isNaN(propertyId)) {
-    notFound()
-  }
-
   // Use real API data instead of mock data
   const { projects, loading, error } = useProjects({ per_page: 100 })
+
+  // Always call useEffect, even if loading/error (to maintain hook order)
+  useEffect(() => {
+    const property = projects?.find(p => p.id === propertyId)
+    if (property && !hasTrackedView) {
+      const trackView = async () => {
+        try {
+          await recordProjectView(property.id)
+          setHasTrackedView(true)
+        } catch (error) {
+          // Fail silently to not break user experience
+          console.warn('Analytics tracking failed:', error)
+          setHasTrackedView(true) // Mark as tracked to avoid retry
+        }
+      }
+      
+      trackView()
+    }
+  }, [projects, propertyId, hasTrackedView])
   
   if (loading) {
     return (
@@ -47,6 +68,26 @@ export default function ListingPage({ params }: PageProps) {
     notFound()
   }
 
+  const handlePhoneClick = async () => {
+    if (property?.developer?.phone) {
+      try {
+        await recordProjectPhoneClick(property.id)
+      } catch (error) {
+        console.warn('Analytics tracking failed:', error)
+      }
+    }
+  }
+
+  const handleWebsiteClick = async () => {
+    if (property?.developer?.website) {
+      try {
+        await recordProjectWebsiteClick(property.id)
+      } catch (error) {
+        console.warn('Analytics tracking failed:', error)
+      }
+    }
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
@@ -70,10 +111,42 @@ export default function ListingPage({ params }: PageProps) {
             
             <div>
               <h2 className="text-xl font-semibold mb-4">Developer</h2>
-              <div className="space-y-2">
+              <div className="space-y-4">
                 <p><strong>Developer:</strong> {property.developer?.company_name}</p>
                 {property.developer?.description && (
                   <p className="text-gray-600">{property.developer.description}</p>
+                )}
+                
+                {/* Contact Buttons */}
+                {(property.developer?.phone || property.developer?.website) && (
+                  <div className="flex gap-3 mt-6">
+                    {property.developer?.phone && (
+                      <Button asChild className="flex-1">
+                        <a
+                          href={`tel:${property.developer.phone}`}
+                          onClick={handlePhoneClick}
+                          className="flex items-center justify-center gap-2"
+                        >
+                          <Phone className="h-4 w-4" />
+                          Call {property.developer.phone}
+                        </a>
+                      </Button>
+                    )}
+                    {property.developer?.website && (
+                      <Button asChild variant="outline" className="flex-1">
+                        <a
+                          href={property.developer.website}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={handleWebsiteClick}
+                          className="flex items-center justify-center gap-2"
+                        >
+                          <Globe className="h-4 w-4" />
+                          Visit Website
+                        </a>
+                      </Button>
+                    )}
+                  </div>
                 )}
               </div>
             </div>

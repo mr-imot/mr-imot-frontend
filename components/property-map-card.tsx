@@ -1,9 +1,11 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
-import { X } from 'lucide-react'
+import Link from 'next/link'
+import { X, Phone, Globe } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { recordProjectView, recordProjectPhoneClick, recordProjectWebsiteClick } from '@/lib/api'
 
 interface PropertyData {
   id: string | number
@@ -14,6 +16,11 @@ interface PropertyData {
   price?: string | number | null
   priceLabel?: string
   type?: 'house' | 'apartment'
+  developer?: {
+    company_name?: string
+    phone?: string
+    website?: string
+  }
 }
 
 interface PropertyMapCardProps {
@@ -37,6 +44,7 @@ export function PropertyMapCard({
   floating = false
 }: PropertyMapCardProps) {
   const [isClosing, setIsClosing] = useState(false)
+  const [hasTrackedView, setHasTrackedView] = useState(false)
   if (!property) return null
   const imageUrls = (property.images && property.images.length > 0)
     ? property.images
@@ -56,6 +64,44 @@ export function PropertyMapCard({
       setIsClosing(false)
       onClose()
     }, 180)
+  }
+
+  // Track view when map card opens
+  useEffect(() => {
+    if (!hasTrackedView && property) {
+      const trackView = async () => {
+        try {
+          await recordProjectView(property.id)
+          setHasTrackedView(true)
+        } catch (error) {
+          // Fail silently to not break user experience
+          console.warn('Analytics tracking failed:', error)
+          setHasTrackedView(true) // Mark as tracked to avoid retry
+        }
+      }
+      
+      trackView()
+    }
+  }, [property, hasTrackedView])
+
+  const handlePhoneClick = async () => {
+    if (property?.developer?.phone) {
+      try {
+        await recordProjectPhoneClick(property.id)
+      } catch (error) {
+        console.warn('Analytics tracking failed:', error)
+      }
+    }
+  }
+
+  const handleWebsiteClick = async () => {
+    if (property?.developer?.website) {
+      try {
+        await recordProjectWebsiteClick(property.id)
+      } catch (error) {
+        console.warn('Analytics tracking failed:', error)
+      }
+    }
   }
 
   const formatPrice = () => {
@@ -83,7 +129,7 @@ export function PropertyMapCard({
       style={positionStyles}
     >
       <div
-        className="relative w-[327px] h-[321px] bg-white rounded-[20px] overflow-hidden hover:translate-y-[-2px]"
+        className="relative w-[327px] bg-white rounded-[20px] overflow-hidden hover:translate-y-[-2px]"
         style={{
           boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
           fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
@@ -100,23 +146,25 @@ export function PropertyMapCard({
 
         {/* Image Carousel */}
         <div className="relative w-[327px] h-[212px]">
-          {imageUrls.length > 0 ? (
-            <Image
-              key={currentImageIndex}
-              src={imageUrls[currentImageIndex]}
-              alt={property.title}
-              fill
-              className="object-cover transition-transform duration-500 ease-out"
-              sizes="327px"
-              priority={false}
-            />
-          ) : (
-            <div className="w-full h-full bg-gray-200" />
-          )}
+          <Link href={`/listing/${property.id}`} className="block w-full h-full">
+            {imageUrls.length > 0 ? (
+              <Image
+                key={currentImageIndex}
+                src={imageUrls[currentImageIndex]}
+                alt={property.title}
+                fill
+                className="object-cover transition-transform duration-500 ease-out hover:scale-105"
+                sizes="327px"
+                priority={false}
+              />
+            ) : (
+              <div className="w-full h-full bg-gray-200" />
+            )}
+          </Link>
 
           {/* Dots */}
           {imageUrls.length > 1 && (
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
               {imageUrls.map((_, idx) => (
                 <button
                   key={idx}
@@ -138,7 +186,7 @@ export function PropertyMapCard({
               <button
                 aria-label="Previous image"
                 onClick={(e) => { e.stopPropagation(); setCurrentImageIndex((prev) => (prev - 1 + imageUrls.length) % imageUrls.length) }}
-                className="absolute left-2 top-1/2 -translate-y-1/2 grid place-items-center h-8 w-8 rounded-full bg-white/95 hover:bg-white shadow-md text-[#222222]"
+                className="absolute left-2 top-1/2 -translate-y-1/2 grid place-items-center h-8 w-8 rounded-full bg-white/95 hover:bg-white shadow-md text-[#222222] z-10"
               >
                 <svg width="12" height="12" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
@@ -147,7 +195,7 @@ export function PropertyMapCard({
               <button
                 aria-label="Next image"
                 onClick={(e) => { e.stopPropagation(); setCurrentImageIndex((prev) => (prev + 1) % imageUrls.length) }}
-                className="absolute right-2 top-1/2 -translate-y-1/2 grid place-items-center h-8 w-8 rounded-full bg-white/95 hover:bg-white shadow-md text-[#222222]"
+                className="absolute right-2 top-1/2 -translate-y-1/2 grid place-items-center h-8 w-8 rounded-full bg-white/95 hover:bg-white shadow-md text-[#222222] z-10"
               >
                 <svg width="12" height="12" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path d="M9 6l6 6-6 6" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
@@ -161,22 +209,58 @@ export function PropertyMapCard({
         {/* Content */}
         <div className="px-4 py-4">
           <div className="flex items-start justify-between">
-            <div className="min-w-0">
-              <h3 className="font-outfit text-[#222222] text-[16px] font-semibold leading-snug line-clamp-2 tracking-[-0.01em]">
-                {property.title}
-              </h3>
+            <div className="min-w-0 flex-1">
+              <Link href={`/listing/${property.id}`}>
+                <h3 className="font-outfit text-[#222222] text-[16px] font-semibold leading-snug line-clamp-2 tracking-[-0.01em] hover:text-blue-600 transition-colors cursor-pointer">
+                  {property.title}
+                </h3>
+              </Link>
               <p className="font-source-sans text-[#717171] text-[14px] font-normal leading-relaxed mt-1.5 truncate">
                 {property.location}
               </p>
             </div>
-            {/* Rating removed by design */}
           </div>
 
-          <div className="mt-4">
+          <div className="mt-3 flex items-center justify-between">
             <span className="font-outfit text-[#222222] text-[15px] font-medium leading-tight tracking-[-0.005em]">
               {formatPrice()}
             </span>
           </div>
+
+          {/* Contact Buttons */}
+          {(property.developer?.phone || property.developer?.website) && (
+            <div className="mt-4 flex gap-2">
+              {property.developer?.phone && (
+                <a
+                  href={`tel:${property.developer.phone}`}
+                  onClick={handlePhoneClick}
+                  className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors duration-200"
+                >
+                  <Phone className="h-4 w-4" />
+                  Call
+                </a>
+              )}
+              {property.developer?.website && (
+                <a
+                  href={property.developer.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={handleWebsiteClick}
+                  className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors duration-200"
+                >
+                  <Globe className="h-4 w-4" />
+                  Website
+                </a>
+              )}
+            </div>
+          )}
+
+          {/* Developer name */}
+          {property.developer?.company_name && (
+            <div className="mt-3 text-xs text-gray-500">
+              By {property.developer.company_name}
+            </div>
+          )}
         </div>
       </div>
     </WrapperTag>

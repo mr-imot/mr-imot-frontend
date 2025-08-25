@@ -121,7 +121,7 @@ function MetricCard({
   
   return (
     <Card className={`
-      transition-all duration-300 ease-out hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1 
+      transition-all duration-300 ease-out hover:shadow-lg hover:-translate-y-0.5 
       border-border/50 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm
       ${onClick ? 'cursor-pointer hover:border-primary/40 hover:bg-primary/5' : ''}
     `} onClick={onClick}>
@@ -167,8 +167,8 @@ function MetricCard({
 }
 
 
-// Dashboard content without header since header is now separate  
-function DashboardContentWithoutHeader() {
+// Main Dashboard Content
+function DashboardContent() {
   const [selectedPeriod, setSelectedPeriod] = useState('week')
   const [seriesEnabled, setSeriesEnabled] = useState({ views: true, website: true, phone: true })
   const { stats, analytics, projects, loading, error } = useDeveloperDashboard(selectedPeriod)
@@ -212,6 +212,10 @@ function DashboardContentWithoutHeader() {
     router.replace(`${pathname}${qs ? `?${qs}` : ''}`, { scroll: false })
   }, [search, statusFilter, page, sortKey, sortDir, router, pathname])
 
+  const handleAddListing = () => {
+    router.push('/developer/properties/new')
+  }
+
   const handleViewAnalytics = () => {
     router.push('/developer/analytics')
   }
@@ -230,9 +234,46 @@ function DashboardContentWithoutHeader() {
   }
 
   return (
-    <div className="flex-1 overflow-auto">
-      {/* Main Content with proper constraints */}
-      <main className="px-8 py-8 max-w-7xl mx-auto space-y-12">
+    <div className="flex-1 bg-gradient-to-br from-background via-background to-muted/20 overflow-auto">
+      {/* Dashboard Header */}
+      <header className="bg-card/95 backdrop-blur-sm border-b border-border/50 sticky top-0 z-30 shadow-sm">
+        <div className="px-8 py-6">
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <h1 className="text-3xl font-bold text-foreground tracking-tight">Dashboard</h1>
+              <p className="text-muted-foreground text-lg">Welcome back! Here's what's happening with your properties.</p>
+            </div>
+            <div className="flex items-center gap-4">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      onClick={canCreateProjects ? handleAddListing : undefined}
+                      disabled={!canCreateProjects}
+                      className="h-11 px-6 shadow-md hover:shadow-lg transition-all duration-200"
+                      style={{
+                        backgroundColor: canCreateProjects ? 'var(--brand-btn-primary-bg)' : 'var(--muted)',
+                        color: canCreateProjects ? 'var(--brand-btn-primary-text)' : 'var(--muted-foreground)'
+                      }}
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Property
+                    </Button>
+                  </TooltipTrigger>
+                  {!canCreateProjects && (
+                    <TooltipContent>
+                      <p>Available after account approval</p>
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="px-8 py-8 max-w-7xl mx-auto space-y-8">
         
         {/* Pending Approval Message */}
         <PendingApprovalMessage />
@@ -381,65 +422,9 @@ function DashboardContentWithoutHeader() {
 export default function DeveloperDashboardPage() {
   return (
     <ProtectedRoute requiredRole="developer">
-      <div className="flex flex-col h-screen bg-gradient-to-br from-background via-background to-muted/20">
-        {/* Full-width Dashboard Header spanning sidebar and content */}
-        <DashboardHeader />
-        
-        {/* Layout with sidebar and content below header */}
-        <div className="flex flex-1">
-          <DeveloperSidebar>
-            <DashboardContentWithoutHeader />
-          </DeveloperSidebar>
-        </div>
-      </div>
+      <DeveloperSidebar>
+        <DashboardContent />
+      </DeveloperSidebar>
     </ProtectedRoute>
-  )
-}
-
-// Separate header component
-function DashboardHeader() {
-  const { canCreateProjects } = useAuth()
-  const router = useRouter()
-  
-  const handleAddListing = () => {
-    router.push('/developer/properties/new')
-  }
-
-  return (
-    <header className="bg-card/95 backdrop-blur-sm border-b border-border/50 shadow-sm">
-      <div className="px-8 py-6">
-        <div className="flex items-center justify-between">
-          <div className="space-y-1 ml-72"> {/* Align with content area */}
-            <h1 className="text-3xl font-bold text-foreground tracking-tight">Dashboard</h1>
-            <p className="text-muted-foreground text-lg">Welcome back! Here's what's happening with your properties.</p>
-          </div>
-          <div className="flex items-center gap-4">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button 
-                    onClick={canCreateProjects ? handleAddListing : undefined}
-                    disabled={!canCreateProjects}
-                    className="h-11 px-6 shadow-md hover:shadow-lg transition-all duration-200"
-                    style={{
-                      backgroundColor: canCreateProjects ? 'var(--brand-btn-primary-bg)' : 'var(--muted)',
-                      color: canCreateProjects ? 'var(--brand-btn-primary-text)' : 'var(--muted-foreground)'
-                    }}
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Property
-                  </Button>
-                </TooltipTrigger>
-                {!canCreateProjects && (
-                  <TooltipContent>
-                    <p>Available after account approval</p>
-                  </TooltipContent>
-                )}
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-        </div>
-      </div>
-    </header>
   )
 }

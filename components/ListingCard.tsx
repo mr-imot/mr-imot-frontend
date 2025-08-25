@@ -1,7 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import { Home, Building } from 'lucide-react'
+import { recordProjectView } from '@/lib/api'
 
 export interface Listing {
   id: number
@@ -35,7 +37,9 @@ function summarize(text: string | null | undefined, max = 100) {
 
 export function ListingCard({ listing, isActive, onCardClick, onCardHover }: ListingCardProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [hasTrackedView, setHasTrackedView] = useState(false)
   const hasMultipleImages = listing.images?.length > 1
+  const cardRef = useRef<HTMLElement>(null)
 
   const handleClick = () => {
     onCardClick?.(listing)
@@ -64,17 +68,51 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover }: Lis
     setCurrentImageIndex(index)
   }
 
+  // Track view when card becomes visible
+  useEffect(() => {
+    if (!cardRef.current || hasTrackedView) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !hasTrackedView) {
+            // Track view with debounce to avoid multiple calls
+            setTimeout(async () => {
+              try {
+                await recordProjectView(listing.id)
+                setHasTrackedView(true)
+              } catch (error) {
+                // Fail silently to not break user experience
+                console.warn('Analytics tracking failed:', error)
+                setHasTrackedView(true) // Mark as tracked to avoid retry
+              }
+            }, 1000) // 1 second delay to ensure user actually viewed it
+          }
+        })
+      },
+      { threshold: 0.5 } // Trigger when 50% of card is visible
+    )
+
+    observer.observe(cardRef.current)
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [listing.id, hasTrackedView])
+
   return (
-    <article
-      data-id={listing.id}
-      className={cn(
-        "group cursor-pointer bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 ease-out overflow-hidden",
-        isActive && "ring-2 ring-brand shadow-lg"
-      )}
-      onClick={handleClick}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    >
+    <Link href={`/listing/${listing.id}`}>
+      <article
+        ref={cardRef}
+        data-id={listing.id}
+        className={cn(
+          "group cursor-pointer bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 ease-out overflow-hidden",
+          isActive && "ring-2 ring-brand shadow-lg"
+        )}
+        onClick={handleClick}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
       {/* Image Container - 60-65% of card height like Airbnb */}
       <div className="relative overflow-hidden">
         <div className="aspect-[4/3] w-full">
@@ -163,6 +201,7 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover }: Lis
           )}
         </div>
       </div>
-    </article>
+      </article>
+    </Link>
   )
 }

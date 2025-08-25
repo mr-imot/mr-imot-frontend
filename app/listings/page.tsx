@@ -382,6 +382,11 @@ export default function ListingsPage() {
       // Use API-provided shortPrice/price_label string directly; no parsing or mock fallbacks
       priceLabel: property.shortPrice || undefined,
       type: (property.type?.toLowerCase().includes('house') ? 'house' : 'apartment') as 'house' | 'apartment',
+      developer: (property as any).developer ? {
+        company_name: (property as any).developer.company_name,
+        phone: (property as any).developer.phone,
+        website: (property as any).developer.website,
+      } : undefined,
     }
   }
 
