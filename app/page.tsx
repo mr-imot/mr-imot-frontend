@@ -118,19 +118,19 @@ export default function HomePage() {
          <div className="max-w-6xl mx-auto px-8">
            {/* Section Header */}
            <div className="text-center mb-20">
-                           <div className="inline-block px-4 py-2 rounded-full text-sm font-medium mb-8 uppercase tracking-wide border" style={{
+                                         <div className="inline-block px-4 py-2 rounded-full text-sm font-medium mb-8 uppercase tracking-wide border" style={{
                 backgroundColor: 'var(--brand-badge-bg)',
                 color: 'var(--brand-badge-text)',
                 borderColor: 'var(--brand-badge-border)'
               }}>
-                FROM DISCOVERY TO PURCHASE IN 3 SIMPLE STEPS
+                FROM SEARCH TO PURCHASE IN 3 SIMPLE STEPS
               </div>
-             <h2 className="text-4xl md:text-5xl font-bold max-w-4xl mx-auto leading-tight" style={{
-               color: 'var(--brand-text-primary)',
-               fontFamily: 'var(--font-instrument-serif)'
-             }}>
-               From discovery to ownership<br />in three simple steps
-             </h2>
+              <h2 className="text-4xl md:text-5xl font-black max-w-4xl mx-auto leading-tight tracking-tight" style={{
+                color: 'var(--brand-text-primary)',
+                fontFamily: 'var(--font-instrument-serif)'
+              }}>
+                From search to purchase<br />in three simple steps
+              </h2>
            </div>
 
            {/* Steps Grid */}
@@ -156,16 +156,15 @@ export default function HomePage() {
                     DISCOVER NEW PROJECTS
                   </div>
                   
-                  {/* Content */}
-                  <div className="text-base leading-relaxed font-medium flex-1" style={{
-                    color: 'var(--brand-text-primary)'
-                  }}>
-                    Find off-plan developments on our<br />
-                    <span style={{color: 'var(--brand-btn-primary-bg)', fontWeight: '600'}}>exclusive map</span> before<br />
-                    public launch. Access<br />
-                    <span style={{color: 'var(--brand-btn-primary-bg)', fontWeight: '600'}}>verified</span> projects<br />
-                    first.
-                  </div>
+                                     {/* Content */}
+                   <div className="text-base leading-relaxed font-medium flex-1" style={{
+                     color: 'var(--brand-text-primary)'
+                   }}>
+                     Discover new developments on our<br />
+                     <span style={{color: 'var(--brand-btn-primary-bg)', fontWeight: '600'}}>interactive map</span> before they're<br />
+                     publicly available. Access<br />
+                     <span style={{color: 'var(--brand-btn-primary-bg)', fontWeight: '600'}}>verified</span> projects first.
+                   </div>
                </div>
                
                {/* Arrow */}
@@ -196,15 +195,15 @@ export default function HomePage() {
                     CONNECT DIRECTLY
                   </div>
                   
-                  {/* Content */}
-                  <div className="text-base leading-relaxed font-medium flex-1" style={{
-                    color: 'var(--brand-text-primary)'
-                  }}>
-                    Contact verified developers for<br />
-                    <span style={{color: 'var(--brand-warning)', fontWeight: '600'}}>transparent pricing</span> and<br />
-                    site visits. Get direct access<br />
-                    without intermediaries.
-                  </div>
+                                     {/* Content */}
+                   <div className="text-base leading-relaxed font-medium flex-1" style={{
+                     color: 'var(--brand-text-primary)'
+                   }}>
+                     Contact developers directly to<br />
+                     <span style={{color: 'var(--brand-warning)', fontWeight: '600'}}>discuss pricing</span> and schedule<br />
+                     site visits using exact<br />
+                     map locations.
+                   </div>
                </div>
                
                {/* Arrow */}
@@ -235,26 +234,25 @@ export default function HomePage() {
                     SECURE YOUR PROPERTY
                   </div>
                   
-                  {/* Content */}
-                  <div className="text-base leading-relaxed font-medium flex-1" style={{
-                    color: 'var(--brand-text-primary)'
-                  }}>
-                    Get developer prices without<br />
-                    broker fees. Save <span style={{color: 'var(--brand-success)', fontWeight: '600'}}>3-5%</span> on<br />
-                    every purchase. Choose from<br />
-                    the best units available.
-                  </div>
+                                     {/* Content */}
+                   <div className="text-base leading-relaxed font-medium flex-1" style={{
+                     color: 'var(--brand-text-primary)'
+                   }}>
+                     Keep more money in your pocket<br />
+                     by purchasing directly at developer<br />
+                     pricing without broker fees.
+                   </div>
                </div>
              </div>
            </div>
 
-                       {/* Social Proof */}
+                       {/* Honest MVP Messaging */}
             <div className="text-center mt-16">
               <p className="text-lg font-semibold text-gray-700 mb-4">
-                Join <span className="text-2xl font-bold" style={{color: 'var(--brand-btn-primary-bg)'}}>2,847+</span> buyers who found their perfect property
+                Be among the first to discover off-plan properties direct from developers
               </p>
               <p className="text-base text-gray-600 max-w-2xl mx-auto">
-                "Found my dream property 6 months before launch. Saved $45,000 in broker fees and got the best unit in the building."
+                Be first to access Bulgaria's newest off-plan developments.
               </p>
             </div>
          </div>
