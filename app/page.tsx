@@ -13,13 +13,100 @@ import {
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { EtchedGlassBackground } from "@/components/etched-glass-background"
+import { FaqSection } from "@/components/faq-section"
 
 export default function HomePage() {
+  // FAQ Schema for SEO
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How can I find new apartments or houses in my city?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Open the map at mrimot.com/listings and explore projects in your city. Each project is posted by a verified developer, not a broker. You can view location details, visit sites in person, and contact developers directly. No registration is required to browse and explore all listings."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Are the projects on the platform reliable?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Every project is posted by a verified developer. Developers are accountable for the accuracy of their listing details. Our verification confirms the developer identity, ensuring you can trust the source while connecting directly with legitimate builders without middlemen."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What does it cost to list a project?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Listing projects is completely free. Verified developers can post an unlimited number of residential projects at no charge, helping them reach buyers directly without middlemen."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Do I need to register to browse listings?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No registration is required. You can search, explore, and view all projects completely open."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does it cost money for buyers to use the platform?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Browsing listings, checking project details, and contacting developers directly is 100% free. Buyers can explore all verified developer projects without any fees, advertisements, or hidden costs."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What does it take to get verified as a developer?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Our team manually verifies developers through direct contact via phone or email. The process confirms your identity and role in the project, ensuring only genuine developers can post listings and that buyers see authentic sources."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Are only developers allowed on the platform?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Only verified real estate developers can post projects. Brokers or third parties are not allowed unless explicitly authorized by the developer, ensuring a trustworthy platform for buyers."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How long does verification take?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Verification is usually completed within 48 hours. We prioritize speed while ensuring accuracy, so developers can post projects quickly and buyers can access verified listings reliably."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I post a project after verification?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Once verified, developers gain access to a dashboard where they can post unlimited projects. Step-by-step video tutorials and support are available to assist with posting and managing listings effectively."
+        }
+      }
+    ]
+  };
 
   return (
-    <div className="min-h-screen relative">
-      {/* Etched Glass Background */}
-      <EtchedGlassBackground />
+    <>
+      {/* JSON-LD Schema for SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
+      
+      <div className="min-h-screen relative">
+        {/* Etched Glass Background */}
+        <EtchedGlassBackground />
       
       {/* Hero Section */}
       <section className="py-16 md:py-24 lg:py-32 relative overflow-hidden">
@@ -316,6 +403,10 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* FAQ Section */}
+      <FaqSection />
     </div>
+    </>
   )
 }
