@@ -4,8 +4,8 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import {
   Shield,
-  UserX,
-  Clock,
+  MapPin,
+  DollarSign,
   ExternalLink,
   Search,
   Phone,
@@ -258,59 +258,59 @@ export default function HomePage() {
          </div>
        </section>
 
-      {/* Benefits Section */}
+      {/* What Makes Mr. Imot Different Section */}
       <section className="py-16 md:py-24" style={{backgroundColor: 'var(--brand-glass-primary)'}}>
         <div className="container mx-auto px-4">
-                     <div className="text-center mb-12">
-             <h2 className="text-3xl md:text-4xl font-bold mb-4" style={{color: 'var(--brand-text-primary)'}}>
-               Why Choose Mr. Imot
+                     <div className="text-center mb-8">
+             <h2 className="text-3xl md:text-4xl font-bold mb-3" style={{color: 'var(--brand-text-primary)'}}>
+               What Makes Mr. imot Different
              </h2>
-             <p className="text-xl max-w-3xl mx-auto" style={{color: 'var(--brand-text-secondary)'}}>
-               Direct access to new construction projects. Perfect for families, first-time buyers, and investors.
+             <p className="text-lg max-w-3xl mx-auto mb-4" style={{color: 'var(--brand-text-secondary)'}}>
+               Stop wasting time with broker games. Find properties the honest way.
              </p>
            </div>
 
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <div className="text-center group">
+            <div className="text-center group p-8">
               <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform" style={{backgroundColor: 'var(--brand-btn-primary-bg)'}}>
-                <UserX className="w-10 h-10" style={{color: 'var(--brand-btn-primary-text)'}} />
+                <MapPin className="w-10 h-10" style={{color: 'var(--brand-btn-primary-text)'}} />
               </div>
-              <h3 className="text-xl font-bold mb-3" style={{color: 'var(--brand-text-primary)'}}>Skip the Middleman</h3>
-              <p className="leading-relaxed" style={{color: 'var(--brand-text-secondary)'}}>
-                Connect directly with developers. Save 3-5% in broker fees on every purchase.
+              <h3 className="text-xl font-bold mb-4" style={{color: 'var(--brand-text-primary)'}}>See Real Locations</h3>
+              <p className="text-sm leading-[1.9]" style={{color: 'var(--brand-text-secondary)'}}>
+                No more "close to parks, schools and bus stops" lies. See exact project coordinates and visit the actual site yourself.
               </p>
             </div>
 
-            <div className="text-center group">
+            <div className="text-center group p-8">
               <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform" style={{backgroundColor: 'var(--brand-btn-primary-bg)'}}>
                 <Shield className="w-10 h-10" style={{color: 'var(--brand-btn-primary-text)'}} />
               </div>
-              <h3 className="text-xl font-bold mb-3" style={{color: 'var(--brand-text-primary)'}}>100% Verified</h3>
-              <p className="leading-relaxed" style={{color: 'var(--brand-text-secondary)'}}>
-                Every listing is personally verified. Zero risk of scams or misleading listings.
+              <h3 className="text-xl font-bold mb-4" style={{color: 'var(--brand-text-primary)'}}>No Fake Listings</h3>
+              <p className="text-sm leading-[1.9]" style={{color: 'var(--brand-text-secondary)'}}>
+                End the "we just sold that one" runaround. Only verified developers can list genuine projects.
               </p>
             </div>
 
-            <div className="text-center group">
+            <div className="text-center group p-8">
               <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform" style={{backgroundColor: 'var(--brand-btn-primary-bg)'}}>
-                <Clock className="w-10 h-10" style={{color: 'var(--brand-btn-primary-text)'}} />
+                <DollarSign className="w-10 h-10" style={{color: 'var(--brand-btn-primary-text)'}} />
               </div>
-              <h3 className="text-xl font-bold mb-3" style={{color: 'var(--brand-text-primary)'}}>Get There First</h3>
-              <p className="leading-relaxed" style={{color: 'var(--brand-text-secondary)'}}>
-                Access new projects before the market. Up to 15% better prices than launch.
+              <h3 className="text-xl font-bold mb-4" style={{color: 'var(--brand-text-primary)'}}>Zero Commission</h3>
+              <p className="text-sm leading-[1.9]" style={{color: 'var(--brand-text-secondary)'}}>
+                Keep your money. No broker fees, no platform charges, no annoying ads like it's the 2000s.
               </p>
             </div>
           </div>
 
-          {/* Single CTA */}
-          <div className="text-center mt-12">
-            <button className="px-8 py-3 rounded-full font-semibold text-sm transition-all duration-200 shadow-lg hover:shadow-xl inline-flex items-center" style={{
+          {/* Single CTA - Enhanced prominence */}
+          <div className="text-center mt-10">
+            <button className="px-10 py-4 rounded-full font-bold text-base transition-all duration-200 shadow-xl hover:shadow-2xl inline-flex items-center transform hover:scale-105" style={{
               backgroundColor: 'var(--brand-btn-primary-bg)',
               color: 'var(--brand-btn-primary-text)'
             }}>
               <Link href="/listings" className="flex items-center">
                 Browse All Properties
-                <ExternalLink className="ml-2 w-4 h-4" />
+                <ExternalLink className="ml-2 w-5 h-5" />
               </Link>
             </button>
           </div>
