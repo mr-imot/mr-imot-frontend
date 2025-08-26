@@ -30,25 +30,17 @@ export const GlobalMaintenanceWrapper: React.FC<GlobalMaintenanceWrapperProps> =
     try {
       setIsChecking(true)
       
-      // Try multiple endpoints to confirm backend is completely down
+      // Check backend health using dedicated health endpoint
       let healthFailed = false
-      let projectsFailed = false
 
       try {
-        const healthStatus = await fetch(`/api/v1/health`, { signal: AbortSignal.timeout(3000) })
+        const healthStatus = await fetch(`/health`, { signal: AbortSignal.timeout(3000) })
         healthFailed = !healthStatus.ok || healthStatus.status >= 500
       } catch {
         healthFailed = true
       }
 
-      try {
-        const projectsStatus = await fetch(`/api/v1/projects`, { signal: AbortSignal.timeout(3000) })
-        projectsFailed = !projectsStatus.ok || projectsStatus.status >= 500
-      } catch {
-        projectsFailed = true
-      }
-
-      const allFailed = healthFailed && projectsFailed
+      const allFailed = healthFailed
 
       if (allFailed) {
         setIsBackendDown(true)
