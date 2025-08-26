@@ -49,8 +49,7 @@ export function Footer() {
               <span className="text-lg font-semibold">Mr imot</span>
             </div>
             <p className="mt-6 text-muted-foreground leading-relaxed">
-              Connect directly with real estate developers across Bulgaria. No brokers, no commissions — just
-              verified new‑build projects and transparent conversations.
+              Mr. imot Platform launched in 2025 to simplify off-plan property discovery in Bulgaria. Making new construction accessible to everyone.
             </p>
           </div>
 
@@ -102,7 +101,7 @@ export function Footer() {
               <p className="text-muted-foreground text-sm">
                 &copy; {new Date().getFullYear()} Mr imot. All rights reserved.
               </p>
-              <p className="text-muted-foreground/70 text-xs mt-1">Connecting you directly with real estate developers.</p>
+              <p className="text-muted-foreground/70 text-xs mt-1">Bulgaria's platform for new construction properties.</p>
             </div>
 
             {/* Legal Links */}
