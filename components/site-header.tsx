@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { UserAuthNav } from "@/components/user-auth-nav"
+import { MobileNav } from "@/components/mobile-nav"
 import Image from "next/image"
 
 export function SiteHeader() {
@@ -29,30 +30,40 @@ export function SiteHeader() {
           </Link>
         </div>
 
-        {/* Navigation - CENTER */}
-        <nav className="flex items-center space-x-3">
+        {/* Desktop Navigation - Hidden on mobile */}
+        <nav className="hidden md:flex items-center space-x-3">
           <a
             href="/listings"
-            className="text-white/80 hover:text-white text-sm font-light px-4 py-2.5 rounded-full hover:bg-white/10 transition-all duration-200"
+            className="text-white/80 hover:text-white text-sm font-light px-4 py-3 rounded-full hover:bg-white/10 transition-all duration-200"
           >
             Listings
           </a>
           <a
             href="/developers"
-            className="text-white/80 hover:text-white text-sm font-light px-4 py-2.5 rounded-full hover:bg-white/10 transition-all duration-200"
+            className="text-white/80 hover:text-white text-sm font-light px-4 py-3 rounded-full hover:bg-white/10 transition-all duration-200"
           >
             Developers
           </a>
           <a
             href="/about-us"
-            className="text-white/80 hover:text-white text-sm font-light px-4 py-2.5 rounded-full hover:bg-white/10 transition-all duration-200"
+            className="text-white/80 hover:text-white text-sm font-light px-4 py-3 rounded-full hover:bg-white/10 transition-all duration-200"
           >
             About Us
           </a>
         </nav>
 
-        {/* Auth Navigation - RIGHT SIDE */}
-        <UserAuthNav />
+        {/* Right Side - Auth + Mobile Nav */}
+        <div className="flex items-center space-x-4">
+          {/* Desktop Auth Navigation - Hidden on mobile */}
+          <div className="hidden md:block">
+            <UserAuthNav />
+          </div>
+          
+          {/* Mobile Navigation - Only visible on mobile */}
+          <div className="md:hidden">
+            <MobileNav />
+          </div>
+        </div>
       </div>
     </header>
     </>

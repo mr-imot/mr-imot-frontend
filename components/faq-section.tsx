@@ -76,13 +76,13 @@ const FaqSection = ({
   ],
 }: FaqSectionProps) => {
   return (
-    <section className="py-24" style={{backgroundColor: 'var(--brand-glass-light)'}}>
+    <section className="py-12 sm:py-16 md:py-20 lg:py-24" style={{backgroundColor: 'var(--brand-glass-light)'}}>
       <div className="container max-w-4xl mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4" style={{color: 'var(--brand-text-primary)'}}>
+        <div className="text-center mb-8 sm:mb-10 md:mb-12">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4" style={{color: 'var(--brand-text-primary)'}}>
             {heading}
           </h2>
-          <p className="text-lg max-w-2xl mx-auto" style={{color: 'var(--brand-text-secondary)'}}>
+          <p className="text-base sm:text-lg max-w-2xl mx-auto" style={{color: 'var(--brand-text-secondary)'}}>
             Everything you need to know about using Mr. imot Platform
           </p>
         </div>
