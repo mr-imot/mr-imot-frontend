@@ -6,7 +6,7 @@ import { Home, Building } from 'lucide-react'
 import { recordProjectView } from '@/lib/api'
 
 export interface Listing {
-  id: number
+  id: string
   title: string
   city: string
   coordinates: { lat: number; lng: number }
@@ -24,7 +24,7 @@ interface ListingCardProps {
   listing: Listing
   isActive?: boolean
   onCardClick?: (listing: Listing) => void
-  onCardHover?: (listingId: number | null) => void
+  onCardHover?: (listingId: string | null) => void
 }
 
 // Format price using Intl.NumberFormat

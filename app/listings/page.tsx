@@ -49,9 +49,9 @@ export default function ListingsPage() {
   )
   const [propertyTypeFilter, setPropertyTypeFilter] = useState<PropertyTypeFilter>(urlType || "all")
   const [isMapLoading, setIsMapLoading] = useState(false)
-  const [hoveredPropertyId, setHoveredPropertyId] = useState<number | null>(null)
+  const [hoveredPropertyId, setHoveredPropertyId] = useState<string | null>(null)
   const [isMapExpanded, setIsMapExpanded] = useState(false)
-  const [selectedPropertyId, setSelectedPropertyId] = useState<number | null>(null)
+  const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null)
   const [ariaLiveMessage, setAriaLiveMessage] = useState<string>("")
   const [isMobileMapView, setIsMobileMapView] = useState(false)
   const [cardPosition, setCardPosition] = useState<{
@@ -74,7 +74,7 @@ export default function ListingsPage() {
   // Debounce hover updates
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   
-  const setDebouncedHover = (propertyId: number | null, delay: number = 150) => {
+  const setDebouncedHover = (propertyId: string | null, delay: number = 150) => {
     if (hoverTimeoutRef.current) {
       clearTimeout(hoverTimeoutRef.current)
     }
@@ -109,7 +109,7 @@ export default function ListingsPage() {
   const fullscreenMapRef = useRef<HTMLDivElement>(null)
   const fullscreenGoogleMapRef = useRef<google.maps.Map | null>(null)
   const markerManagerRef = useRef<MarkerManager | null>(null)
-  const fullscreenMarkersRef = useRef<Record<number, google.maps.Marker>>({})
+  const fullscreenMarkersRef = useRef<Record<string, google.maps.Marker>>({})
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null)
   const listContainerRef = useRef<HTMLDivElement>(null)
   const [mapBounds, setMapBounds] = useState<google.maps.LatLngBounds | null>(null)
@@ -317,12 +317,12 @@ export default function ListingsPage() {
       markerManagerRef.current.updateMarkerStates()
     }
     
-    // Update fullscreen map markers (if any) - keeping old logic for now
-    Object.entries(fullscreenMarkersRef.current).forEach(([id, marker]) => {
-      const propertyId = Number(id)
-      // Note: We'll need to refactor fullscreen markers later or keep a reference to prices
-      // For now, keeping the old behavior
-    })
+         // Update fullscreen map markers (if any) - keeping old logic for now
+     Object.entries(fullscreenMarkersRef.current).forEach(([id, marker]) => {
+       const propertyId = id
+       // Note: We'll need to refactor fullscreen markers later or keep a reference to prices
+       // For now, keeping the old behavior
+     })
   }, [hoveredPropertyId, selectedPropertyId])
 
   // When fullscreen map is opened or data changes, sync center/zoom and markers

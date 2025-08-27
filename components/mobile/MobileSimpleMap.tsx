@@ -7,10 +7,10 @@ import { Loader2, MapPin } from "lucide-react"
 
 interface MobileSimpleMapProps {
   properties: PropertyData[]
-  selectedPropertyId: number | null
-  hoveredPropertyId: number | null
-  onPropertySelect: (propertyId: number | null) => void
-  onPropertyHover: (propertyId: number | null) => void
+  selectedPropertyId: string | null
+  hoveredPropertyId: string | null
+  onPropertySelect: (propertyId: string | null) => void
+  onPropertyHover: (propertyId: string | null) => void
   center: { lat: number; lng: number }
   zoom: number
   className?: string
@@ -28,7 +28,7 @@ export function MobileSimpleMap({
 }: MobileSimpleMapProps) {
   const mapRef = useRef<HTMLDivElement>(null)
   const googleMapRef = useRef<google.maps.Map | null>(null)
-  const markersRef = useRef<Record<number, google.maps.Marker>>({})
+  const markersRef = useRef<Record<string, google.maps.Marker>>({})
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -71,13 +71,11 @@ export function MobileSimpleMap({
         googleMapRef.current = map
         setIsLoading(false)
         
-        // Add map click handler to deselect properties
-        map.addListener('click', (e: google.maps.MapMouseEvent) => {
-          // Only deselect if clicking on empty space (not on a marker)
-          if (e.placeId === undefined) {
-            onPropertySelect(null)
-          }
-        })
+                 // Add map click handler to deselect properties
+         map.addListener('click', () => {
+           // Deselect when clicking on empty space
+           onPropertySelect(null)
+         })
         
       } catch (err) {
         console.error("Failed to initialize mobile map:", err)
@@ -164,7 +162,7 @@ export function MobileSimpleMap({
   // Update marker appearance based on selection/hover state
   useEffect(() => {
     Object.entries(markersRef.current).forEach(([id, marker]) => {
-      const propertyId = Number(id)
+      const propertyId = id
       
       if (selectedPropertyId === propertyId) {
         // Selected state - larger, darker red

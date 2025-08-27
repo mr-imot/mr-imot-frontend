@@ -2,7 +2,7 @@
 import { createPricePillElement, createSvgMarkerIcon, createSvgHouseIcon, createClusterMarkerIcon, clusterProperties, PropertyCluster } from './google-maps'
 
 export interface PropertyData {
-  id: number
+  id: string
   title: string
   priceRange: string
   location: string
@@ -21,21 +21,21 @@ export interface PropertyData {
 export interface MarkerManagerConfig {
   map: google.maps.Map
   properties: PropertyData[]
-  onPropertySelect: (propertyId: number | null) => void
-  onPropertyHover: (propertyId: number | null) => void
+  onPropertySelect: (propertyId: string | null) => void
+  onPropertyHover: (propertyId: string | null) => void
   onAriaAnnouncement: (message: string) => void
-  selectedPropertyId: number | null
-  hoveredPropertyId: number | null
+  selectedPropertyId: string | null
+  hoveredPropertyId: string | null
 }
 
 export class MarkerManager {
   private config: MarkerManagerConfig
-  private markers: Record<number, google.maps.marker.AdvancedMarkerElement> = {}
+  private markers: Record<string, google.maps.marker.AdvancedMarkerElement> = {}
   private clusterMarkers: google.maps.marker.AdvancedMarkerElement[] = []
-  private markerElements: Record<number, HTMLElement> = {}
-  private markerPrices: Record<number, string> = {}
+  private markerElements: Record<string, HTMLElement> = {}
+  private markerPrices: Record<string, string> = {}
   private clusters: PropertyCluster[] = []
-  private markerCache: Record<number, google.maps.marker.AdvancedMarkerElement | google.maps.Marker> = {}
+  private markerCache: Record<string, google.maps.marker.AdvancedMarkerElement | google.maps.Marker> = {}
   private isInitialized: boolean = false
 
   constructor(config: MarkerManagerConfig) {
@@ -113,7 +113,7 @@ export class MarkerManager {
   }
 
   // Get individual marker by property ID
-  getMarker(propertyId: number): google.maps.marker.AdvancedMarkerElement | google.maps.Marker | null {
+  getMarker(propertyId: string): google.maps.marker.AdvancedMarkerElement | google.maps.Marker | null {
     return this.markers[propertyId] || null
   }
 
@@ -144,7 +144,7 @@ export class MarkerManager {
   // Update properties without recreating markers
   updateProperties(newProperties: PropertyData[]) {
     const newPropertyIds = new Set(newProperties.map(p => p.id))
-    const currentPropertyIds = new Set(Object.keys(this.markers).map(Number))
+    const currentPropertyIds = new Set(Object.keys(this.markers))
     
     // Remove markers for properties that are no longer in the list
     currentPropertyIds.forEach(id => {
@@ -165,7 +165,7 @@ export class MarkerManager {
   }
 
   // Remove a specific marker
-  private removeMarker(propertyId: number) {
+  private removeMarker(propertyId: string) {
     const marker = this.markers[propertyId]
     if (marker) {
       if ('setMap' in marker) {
