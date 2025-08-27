@@ -92,14 +92,14 @@ export default function ListingPage({ params }: PageProps) {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-bold mb-4">{property.name}</h1>
+          <h1 className="text-3xl font-bold mb-4">{property.title || property.name}</h1>
           <p className="text-gray-600 mb-6">{property.description}</p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
               <h2 className="text-xl font-semibold mb-4">Property Details</h2>
               <div className="space-y-2">
-                <p><strong>Location:</strong> {property.formatted_address || `${property.neighborhood}, ${property.city}`}</p>
+                <p><strong>Location:</strong> {property.location || property.formatted_address || `${property.neighborhood}, ${property.city}`}</p>
                 <p><strong>City:</strong> {property.city}</p>
                 <p><strong>Type:</strong> {property.project_type}</p>
                 <p><strong>Price:</strong> {property.price_label}</p>
@@ -159,7 +159,7 @@ export default function ListingPage({ params }: PageProps) {
                 {property.images.map((image: any, index: number) => (
                   <div key={index} className="aspect-video bg-gray-100 rounded-lg">
                     <img 
-                      src={image.imagekit_url || '/placeholder.jpg'} 
+                      src={image.imagekit_url || image.urls?.card || image.image_url || '/placeholder.jpg'} 
                       alt={`Property image ${index + 1}`}
                       className="w-full h-full object-cover rounded-lg"
                     />
