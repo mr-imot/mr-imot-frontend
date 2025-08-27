@@ -69,6 +69,10 @@ export default function ListingPage({ params }: PageProps) {
   console.log('🔍 Debug - All projects:', projects)
   console.log('🔍 Debug - Looking for ID:', propertyId)
   console.log('🔍 Debug - Found property:', property)
+  
+  // Debug: Check image data
+  console.log('🔍 Debug - Property images:', property?.images)
+  console.log('🔍 Debug - First image URL:', property?.images?.[0])
 
   if (!property) {
     notFound()
@@ -98,6 +102,18 @@ export default function ListingPage({ params }: PageProps) {
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
+          {/* Debug Section - Remove this after fixing */}
+          <div className="mb-8 p-4 bg-yellow-100 border border-yellow-300 rounded-lg">
+            <h3 className="font-bold text-yellow-800 mb-2">🔍 Debug Info (Remove after fixing)</h3>
+            <div className="text-sm text-yellow-700 space-y-1">
+              <div><strong>Title:</strong> {property.title || 'undefined'}</div>
+              <div><strong>Description:</strong> {property.description || 'undefined'}</div>
+              <div><strong>Images count:</strong> {property.images?.length || 0}</div>
+              <div><strong>First image:</strong> {property.images?.[0] || 'undefined'}</div>
+              <div><strong>Property ID:</strong> {property.id}</div>
+            </div>
+          </div>
+
           {/* Header Section */}
           <div className="mb-8">
             <h1 className="text-4xl font-bold text-gray-900 mb-3">{property.title}</h1>
@@ -122,14 +138,20 @@ export default function ListingPage({ params }: PageProps) {
               <div className="relative bg-white rounded-2xl overflow-hidden shadow-lg mb-6">
                 <div className="relative aspect-[4/3] w-full">
                   {property.images && property.images.length > 0 ? (
-                    <Image
-                      src={property.images[0]}
-                      alt={property.title}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 1024px) 100vw, 66vw"
-                      priority
-                    />
+                    <>
+                      <Image
+                        src={property.images[0]}
+                        alt={property.title}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 1024px) 100vw, 66vw"
+                        priority
+                      />
+                      {/* Fallback text overlay for debugging */}
+                      <div className="absolute top-2 left-2 bg-black/50 text-white px-2 py-1 rounded text-xs">
+                        Image loaded: {property.images[0].substring(0, 30)}...
+                      </div>
+                    </>
                   ) : (
                     <div className="w-full h-full bg-gray-200 flex items-center justify-center">
                       <span className="text-gray-400">No images available</span>
