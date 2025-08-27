@@ -298,7 +298,7 @@ export default function ListingPage({ params }: PageProps) {
               </div>
 
               {/* Thumbnail Images - Medium Quality 400x300 */}
-              {property.images && property.images.slice(1, 4).map((image, index) => (
+              {property.images && property.images.slice(1, 4).map((image: string, index: number) => (
                 <div
                   key={index}
                   className="relative h-32 md:h-44 rounded-xl overflow-hidden cursor-pointer group"
@@ -321,7 +321,7 @@ export default function ListingPage({ params }: PageProps) {
             {/* Image Thumbnails Row - Small Quality 200x150 */}
             {property.images && property.images.length > 1 && (
               <div className="flex space-x-2 mt-4 overflow-x-auto pb-2">
-                {property.images.map((image, index) => (
+                {property.images.map((image: string, index: number) => (
                   <button
                     key={index}
                     onClick={() => setCurrentImageIndex(index)}
@@ -372,7 +372,7 @@ export default function ListingPage({ params }: PageProps) {
                     <div className="mb-6">
                       <h4 className="font-semibold mb-3" style={{color: 'var(--brand-text-primary)'}}>Key Features</h4>
                       <div className="flex flex-wrap gap-2">
-                        {property.features.map((feature, index) => (
+                        {property.features.map((feature: string, index: number) => (
                           <Badge key={index} variant="outline" style={{borderColor: 'var(--brand-accent)', color: 'var(--brand-accent)'}}>
                             <CheckCircle className="h-3 w-3 mr-1" />
                             {feature}
@@ -387,7 +387,7 @@ export default function ListingPage({ params }: PageProps) {
                     <div>
                       <h4 className="font-semibold mb-3" style={{color: 'var(--brand-text-primary)'}}>Property Highlights</h4>
                       <ul className="space-y-2">
-                        {property.highlights.map((highlight, index) => (
+                        {property.highlights.map((highlight: string, index: number) => (
                           <li key={index} className="flex items-center" style={{color: 'var(--brand-text-secondary)'}}>
                             <CheckCircle className="h-4 w-4 mr-2 flex-shrink-0" style={{color: 'var(--brand-accent)'}} />
                             {highlight}
@@ -523,7 +523,7 @@ export default function ListingPage({ params }: PageProps) {
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {property.amenities.map((amenity, index) => {
+                      {property.amenities.map((amenity: string, index: number) => {
                         const IconComponent = amenityIcons[amenity] || CheckCircle
                         return (
                           <div key={index} className="flex items-center space-x-3 p-3 rounded-lg" style={{backgroundColor: 'var(--brand-glass-light)'}}>
@@ -548,7 +548,7 @@ export default function ListingPage({ params }: PageProps) {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      {property.nearbyAttractions.map((attraction, index) => (
+                      {property.nearbyAttractions.map((attraction: string, index: number) => (
                         <div key={index} className="flex items-center" style={{color: 'var(--brand-text-secondary)'}}>
                           <MapPin className="h-4 w-4 mr-3 flex-shrink-0" style={{color: 'var(--brand-accent)'}} />
                           {attraction}
