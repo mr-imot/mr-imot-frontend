@@ -33,7 +33,7 @@ const transformProjectToPropertyData = (project: any) => {
     : [];
   const cover = project.cover_image_url || images[0] || '/placeholder.svg?height=300&width=400';
   return {
-    id: Number(project.id) || parseInt(project.id) || 0,
+    id: String(project.id),
     slug: String(title).toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
     title,
     priceRange: priceLabel ? `${priceLabel}` : 'Price on request',
@@ -61,7 +61,7 @@ const transformProjectToPropertyData = (project: any) => {
 };
 
 // Helper functions for data transformation
-const getColorForProject = (id: number) => {
+const getColorForProject = (id: string) => {
   const colors = [
     'from-blue-500 to-blue-700',
     'from-green-500 to-green-700',
@@ -72,7 +72,12 @@ const getColorForProject = (id: number) => {
     'from-indigo-500 to-indigo-700',
     'from-pink-500 to-pink-700',
   ];
-  return colors[id % colors.length];
+  // Use hash of UUID string to get consistent color
+  const hash = id.split('').reduce((a, b) => {
+    a = ((a << 5) - a + b.charCodeAt(0)) & 0xffffffff;
+    return a;
+  }, 0);
+  return colors[Math.abs(hash) % colors.length];
 };
 
 const mapProjectType = (apiType: string) => {
