@@ -154,14 +154,7 @@ export default function ListingsPage() {
 
   // Debug API data
   useEffect(() => {
- 
-      loading, 
-      error, 
-      projectsCount: apiProjects?.length || 0,
-      currentBounds,
-      hasProjects: !!apiProjects?.length,
-      isBoundsLoading
-    })
+    // Debug logging removed for production
   }, [apiProjects, loading, error, currentBounds, isBoundsLoading])
 
   // Initialize Google Maps like the homepage
