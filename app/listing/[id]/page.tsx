@@ -6,6 +6,7 @@ import { useProjects } from "@/hooks/use-projects"
 import { Button } from "@/components/ui/button"
 import { Phone, Globe } from "lucide-react"
 import { recordProjectView, recordProjectPhoneClick, recordProjectWebsiteClick } from "@/lib/api"
+import Image from "next/image"
 
 interface PageProps {
   params: Promise<{
