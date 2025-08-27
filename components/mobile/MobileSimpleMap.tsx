@@ -99,11 +99,7 @@ export function MobileSimpleMap({
 
   // Render simple, performance-optimized markers
   useEffect(() => {
-    console.log('📍 Mobile markers effect:', {
-      hasMap: !!googleMapRef.current,
-      propertiesCount: properties.length,
-      properties: properties.map(p => ({ id: p.id, lat: p.lat, lng: p.lng, title: p.title }))
-    })
+    if (!googleMapRef.current || !properties.length) return
     
     if (!googleMapRef.current || !properties.length) return
 
@@ -114,11 +110,11 @@ export function MobileSimpleMap({
     // Create simple markers for each property
     properties.forEach(property => {
       if (typeof property.lat !== 'number' || typeof property.lng !== 'number') {
-        console.log('❌ Invalid coordinates for property:', property.id, property.lat, property.lng)
+
         return
       }
 
-      console.log('📍 Creating mobile marker for:', property.id, property.lat, property.lng)
+      
 
       // Use simple circle markers for better mobile performance
       const marker = new google.maps.Marker({
@@ -139,7 +135,6 @@ export function MobileSimpleMap({
       })
 
       markersRef.current[property.id] = marker
-      console.log('✅ Created mobile marker:', property.id)
 
       // Add click handler
       marker.addListener('click', () => {

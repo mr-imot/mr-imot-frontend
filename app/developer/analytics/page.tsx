@@ -149,7 +149,7 @@ function AnalyticsContent() {
 
   const handleExportData = () => {
     // TODO: Implement data export functionality
-    console.log('Exporting analytics data...')
+
   }
 
   const handleRefresh = () => {

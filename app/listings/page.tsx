@@ -154,7 +154,7 @@ export default function ListingsPage() {
 
   // Debug API data
   useEffect(() => {
-    console.log('🔍 API Data Debug:', { 
+ 
       loading, 
       error, 
       projectsCount: apiProjects?.length || 0,

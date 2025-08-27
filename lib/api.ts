@@ -298,8 +298,7 @@ class ApiClient {
 
   // Analytics endpoints - these are public endpoints that don't require authentication
   async recordProjectView(projectId: string): Promise<{ message: string }> {
-    console.log('Recording project view for ID:', projectId);
-    console.log('Full URL will be:', `${this.baseURL}/api/v1/analytics/projects/${projectId}/view`);
+
     return this.request(`/api/v1/analytics/projects/${projectId}/view`, { method: 'POST' });
   }
 
