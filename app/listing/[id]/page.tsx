@@ -438,7 +438,7 @@ export default function ListingPage({ params }: PageProps) {
                           loading="lazy"
                           allowFullScreen
                           referrerPolicy="no-referrer-when-downgrade"
-                          src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${property.lat},${property.lng}&zoom=15&maptype=roadmap`}
+                          src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${property.lat},${property.lng}&zoom=16&maptype=roadmap`}
                         />
                       </div>
                     ) : (
@@ -452,26 +452,11 @@ export default function ListingPage({ params }: PageProps) {
                       </div>
                     )}
                     
-                    {/* Additional Location Details */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t" style={{borderColor: 'var(--brand-border)'}}>
-                      <div className="text-center">
-                        <div className="text-lg font-semibold" style={{color: 'var(--brand-primary)'}}>
-                          {property.lat?.toFixed(6) || 'N/A'}
-                        </div>
-                        <div className="text-xs" style={{color: 'var(--brand-text-secondary)'}}>Latitude</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-lg font-semibold" style={{color: 'var(--brand-primary)'}}>
-                          {property.lng?.toFixed(6) || 'N/A'}
-                        </div>
-                        <div className="text-xs" style={{color: 'var(--brand-text-secondary)'}}>Longitude</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-lg font-semibold" style={{color: 'var(--brand-primary)'}}>
-                          {property.city || 'N/A'}
-                        </div>
-                        <div className="text-xs" style={{color: 'var(--brand-text-secondary)'}}>City</div>
-                      </div>
+                    {/* Map Instructions */}
+                    <div className="text-center pt-2">
+                      <p className="text-xs" style={{color: 'var(--brand-text-secondary)'}}>
+                        💡 Click and drag to pan around, use the + and - buttons to zoom in/out
+                      </p>
                     </div>
                   </div>
                 </CardContent>
