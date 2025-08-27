@@ -428,18 +428,49 @@ export default function ListingPage({ params }: PageProps) {
                       </div>
                     </div>
                     
-                    {/* Map Placeholder - You can integrate Google Maps here */}
-                    <div className="w-full h-64 rounded-lg overflow-hidden" style={{backgroundColor: 'var(--brand-glass-light)'}}>
-                      <div className="w-full h-full flex items-center justify-center">
+                    {/* Interactive Google Maps */}
+                    {property.lat && property.lng ? (
+                      <div className="w-full h-80 rounded-lg overflow-hidden border" style={{borderColor: 'var(--brand-border)'}}>
+                        <iframe
+                          width="100%"
+                          height="100%"
+                          style={{ border: 0 }}
+                          loading="lazy"
+                          allowFullScreen
+                          referrerPolicy="no-referrer-when-downgrade"
+                          src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${property.lat},${property.lng}&zoom=15&maptype=roadmap`}
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-full h-80 rounded-lg overflow-hidden flex items-center justify-center" style={{backgroundColor: 'var(--brand-glass-light)'}}>
                         <div className="text-center">
                           <MapPin className="h-12 w-12 mx-auto mb-2" style={{color: 'var(--brand-accent)'}} />
                           <p className="text-sm" style={{color: 'var(--brand-text-secondary)'}}>
-                            Map showing {property.title || property.name} location
-                          </p>
-                          <p className="text-xs mt-1" style={{color: 'var(--brand-text-secondary)'}}>
-                            Coordinates: {property.lat?.toFixed(6)}, {property.lng?.toFixed(6)}
+                            Map coordinates not available
                           </p>
                         </div>
+                      </div>
+                    )}
+                    
+                    {/* Additional Location Details */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t" style={{borderColor: 'var(--brand-border)'}}>
+                      <div className="text-center">
+                        <div className="text-lg font-semibold" style={{color: 'var(--brand-primary)'}}>
+                          {property.lat?.toFixed(6) || 'N/A'}
+                        </div>
+                        <div className="text-xs" style={{color: 'var(--brand-text-secondary)'}}>Latitude</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-lg font-semibold" style={{color: 'var(--brand-primary)'}}>
+                          {property.lng?.toFixed(6) || 'N/A'}
+                        </div>
+                        <div className="text-xs" style={{color: 'var(--brand-text-secondary)'}}>Longitude</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-lg font-semibold" style={{color: 'var(--brand-primary)'}}>
+                          {property.city || 'N/A'}
+                        </div>
+                        <div className="text-xs" style={{color: 'var(--brand-text-secondary)'}}>City</div>
                       </div>
                     </div>
                   </div>
