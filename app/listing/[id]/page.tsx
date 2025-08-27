@@ -43,6 +43,20 @@ interface PageProps {
   }>
 }
 
+// Helper function to get high-quality ImageKit URLs
+const getImageKitUrl = (originalUrl: string, width: number, height: number, quality: number = 85) => {
+  if (!originalUrl || !originalUrl.includes('imagekit.io')) {
+    return originalUrl
+  }
+  
+  // Extract the base path from the original URL
+  const urlParts = originalUrl.split('/')
+  const imageName = urlParts[urlParts.length - 1]
+  
+  // Create high-quality transformation URL
+  return `https://ik.imagekit.io/ts59gf2ul/tr:h-${height},w-${width},c-maintain_ratio,cm-focus,fo-auto,q-${quality},f-auto,pr-true,enhancement-true/${imageName}`
+}
+
 export default function ListingPage({ params }: PageProps) {
   const resolvedParams = use(params)
   const propertyId = resolvedParams.id
@@ -240,15 +254,17 @@ export default function ListingPage({ params }: PageProps) {
           {/* Image Gallery with Navigation */}
           <div className="mb-8">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {/* Main Image */}
+              {/* Main Image - High Quality 800x600 */}
               <div className="lg:col-span-2 lg:row-span-2 relative">
                 <div className="relative h-64 md:h-96 rounded-xl overflow-hidden group">
                   {property.images && property.images.length > 0 ? (
                     <Image
-                      src={property.images[currentImageIndex] || property.image}
+                      src={getImageKitUrl(property.images[currentImageIndex] || property.image, 800, 600, 90)}
                       alt={`${property.title || property.name} - Image ${currentImageIndex + 1}`}
                       fill
                       className="object-cover transition-transform duration-300 group-hover:scale-105"
+                      sizes="(max-width: 1024px) 100vw, 66vw"
+                      priority
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center" style={{backgroundColor: 'var(--brand-glass)'}}>
@@ -281,7 +297,7 @@ export default function ListingPage({ params }: PageProps) {
                 </div>
               </div>
 
-              {/* Thumbnail Images */}
+              {/* Thumbnail Images - Medium Quality 400x300 */}
               {property.images && property.images.slice(1, 4).map((image, index) => (
                 <div
                   key={index}
@@ -289,10 +305,11 @@ export default function ListingPage({ params }: PageProps) {
                   onClick={() => setCurrentImageIndex(index + 1)}
                 >
                   <Image
-                    src={image}
+                    src={getImageKitUrl(image, 400, 300, 85)}
                     alt={`${property.title || property.name} - Thumbnail ${index + 2}`}
                     fill
                     className="object-cover transition-transform duration-300 group-hover:scale-105"
+                    sizes="(max-width: 1024px) 25vw, 16vw"
                   />
                   {currentImageIndex === index + 1 && (
                     <div className="absolute inset-0 rounded-xl" style={{backgroundColor: 'var(--brand-primary)', opacity: 0.2, border: `2px solid var(--brand-primary)`}}></div>
@@ -301,7 +318,7 @@ export default function ListingPage({ params }: PageProps) {
               ))}
             </div>
 
-            {/* Image Thumbnails Row */}
+            {/* Image Thumbnails Row - Small Quality 200x150 */}
             {property.images && property.images.length > 1 && (
               <div className="flex space-x-2 mt-4 overflow-x-auto pb-2">
                 {property.images.map((image, index) => (
@@ -318,7 +335,7 @@ export default function ListingPage({ params }: PageProps) {
                     }}
                   >
                     <Image
-                      src={image}
+                      src={getImageKitUrl(image, 200, 150, 80)}
                       alt={`Thumbnail ${index + 1}`}
                       width={64}
                       height={64}
@@ -379,6 +396,53 @@ export default function ListingPage({ params }: PageProps) {
                       </ul>
                     </div>
                   )}
+                </CardContent>
+              </Card>
+
+              {/* Location Map */}
+              <Card style={{backgroundColor: 'var(--brand-glass)', borderColor: 'var(--brand-border)'}}>
+                <CardHeader>
+                  <CardTitle className="flex items-center" style={{color: 'var(--brand-text-primary)'}}>
+                    <MapPin className="h-5 w-5 mr-2" style={{color: 'var(--brand-primary)'}} />
+                    Location & Map
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {/* Address Information */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <h4 className="font-semibold mb-2" style={{color: 'var(--brand-text-primary)'}}>Property Location</h4>
+                        <div className="space-y-2" style={{color: 'var(--brand-text-secondary)'}}>
+                          <p>{property.location || property.formatted_address || 'Location not specified'}</p>
+                          {property.city && <p>City: {property.city}</p>}
+                          {property.neighborhood && <p>Neighborhood: {property.neighborhood}</p>}
+                        </div>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold mb-2" style={{color: 'var(--brand-text-primary)'}}>Developer Office</h4>
+                        <div className="space-y-2" style={{color: 'var(--brand-text-secondary)'}}>
+                          <p>{property.developer || 'Unknown Developer'}</p>
+                          <p>Contact for office location</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Map Placeholder - You can integrate Google Maps here */}
+                    <div className="w-full h-64 rounded-lg overflow-hidden" style={{backgroundColor: 'var(--brand-glass-light)'}}>
+                      <div className="w-full h-full flex items-center justify-center">
+                        <div className="text-center">
+                          <MapPin className="h-12 w-12 mx-auto mb-2" style={{color: 'var(--brand-accent)'}} />
+                          <p className="text-sm" style={{color: 'var(--brand-text-secondary)'}}>
+                            Map showing {property.title || property.name} location
+                          </p>
+                          <p className="text-xs mt-1" style={{color: 'var(--brand-text-secondary)'}}>
+                            Coordinates: {property.lat?.toFixed(6)}, {property.lng?.toFixed(6)}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
 
