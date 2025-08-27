@@ -66,7 +66,7 @@ export class MarkerManager {
   // Update marker states based on hover/selection
   updateMarkerStates() {
     Object.entries(this.markers).forEach(([id, marker]) => {
-      const propertyId = Number(id)
+      const propertyId = id
       const pillElement = this.markerElements[propertyId]
       
       if (pillElement) {
