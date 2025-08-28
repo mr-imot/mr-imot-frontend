@@ -612,10 +612,10 @@ export default function ListingsPage() {
 
   // Set initial loading to false after first data fetch
   useEffect(() => {
-    if (!loading && !isInitialLoading) {
+    if (!loading) {
       setIsInitialLoading(false)
     }
-  }, [loading, isInitialLoading])
+  }, [loading])
 
 
   return (
@@ -630,10 +630,7 @@ export default function ListingsPage() {
         {ariaLiveMessage}
       </div>
              {/* Filters - Professional styling (mobile & tablet only) */}
-       {isInitialLoading ? (
-         <FilterSkeleton />
-       ) : (
-         <section className="py-4 xs:py-6 lg:hidden bg-gradient-to-r from-gray-50 to-white border-b border-gray-100">
+       <section className="py-4 xs:py-6 lg:hidden bg-gradient-to-r from-gray-50 to-white border-b border-gray-100">
            <div className="container mx-auto px-4 max-w-[1800px]">
              <Card className="border-0 shadow-sm bg-white/80 backdrop-blur-sm">
                <CardContent className="p-4 xs:p-6 lg:p-8">
@@ -727,7 +724,6 @@ export default function ListingsPage() {
            </Card>
          </div>
        </section>
-       )}
 
       {/* Airbnb-style layout with exact proportions */}
       <div className="mx-auto w-full max-w-[1905px] px-4 py-8">
