@@ -116,8 +116,17 @@ export default function ListingsPage() {
     }
   }, [])
 
+  // Cleanup mobile map when switching views
+  useEffect(() => {
+    if (!isMobileMapView && mobileGoogleMapRef.current) {
+      mobileGoogleMapRef.current = null
+    }
+  }, [isMobileMapView])
+
   const mapRef = useRef<HTMLDivElement>(null)
+  const mobileMapRef = useRef<HTMLDivElement>(null)
   const googleMapRef = useRef<google.maps.Map | null>(null)
+  const mobileGoogleMapRef = useRef<google.maps.Map | null>(null)
   // Fullscreen map refs
   const fullscreenMapRef = useRef<HTMLDivElement>(null)
   const fullscreenGoogleMapRef = useRef<google.maps.Map | null>(null)
@@ -249,6 +258,37 @@ export default function ListingsPage() {
     initMap()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // Initialize mobile map when mobile map view is enabled
+  useEffect(() => {
+    const initMobileMap = async () => {
+      if (!isMobileMapView || !mobileMapRef.current || mobileGoogleMapRef.current) return
+      try {
+        await ensureGoogleMaps()
+        const mobileMap = new google.maps.Map(mobileMapRef.current, {
+          center: CITY_COORDINATES[selectedCity],
+          zoom: CITY_COORDINATES[selectedCity].zoom,
+          streetViewControl: false,
+          mapTypeControl: false,
+          fullscreenControl: false,
+          zoomControl: true,
+          scrollwheel: true,
+          gestureHandling: 'greedy',
+          mapId: 'DEMO_MAP_ID',
+        })
+        mobileGoogleMapRef.current = mobileMap
+        
+        // Sync with main map if available
+        if (googleMapRef.current) {
+          mobileMap.setCenter(googleMapRef.current.getCenter() || CITY_COORDINATES[selectedCity])
+          mobileMap.setZoom(googleMapRef.current.getZoom() || CITY_COORDINATES[selectedCity].zoom)
+        }
+      } catch (e) {
+        console.error("Error initializing mobile Google Maps:", e)
+      }
+    }
+    initMobileMap()
+  }, [isMobileMapView, selectedCity])
 
   // Recenter when city changes (navigation only, not filtering)
   useEffect(() => {
@@ -731,7 +771,7 @@ export default function ListingsPage() {
          <div className="lg:hidden" ref={swipeRef}>
            {isMobileMapView ? (
              <div className="h-[420px] w-full rounded-lg overflow-hidden">
-               <div ref={mapRef} className="w-full h-full bg-muted" />
+               <div ref={mobileMapRef} className="w-full h-full bg-muted" />
              </div>
            ) : (
              <div 
