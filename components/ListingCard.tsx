@@ -57,16 +57,19 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover }: Lis
   }
 
   const nextImage = (e: React.MouseEvent) => {
+    e.preventDefault()
     e.stopPropagation()
     setCurrentImageIndex((prev) => (prev + 1) % listing.images.length)
   }
 
   const prevImage = (e: React.MouseEvent) => {
+    e.preventDefault()
     e.stopPropagation()
     setCurrentImageIndex((prev) => (prev - 1 + listing.images.length) % listing.images.length)
   }
 
   const goToImage = (index: number, e: React.MouseEvent) => {
+    e.preventDefault()
     e.stopPropagation()
     setCurrentImageIndex(index)
   }
@@ -138,36 +141,39 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover }: Lis
         {/* Image Navigation (only if multiple images) */}
         {hasMultipleImages && (
           <>
-            {/* Dots - Balanced positioning */}
-            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
-              {listing.images.map((_, idx) => (
-                <button
-                  key={idx}
-                  className={cn(
-                    "h-1.5 w-1.5 rounded-full transition-all duration-200",
-                    idx === currentImageIndex ? "bg-white scale-110" : "bg-white/60 hover:bg-white/80"
-                  )}
-                  onClick={(e) => goToImage(idx, e)}
-                  aria-label={`Go to image ${idx + 1}`}
-                />
-              ))}
-            </div>
+                         {/* Dots - Balanced positioning */}
+             <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+               {listing.images.map((_, idx) => (
+                 <button
+                   key={idx}
+                   type="button"
+                   className={cn(
+                     "h-1.5 w-1.5 rounded-full transition-all duration-200",
+                     idx === currentImageIndex ? "bg-white scale-110" : "bg-white/60 hover:bg-white/80"
+                   )}
+                   onClick={(e) => goToImage(idx, e)}
+                   aria-label={`Go to image ${idx + 1}`}
+                 />
+               ))}
+             </div>
 
-            {/* Previous/Next Arrows - Balanced size */}
-            <button
-              aria-label="Previous image"
-              onClick={prevImage}
-              className="absolute left-2 top-1/2 -translate-y-1/2 grid place-items-center h-8 w-8 rounded-full bg-white/95 hover:bg-white shadow-md text-[#222222] font-bold text-base opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110"
-            >
-              ‹
-            </button>
-            <button
-              aria-label="Next image"
-              onClick={nextImage}
-              className="absolute right-2 top-1/2 -translate-y-1/2 grid place-items-center h-8 w-8 rounded-full bg-white/95 hover:bg-white shadow-md text-[#222222] font-bold text-base opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110"
-            >
-              ›
-            </button>
+                         {/* Previous/Next Arrows - Balanced size */}
+             <button
+               type="button"
+               aria-label="Previous image"
+               onClick={prevImage}
+               className="absolute left-2 top-1/2 -translate-y-1/2 grid place-items-center h-8 w-8 rounded-full bg-white/95 hover:bg-white shadow-md text-[#222222] font-bold text-base opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110"
+             >
+               ‹
+             </button>
+             <button
+               type="button"
+               aria-label="Next image"
+               onClick={nextImage}
+               className="absolute right-2 top-1/2 -translate-y-1/2 grid place-items-center h-8 w-8 rounded-full bg-white/95 hover:bg-white shadow-md text-[#222222] font-bold text-base opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110"
+             >
+               ›
+             </button>
           </>
         )}
       </div>
