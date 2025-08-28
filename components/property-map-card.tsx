@@ -71,7 +71,7 @@ export function PropertyMapCard({
     if (!hasTrackedView && property) {
       const trackView = async () => {
         try {
-          await recordProjectView(property.id)
+          await recordProjectView(String(property.id))
           setHasTrackedView(true)
         } catch (error) {
           // Fail silently to not break user experience
@@ -87,7 +87,7 @@ export function PropertyMapCard({
   const handlePhoneClick = async () => {
     if (property?.developer?.phone) {
       try {
-        await recordProjectPhoneClick(property.id)
+        await recordProjectPhoneClick(String(property.id))
       } catch (error) {
         console.warn('Analytics tracking failed:', error)
       }
@@ -97,7 +97,7 @@ export function PropertyMapCard({
   const handleWebsiteClick = async () => {
     if (property?.developer?.website) {
       try {
-        await recordProjectWebsiteClick(property.id)
+        await recordProjectWebsiteClick(String(property.id))
       } catch (error) {
         console.warn('Analytics tracking failed:', error)
       }
@@ -146,7 +146,13 @@ export function PropertyMapCard({
 
         {/* Image Carousel */}
         <div className="relative w-[327px] h-[212px]">
-          <Link href={`/listing/${property.id}`} className="block w-full h-full">
+          <Link 
+            href={`/listing/${String(property.id)}`} 
+            target={`listing_${String(property.id)}`}
+            rel="noopener noreferrer nofollow"
+            aria-labelledby={`map_title_${String(property.id)}`}
+            className="block w-full h-full"
+          >
             {imageUrls.length > 0 ? (
               <Image
                 key={currentImageIndex}
@@ -210,8 +216,15 @@ export function PropertyMapCard({
         <div className="px-4 py-4">
           <div className="flex items-start justify-between">
             <div className="min-w-0 flex-1">
-              <Link href={`/listing/${property.id}`}>
-                <h3 className="font-outfit text-[#222222] text-[16px] font-semibold leading-snug line-clamp-2 tracking-[-0.01em] hover:text-blue-600 transition-colors cursor-pointer">
+              <Link 
+                href={`/listing/${String(property.id)}`}
+                target={`listing_${String(property.id)}`}
+                rel="noopener noreferrer nofollow"
+              >
+                <h3 
+                  id={`map_title_${String(property.id)}`}
+                  className="font-outfit text-[#222222] text-[16px] font-semibold leading-snug line-clamp-2 tracking-[-0.01em] hover:text-blue-600 transition-colors cursor-pointer"
+                >
                   {property.title}
                 </h3>
               </Link>
