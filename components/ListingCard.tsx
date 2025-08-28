@@ -126,7 +126,7 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover }: Lis
       >
       {/* Image Container - 60-65% of card height like Airbnb */}
       <div className="relative overflow-hidden">
-        <div className="aspect-[4/3] w-full">
+        <div className="relative aspect-[4/3] w-full">
           <Image
             key={currentImageIndex}
             src={listing.images[currentImageIndex] || '/placeholder.svg'}

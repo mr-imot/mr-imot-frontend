@@ -24,7 +24,7 @@ import { usePullToRefresh } from "@/hooks/use-pull-to-refresh"
 import { useSwipeGestures } from "@/hooks/use-swipe-gestures"
 import { RefreshIndicator } from "@/components/RefreshIndicator"
 // import { AdvancedMapGestures } from "@/lib/advanced-map-gestures"
-// import { haptic } from "@/lib/haptic-feedback"
+import { haptic } from "@/lib/haptic-feedback"
 // import { FloatingPWAInstallButton } from "@/components/PWAInstallButton"
 
 // Debounce utility for map bounds updates
@@ -167,7 +167,13 @@ export default function ListingsPage() {
 
   // Debug API data
   useEffect(() => {
-    // Debug logging removed for production
+    console.log('🔍 Debug API data:', {
+      apiProjects: apiProjects?.length || 0,
+      loading,
+      error,
+      currentBounds,
+      isBoundsLoading
+    })
   }, [apiProjects, loading, error, currentBounds, isBoundsLoading])
 
   // Initialize Google Maps like the homepage
@@ -249,7 +255,19 @@ export default function ListingsPage() {
     if (!googleMapRef.current) return
     googleMapRef.current.panTo(CITY_COORDINATES[selectedCity])
     googleMapRef.current.setZoom(CITY_COORDINATES[selectedCity].zoom)
-    // Bounds will update via the idle listener and trigger API call
+    
+    // Set bounds immediately for API call
+    const bounds = googleMapRef.current.getBounds()
+    if (bounds) {
+      const sw = bounds.getSouthWest()
+      const ne = bounds.getNorthEast()
+      setCurrentBounds({
+        sw_lat: sw.lat(),
+        sw_lng: sw.lng(),
+        ne_lat: ne.lat(),
+        ne_lng: ne.lng(),
+      })
+    }
   }, [selectedCity])
 
   // Apply only property type filters (map bounds drive the data, not city)
@@ -264,6 +282,15 @@ export default function ListingsPage() {
     }
     return true;
   }) || [];
+
+  // Debug filtered properties
+  useEffect(() => {
+    console.log('🔍 Filtered Properties:', {
+      total: filteredProperties.length,
+      propertyTypeFilter,
+      selectedCity
+    })
+  }, [filteredProperties, propertyTypeFilter, selectedCity])
 
   // Render markers when filtered data changes with clustering
   useEffect(() => {
@@ -527,8 +554,8 @@ export default function ListingsPage() {
     setSelectedCity(newCity)
     setIsMapLoading(true)
     
-    // Haptic feedback for city change - TEMPORARILY DISABLED
-    // haptic.light()
+    // Haptic feedback for city change
+    haptic.light()
     
     // Loading will be cleared when map finishes animating and bounds update
     setTimeout(() => setIsMapLoading(false), 1000)
@@ -537,8 +564,8 @@ export default function ListingsPage() {
   const handlePropertyTypeFilter = (type: PropertyTypeFilter) => {
     setPropertyTypeFilter(type)
     
-    // Haptic feedback for filter change - TEMPORARILY DISABLED
-    // haptic.light()
+    // Haptic feedback for filter change
+    haptic.light()
   }
 
   // Pull-to-refresh functionality
@@ -570,13 +597,13 @@ export default function ListingsPage() {
     onSwipeLeft: () => {
              if (!isMobileMapView) {
          setIsMobileMapView(true)
-         // haptic.light()
+         haptic.light()
        }
     },
     onSwipeRight: () => {
              if (isMobileMapView) {
          setIsMobileMapView(false)
-         // haptic.light()
+         haptic.light()
        }
     },
     threshold: 50,
@@ -610,21 +637,21 @@ export default function ListingsPage() {
            <div className="container mx-auto px-4 max-w-[1800px]">
              <Card className="border-0 shadow-sm bg-white/80 backdrop-blur-sm">
                <CardContent className="p-4 xs:p-6 lg:p-8">
-              {/* Mobile Map/List Toggle */}
-              <div className="md:hidden mb-4 xs:mb-6 flex justify-center">
-                                 <Button 
+                              {/* Mobile Map/List Toggle - Always visible in mobile */}
+               <div className="md:hidden mb-4 xs:mb-6 flex justify-center">
+                 <Button 
                    variant={isMobileMapView ? "default" : "outline"}
                    onClick={() => {
                      setIsMobileMapView(!isMobileMapView)
-                     // haptic.medium()
+                     haptic.medium()
                    }}
                    className="h-12 px-4 xs:px-6 lg:px-8 rounded-full border-2 border-brand/20 text-ink bg-brand text-white border-brand hover:bg-brand/90 shadow-lg hover:shadow-xl transition-all duration-300 ease-out font-semibold text-sm xs:text-base"
                    size="lg"
                  >
-                  <span className="mr-2">{isMobileMapView ? "📋" : "🗺️"}</span>
-                  {isMobileMapView ? "List View" : "Map View"}
-                </Button>
-              </div>
+                   <span className="mr-2">{isMobileMapView ? "📋" : "🗺️"}</span>
+                   {isMobileMapView ? "List View" : "Map View"}
+                 </Button>
+               </div>
               <div className="flex flex-col xs:flex-row lg:flex-row items-center justify-center gap-4 xs:gap-6 lg:gap-12">
                 {/* City Selector */}
                 <div className="flex flex-col items-center space-y-3 xs:space-y-4 w-full lg:w-auto">
@@ -722,15 +749,15 @@ export default function ListingsPage() {
                  style={refreshIndicatorStyle}
                />
                
-               {/* Swipe hint for new users */}
-               {!isInitialLoading && filteredProperties.length === 0 && (
-                 <div className="text-center py-8">
-                   <div className="inline-flex items-center gap-2 text-sm text-gray-500 bg-gray-50 px-4 py-2 rounded-full">
-                     <span>💡</span>
-                     <span>Swipe left for map view, right for list view</span>
-                   </div>
-                 </div>
-               )}
+                               {/* Swipe hint for new users */}
+                {!isInitialLoading && (
+                  <div className="text-center py-8">
+                    <div className="inline-flex items-center gap-2 text-sm text-gray-500 bg-gray-50 px-4 py-2 rounded-full">
+                      <span>💡</span>
+                      <span>Swipe left for map view, right for list view</span>
+                    </div>
+                  </div>
+                )}
                              {loading || isBoundsLoading ? (
                  isInitialLoading ? (
                    <ListingCardSkeletonGrid count={6} />

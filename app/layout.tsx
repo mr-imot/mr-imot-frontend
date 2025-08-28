@@ -49,20 +49,26 @@ const sourceSans = Source_Sans_3({
 export const metadata: Metadata = {
   title: "Mr imot - Real Estate Development Directory",
   description: "Find and connect with real estate developers directly. No brokers, no BS.",
-  generator: 'v0.dev'
-  // manifest: '/manifest.json', // TEMPORARILY DISABLED
-  // themeColor: '#1e40af', // TEMPORARILY DISABLED
-  // appleWebApp: { // TEMPORARILY DISABLED
-  //   capable: true,
-  //   statusBarStyle: 'default',
-  //   title: 'Mr. Imot'
-  // },
-  // viewport: { // TEMPORARILY DISABLED
-  //   width: 'device-width',
-  //   initialScale: 1,
-  //   maximumScale: 1,
-  //   userScalable: false
-  // }
+  generator: 'v0.dev',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Mr. Imot'
+  }
+}
+
+export function generateViewport() {
+  return {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false
+  }
+}
+
+export function generateThemeColor() {
+  return '#1e40af'
 }
 
 export default function RootLayout({

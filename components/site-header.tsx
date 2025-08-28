@@ -21,7 +21,7 @@ export function SiteHeader() {
                 alt="Mr. Imot Logo"
                 width={56}
                 height={56}
-                className="w-14 h-14 object-contain drop-shadow-lg"
+                className="object-contain drop-shadow-lg"
                 style={{
                   filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))'
                 }}
