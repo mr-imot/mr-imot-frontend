@@ -463,29 +463,9 @@ export default function ListingsPage() {
   }
 
   const handleCardClick = (property: PropertyData) => {
-    setHoveredPropertyId(property.id)
-    setSelectedPropertyId(property.id)
-    setCardPosition(calculateCardPosition(property))
-    
-    const marker = markerManagerRef.current?.getMarker(property.id)
-    if (googleMapRef.current && marker) {
-      // Airbnb-style: Only pan/zoom if marker is not visible in current viewport
-      const bounds = googleMapRef.current.getBounds()
-      if (bounds) {
-        const markerLatLng = new google.maps.LatLng(property.lat, property.lng)
-        const isVisible = bounds.contains(markerLatLng)
-        const currentZoom = googleMapRef.current.getZoom() || 10
-        
-        // Only move map if marker is outside viewport OR zoom is too low
-        if (!isVisible || currentZoom < 12) {
-          const targetZoom = Math.max(currentZoom, 14)
-          googleMapRef.current.panTo({ lat: property.lat, lng: property.lng })
-          if (targetZoom > currentZoom) {
-            googleMapRef.current.setZoom(targetZoom)
-          }
-        }
-      }
-    }
+    // Open listing page in new tab instead of zooming map
+    const listingUrl = `/listing/${property.id}`
+    window.open(listingUrl, '_blank')
   }
 
 

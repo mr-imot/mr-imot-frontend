@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
-import Link from 'next/link'
 import { cn } from '@/lib/utils'
-import { Home, Building } from 'lucide-react'
+import { Home, Building, ExternalLink } from 'lucide-react'
 import { recordProjectView } from '@/lib/api'
 
 export interface Listing {
@@ -42,6 +41,11 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover }: Lis
   const cardRef = useRef<HTMLElement>(null)
 
   const handleClick = () => {
+    // Open listing page in new tab
+    const listingUrl = `/listing/${listing.id}`
+    window.open(listingUrl, '_blank')
+    
+    // Also call the parent click handler if provided (for map interactions)
     onCardClick?.(listing)
   }
 
@@ -101,17 +105,25 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover }: Lis
   }, [listing.id, hasTrackedView])
 
   return (
-    <Link href={`/listing/${listing.id}`}>
-      <article
+          <article
         ref={cardRef}
         data-id={listing.id}
         className={cn(
-          "group cursor-pointer bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 ease-out overflow-hidden",
+          "group cursor-pointer bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 ease-out overflow-hidden hover:border-brand/30",
           isActive && "ring-2 ring-brand shadow-lg"
         )}
         onClick={handleClick}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
+        role="button"
+        tabIndex={0}
+        aria-label={`View details for ${listing.title} (opens in new tab)`}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            handleClick()
+          }
+        }}
       >
       {/* Image Container - 60-65% of card height like Airbnb */}
       <div className="relative overflow-hidden">
@@ -167,9 +179,12 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover }: Lis
       {/* Content - 35-40% of card height like Airbnb */}
       <div className="p-3 flex flex-col justify-between">
         {/* Project name - Premium typography */}
-        <h3 className="font-outfit text-[#222222] text-[16px] font-semibold leading-tight mb-2 line-clamp-2 tracking-[-0.01em]">
-          {listing.title}
-        </h3>
+        <div className="flex items-start justify-between gap-2 mb-2">
+          <h3 className="font-outfit text-[#222222] text-[16px] font-semibold leading-tight line-clamp-2 tracking-[-0.01em] flex-1">
+            {listing.title}
+          </h3>
+          <ExternalLink className="h-3.5 w-3.5 text-gray-400 flex-shrink-0 mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+        </div>
         
         {/* Summary description */}
         {summarize(listing.description) && (
@@ -202,6 +217,5 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover }: Lis
         </div>
       </div>
       </article>
-    </Link>
   )
 }
