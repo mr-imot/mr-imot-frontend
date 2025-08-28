@@ -463,9 +463,9 @@ export default function ListingsPage() {
   }
 
   const handleCardClick = (property: PropertyData) => {
-    // Open listing page in new tab instead of zooming map
-    const listingUrl = `/listing/${property.id}`
-    window.open(listingUrl, '_blank')
+    // This function is now only used for map interactions
+    // The actual navigation is handled by the semantic <a> tag in ListingCard
+    // No need to manually open windows
   }
 
 

@@ -40,13 +40,12 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover }: Lis
   const hasMultipleImages = listing.images?.length > 1
   const cardRef = useRef<HTMLElement>(null)
 
-  const handleClick = () => {
-    // Open listing page in new tab
-    const listingUrl = `/listing/${listing.id}`
-    window.open(listingUrl, '_blank')
-    
-    // Also call the parent click handler if provided (for map interactions)
+  const handleClick = (e: React.MouseEvent) => {
+    // Call the parent click handler if provided (for map interactions)
     onCardClick?.(listing)
+    
+    // Let the link handle navigation naturally
+    // No need to prevent default or handle manually
   }
 
   const handleMouseEnter = () => {
@@ -104,26 +103,23 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover }: Lis
     }
   }, [listing.id, hasTrackedView])
 
-  return (
-          <article
+    return (
+    <a
+      href={`/listing/${listing.id}`}
+      target={`listing_${listing.id}`}
+      rel="noopener noreferrer nofollow"
+      aria-labelledby={`title_${listing.id}`}
+      className="block"
+    >
+      <article
         ref={cardRef}
         data-id={listing.id}
         className={cn(
           "group cursor-pointer bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 ease-out overflow-hidden hover:border-brand/30",
           isActive && "ring-2 ring-brand shadow-lg"
         )}
-        onClick={handleClick}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
-        role="button"
-        tabIndex={0}
-        aria-label={`View details for ${listing.title} (opens in new tab)`}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault()
-            handleClick()
-          }
-        }}
       >
       {/* Image Container - 60-65% of card height like Airbnb */}
       <div className="relative overflow-hidden">
@@ -180,7 +176,10 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover }: Lis
       <div className="p-3 flex flex-col justify-between">
         {/* Project name - Premium typography */}
         <div className="flex items-start justify-between gap-2 mb-2">
-          <h3 className="font-outfit text-[#222222] text-[16px] font-semibold leading-tight line-clamp-2 tracking-[-0.01em] flex-1">
+          <h3 
+            id={`title_${listing.id}`}
+            className="font-outfit text-[#222222] text-[16px] font-semibold leading-tight line-clamp-2 tracking-[-0.01em] flex-1"
+          >
             {listing.title}
           </h3>
           <ExternalLink className="h-3.5 w-3.5 text-gray-400 flex-shrink-0 mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
@@ -215,7 +214,8 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover }: Lis
             <span className="font-outfit text-[15px] font-medium text-brand tracking-[-0.005em]">Request price</span>
           )}
         </div>
-      </div>
-      </article>
-  )
-}
+               </div>
+       </article>
+     </a>
+   )
+ }
