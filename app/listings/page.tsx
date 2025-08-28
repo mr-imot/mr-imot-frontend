@@ -23,9 +23,9 @@ import { FilterSkeleton } from "@/components/FilterSkeleton"
 import { usePullToRefresh } from "@/hooks/use-pull-to-refresh"
 import { useSwipeGestures } from "@/hooks/use-swipe-gestures"
 import { RefreshIndicator } from "@/components/RefreshIndicator"
-import { AdvancedMapGestures } from "@/lib/advanced-map-gestures"
-import { haptic } from "@/lib/haptic-feedback"
-import { FloatingPWAInstallButton } from "@/components/PWAInstallButton"
+// import { AdvancedMapGestures } from "@/lib/advanced-map-gestures"
+// import { haptic } from "@/lib/haptic-feedback"
+// import { FloatingPWAInstallButton } from "@/components/PWAInstallButton"
 
 // Debounce utility for map bounds updates
 function debounce<T extends (...args: any[]) => any>(func: T, wait: number): T {
@@ -70,7 +70,7 @@ export default function ListingsPage() {
   }>({})
   const [localError, setLocalError] = useState<string | null>(null)
   const [isInitialLoading, setIsInitialLoading] = useState(true)
-  const [advancedMapGestures, setAdvancedMapGestures] = useState<AdvancedMapGestures | null>(null)
+  // const [advancedMapGestures, setAdvancedMapGestures] = useState<AdvancedMapGestures | null>(null)
   
   // Map bounds state for API calls
   const [currentBounds, setCurrentBounds] = useState<{
@@ -110,11 +110,11 @@ export default function ListingsPage() {
       if (markerManagerRef.current) {
         markerManagerRef.current.cleanup()
       }
-      if (advancedMapGestures) {
-        advancedMapGestures.disable()
-      }
+      // if (advancedMapGestures) {
+      //   advancedMapGestures.disable()
+      // }
     }
-  }, [advancedMapGestures])
+  }, [])
 
   const mapRef = useRef<HTMLDivElement>(null)
   const googleMapRef = useRef<google.maps.Map | null>(null)
@@ -189,17 +189,17 @@ export default function ListingsPage() {
         })
                  googleMapRef.current = map
          
-         // Initialize advanced map gestures
-         const gestures = new AdvancedMapGestures({
-           map,
-           enablePinchToZoom: true,
-           enableRotation: true,
-           enableDoubleTapZoom: true,
-           enableLongPress: true,
-           hapticFeedback: true
-         })
-         gestures.enable()
-         setAdvancedMapGestures(gestures)
+         // Initialize advanced map gestures - TEMPORARILY DISABLED
+         // const gestures = new AdvancedMapGestures({
+         //   map,
+         //   enablePinchToZoom: true,
+         //   enableRotation: true,
+         //   enableDoubleTapZoom: true,
+         //   enableLongPress: true,
+         //   hapticFeedback: true
+         // })
+         // gestures.enable()
+         // setAdvancedMapGestures(gestures)
          
          // Set initial bounds immediately for API call (no debounce on first load)
         const initialBounds = map.getBounds()
@@ -527,8 +527,8 @@ export default function ListingsPage() {
     setSelectedCity(newCity)
     setIsMapLoading(true)
     
-    // Haptic feedback for city change
-    haptic.light()
+    // Haptic feedback for city change - TEMPORARILY DISABLED
+    // haptic.light()
     
     // Loading will be cleared when map finishes animating and bounds update
     setTimeout(() => setIsMapLoading(false), 1000)
@@ -537,8 +537,8 @@ export default function ListingsPage() {
   const handlePropertyTypeFilter = (type: PropertyTypeFilter) => {
     setPropertyTypeFilter(type)
     
-    // Haptic feedback for filter change
-    haptic.light()
+    // Haptic feedback for filter change - TEMPORARILY DISABLED
+    // haptic.light()
   }
 
   // Pull-to-refresh functionality
@@ -568,16 +568,16 @@ export default function ListingsPage() {
   // Swipe gestures for mobile view switching
   const { elementRef: swipeRef } = useSwipeGestures({
     onSwipeLeft: () => {
-      if (!isMobileMapView) {
-        setIsMobileMapView(true)
-        haptic.light()
-      }
+             if (!isMobileMapView) {
+         setIsMobileMapView(true)
+         // haptic.light()
+       }
     },
     onSwipeRight: () => {
-      if (isMobileMapView) {
-        setIsMobileMapView(false)
-        haptic.light()
-      }
+             if (isMobileMapView) {
+         setIsMobileMapView(false)
+         // haptic.light()
+       }
     },
     threshold: 50,
     minSwipeDistance: 100
@@ -616,7 +616,7 @@ export default function ListingsPage() {
                    variant={isMobileMapView ? "default" : "outline"}
                    onClick={() => {
                      setIsMobileMapView(!isMobileMapView)
-                     haptic.medium()
+                     // haptic.medium()
                    }}
                    className="h-12 px-4 xs:px-6 lg:px-8 rounded-full border-2 border-brand/20 text-ink bg-brand text-white border-brand hover:bg-brand/90 shadow-lg hover:shadow-xl transition-all duration-300 ease-out font-semibold text-sm xs:text-base"
                    size="lg"
@@ -1057,8 +1057,8 @@ export default function ListingsPage() {
          />
        )}
        
-       {/* PWA Install Button */}
-       <FloatingPWAInstallButton />
+       {/* PWA Install Button - TEMPORARILY DISABLED */}
+       {/* <FloatingPWAInstallButton /> */}
      </div>
    )
  }
