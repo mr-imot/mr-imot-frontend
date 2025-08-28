@@ -23,6 +23,9 @@ import { FilterSkeleton } from "@/components/FilterSkeleton"
 import { usePullToRefresh } from "@/hooks/use-pull-to-refresh"
 import { useSwipeGestures } from "@/hooks/use-swipe-gestures"
 import { RefreshIndicator } from "@/components/RefreshIndicator"
+import { AdvancedMapGestures } from "@/lib/advanced-map-gestures"
+import { haptic } from "@/lib/haptic-feedback"
+import { FloatingPWAInstallButton } from "@/components/PWAInstallButton"
 
 // Debounce utility for map bounds updates
 function debounce<T extends (...args: any[]) => any>(func: T, wait: number): T {
@@ -67,6 +70,7 @@ export default function ListingsPage() {
   }>({})
   const [localError, setLocalError] = useState<string | null>(null)
   const [isInitialLoading, setIsInitialLoading] = useState(true)
+  const [advancedMapGestures, setAdvancedMapGestures] = useState<AdvancedMapGestures | null>(null)
   
   // Map bounds state for API calls
   const [currentBounds, setCurrentBounds] = useState<{
@@ -100,14 +104,17 @@ export default function ListingsPage() {
     }
   }, [ariaLiveMessage])
 
-  // Cleanup marker manager on unmount
+  // Cleanup marker manager and advanced gestures on unmount
   useEffect(() => {
     return () => {
       if (markerManagerRef.current) {
         markerManagerRef.current.cleanup()
       }
+      if (advancedMapGestures) {
+        advancedMapGestures.disable()
+      }
     }
-  }, [])
+  }, [advancedMapGestures])
 
   const mapRef = useRef<HTMLDivElement>(null)
   const googleMapRef = useRef<google.maps.Map | null>(null)
@@ -180,9 +187,21 @@ export default function ListingsPage() {
           gestureHandling: 'greedy',
           mapId: 'DEMO_MAP_ID', // Required for AdvancedMarkerElement
         })
-        googleMapRef.current = map
-        
-        // Set initial bounds immediately for API call (no debounce on first load)
+                 googleMapRef.current = map
+         
+         // Initialize advanced map gestures
+         const gestures = new AdvancedMapGestures({
+           map,
+           enablePinchToZoom: true,
+           enableRotation: true,
+           enableDoubleTapZoom: true,
+           enableLongPress: true,
+           hapticFeedback: true
+         })
+         gestures.enable()
+         setAdvancedMapGestures(gestures)
+         
+         // Set initial bounds immediately for API call (no debounce on first load)
         const initialBounds = map.getBounds()
         if (initialBounds) {
           const sw = initialBounds.getSouthWest()
@@ -507,12 +526,19 @@ export default function ListingsPage() {
     const newCity = city as CityType
     setSelectedCity(newCity)
     setIsMapLoading(true)
+    
+    // Haptic feedback for city change
+    haptic.light()
+    
     // Loading will be cleared when map finishes animating and bounds update
     setTimeout(() => setIsMapLoading(false), 1000)
   }
 
   const handlePropertyTypeFilter = (type: PropertyTypeFilter) => {
     setPropertyTypeFilter(type)
+    
+    // Haptic feedback for filter change
+    haptic.light()
   }
 
   // Pull-to-refresh functionality
@@ -541,8 +567,18 @@ export default function ListingsPage() {
 
   // Swipe gestures for mobile view switching
   const { elementRef: swipeRef } = useSwipeGestures({
-    onSwipeLeft: () => !isMobileMapView && setIsMobileMapView(true),
-    onSwipeRight: () => isMobileMapView && setIsMobileMapView(false),
+    onSwipeLeft: () => {
+      if (!isMobileMapView) {
+        setIsMobileMapView(true)
+        haptic.light()
+      }
+    },
+    onSwipeRight: () => {
+      if (isMobileMapView) {
+        setIsMobileMapView(false)
+        haptic.light()
+      }
+    },
     threshold: 50,
     minSwipeDistance: 100
   })
@@ -576,12 +612,15 @@ export default function ListingsPage() {
                <CardContent className="p-4 xs:p-6 lg:p-8">
               {/* Mobile Map/List Toggle */}
               <div className="md:hidden mb-4 xs:mb-6 flex justify-center">
-                <Button 
-                  variant={isMobileMapView ? "default" : "outline"}
-                  onClick={() => setIsMobileMapView(!isMobileMapView)}
-                  className="h-12 px-4 xs:px-6 lg:px-8 rounded-full border-2 border-brand/20 text-ink bg-brand text-white border-brand hover:bg-brand/90 shadow-lg hover:shadow-xl transition-all duration-300 ease-out font-semibold text-sm xs:text-base"
-                  size="lg"
-                >
+                                 <Button 
+                   variant={isMobileMapView ? "default" : "outline"}
+                   onClick={() => {
+                     setIsMobileMapView(!isMobileMapView)
+                     haptic.medium()
+                   }}
+                   className="h-12 px-4 xs:px-6 lg:px-8 rounded-full border-2 border-brand/20 text-ink bg-brand text-white border-brand hover:bg-brand/90 shadow-lg hover:shadow-xl transition-all duration-300 ease-out font-semibold text-sm xs:text-base"
+                   size="lg"
+                 >
                   <span className="mr-2">{isMobileMapView ? "📋" : "🗺️"}</span>
                   {isMobileMapView ? "List View" : "Map View"}
                 </Button>
@@ -1009,14 +1048,17 @@ export default function ListingsPage() {
         </div>
       )}
 
-      {/* Airbnb-style Property Map Card */}
-      {selectedProperty && (
-        <PropertyMapCard
-          property={transformToPropertyMapData(selectedProperty)}
-          onClose={() => setSelectedPropertyId(null)}
-          position={cardPosition}
-        />
-      )}
-    </div>
-  )
-}
+             {/* Airbnb-style Property Map Card */}
+       {selectedProperty && (
+         <PropertyMapCard
+           property={transformToPropertyMapData(selectedProperty)}
+           onClose={() => setSelectedPropertyId(null)}
+           position={cardPosition}
+         />
+       )}
+       
+       {/* PWA Install Button */}
+       <FloatingPWAInstallButton />
+     </div>
+   )
+ }
