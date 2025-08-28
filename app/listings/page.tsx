@@ -15,9 +15,14 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 
-import { MapPin, Building, Home, Loader2, Star, Heart, ExternalLink, Maximize2, X } from "lucide-react"
+import { MapPin, Building, Home, Loader2, Star, Heart, ExternalLink, Maximize2, X, RefreshCw } from "lucide-react"
 import { useProjects } from "@/hooks/use-projects"
 import { PropertyMapCard } from "@/components/property-map-card"
+import { ListingCardSkeleton, ListingCardSkeletonGrid } from "@/components/ListingCardSkeleton"
+import { FilterSkeleton } from "@/components/FilterSkeleton"
+import { usePullToRefresh } from "@/hooks/use-pull-to-refresh"
+import { useSwipeGestures } from "@/hooks/use-swipe-gestures"
+import { RefreshIndicator } from "@/components/RefreshIndicator"
 
 // Debounce utility for map bounds updates
 function debounce<T extends (...args: any[]) => any>(func: T, wait: number): T {
@@ -61,6 +66,7 @@ export default function ListingsPage() {
     bottom?: number
   }>({})
   const [localError, setLocalError] = useState<string | null>(null)
+  const [isInitialLoading, setIsInitialLoading] = useState(true)
   
   // Map bounds state for API calls
   const [currentBounds, setCurrentBounds] = useState<{
@@ -509,6 +515,45 @@ export default function ListingsPage() {
     setPropertyTypeFilter(type)
   }
 
+  // Pull-to-refresh functionality
+  const handleRefresh = useCallback(async () => {
+    if (googleMapRef.current) {
+      const bounds = googleMapRef.current.getBounds()
+      if (bounds) {
+        const sw = bounds.getSouthWest()
+        const ne = bounds.getNorthEast()
+        setCurrentBounds({
+          sw_lat: sw.lat(),
+          sw_lng: sw.lng(),
+          ne_lat: ne.lat(),
+          ne_lng: ne.lng(),
+        })
+      }
+    }
+  }, [])
+
+  const { elementRef: pullToRefreshRef, isRefreshing, refreshIndicatorStyle, shouldShowIndicator } = usePullToRefresh({
+    onRefresh: handleRefresh,
+    threshold: 80,
+    maxPullDistance: 120,
+    resistance: 2.5
+  })
+
+  // Swipe gestures for mobile view switching
+  const { elementRef: swipeRef } = useSwipeGestures({
+    onSwipeLeft: () => !isMobileMapView && setIsMobileMapView(true),
+    onSwipeRight: () => isMobileMapView && setIsMobileMapView(false),
+    threshold: 50,
+    minSwipeDistance: 100
+  })
+
+  // Set initial loading to false after first data fetch
+  useEffect(() => {
+    if (!loading && !isInitialLoading) {
+      setIsInitialLoading(false)
+    }
+  }, [loading, isInitialLoading])
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -521,11 +566,14 @@ export default function ListingsPage() {
       >
         {ariaLiveMessage}
       </div>
-      {/* Filters - Professional styling (mobile & tablet only) */}
-      <section className="py-4 xs:py-6 lg:hidden bg-gradient-to-r from-gray-50 to-white border-b border-gray-100">
-        <div className="container mx-auto px-4 max-w-[1800px]">
-          <Card className="border-0 shadow-sm bg-white/80 backdrop-blur-sm">
-            <CardContent className="p-4 xs:p-6 lg:p-8">
+             {/* Filters - Professional styling (mobile & tablet only) */}
+       {isInitialLoading ? (
+         <FilterSkeleton />
+       ) : (
+         <section className="py-4 xs:py-6 lg:hidden bg-gradient-to-r from-gray-50 to-white border-b border-gray-100">
+           <div className="container mx-auto px-4 max-w-[1800px]">
+             <Card className="border-0 shadow-sm bg-white/80 backdrop-blur-sm">
+               <CardContent className="p-4 xs:p-6 lg:p-8">
               {/* Mobile Map/List Toggle */}
               <div className="md:hidden mb-4 xs:mb-6 flex justify-center">
                 <Button 
@@ -607,38 +655,62 @@ export default function ListingsPage() {
                       <Home className="w-4 h-4" /> Houses
                     </ToggleGroupItem>
                   </ToggleGroup>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
+                                 </div>
+               </div>
+             </CardContent>
+           </Card>
+         </div>
+       </section>
+       )}
 
       {/* Airbnb-style layout with exact proportions */}
       <div className="mx-auto w-full max-w-[1905px] px-4 py-8">
-        {/* Mobile: Full-screen Map or List View */}
-        <div className="lg:hidden">
-          {isMobileMapView ? (
-            <div className="h-[420px] w-full rounded-lg overflow-hidden">
-              <div ref={mapRef} className="w-full h-full bg-muted" />
-            </div>
-          ) : (
-            <div className="space-y-4">
-                             {loading || isBoundsLoading ? (
-                 <div className="flex flex-col items-center justify-center py-12 xs:py-16 space-y-3 xs:space-y-4">
-                   <div className="relative">
-                     <Loader2 className="h-8 xs:h-10 w-8 xs:w-10 animate-spin text-brand" />
-                     <div className="absolute inset-0 rounded-full border-4 border-gray-200"></div>
-                   </div>
-                   <div className="text-center">
-                     <p className="text-base xs:text-lg font-semibold text-gray-700 mb-1">
-                       {isBoundsLoading ? 'Updating Properties' : 'Loading Properties'}
-                     </p>
-                     <p className="text-gray-500 text-sm">
-                       {isBoundsLoading ? 'Finding properties in this area...' : 'Finding the perfect properties for you...'}
-                     </p>
+                 {/* Mobile: Full-screen Map or List View */}
+         <div className="lg:hidden" ref={swipeRef}>
+           {isMobileMapView ? (
+             <div className="h-[420px] w-full rounded-lg overflow-hidden">
+               <div ref={mapRef} className="w-full h-full bg-muted" />
+             </div>
+           ) : (
+             <div 
+               ref={pullToRefreshRef}
+               className="space-y-4 relative"
+             >
+               {/* Pull-to-refresh indicator */}
+               <RefreshIndicator
+                 isVisible={shouldShowIndicator}
+                 isRefreshing={isRefreshing}
+                 style={refreshIndicatorStyle}
+               />
+               
+               {/* Swipe hint for new users */}
+               {!isInitialLoading && filteredProperties.length === 0 && (
+                 <div className="text-center py-8">
+                   <div className="inline-flex items-center gap-2 text-sm text-gray-500 bg-gray-50 px-4 py-2 rounded-full">
+                     <span>💡</span>
+                     <span>Swipe left for map view, right for list view</span>
                    </div>
                  </div>
+               )}
+                             {loading || isBoundsLoading ? (
+                 isInitialLoading ? (
+                   <ListingCardSkeletonGrid count={6} />
+                 ) : (
+                   <div className="flex flex-col items-center justify-center py-12 xs:py-16 space-y-3 xs:space-y-4">
+                     <div className="relative">
+                       <Loader2 className="h-8 xs:h-10 w-8 xs:w-10 animate-spin text-brand" />
+                       <div className="absolute inset-0 rounded-full border-4 border-gray-200"></div>
+                     </div>
+                     <div className="text-center">
+                       <p className="text-base xs:text-lg font-semibold text-gray-700 mb-1">
+                         {isBoundsLoading ? 'Updating Properties' : 'Loading Properties'}
+                       </p>
+                       <p className="text-gray-500 text-sm">
+                         {isBoundsLoading ? 'Finding properties in this area...' : 'Finding the perfect properties for you...'}
+                       </p>
+                     </div>
+                   </div>
+                 )
                              ) : showError ? (
                  <div className="bg-red-50 border border-red-200 rounded-2xl p-4 xs:p-6 lg:p-8 text-center">
                    <div className="w-12 xs:w-16 h-12 xs:h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3 xs:mb-4">
