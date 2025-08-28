@@ -522,50 +522,50 @@ export default function ListingsPage() {
         {ariaLiveMessage}
       </div>
       {/* Filters - Professional styling (mobile & tablet only) */}
-      <section className="py-8 bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 lg:hidden">
+      <section className="py-4 xs:py-6 lg:hidden bg-gradient-to-r from-gray-50 to-white border-b border-gray-100">
         <div className="container mx-auto px-4 max-w-[1800px]">
           <Card className="border-0 shadow-sm bg-white/80 backdrop-blur-sm">
-            <CardContent className="p-8">
+            <CardContent className="p-4 xs:p-6 lg:p-8">
               {/* Mobile Map/List Toggle */}
-              <div className="md:hidden mb-8 flex justify-center">
+              <div className="md:hidden mb-4 xs:mb-6 flex justify-center">
                 <Button 
                   variant={isMobileMapView ? "default" : "outline"}
                   onClick={() => setIsMobileMapView(!isMobileMapView)}
-                  className="h-12 px-8 rounded-full border-2 border-brand/20 text-ink bg-brand text-white border-brand hover:bg-brand/90 shadow-lg hover:shadow-xl transition-all duration-300 ease-out font-semibold text-base"
+                  className="h-12 px-4 xs:px-6 lg:px-8 rounded-full border-2 border-brand/20 text-ink bg-brand text-white border-brand hover:bg-brand/90 shadow-lg hover:shadow-xl transition-all duration-300 ease-out font-semibold text-sm xs:text-base"
                   size="lg"
                 >
                   <span className="mr-2">{isMobileMapView ? "📋" : "🗺️"}</span>
                   {isMobileMapView ? "List View" : "Map View"}
                 </Button>
               </div>
-              <div className="flex flex-col lg:flex-row items-center justify-center gap-12">
+              <div className="flex flex-col xs:flex-row lg:flex-row items-center justify-center gap-4 xs:gap-6 lg:gap-12">
                 {/* City Selector */}
-                <div className="flex flex-col items-center space-y-4 w-full lg:w-auto">
-                  <h3 className="text-lg font-bold text-gray-800 flex items-center gap-3">
-                    <MapPin className="w-5 h-5 text-brand" />
+                <div className="flex flex-col items-center space-y-3 xs:space-y-4 w-full lg:w-auto">
+                  <h3 className="text-base xs:text-lg font-bold text-gray-800 flex items-center gap-2 xs:gap-3">
+                    <MapPin className="w-4 xs:w-5 h-4 xs:h-5 text-brand" />
                     Choose Your City
                   </h3>
                   <ToggleGroup
                     type="single"
                     value={selectedCity}
                     onValueChange={handleCityChange}
-                    className="flex gap-3 w-full lg:w-auto"
+                    className="flex gap-2 xs:gap-3 w-full lg:w-auto"
                   >
                     <ToggleGroupItem 
                       value="Sofia" 
-                      className="h-12 px-8 rounded-full border-2 border-brand/20 text-gray-700 data-[state=on]:bg-brand data-[state=on]:text-white data-[state=on]:border-brand hover:bg-brand/10 hover:border-brand/40 transition-all duration-300 ease-out font-semibold text-base shadow-sm hover:shadow-md"
+                      className="h-12 px-4 xs:px-6 lg:px-8 rounded-full border-2 border-brand/20 text-gray-700 data-[state=on]:bg-brand data-[state=on]:text-white data-[state=on]:border-brand hover:bg-brand/10 hover:border-brand/40 transition-all duration-300 ease-out font-semibold text-sm xs:text-base shadow-sm hover:shadow-md"
                     >
                       Sofia
                     </ToggleGroupItem>
                     <ToggleGroupItem 
                       value="Plovdiv" 
-                      className="h-12 px-8 rounded-full border-2 border-brand/20 text-gray-700 data-[state=on]:bg-brand data-[state=on]:text-white data-[state=on]:border-brand hover:bg-brand/10 hover:border-brand/40 transition-all duration-300 ease-out font-semibold text-base shadow-sm hover:shadow-md"
+                      className="h-12 px-4 xs:px-6 lg:px-8 rounded-full border-2 border-brand/20 text-gray-700 data-[state=on]:bg-brand data-[state=on]:text-white data-[state=on]:border-brand hover:bg-brand/10 hover:border-brand/40 transition-all duration-300 ease-out font-semibold text-sm xs:text-base shadow-sm hover:shadow-md"
                     >
                       Plovdiv
                     </ToggleGroupItem>
                     <ToggleGroupItem 
                       value="Varna" 
-                      className="h-12 px-8 rounded-full border-2 border-brand/20 text-gray-700 data-[state=on]:bg-brand data-[state=on]:text-white data-[state=on]:border-brand hover:bg-brand/10 hover:border-brand/40 transition-all duration-300 ease-out font-semibold text-base shadow-sm hover:shadow-md"
+                      className="h-12 px-4 xs:px-6 lg:px-8 rounded-full border-2 border-brand/20 text-gray-700 data-[state=on]:bg-brand data-[state=on]:text-white data-[state=on]:border-brand hover:bg-brand/10 hover:border-brand/40 transition-all duration-300 ease-out font-semibold text-sm xs:text-base shadow-sm hover:shadow-md"
                     >
                       Varna
                     </ToggleGroupItem>
@@ -577,32 +577,32 @@ export default function ListingsPage() {
                 <Separator className="lg:hidden w-full bg-gray-200" />
 
                 {/* Property Type Filter */}
-                <div className="flex flex-col items-center space-y-4 w-full lg:w-auto">
-                  <h3 className="text-lg font-bold text-gray-800 flex items-center gap-3">
-                    <Building className="w-5 h-5 text-brand" />
+                <div className="flex flex-col items-center space-y-3 xs:space-y-4 w-full lg:w-auto">
+                  <h3 className="text-base xs:text-lg font-bold text-gray-800 flex items-center gap-2 xs:gap-3">
+                    <Building className="w-4 xs:w-5 h-4 xs:h-5 text-brand" />
                     Property Type
                   </h3>
                   <ToggleGroup
                     type="single"
                     value={propertyTypeFilter}
                     onValueChange={handlePropertyTypeFilter}
-                    className="flex flex-wrap gap-3 w-full lg:w-auto justify-center"
+                    className="flex flex-wrap gap-2 xs:gap-3 w-full lg:w-auto justify-center"
                   >
                     <ToggleGroupItem 
                       value="all" 
-                      className="h-12 px-8 rounded-full border-2 border-brand/20 text-gray-700 data-[state=on]:bg-brand data-[state=on]:text-white data-[state=on]:border-brand hover:bg-brand/10 hover:border-brand/40 transition-all duration-300 ease-out font-semibold text-base shadow-sm hover:shadow-md"
+                      className="h-12 px-4 xs:px-6 lg:px-8 rounded-full border-2 border-brand/20 text-gray-700 data-[state=on]:bg-brand data-[state=on]:text-white data-[state=on]:border-brand hover:bg-brand/10 hover:border-brand/40 transition-all duration-300 ease-out font-semibold text-sm xs:text-base shadow-sm hover:shadow-md"
                     >
                       All
                     </ToggleGroupItem>
                     <ToggleGroupItem 
                       value="apartments" 
-                      className="h-12 px-6 rounded-full border-2 border-brand/20 text-gray-700 data-[state=on]:bg-brand data-[state=on]:text-white data-[state=on]:border-brand hover:bg-brand/10 hover:border-brand/40 transition-all duration-300 ease-out font-semibold text-base shadow-sm hover:shadow-md flex items-center gap-2"
+                      className="h-12 px-4 xs:px-6 lg:px-8 rounded-full border-2 border-brand/20 text-gray-700 data-[state=on]:bg-brand data-[state=on]:text-white data-[state=on]:border-brand hover:bg-brand/10 hover:border-brand/40 transition-all duration-300 ease-out font-semibold text-sm xs:text-base shadow-sm hover:shadow-md flex items-center gap-2"
                     >
                       <Building className="w-4 h-4" /> Apartments
                     </ToggleGroupItem>
                     <ToggleGroupItem 
                       value="houses" 
-                      className="h-12 px-6 rounded-full border-2 border-brand/20 text-gray-700 data-[state=on]:bg-brand data-[state=on]:text-white data-[state=on]:border-brand hover:bg-brand/10 hover:border-brand/40 transition-all duration-300 ease-out font-semibold text-base shadow-sm hover:shadow-md flex items-center gap-2"
+                      className="h-12 px-4 xs:px-6 lg:px-8 rounded-full border-2 border-brand/20 text-gray-700 data-[state=on]:bg-brand data-[state=on]:text-white data-[state=on]:border-brand hover:bg-brand/10 hover:border-brand/40 transition-all duration-300 ease-out font-semibold text-sm xs:text-base shadow-sm hover:shadow-md flex items-center gap-2"
                     >
                       <Home className="w-4 h-4" /> Houses
                     </ToggleGroupItem>
@@ -624,55 +624,55 @@ export default function ListingsPage() {
             </div>
           ) : (
             <div className="space-y-4">
-              {loading || isBoundsLoading ? (
-                <div className="flex flex-col items-center justify-center py-16 space-y-4">
-                  <div className="relative">
-                    <Loader2 className="h-10 w-10 animate-spin text-brand" />
-                    <div className="absolute inset-0 rounded-full border-4 border-gray-200"></div>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-lg font-semibold text-gray-700 mb-1">
-                      {isBoundsLoading ? 'Updating Properties' : 'Loading Properties'}
-                    </p>
-                    <p className="text-gray-500 text-sm">
-                      {isBoundsLoading ? 'Finding properties in this area...' : 'Finding the perfect properties for you...'}
-                    </p>
-                  </div>
-                </div>
-              ) : showError ? (
-                <div className="bg-red-50 border border-red-200 rounded-2xl p-8 text-center">
-                  <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Building className="w-8 h-8 text-red-500" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-red-800 mb-2">Unable to Load Properties</h3>
-                  <p className="text-red-600 mb-6 text-sm">We're having trouble connecting to our servers. Please check your internet connection and try again.</p>
-                  <Button 
-                    onClick={() => window.location.reload()} 
-                    className="bg-red-600 hover:bg-red-700 text-white"
-                  >
-                    Try Again
-                  </Button>
-                </div>
-              ) : showEmpty ? (
-                <div className="bg-gray-50 border border-gray-200 rounded-2xl p-8 text-center">
-                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Building className="w-8 h-8 text-gray-400" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">No Properties in This Area</h3>
-                  <p className="text-gray-600 mb-6 text-sm">No properties found in the current map view. Try zooming out to see more properties or explore nearby areas.</p>
-                  <div className="flex flex-col gap-3">
-                    <Button 
-                      variant="outline" 
-                      onClick={() => setPropertyTypeFilter("all")}
-                      className="w-full"
-                    >
-                      Clear Property Type Filter
-                    </Button>
-                  </div>
-                </div>
-              ) : hasData ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {filteredProperties.map((property) => (
+                             {loading || isBoundsLoading ? (
+                 <div className="flex flex-col items-center justify-center py-12 xs:py-16 space-y-3 xs:space-y-4">
+                   <div className="relative">
+                     <Loader2 className="h-8 xs:h-10 w-8 xs:w-10 animate-spin text-brand" />
+                     <div className="absolute inset-0 rounded-full border-4 border-gray-200"></div>
+                   </div>
+                   <div className="text-center">
+                     <p className="text-base xs:text-lg font-semibold text-gray-700 mb-1">
+                       {isBoundsLoading ? 'Updating Properties' : 'Loading Properties'}
+                     </p>
+                     <p className="text-gray-500 text-sm">
+                       {isBoundsLoading ? 'Finding properties in this area...' : 'Finding the perfect properties for you...'}
+                     </p>
+                   </div>
+                 </div>
+                             ) : showError ? (
+                 <div className="bg-red-50 border border-red-200 rounded-2xl p-4 xs:p-6 lg:p-8 text-center">
+                   <div className="w-12 xs:w-16 h-12 xs:h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3 xs:mb-4">
+                     <Building className="w-6 xs:w-8 h-6 xs:h-8 text-red-500" />
+                   </div>
+                   <h3 className="text-base xs:text-lg font-semibold text-red-800 mb-2">Unable to Load Properties</h3>
+                   <p className="text-red-600 mb-4 xs:mb-6 text-sm">We're having trouble connecting to our servers. Please check your internet connection and try again.</p>
+                   <Button 
+                     onClick={() => window.location.reload()} 
+                     className="bg-red-600 hover:bg-red-700 text-white px-4 xs:px-6"
+                   >
+                     Try Again
+                   </Button>
+                 </div>
+               ) : showEmpty ? (
+                 <div className="bg-gray-50 border border-gray-200 rounded-2xl p-4 xs:p-6 lg:p-8 text-center">
+                   <div className="w-12 xs:w-16 h-12 xs:h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3 xs:mb-4">
+                     <Building className="w-6 xs:w-8 h-6 xs:h-8 text-gray-400" />
+                   </div>
+                   <h3 className="text-base xs:text-lg font-semibold text-gray-800 mb-2">No Properties in This Area</h3>
+                   <p className="text-gray-600 mb-4 xs:mb-6 text-sm">No properties found in the current map view. Try zooming out to see more properties or explore nearby areas.</p>
+                   <div className="flex flex-col gap-3">
+                     <Button 
+                       variant="outline" 
+                       onClick={() => setPropertyTypeFilter("all")}
+                       className="w-full px-4 xs:px-6"
+                     >
+                       Clear Property Type Filter
+                     </Button>
+                   </div>
+                 </div>
+                             ) : hasData ? (
+                 <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 xs:gap-4">
+                   {filteredProperties.map((property) => (
                     <ListingCard
                       key={property.id}
                       listing={propertyToListing(property)}
