@@ -68,6 +68,7 @@ export default function ListingsPage() {
   }>({})
   const [localError, setLocalError] = useState<string | null>(null)
   const [isInitialLoading, setIsInitialLoading] = useState(true)
+  const [showPagination, setShowPagination] = useState(false)
   // const [advancedMapGestures, setAdvancedMapGestures] = useState<AdvancedMapGestures | null>(null)
   
   // Map bounds state for API calls
@@ -624,6 +625,29 @@ export default function ListingsPage() {
     }
   }, [loading])
 
+  // Scroll detection for mobile map button behavior
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const handleScroll = () => {
+      if (window.innerWidth >= 1024) return // Only for mobile
+      
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop
+      const windowHeight = window.innerHeight
+      const documentHeight = document.documentElement.scrollHeight
+      
+      // Show pagination when near bottom, hide map button
+      if (scrollTop + windowHeight >= documentHeight - 100) {
+        setShowPagination(true)
+      } else {
+        setShowPagination(false)
+      }
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -645,29 +669,43 @@ export default function ListingsPage() {
                    {/* City Dropdown */}
                    <div className="w-full">
                      <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
-                     <select
-                       value={selectedCity}
-                       onChange={(e) => handleCityChange(e.target.value)}
-                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-brand transition-colors"
-                     >
-                       <option value="Sofia">Sofia</option>
-                       <option value="Plovdiv">Plovdiv</option>
-                       <option value="Varna">Varna</option>
-                     </select>
+                     <div className="relative">
+                       <select
+                         value={selectedCity}
+                         onChange={(e) => handleCityChange(e.target.value)}
+                         className="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-brand transition-all duration-200 appearance-none cursor-pointer bg-white hover:border-gray-400"
+                       >
+                         <option value="Sofia">Sofia</option>
+                         <option value="Plovdiv">Plovdiv</option>
+                         <option value="Varna">Varna</option>
+                       </select>
+                       <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                         <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                         </svg>
+                       </div>
+                     </div>
                    </div>
                    
                    {/* Property Type Dropdown */}
                    <div className="w-full">
                      <label className="block text-sm font-medium text-gray-700 mb-2">Property Type</label>
-                     <select
-                       value={propertyTypeFilter}
-                       onChange={(e) => setPropertyTypeFilter(e.target.value as PropertyTypeFilter)}
-                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-brand transition-colors"
-                     >
-                       <option value="all">All Properties</option>
-                       <option value="apartments">Apartments</option>
-                       <option value="houses">Houses</option>
-                     </select>
+                     <div className="relative">
+                       <select
+                         value={propertyTypeFilter}
+                         onChange={(e) => setPropertyTypeFilter(e.target.value as PropertyTypeFilter)}
+                         className="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-brand transition-all duration-200 appearance-none cursor-pointer bg-white hover:border-gray-400"
+                       >
+                         <option value="all">All Properties</option>
+                         <option value="apartments">Apartments</option>
+                         <option value="houses">Houses</option>
+                       </select>
+                       <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                         <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                         </svg>
+                       </div>
+                     </div>
                    </div>
                  </div>
                </CardContent>
@@ -1016,18 +1054,41 @@ export default function ListingsPage() {
        {/* <FloatingPWAInstallButton /> */}
        
        {/* Sticky Map Button - Mobile Only (Airbnb Style) */}
-       <div className="lg:hidden fixed bottom-6 left-4 right-4 z-40">
-         <Button
-           onClick={() => {
-             setIsMobileMapView(!isMobileMapView)
-             haptic.medium()
-           }}
-           className="w-full h-14 bg-brand text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 font-semibold text-base"
-         >
-           <span className="mr-2">{isMobileMapView ? "📋" : "🗺️"}</span>
-           {isMobileMapView ? "List View" : "Map View"}
-         </Button>
-       </div>
+       {!showPagination && (
+         <div className="lg:hidden fixed bottom-6 left-4 right-4 z-40">
+           <button
+             onClick={() => {
+               setIsMobileMapView(!isMobileMapView)
+               haptic.medium()
+             }}
+             className="w-full h-14 bg-[#222222] text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 font-semibold text-base flex items-center justify-center gap-3"
+           >
+             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+               <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+             </svg>
+             {isMobileMapView ? "List View" : "Map View"}
+           </button>
+         </div>
+       )}
+
+       {/* Mobile Pagination - Shows when map button is hidden */}
+       {showPagination && (
+         <div className="lg:hidden fixed bottom-6 left-4 right-4 z-40">
+           <div className="flex items-center justify-center gap-2 bg-white rounded-full shadow-lg px-6 py-3">
+             <button className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
+               <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+               </svg>
+             </button>
+             <span className="text-sm text-gray-600 font-medium">1 of 5</span>
+             <button className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
+               <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+               </svg>
+             </button>
+           </div>
+         </div>
+       )}
      </div>
    )
  }
