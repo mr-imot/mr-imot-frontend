@@ -20,9 +20,7 @@ import { useProjects } from "@/hooks/use-projects"
 import { PropertyMapCard } from "@/components/property-map-card"
 import { ListingCardSkeleton, ListingCardSkeletonGrid } from "@/components/ListingCardSkeleton"
 import { FilterSkeleton } from "@/components/FilterSkeleton"
-import { usePullToRefresh } from "@/hooks/use-pull-to-refresh"
-import { useSwipeGestures } from "@/hooks/use-swipe-gestures"
-import { RefreshIndicator } from "@/components/RefreshIndicator"
+
 // import { AdvancedMapGestures } from "@/lib/advanced-map-gestures"
 import { haptic } from "@/lib/haptic-feedback"
 // import { FloatingPWAInstallButton } from "@/components/PWAInstallButton"
@@ -615,47 +613,9 @@ export default function ListingsPage() {
     haptic.light()
   }
 
-  // Pull-to-refresh functionality
-  const handleRefresh = useCallback(async () => {
-    if (googleMapRef.current) {
-      const bounds = googleMapRef.current.getBounds()
-      if (bounds) {
-        const sw = bounds.getSouthWest()
-        const ne = bounds.getNorthEast()
-        setCurrentBounds({
-          sw_lat: sw.lat(),
-          sw_lng: sw.lng(),
-          ne_lat: ne.lat(),
-          ne_lng: ne.lng(),
-        })
-      }
-    }
-  }, [])
 
-  const { elementRef: pullToRefreshRef, isRefreshing, refreshIndicatorStyle, shouldShowIndicator } = usePullToRefresh({
-    onRefresh: handleRefresh,
-    threshold: 80,
-    maxPullDistance: 120,
-    resistance: 2.5
-  })
 
-  // Swipe gestures for mobile view switching
-  const { elementRef: swipeRef } = useSwipeGestures({
-    onSwipeLeft: () => {
-             if (!isMobileMapView) {
-         setIsMobileMapView(true)
-         haptic.light()
-       }
-    },
-    onSwipeRight: () => {
-             if (isMobileMapView) {
-         setIsMobileMapView(false)
-         haptic.light()
-       }
-    },
-    threshold: 50,
-    minSwipeDistance: 100
-  })
+
 
   // Set initial loading to false after first data fetch
   useEffect(() => {
@@ -677,130 +637,54 @@ export default function ListingsPage() {
         {ariaLiveMessage}
       </div>
              {/* Filters - Professional styling (mobile & tablet only) */}
-       <section className="py-4 xs:py-6 lg:hidden bg-gradient-to-r from-gray-50 to-white border-b border-gray-100">
+       <section className="py-4 xs:py-6 lg:hidden bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 sticky top-0 z-20">
            <div className="container mx-auto px-4 max-w-[1800px]">
              <Card className="border-0 shadow-sm bg-white/80 backdrop-blur-sm">
-               <CardContent className="p-4 xs:p-6 lg:p-8">
-                              {/* Mobile Map/List Toggle - Always visible in mobile */}
-               <div className="md:hidden mb-4 xs:mb-6 flex justify-center">
-                 <Button 
-                   variant={isMobileMapView ? "default" : "outline"}
-                   onClick={() => {
-                     setIsMobileMapView(!isMobileMapView)
-                     haptic.medium()
-                   }}
-                   className="h-12 px-4 xs:px-6 lg:px-8 rounded-full border-2 border-brand/20 text-ink bg-brand text-white border-brand hover:bg-brand/90 shadow-lg hover:shadow-xl transition-all duration-300 ease-out font-semibold text-sm xs:text-base"
-                   size="lg"
-                 >
-                   <span className="mr-2">{isMobileMapView ? "📋" : "🗺️"}</span>
-                   {isMobileMapView ? "List View" : "Map View"}
-                 </Button>
-               </div>
-              <div className="flex flex-col xs:flex-row lg:flex-row items-center justify-center gap-4 xs:gap-6 lg:gap-12">
-                {/* City Selector */}
-                <div className="flex flex-col items-center space-y-3 xs:space-y-4 w-full lg:w-auto">
-                  <h3 className="text-base xs:text-lg font-bold text-gray-800 flex items-center gap-2 xs:gap-3">
-                    <MapPin className="w-4 xs:w-5 h-4 xs:h-5 text-brand" />
-                    Choose Your City
-                  </h3>
-                  <ToggleGroup
-                    type="single"
-                    value={selectedCity}
-                    onValueChange={handleCityChange}
-                    className="flex gap-2 xs:gap-3 w-full lg:w-auto"
-                  >
-                    <ToggleGroupItem 
-                      value="Sofia" 
-                      className="h-12 px-4 xs:px-6 lg:px-8 rounded-full border-2 border-brand/20 text-gray-700 data-[state=on]:bg-brand data-[state=on]:text-white data-[state=on]:border-brand hover:bg-brand/10 hover:border-brand/40 transition-all duration-300 ease-out font-semibold text-sm xs:text-base shadow-sm hover:shadow-md"
-                    >
-                      Sofia
-                    </ToggleGroupItem>
-                    <ToggleGroupItem 
-                      value="Plovdiv" 
-                      className="h-12 px-4 xs:px-6 lg:px-8 rounded-full border-2 border-brand/20 text-gray-700 data-[state=on]:bg-brand data-[state=on]:text-white data-[state=on]:border-brand hover:bg-brand/10 hover:border-brand/40 transition-all duration-300 ease-out font-semibold text-sm xs:text-base shadow-sm hover:shadow-md"
-                    >
-                      Plovdiv
-                    </ToggleGroupItem>
-                    <ToggleGroupItem 
-                      value="Varna" 
-                      className="h-12 px-4 xs:px-6 lg:px-8 rounded-full border-2 border-brand/20 text-gray-700 data-[state=on]:bg-brand data-[state=on]:text-white data-[state=on]:border-brand hover:bg-brand/10 hover:border-brand/40 transition-all duration-300 ease-out font-semibold text-sm xs:text-base shadow-sm hover:shadow-md"
-                    >
-                      Varna
-                    </ToggleGroupItem>
-                  </ToggleGroup>
-                </div>
-
-                {/* Divider */}
-                <Separator orientation="vertical" className="hidden lg:block h-20 bg-gray-200" />
-                <Separator className="lg:hidden w-full bg-gray-200" />
-
-                {/* Property Type Filter */}
-                <div className="flex flex-col items-center space-y-3 xs:space-y-4 w-full lg:w-auto">
-                  <h3 className="text-base xs:text-lg font-bold text-gray-800 flex items-center gap-2 xs:gap-3">
-                    <Building className="w-4 xs:w-5 h-4 xs:h-5 text-brand" />
-                    Property Type
-                  </h3>
-                  <ToggleGroup
-                    type="single"
-                    value={propertyTypeFilter}
-                    onValueChange={handlePropertyTypeFilter}
-                    className="flex flex-wrap gap-2 xs:gap-3 w-full lg:w-auto justify-center"
-                  >
-                    <ToggleGroupItem 
-                      value="all" 
-                      className="h-12 px-4 xs:px-6 lg:px-8 rounded-full border-2 border-brand/20 text-gray-700 data-[state=on]:bg-brand data-[state=on]:text-white data-[state=on]:border-brand hover:bg-brand/10 hover:border-brand/40 transition-all duration-300 ease-out font-semibold text-sm xs:text-base shadow-sm hover:shadow-md"
-                    >
-                      All
-                    </ToggleGroupItem>
-                    <ToggleGroupItem 
-                      value="apartments" 
-                      className="h-12 px-4 xs:px-6 lg:px-8 rounded-full border-2 border-brand/20 text-gray-700 data-[state=on]:bg-brand data-[state=on]:text-white data-[state=on]:border-brand hover:bg-brand/10 hover:border-brand/40 transition-all duration-300 ease-out font-semibold text-sm xs:text-base shadow-sm hover:shadow-md flex items-center gap-2"
-                    >
-                      <Building className="w-4 h-4" /> Apartments
-                    </ToggleGroupItem>
-                    <ToggleGroupItem 
-                      value="houses" 
-                      className="h-12 px-4 xs:px-6 lg:px-8 rounded-full border-2 border-brand/20 text-gray-700 data-[state=on]:bg-brand data-[state=on]:text-white data-[state=on]:border-brand hover:bg-brand/10 hover:border-brand/40 transition-all duration-300 ease-out font-semibold text-sm xs:text-base shadow-sm hover:shadow-md flex items-center gap-2"
-                    >
-                      <Home className="w-4 h-4" /> Houses
-                    </ToggleGroupItem>
-                  </ToggleGroup>
-                                 </div>
-               </div>
-             </CardContent>
-           </Card>
+               <CardContent className="p-4 xs:p-6">
+                 <div className="flex flex-col gap-4 w-full">
+                   {/* City Dropdown */}
+                   <div className="w-full">
+                     <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
+                     <select
+                       value={selectedCity}
+                       onChange={(e) => handleCityChange(e.target.value)}
+                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-brand transition-colors"
+                     >
+                       <option value="Sofia">Sofia</option>
+                       <option value="Plovdiv">Plovdiv</option>
+                       <option value="Varna">Varna</option>
+                     </select>
+                   </div>
+                   
+                   {/* Property Type Dropdown */}
+                   <div className="w-full">
+                     <label className="block text-sm font-medium text-gray-700 mb-2">Property Type</label>
+                     <select
+                       value={propertyTypeFilter}
+                       onChange={(e) => setPropertyTypeFilter(e.target.value as PropertyTypeFilter)}
+                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-brand transition-colors"
+                     >
+                       <option value="all">All Properties</option>
+                       <option value="apartments">Apartments</option>
+                       <option value="houses">Houses</option>
+                     </select>
+                   </div>
+                 </div>
+               </CardContent>
+             </Card>
          </div>
        </section>
 
       {/* Airbnb-style layout with exact proportions */}
       <div className="mx-auto w-full max-w-[1905px] px-4 py-8">
                  {/* Mobile: Full-screen Map or List View */}
-         <div className="lg:hidden" ref={swipeRef}>
+         <div className="lg:hidden">
            {isMobileMapView ? (
-             <div className="h-[420px] w-full rounded-lg overflow-hidden">
+             <div className="fixed inset-0 z-30 bg-white">
                <div ref={mobileMapRef} className="w-full h-full bg-muted" />
              </div>
            ) : (
-             <div 
-               ref={pullToRefreshRef}
-               className="space-y-4 relative"
-             >
-               {/* Pull-to-refresh indicator */}
-               <RefreshIndicator
-                 isVisible={shouldShowIndicator}
-                 isRefreshing={isRefreshing}
-                 style={refreshIndicatorStyle}
-               />
-               
-                               {/* Swipe hint for new users */}
-                {!isInitialLoading && (
-                  <div className="text-center py-8">
-                    <div className="inline-flex items-center gap-2 text-sm text-gray-500 bg-gray-50 px-4 py-2 rounded-full">
-                      <span>💡</span>
-                      <span>Swipe left for map view, right for list view</span>
-                    </div>
-                  </div>
-                )}
+             <div className="space-y-4 relative">
                              {loading || isBoundsLoading ? (
                  isInitialLoading ? (
                    <ListingCardSkeletonGrid count={6} />
@@ -1123,12 +1007,27 @@ export default function ListingsPage() {
          <PropertyMapCard
            property={transformToPropertyMapData(selectedProperty)}
            onClose={() => setSelectedPropertyId(null)}
-           position={cardPosition}
+           position={isMobileMapView ? { bottom: 0, left: 0, right: 0 } : cardPosition}
+           className={isMobileMapView ? "lg:hidden" : "hidden lg:block"}
          />
        )}
        
        {/* PWA Install Button - TEMPORARILY DISABLED */}
        {/* <FloatingPWAInstallButton /> */}
+       
+       {/* Sticky Map Button - Mobile Only (Airbnb Style) */}
+       <div className="lg:hidden fixed bottom-6 left-4 right-4 z-40">
+         <Button
+           onClick={() => {
+             setIsMobileMapView(!isMobileMapView)
+             haptic.medium()
+           }}
+           className="w-full h-14 bg-brand text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 font-semibold text-base"
+         >
+           <span className="mr-2">{isMobileMapView ? "📋" : "🗺️"}</span>
+           {isMobileMapView ? "List View" : "Map View"}
+         </Button>
+       </div>
      </div>
    )
  }

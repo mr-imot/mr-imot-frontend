@@ -132,6 +132,112 @@
   .mobile-compact-padding {
     padding: 0.75rem;
   }
+  
+  /* Full-screen mobile map */
+  .mobile-map-fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 30;
+    background: white;
+  }
+  
+  /* Sticky mobile filters */
+  .mobile-filters-sticky {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: white;
+    backdrop-filter: blur(8px);
+  }
+  
+  /* Sticky map button */
+  .mobile-map-button-sticky {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 1rem;
+    right: 1rem;
+    z-index: 40;
+  }
+  
+  /* Mobile map card - 1/2 screen height */
+  .mobile-map-card {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 50vh;
+    z-index: 35;
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+    animation: slideUp 0.3s ease-out;
+  }
+  
+  @keyframes slideUp {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+  
+  /* Mobile map card image */
+  .mobile-map-card-image {
+    height: 60%;
+    width: 100%;
+  }
+  
+  /* Mobile map card content */
+  .mobile-map-card-content {
+    height: 40%;
+    padding: 1rem;
+    overflow-y: auto;
+  }
+  
+  /* Mobile map fullscreen */
+  .mobile-map-fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 30;
+    background: white;
+  }
+  
+  /* Mobile filters sticky */
+  .mobile-filters-sticky {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Mobile map button sticky */
+  .mobile-map-button-sticky {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 1rem;
+    right: 1rem;
+    z-index: 40;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  }
+  
+  /* Mobile dropdown styling */
+  .mobile-dropdown {
+    @apply w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-brand transition-colors;
+  }
+  
+  /* Mobile card grid */
+  .mobile-card-grid {
+    @apply grid grid-cols-1 xs:grid-cols-2 gap-3 xs:gap-4;
+  }
 }
 
 @media (min-width: 768px) and (max-width: 1023px) {

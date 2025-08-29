@@ -129,7 +129,11 @@ export function PropertyMapCard({
       style={positionStyles}
     >
       <div
-        className="relative w-[327px] bg-white rounded-[20px] overflow-hidden hover:translate-y-[-2px]"
+        className={cn(
+          "relative bg-white rounded-[20px] overflow-hidden hover:translate-y-[-2px]",
+          // Mobile: full width, 1/2 screen height | Desktop: fixed width
+          "w-full h-[50vh] lg:w-[327px] lg:h-auto"
+        )}
         style={{
           boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
           fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
@@ -145,7 +149,7 @@ export function PropertyMapCard({
         </button>
 
         {/* Image Carousel */}
-        <div className="relative w-[327px] h-[212px]">
+        <div className="relative w-full h-[60%] lg:w-[327px] lg:h-[212px]">
           <Link 
             href={`/listing/${String(property.id)}`} 
             target={`listing_${String(property.id)}`}
@@ -160,7 +164,7 @@ export function PropertyMapCard({
                 alt={property.title}
                 fill
                 className="object-cover transition-transform duration-500 ease-out hover:scale-105"
-                sizes="327px"
+                sizes="(max-width: 1024px) 100vw, 327px"
                 priority={false}
               />
             ) : (
