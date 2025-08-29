@@ -662,79 +662,220 @@ export default function ListingsPage() {
       >
         {ariaLiveMessage}
       </div>
-             {/* Premium Mobile Filters - Airbnb-inspired design */}
-       <section className="py-5 xs:py-6 lg:hidden bg-white/95 backdrop-blur-xl border-b border-gray-100/50 sticky top-0 z-20 shadow-sm premium-filter-section">
-         <div className="container mx-auto px-4 max-w-[1800px]">
-           <div className="space-y-4">
-             {/* City Filter - Premium Design */}
-             <div className="relative group premium-filter-group">
-               <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-3 ml-1">
-                 Destination
-               </label>
-               <div className="relative">
-                 <select
-                   value={selectedCity}
-                   onChange={(e) => handleCityChange(e.target.value)}
-                   className="w-full px-5 py-4 pr-12 bg-white border-2 border-gray-100 rounded-2xl focus:ring-4 focus:ring-brand/20 focus:border-brand transition-all duration-300 appearance-none cursor-pointer text-gray-900 font-medium text-base hover:border-gray-200 hover:shadow-lg group-hover:shadow-md premium-filter-select"
-                 >
-                   <option value="Sofia">Sofia, Bulgaria</option>
-                   <option value="Plovdiv">Plovdiv, Bulgaria</option>
-                   <option value="Varna">Varna, Bulgaria</option>
-                 </select>
-                 <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
-                   <div className="w-6 h-6 bg-gray-50 rounded-full flex items-center justify-center group-hover:bg-gray-100 transition-colors duration-300 premium-filter-chevron">
-                     <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                     </svg>
-                   </div>
-                 </div>
-                 {/* Premium focus indicator */}
-                 <div className="absolute inset-0 rounded-2xl ring-0 ring-brand/0 group-focus-within:ring-4 group-focus-within:ring-brand/20 transition-all duration-300 pointer-events-none"></div>
+       {/* Modern Mobile Filter Interface - Card-based Design */}
+       <section className="lg:hidden sticky top-0 z-20 bg-white/98 backdrop-blur-2xl border-b border-gray-100/60 shadow-lg">
+         <div className="px-4 py-6">
+           {/* Filter Header */}
+           <div className="flex items-center justify-between mb-6">
+             <div className="flex items-center space-x-3">
+               <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+                 <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                 </svg>
+               </div>
+               <div>
+                 <h2 className="text-lg font-bold text-gray-900">Find Your Home</h2>
+                 <p className="text-sm text-gray-600">Discover properties in Bulgaria</p>
                </div>
              </div>
              
-             {/* Property Type Filter - Premium Design */}
-             <div className="relative group premium-filter-group">
-               <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-3 ml-1">
-                 Property Type
-               </label>
-               <div className="relative">
-                 <select
-                   value={propertyTypeFilter}
-                   onChange={(e) => setPropertyTypeFilter(e.target.value as PropertyTypeFilter)}
-                   className="w-full px-5 py-4 pr-12 bg-white border-2 border-gray-100 rounded-2xl focus:ring-4 focus:ring-brand/20 focus:border-brand transition-all duration-300 appearance-none cursor-pointer text-gray-900 font-medium text-base hover:border-gray-200 hover:shadow-lg group-hover:shadow-md premium-filter-select"
-                 >
-                   <option value="all">All Properties</option>
-                   <option value="apartments">Apartments & Condos</option>
-                   <option value="houses">Houses & Villas</option>
-                 </select>
-                 <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
-                   <div className="w-6 h-6 bg-gray-50 rounded-full flex items-center justify-center group-hover:bg-gray-100 transition-colors duration-300 premium-filter-chevron">
-                     <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                     </svg>
-                   </div>
-                 </div>
-                 {/* Premium focus indicator */}
-                 <div className="absolute inset-0 rounded-2xl ring-0 ring-brand/0 group-focus-within:ring-4 group-focus-within:ring-brand/20 transition-all duration-300 pointer-events-none"></div>
-               </div>
-             </div>
-             
-             {/* Active Filters Indicator */}
-             <div className="flex items-center justify-between px-3 py-2 rounded-xl active-filters-indicator">
-               <div className="flex items-center space-x-2">
-                 <span className="text-xs text-gray-600 font-medium">
-                   {selectedCity} • {propertyTypeFilter === 'all' ? 'All Types' : propertyTypeFilter === 'apartments' ? 'Apartments' : 'Houses'}
+             {/* Filter Counter Badge */}
+             <div className="flex items-center space-x-2">
+               <div className="px-3 py-1 bg-blue-50 border border-blue-200 rounded-full">
+                 <span className="text-xs font-semibold text-blue-700">
+                   {filteredProperties.length} properties
                  </span>
                </div>
+             </div>
+           </div>
+
+           {/* Filter Cards Grid */}
+           <div className="grid grid-cols-1 gap-4">
+             {/* Location Filter Card */}
+             <div className="filter-card">
+               <div className="filter-card-header">
+                 <div className="flex items-center space-x-3">
+                   <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                     <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 111-6 0 3 3 0 016 0z" />
+                     </svg>
+                   </div>
+                   <div>
+                     <h3 className="text-sm font-semibold text-gray-900">Location</h3>
+                     <p className="text-xs text-gray-500">Choose your destination</p>
+                   </div>
+                 </div>
+                 <div className="filter-card-chevron">
+                   <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                   </svg>
+                 </div>
+               </div>
+               
+               {/* Location Options */}
+               <div className="filter-card-content">
+                 <div className="grid grid-cols-1 gap-3">
+                   {['Sofia', 'Plovdiv', 'Varna'].map((city) => (
+                     <button
+                       key={city}
+                       onClick={() => handleCityChange(city)}
+                       className={`location-option ${selectedCity === city ? 'location-option-selected' : 'location-option-default'}`}
+                       aria-label={`Select ${city} as location`}
+                     >
+                       <div className="flex items-center space-x-3">
+                         <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                           selectedCity === city 
+                             ? 'border-blue-500 bg-blue-500' 
+                             : 'border-gray-300 bg-white'
+                         }`}>
+                           {selectedCity === city && (
+                             <div className="w-2 h-2 bg-white rounded-full"></div>
+                           )}
+                         </div>
+                         <span className="text-sm font-medium">{city}</span>
+                       </div>
+                       {selectedCity === city && (
+                         <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
+                           <svg className="w-3 h-3 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                           </svg>
+                         </div>
+                       )}
+                     </button>
+                   ))}
+                 </div>
+               </div>
+             </div>
+
+             {/* Property Type Filter Card */}
+             <div className="filter-card">
+               <div className="filter-card-header">
+                 <div className="flex items-center space-x-3">
+                   <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                     <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                     </svg>
+                   </div>
+                   <div>
+                     <h3 className="text-sm font-semibold text-gray-900">Property Type</h3>
+                     <p className="text-xs text-gray-500">Select property category</p>
+                   </div>
+                 </div>
+                 <div className="filter-card-chevron">
+                   <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                   </svg>
+                 </div>
+               </div>
+               
+               {/* Property Type Options */}
+               <div className="filter-card-content">
+                 <div className="grid grid-cols-1 gap-3">
+                   {[
+                     { value: 'all', label: 'All Properties', description: 'Show everything' },
+                     { value: 'apartments', label: 'Apartments & Condos', description: 'Modern living spaces' },
+                     { value: 'houses', label: 'Houses & Villas', description: 'Private residences' }
+                   ].map((type) => (
+                     <button
+                       key={type.value}
+                       onClick={() => setPropertyTypeFilter(type.value as PropertyTypeFilter)}
+                       className={`property-type-option ${propertyTypeFilter === type.value ? 'property-type-option-selected' : 'property-type-option-default'}`}
+                       aria-label={`Select ${type.label}`}
+                     >
+                       <div className="flex items-center space-x-3">
+                         <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                           propertyTypeFilter === type.value 
+                             ? 'border-green-500 bg-green-500' 
+                             : 'border-gray-300 bg-white'
+                         }`}>
+                           {propertyTypeFilter === type.value && (
+                             <div className="w-2 h-2 bg-white rounded-full"></div>
+                           )}
+                         </div>
+                         <div className="text-left">
+                           <span className="text-sm font-medium text-gray-900">{type.label}</span>
+                           <p className="text-xs text-gray-500">{type.description}</p>
+                         </div>
+                       </div>
+                       {propertyTypeFilter === type.value && (
+                         <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
+                           <svg className="w-3 h-3 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                           </svg>
+                         </div>
+                       )}
+                     </button>
+                   ))}
+                 </div>
+               </div>
+             </div>
+           </div>
+
+           {/* Active Filters & Actions */}
+           <div className="mt-6 space-y-4">
+             {/* Active Filters Display */}
+             <div className="bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200/50 rounded-2xl p-4">
+               <div className="flex items-center justify-between">
+                 <div className="flex items-center space-x-3">
+                   <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                     <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                     </svg>
+                   </div>
+                   <div>
+                     <p className="text-sm font-medium text-gray-900">
+                       Active Filters
+                     </p>
+                     <p className="text-xs text-gray-600">
+                       {selectedCity} • {propertyTypeFilter === 'all' ? 'All Types' : propertyTypeFilter === 'apartments' ? 'Apartments' : 'Houses'}
+                     </p>
+                   </div>
+                 </div>
+                 
+                 <button 
+                   onClick={() => {
+                     setSelectedCity('Sofia')
+                     setPropertyTypeFilter('all')
+                     haptic.light()
+                   }}
+                   className="clear-filters-button"
+                   aria-label="Clear all filters"
+                 >
+                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                   </svg>
+                   <span>Clear all</span>
+                 </button>
+               </div>
+             </div>
+
+             {/* Quick Actions */}
+             <div className="flex space-x-3">
                <button 
                  onClick={() => {
                    setSelectedCity('Sofia')
-                   setPropertyTypeFilter('all')
+                   haptic.light()
                  }}
-                 className="text-xs text-brand hover:text-brand/80 font-medium transition-colors duration-200 premium-clear-button px-3 py-1 rounded-lg hover:bg-brand/5"
+                 className={`quick-action-button ${selectedCity === 'Sofia' ? 'quick-action-button-active' : 'quick-action-button-default'}`}
                >
-                 Clear all
+                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                 </svg>
+                 Sofia
+               </button>
+               
+               <button 
+                 onClick={() => {
+                   setPropertyTypeFilter('apartments')
+                   haptic.light()
+                 }}
+                 className={`quick-action-button ${propertyTypeFilter === 'apartments' ? 'quick-action-button-active' : 'quick-action-button-default'}`}
+               >
+                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                 </svg>
+                 Apartments
                </button>
              </div>
            </div>
