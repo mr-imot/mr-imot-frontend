@@ -31,6 +31,74 @@
     will-change: transform;
   }
 
+  /* Style map marker icons (Airbnb-style with smooth transitions) */
+  .map-marker-icon {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2)) !important;
+  }
+
+  .map-marker-icon svg {
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: center;
+  }
+
+  /* Default state */
+  .map-marker-default {
+    transform: scale(1) !important;
+  }
+
+  .map-marker-default svg {
+    transform: scale(1) !important;
+  }
+
+  /* Hovered state (Airbnb-style: slightly larger, darker shadow) */
+  .map-marker-hovered {
+    transform: scale(1.08) !important;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.25)) !important;
+  }
+
+  .map-marker-hovered svg {
+    transform: scale(1.05) !important;
+  }
+
+  /* Selected state (Airbnb-style: largest, strongest shadow) */
+  .map-marker-selected {
+    transform: scale(1.12) !important;
+    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.35)) !important;
+  }
+
+  .map-marker-selected svg {
+    transform: scale(1.08) !important;
+  }
+
+  /* Smooth transitions for state changes */
+  .map-marker-icon.map-marker-default {
+    animation: markerStateChange 0.15s ease-out;
+  }
+
+  .map-marker-icon.map-marker-hovered {
+    animation: markerStateChange 0.15s ease-out;
+  }
+
+  .map-marker-icon.map-marker-selected {
+    animation: markerStateChange 0.15s ease-out;
+  }
+
+  @keyframes markerStateChange {
+    0% {
+      transform: scale(0.95);
+      opacity: 0.8;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
   /* Improve scrolling performance */
   .mobile-scroll-container {
     -webkit-overflow-scrolling: touch;

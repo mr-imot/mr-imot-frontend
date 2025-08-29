@@ -187,3 +187,4 @@ export function usePWAInstallButton() {
     isInstalling: false // You could add loading state here
   }
 }
+

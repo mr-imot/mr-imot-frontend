@@ -187,8 +187,8 @@ self.addEventListener('push', (event) => {
     const data = event.data.json()
     const options = {
       body: data.body,
-             icon: 'https://ik.imagekit.io/mrimot/logo/logo-192x192.png?tr=w-192,h-192',
-       badge: 'https://ik.imagekit.io/mrimot/logo/logo-192x192.png?tr=w-192,h-192',
+                     icon: 'https://ik.imagekit.io/ts59gf2ul/Logo/mr-imot-logo-no-background.png?tr=w-192,h-192,fo-auto',
+        badge: 'https://ik.imagekit.io/ts59gf2ul/Logo/mr-imot-logo-no-background.png?tr=w-192,h-192,fo-auto',
       vibrate: [100, 50, 100],
       data: data.data || {},
       actions: data.actions || []

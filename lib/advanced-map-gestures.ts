@@ -255,3 +255,4 @@ export class AdvancedMapGestures {
     this.options.hapticFeedback = enabled
   }
 }
+

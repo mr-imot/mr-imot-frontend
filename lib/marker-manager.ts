@@ -19,7 +19,7 @@ export interface PropertyData {
 }
 
 export interface MarkerManagerConfig {
-  map: google.maps.Map
+  maps: google.maps.Map[]
   properties: PropertyData[]
   onPropertySelect: (propertyId: string | null) => void
   onPropertyHover: (propertyId: string | null) => void
@@ -34,24 +34,32 @@ export class MarkerManager {
   private clusterMarkers: google.maps.marker.AdvancedMarkerElement[] = []
   private markerElements: Record<string, HTMLElement> = {}
   private markerPrices: Record<string, string> = {}
+  private markerContents: Record<string, HTMLElement> = {} // Store marker content elements for state updates
+  private markerStates: Record<string, "default" | "hovered" | "selected"> = {} // Track current state of each marker
   private clusters: PropertyCluster[] = []
   private markerCache: Record<string, google.maps.marker.AdvancedMarkerElement> = {}
   private isInitialized: boolean = false
 
   constructor(config: MarkerManagerConfig) {
     this.config = config
+    
+
   }
 
   // Main method to render all markers with clustering
   renderMarkers() {
-    // Only render if not initialized yet
+    // Always re-render when called (for map switching)
+    this.clearAllMarkers()
+    this.isInitialized = false
+
     if (this.isInitialized) {
       return
     }
 
     this.clearAllMarkers()
 
-    const currentZoom = this.config.map.getZoom() || 10
+    // Get zoom from the first available map
+    const currentZoom = this.config.maps[0]?.getZoom() || 10
     const shouldCluster = currentZoom < 12 && this.config.properties.length > 3
 
     if (shouldCluster) {
@@ -63,44 +71,62 @@ export class MarkerManager {
     this.isInitialized = true
   }
 
-  // Update marker states based on hover/selection
+  // Update marker states based on hover/selection (Airbnb-style with CSS classes)
   updateMarkerStates() {
-    Object.entries(this.markers).forEach(([id, marker]) => {
-      const propertyId = id
-      const pillElement = this.markerElements[propertyId]
-      
-      if (pillElement) {
-        // Remove all state classes
-        pillElement.classList.remove('map-price-pill--active')
-        
-        // Add appropriate state class
+    Object.entries(this.markerContents).forEach(([contentId, markerContent]) => {
+      // Extract property ID from content ID (handles both main and cloned markers)
+      const propertyId = contentId.split('_map_')[0]
+
+      if (markerContent) {
+        // Determine the current state
+        let newState: "default" | "hovered" | "selected" = "default"
+        let newZIndex = 1
+
         if (this.config.selectedPropertyId === propertyId) {
-          pillElement.classList.add('map-price-pill--active')
-          marker.zIndex = 999
+          newState = "selected"
+          newZIndex = 999
         } else if (this.config.hoveredPropertyId === propertyId) {
-          // Hover state is handled by CSS :hover
-          marker.zIndex = 500
-        } else {
-          marker.zIndex = 1
+          newState = "hovered"
+          newZIndex = 500
         }
-      } else {
-        // Update house/apartment icon markers based on state
-        if ('setIcon' in marker) {
-          let state: "default" | "hovered" | "selected" = "default"
-          
-          if (this.config.selectedPropertyId === propertyId) {
-            state = "selected"
-          } else if (this.config.hoveredPropertyId === propertyId) {
-            state = "hovered"
+
+        // Only update if state has actually changed
+        const currentState = this.markerStates[contentId] || "default"
+        if (currentState !== newState) {
+          // Update stored state first
+          this.markerStates[contentId] = newState
+
+          // Update z-index
+          const marker = this.markers[propertyId]
+          if (marker) {
+            marker.zIndex = newZIndex
           }
-          
-          // Find the property to get its type
-          const property = this.config.properties.find(p => p.id === propertyId)
-          if (property) {
-            const iconType = property.type === "Residential Houses" ? "house" : "apartment"
-            const icon = createSvgHouseIcon(iconType, state)
-            ;(marker as any).setIcon(icon)
-            ;(marker as any).setZIndex(state === "selected" ? 999 : state === "hovered" ? 500 : 1)
+
+          // SIMPLE APPROACH: Just change the SVG fill directly
+          const svg = markerContent.querySelector('svg')
+          if (svg) {
+            const paths = svg.querySelectorAll('path, polyline')
+            
+            if (newState === "hovered" || newState === "selected") {
+              // Hovered/Selected: Black house with white lines
+              paths.forEach(path => {
+                if (path.getAttribute('fill') !== 'none') {
+                  path.setAttribute('fill', '#000000') // Black house
+                }
+                path.setAttribute('stroke', '#FFFFFF') // White lines
+              })
+            } else {
+              // Default: White house with black lines
+              paths.forEach(path => {
+                if (path.getAttribute('fill') !== 'none') {
+                  path.setAttribute('fill', '#FFFFFF') // White house
+                }
+                path.setAttribute('stroke', '#000000') // Black lines
+              })
+            }
+            
+            // Apply CSS classes for scaling/shadow effects
+            markerContent.className = `map-marker-icon map-marker-${newState}`
           }
         }
       }
@@ -176,6 +202,14 @@ export class MarkerManager {
       delete this.markers[propertyId]
       delete this.markerElements[propertyId]
       delete this.markerPrices[propertyId]
+
+      // Clean up all marker contents (including cloned ones)
+      Object.keys(this.markerContents).forEach(contentId => {
+        if (contentId.startsWith(`${propertyId}_`) || contentId === propertyId) {
+          delete this.markerContents[contentId]
+          delete this.markerStates[contentId]
+        }
+      })
     }
   }
 
@@ -202,11 +236,13 @@ export class MarkerManager {
     this.markers = {}
     this.clusterMarkers = []
     this.markerElements = {}
-    // Note: We preserve markerCache for reuse
+    this.markerContents = {}
+    this.markerStates = {}
+    // Note: We preserve markerCache for reuse, but clear any cached marker references
   }
 
   private renderClustered() {
-    const clusters = clusterProperties(this.config.properties, this.config.map)
+    const clusters = clusterProperties(this.config.properties, this.config.maps[0])
     this.clusters = clusters
     
     clusters.forEach((cluster, clusterIndex) => {
@@ -232,41 +268,103 @@ export class MarkerManager {
     if (typeof property.lat !== "number" || typeof property.lng !== "number") {
       return
     }
-    
+
     // Check if marker is already cached
     if (this.markerCache[property.id]) {
+      console.log('📋 Using cached marker for', property.id)
       const cachedMarker = this.markerCache[property.id]
-      if ('setMap' in cachedMarker) {
-        cachedMarker.setMap(this.config.map)
-      } else {
-        cachedMarker.map = this.config.map
-      }
+
+      // For cached markers, we need to create new instances on additional maps
+      this.config.maps.forEach((map, index) => {
+        if (index === 0) {
+          // First map: use cached marker
+          if ('setMap' in cachedMarker) {
+            cachedMarker.setMap(map)
+          } else {
+            cachedMarker.map = map
+          }
+        } else if (map) {
+          // Additional maps: create new marker instances
+          const clonedElement = this.markerContents[property.id]?.cloneNode(true) as HTMLElement || document.createElement('div')
+          if (!this.markerContents[property.id]) {
+            // If no cached content, create new one
+            clonedElement.className = 'map-marker-icon map-marker-default'
+            const iconType = property.type === "Residential Houses" ? "house" : "apartment"
+            const markerIcon = createSvgHouseIcon(iconType, "default")
+            clonedElement.innerHTML = markerIcon
+            clonedElement.setAttribute('role', 'button')
+            clonedElement.setAttribute('tabindex', '0')
+            clonedElement.setAttribute('data-property-id', property.id)
+          }
+
+          const newMarker = new google.maps.marker.AdvancedMarkerElement({
+            position: { lat: property.lat, lng: property.lng },
+            map: map,
+            content: clonedElement,
+            title: property.title,
+            zIndex: 1,
+          })
+
+          // Store references for the new marker
+          this.markerContents[`${property.id}_map_${index}`] = clonedElement
+          this.markerStates[`${property.id}_map_${index}`] = "default"
+        }
+      })
+
       this.markers[property.id] = cachedMarker
       return
     }
-    
+
     // Use house icon for houses, building icon for apartments
     const iconType = property.type === "Residential Houses" ? "house" : "apartment"
     const markerIcon = createSvgHouseIcon(iconType, "default")
-    
+
     // Create HTML element for the marker
     const markerElement = document.createElement('div')
-    markerElement.className = 'map-marker-icon'
+    markerElement.className = 'map-marker-icon map-marker-default'
     markerElement.innerHTML = markerIcon
     markerElement.setAttribute('role', 'button')
     markerElement.setAttribute('tabindex', '0')
+    markerElement.setAttribute('data-property-id', property.id)
     
+
+
+    // Create marker on the first map (primary map)
     const marker = new google.maps.marker.AdvancedMarkerElement({
       position: { lat: property.lat, lng: property.lng },
-      map: this.config.map,
+      map: this.config.maps[0],
       content: markerElement,
       title: property.title,
       zIndex: 1,
     })
-    
+
+    // Add marker to ALL available maps
+    this.config.maps.forEach((map, index) => {
+      if (index === 0) return // Already set on first map
+      if (map) {
+        // Create a clone of the marker element for additional maps
+        const clonedElement = markerElement.cloneNode(true) as HTMLElement
+        const clonedMarker = new google.maps.marker.AdvancedMarkerElement({
+          position: { lat: property.lat, lng: property.lng },
+          map: map,
+          content: clonedElement,
+          title: property.title,
+          zIndex: 1,
+        })
+        // Store references for the cloned marker too
+        this.markerContents[`${property.id}_map_${index}`] = clonedElement
+        this.markerStates[`${property.id}_map_${index}`] = "default"
+      }
+    })
+
     // Cache the marker for future use
     this.markerCache[property.id] = marker
     this.markers[property.id] = marker
+    this.markerContents[property.id] = markerElement // Store content element for state updates
+    this.markerStates[property.id] = "default" // Initialize state
+    
+
+    
     this.addMarkerEventListeners(marker, property, markerElement)
   }
 
@@ -284,7 +382,7 @@ export class MarkerManager {
       // Create AdvancedMarkerElement for cluster
       const marker = new google.maps.marker.AdvancedMarkerElement({
         position: { lat: cluster.lat, lng: cluster.lng },
-        map: this.config.map,
+        map: this.config.maps[0],
         content: clusterElement,
         title: `${count} properties`,
         zIndex: 100,
@@ -304,7 +402,7 @@ export class MarkerManager {
       
       const fallbackMarker = new google.maps.marker.AdvancedMarkerElement({
         position: { lat: cluster.lat, lng: cluster.lng },
-        map: this.config.map,
+        map: this.config.maps[0],
         content: clusterElement,
         zIndex: 100,
         title: `${count} properties`,
@@ -329,18 +427,18 @@ export class MarkerManager {
         this.config.onAriaAnnouncement(`Selected property: ${property.title} - ${property.shortPrice || 'Contact for price'}`)
         
         // Airbnb-style: Only pan/zoom if marker is not visible in current viewport
-        const bounds = this.config.map.getBounds()
-        if (bounds) {
+        const bounds = this.config.maps[0]?.getBounds()
+        if (bounds && this.config.maps[0]) {
           const markerLatLng = new google.maps.LatLng(property.lat, property.lng)
           const isVisible = bounds.contains(markerLatLng)
-          const currentZoom = this.config.map.getZoom() || 10
-          
+          const currentZoom = this.config.maps[0].getZoom() || 10
+
           // Only move map if marker is outside viewport OR zoom is too low
           if (!isVisible || currentZoom < 12) {
             const targetZoom = Math.max(currentZoom, 14)
-            this.config.map.panTo({ lat: property.lat, lng: property.lng })
+            this.config.maps[0].panTo({ lat: property.lat, lng: property.lng })
             if (targetZoom > currentZoom) {
-              this.config.map.setZoom(targetZoom)
+              this.config.maps[0].setZoom(targetZoom)
             }
           }
         }
@@ -374,10 +472,10 @@ export class MarkerManager {
     
     // Click cluster to zoom in
     marker.addListener("click", () => {
-      this.config.map.fitBounds(cluster.bounds)
+      this.config.maps[0]?.fitBounds(cluster.bounds)
       this.config.onAriaAnnouncement(`Expanded cluster of ${count} properties. Zooming to show individual listings.`)
       setTimeout(() => {
-        const newZoom = this.config.map.getZoom() || 10
+        const newZoom = this.config.maps[0]?.getZoom() || 10
         if (newZoom >= 12) {
           // console.log('🔍 Zoomed in enough to show individual markers')
         }

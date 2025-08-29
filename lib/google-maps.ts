@@ -39,35 +39,30 @@ export async function ensureGoogleMaps(): Promise<typeof google> {
   }
 }
 
-// Create house/apartment SVG icon for markers using same icons as property type buttons
+// Create house/apartment SVG icon for markers with white fill and black outlines
 export function createSvgHouseIcon(
   type: "house" | "apartment",
   state: "default" | "hovered" | "selected" = "default"
-): google.maps.Icon {
-  // Use black for hover, brand red for selected, default red for normal
-  const fillColor = state === "hovered" ? "#000000" : state === "selected" ? "#E00B41" : "#FF385C"
-  const strokeColor = "#FFFFFF"
-  const size = state === "default" ? 32 : state === "hovered" ? 34 : 36
-  
+): string {
+  // White fill with black outlines for default, black fill with black outlines for hover
+  const fillColor = state === "hovered" ? "#000000" : "#FFFFFF"
+  const strokeColor = "#000000" // Always black outlines
+  const size = 24 // Fixed size for cleaner look
+
   // House icon SVG path (matches Lucide Home icon used in property type buttons)
   const houseIcon = `<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" fill="${fillColor}" stroke="${strokeColor}" stroke-width="1.5"/>
     <polyline points="9,22 9,12 15,12 15,22" fill="none" stroke="${strokeColor}" stroke-width="1.5"/>`
-  
+
   // Apartment/Building icon SVG path (matches Lucide Building icon used in property type buttons)
   const apartmentIcon = `<path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z" fill="${fillColor}" stroke="${strokeColor}" stroke-width="1.5"/>
     <path d="M6 12h4m0 0h4m-4 0v6m-4-3h4m0 0h4" fill="none" stroke="${strokeColor}" stroke-width="1.5"/>`
-  
+
   const iconPath = type === "house" ? houseIcon : apartmentIcon
-  
-  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}' viewBox='0 0 24 24' fill="none">
+
+  // Simple SVG with white fill and black outlines
+  return `<svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}' viewBox='0 0 24 24' fill="none">
     ${iconPath}
   </svg>`
-
-  return {
-    url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
-    scaledSize: new google.maps.Size(size, size),
-    anchor: new google.maps.Point(size / 2, size),
-  }
 }
 
 // Create HTML price pill element for AdvancedMarkerElement (kept for compatibility)

@@ -27,3 +27,4 @@ export function RefreshIndicator({ isVisible, isRefreshing, style }: RefreshIndi
     </div>
   )
 }
+

@@ -89,7 +89,7 @@ export default function ListingPage({ params }: PageProps) {
       trackView()
     }
   }, [projects, propertyId, hasTrackedView])
-
+  
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{backgroundColor: 'var(--brand-glass-light)'}}>
@@ -163,18 +163,18 @@ export default function ListingPage({ params }: PageProps) {
   }
 
   const handlePhoneClick = async () => {
-    try {
-      await recordProjectPhoneClick(property.id)
-    } catch (error) {
-      console.warn('Analytics tracking failed:', error)
+      try {
+        await recordProjectPhoneClick(property.id)
+      } catch (error) {
+        console.warn('Analytics tracking failed:', error)
     }
   }
 
   const handleWebsiteClick = async () => {
-    try {
-      await recordProjectWebsiteClick(property.id)
-    } catch (error) {
-      console.warn('Analytics tracking failed:', error)
+      try {
+        await recordProjectWebsiteClick(property.id)
+      } catch (error) {
+        console.warn('Analytics tracking failed:', error)
     }
   }
 
@@ -213,7 +213,7 @@ export default function ListingPage({ params }: PageProps) {
           {/* Property Header */}
           <div className="mb-8">
             <div className="flex items-start justify-between mb-4">
-              <div>
+            <div>
                 <h1 className="text-3xl md:text-4xl font-bold mb-2" style={{color: 'var(--brand-text-primary)'}}>
                   {property.title || property.name}
                 </h1>
@@ -293,10 +293,10 @@ export default function ListingPage({ params }: PageProps) {
                     <div className="absolute bottom-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
                       {currentImageIndex + 1} / {property.images.length}
                     </div>
-                  )}
-                </div>
+                )}
               </div>
-
+            </div>
+            
               {/* Thumbnail Images - Medium Quality 400x300 */}
               {property.images && property.images.slice(1, 4).map((image: string, index: number) => (
                 <div
@@ -384,7 +384,7 @@ export default function ListingPage({ params }: PageProps) {
 
                   {/* Highlights */}
                   {property.highlights && property.highlights.length > 0 && (
-                    <div>
+            <div>
                       <h4 className="font-semibold mb-3" style={{color: 'var(--brand-text-primary)'}}>Property Highlights</h4>
                       <ul className="space-y-2">
                         {property.highlights.map((highlight: string, index: number) => (
@@ -408,7 +408,7 @@ export default function ListingPage({ params }: PageProps) {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
+              <div className="space-y-4">
                     {/* Address Information */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
@@ -571,7 +571,7 @@ export default function ListingPage({ params }: PageProps) {
                 <CardContent className="space-y-4">
                   <Button
                     className="w-full text-white"
-                    onClick={handlePhoneClick}
+                          onClick={handlePhoneClick}
                     style={{backgroundColor: 'var(--brand-primary)'}}
                   >
                     <Phone className="h-4 w-4 mr-2" />
@@ -585,16 +585,16 @@ export default function ListingPage({ params }: PageProps) {
                   >
                     <Mail className="h-4 w-4 mr-2" />
                     Send Message
-                  </Button>
+                      </Button>
                   <Button
                     variant="outline"
                     className="w-full bg-transparent"
-                    onClick={handleWebsiteClick}
+                          onClick={handleWebsiteClick}
                     style={{borderColor: 'var(--brand-border)', color: 'var(--brand-text-primary)'}}
-                  >
+                        >
                     <Globe className="h-4 w-4 mr-2" />
-                    Visit Website
-                  </Button>
+                          Visit Website
+                      </Button>
                 </CardContent>
               </Card>
 
@@ -663,10 +663,10 @@ export default function ListingPage({ params }: PageProps) {
                   </div>
                 </CardContent>
               </Card>
+                  </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
 
       {/* Contact Form Modal */}
       {showContactForm && (
@@ -745,8 +745,8 @@ export default function ListingPage({ params }: PageProps) {
                     rows={4}
                     className="w-full"
                     style={{backgroundColor: 'var(--brand-glass-light)', borderColor: 'var(--brand-border)', color: 'var(--brand-text-primary)'}}
-                  />
-                </div>
+                    />
+                  </div>
 
                 <div className="flex space-x-3 pt-4">
                   <Button 
@@ -768,9 +768,9 @@ export default function ListingPage({ params }: PageProps) {
                 </div>
               </form>
             </div>
-          </div>
-        </div>
-      )}
+              </div>
+            </div>
+          )}
     </div>
   )
 }

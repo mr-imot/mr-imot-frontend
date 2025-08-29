@@ -88,7 +88,7 @@ export default function ListingsPage() {
     if (hoverTimeoutRef.current) {
       clearTimeout(hoverTimeoutRef.current)
     }
-    
+
     hoverTimeoutRef.current = setTimeout(() => {
       setHoveredPropertyId(propertyId)
     }, delay)
@@ -116,17 +116,32 @@ export default function ListingsPage() {
     }
   }, [])
 
-  // Cleanup mobile map when switching views
-  useEffect(() => {
-    if (!isMobileMapView && mobileGoogleMapRef.current) {
-      mobileGoogleMapRef.current = null
-    }
-  }, [isMobileMapView])
-
   const mapRef = useRef<HTMLDivElement>(null)
   const mobileMapRef = useRef<HTMLDivElement>(null)
   const googleMapRef = useRef<google.maps.Map | null>(null)
   const mobileGoogleMapRef = useRef<google.maps.Map | null>(null)
+
+  // Cleanup mobile map when switching views
+  useEffect(() => {
+    if (!isMobileMapView && mobileGoogleMapRef.current) {
+      mobileGoogleMapRef.current = null
+      // Re-render markers on desktop map only
+      if (markerManagerRef.current && googleMapRef.current) {
+        const availableMaps = [googleMapRef.current]
+        markerManagerRef.current.updateConfig({ maps: availableMaps })
+        markerManagerRef.current.renderMarkers()
+      }
+    } else if (isMobileMapView && mobileGoogleMapRef.current) {
+      // Re-render markers on both maps when mobile map is available
+      if (markerManagerRef.current) {
+        const availableMaps = [googleMapRef.current, mobileGoogleMapRef.current].filter(
+          (map): map is google.maps.Map => map !== null
+        )
+        markerManagerRef.current.updateConfig({ maps: availableMaps })
+        markerManagerRef.current.renderMarkers()
+      }
+    }
+  }, [isMobileMapView, mobileGoogleMapRef.current])
   // Fullscreen map refs
   const fullscreenMapRef = useRef<HTMLDivElement>(null)
   const fullscreenGoogleMapRef = useRef<google.maps.Map | null>(null)
@@ -335,25 +350,27 @@ export default function ListingsPage() {
   // Render markers when filtered data changes with clustering
   useEffect(() => {
     if (!googleMapRef.current || !filteredProperties) return
-    
+
     const list = filteredProperties
-    // console.log('🗺️ Updating markers for', list.length, 'filtered projects')
+
 
     // Initialize marker manager only once
     if (!markerManagerRef.current) {
+      // Get available maps (desktop + mobile if exists and we're in mobile view)
+      const availableMaps = [googleMapRef.current]
+      if (isMobileMapView && mobileGoogleMapRef.current) {
+        availableMaps.push(mobileGoogleMapRef.current)
+      }
+
       markerManagerRef.current = new MarkerManager({
-        map: googleMapRef.current,
+        maps: availableMaps,
         properties: list,
         onPropertySelect: (propertyId) => {
-          // console.log('🎯 Marker clicked, property ID:', propertyId)
           setSelectedPropertyId(propertyId)
           if (propertyId) {
             const property = filteredProperties.find(p => p.id === propertyId)
-            // console.log('🏠 Found property for card:', property)
             if (property) {
-              const position = calculateCardPosition(property)
-              // console.log('📍 Calculated card position:', position)
-              setCardPosition(position)
+              setCardPosition(calculateCardPosition(property))
             }
             // Scroll to card
             const card = listContainerRef.current?.querySelector(
@@ -369,7 +386,7 @@ export default function ListingsPage() {
         selectedPropertyId,
         hoveredPropertyId,
       })
-      
+
       // Initial render
       markerManagerRef.current.renderMarkers()
     } else {
@@ -395,7 +412,7 @@ export default function ListingsPage() {
         onPropertyHover: (propertyId) => setDebouncedHover(propertyId, 50),
         onAriaAnnouncement: setAriaLiveMessage,
       })
-      
+
       // Update properties efficiently without recreating markers
       markerManagerRef.current.updateProperties(list)
     }

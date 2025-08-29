@@ -119,7 +119,7 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover }: Lis
         data-id={listing.id}
         className={cn(
           "group cursor-pointer bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 ease-out overflow-hidden hover:border-brand/30",
-          isActive && "ring-2 ring-brand shadow-lg"
+          isActive && "bg-gray-50 border-gray-200 shadow-lg"
         )}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}

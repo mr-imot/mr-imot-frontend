@@ -124,3 +124,4 @@ export const haptic = {
   error: () => HapticFeedback.getInstance().error(),
   custom: (pattern: number | number[]) => HapticFeedback.getInstance().custom(pattern)
 }
+

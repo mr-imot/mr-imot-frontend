@@ -44,3 +44,4 @@ export function ListingCardSkeletonGrid({ count = 6 }: { count?: number }) {
     </div>
   )
 }
+

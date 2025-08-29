@@ -12,19 +12,19 @@
   "categories": ["business", "lifestyle", "real-estate"],
   "icons": [
     {
-      "src": "https://ik.imagekit.io/mrimot/logo/logo-192x192.png?tr=w-192,h-192",
+      "src": "https://ik.imagekit.io/ts59gf2ul/Logo/mr-imot-logo-no-background.png?tr=w-192,h-192,fo-auto",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "https://ik.imagekit.io/mrimot/logo/logo-512x512.png?tr=w-512,h-512",
+      "src": "https://ik.imagekit.io/ts59gf2ul/Logo/mr-imot-logo-no-background.png?tr=w-512,h-512,fo-auto",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "https://ik.imagekit.io/mrimot/logo/logo-180x180.png?tr=w-180,h-180",
+      "src": "https://ik.imagekit.io/ts59gf2ul/Logo/mr-imot-logo-no-background.png?tr=w-180,h-180,fo-auto",
       "sizes": "180x180",
       "type": "image/png"
     }
@@ -37,7 +37,7 @@
       "url": "/listings",
       "icons": [
         {
-          "src": "https://ik.imagekit.io/mrimot/logo/logo-192x192.png?tr=w-192,h-192",
+          "src": "https://ik.imagekit.io/ts59gf2ul/Logo/mr-imot-logo-no-background.png?tr=w-192,h-192,fo-auto",
           "sizes": "192x192"
         }
       ]
@@ -49,7 +49,7 @@
       "url": "/listings?view=map",
       "icons": [
         {
-          "src": "https://ik.imagekit.io/mrimot/logo/logo-192x192.png?tr=w-192,h-192",
+          "src": "https://ik.imagekit.io/ts59gf2ul/Logo/mr-imot-logo-no-background.png?tr=w-192,h-192,fo-auto",
           "sizes": "192x192"
         }
       ]
@@ -57,13 +57,13 @@
   ],
   "screenshots": [
     {
-      "src": "https://ik.imagekit.io/mrimot/screenshots/screenshot-wide.png?tr=w-1280,h-720",
+      "src": "https://ik.imagekit.io/ts59gf2ul/Logo/mr-imot-logo-no-background.png?tr=w-1280,h-720,fo-auto",
       "sizes": "1280x720",
       "type": "image/png",
       "form_factor": "wide"
     },
     {
-      "src": "https://ik.imagekit.io/mrimot/screenshots/screenshot-narrow.png?tr=w-750,h-1334",
+      "src": "https://ik.imagekit.io/ts59gf2ul/Logo/mr-imot-logo-no-background.png?tr=w-750,h-1334,fo-auto",
       "type": "image/png",
       "form_factor": "narrow"
     }
