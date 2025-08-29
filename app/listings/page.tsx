@@ -1067,7 +1067,7 @@ export default function ListingsPage() {
                setIsMobileMapView(!isMobileMapView)
                haptic.medium()
              }}
-             className="w-full h-14 bg-[#222222] text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 font-semibold text-base flex items-center justify-center gap-3"
+             className="w-full h-14 bg-[#222222] text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 font-semibold text-base flex items-center justify-center gap-3 border-0"
            >
              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
@@ -1077,20 +1077,26 @@ export default function ListingsPage() {
          </div>
        )}
 
-       {/* Mobile Pagination - Shows when map button is hidden */}
+       {/* Mobile Pagination - Shows when map button is hidden (Airbnb Style) */}
        {showPagination && (
          <div className="lg:hidden fixed bottom-6 left-4 right-4 z-40">
-           <div className="flex items-center justify-center gap-2 bg-white rounded-full shadow-lg px-6 py-3">
-             <button className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
-               <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+           <div className="flex items-center justify-center bg-white rounded-full shadow-lg px-4 py-2">
+             <button className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center hover:bg-gray-100 transition-colors mr-2">
+               <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                </svg>
              </button>
-             <span className="text-sm text-gray-600 font-medium">1 of 5</span>
-             <button className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
-               <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+             <div className="flex items-center gap-1 mx-2">
+               <div className="w-2 h-2 rounded-full bg-brand"></div>
+               <div className="w-2 h-2 rounded-full bg-gray-300"></div>
+               <div className="w-2 h-2 rounded-full bg-gray-300"></div>
+               <div className="w-2 h-2 rounded-full bg-gray-300"></div>
+               <div className="w-2 h-2 rounded-full bg-gray-300"></div>
+             </div>
+             <button className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center hover:bg-gray-100 transition-colors ml-2">
+               <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-               </svg>
+             </svg>
              </button>
            </div>
          </div>
