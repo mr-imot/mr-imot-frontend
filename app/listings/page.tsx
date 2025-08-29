@@ -191,13 +191,7 @@ export default function ListingsPage() {
 
   // Debug API data
   useEffect(() => {
-    console.log('🔍 Debug API data:', {
-      apiProjects: apiProjects?.length || 0,
-      loading,
-      error,
-      currentBounds,
-      isBoundsLoading
-    })
+
   }, [apiProjects, loading, error, currentBounds, isBoundsLoading])
 
   // Initialize Google Maps like the homepage
@@ -340,11 +334,7 @@ export default function ListingsPage() {
 
   // Debug filtered properties
   useEffect(() => {
-    console.log('🔍 Filtered Properties:', {
-      total: filteredProperties.length,
-      propertyTypeFilter,
-      selectedCity
-    })
+
   }, [filteredProperties, propertyTypeFilter, selectedCity])
 
   // Render markers when filtered data changes with clustering

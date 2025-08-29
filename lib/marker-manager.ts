@@ -271,7 +271,7 @@ export class MarkerManager {
 
     // Check if marker is already cached
     if (this.markerCache[property.id]) {
-      console.log('📋 Using cached marker for', property.id)
+
       const cachedMarker = this.markerCache[property.id]
 
       // For cached markers, we need to create new instances on additional maps

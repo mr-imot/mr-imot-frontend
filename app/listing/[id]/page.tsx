@@ -144,7 +144,7 @@ export default function ListingPage({ params }: PageProps) {
 
   const handleContactSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    console.log("Contact form submitted:", formData)
+
     alert("Thank you for your inquiry! We'll contact you soon.")
     setShowContactForm(false)
     setFormData({ name: "", email: "", phone: "", message: "" })
