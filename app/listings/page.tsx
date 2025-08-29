@@ -20,7 +20,9 @@ import { useProjects } from "@/hooks/use-projects"
 import { PropertyMapCard } from "@/components/property-map-card"
 import { ListingCardSkeleton, ListingCardSkeletonGrid } from "@/components/ListingCardSkeleton"
 import { FilterSkeleton } from "@/components/FilterSkeleton"
-
+import { usePullToRefresh } from "@/hooks/use-pull-to-refresh"
+import { useSwipeGestures } from "@/hooks/use-swipe-gestures"
+import { RefreshIndicator } from "@/components/RefreshIndicator"
 // import { AdvancedMapGestures } from "@/lib/advanced-map-gestures"
 import { haptic } from "@/lib/haptic-feedback"
 // import { FloatingPWAInstallButton } from "@/components/PWAInstallButton"
@@ -68,7 +70,6 @@ export default function ListingsPage() {
   }>({})
   const [localError, setLocalError] = useState<string | null>(null)
   const [isInitialLoading, setIsInitialLoading] = useState(true)
-  const [showPagination, setShowPagination] = useState(false)
   // const [advancedMapGestures, setAdvancedMapGestures] = useState<AdvancedMapGestures | null>(null)
   
   // Map bounds state for API calls
@@ -123,9 +124,7 @@ export default function ListingsPage() {
   // Cleanup mobile map when switching views
   useEffect(() => {
     if (!isMobileMapView && mobileGoogleMapRef.current) {
-      // Properly destroy the mobile map instance
       mobileGoogleMapRef.current = null
-      
       // Re-render markers on desktop map only
       if (markerManagerRef.current && googleMapRef.current) {
         const availableMaps = [googleMapRef.current]
@@ -142,7 +141,7 @@ export default function ListingsPage() {
         markerManagerRef.current.renderMarkers()
       }
     }
-  }, [isMobileMapView])
+  }, [isMobileMapView, mobileGoogleMapRef.current])
   // Fullscreen map refs
   const fullscreenMapRef = useRef<HTMLDivElement>(null)
   const fullscreenGoogleMapRef = useRef<google.maps.Map | null>(null)
@@ -152,7 +151,7 @@ export default function ListingsPage() {
   const listContainerRef = useRef<HTMLDivElement>(null)
   const [mapBounds, setMapBounds] = useState<google.maps.LatLngBounds | null>(null)
 
-  // Fetch projects from API using map bounds (no city filter - desktop shows all properties)
+  // Fetch projects from API using map bounds (only when bounds are available)
   const { projects: apiProjects, loading, error } = useProjects(
     currentBounds ? {
       per_page: 100,
@@ -160,9 +159,18 @@ export default function ListingsPage() {
       sw_lng: currentBounds.sw_lng,
       ne_lat: currentBounds.ne_lat,
       ne_lng: currentBounds.ne_lng,
+      // Add city and property type filters for mobile only (desktop shows all properties in bounds)
+      ...(typeof window !== 'undefined' && window.innerWidth < 1024 ? { 
+        city: selectedCity,
+        project_type: propertyTypeFilter === 'all' ? undefined : 
+          propertyTypeFilter === 'apartments' ? 'apartment_building' : 'house_complex'
+      } : {}),
     } : {
-      // Empty params when no bounds - useProjects will not fetch
-      per_page: 0
+      // For mobile without bounds, fetch by city and property type
+      per_page: 100,
+      city: selectedCity,
+      project_type: propertyTypeFilter === 'all' ? undefined : 
+        propertyTypeFilter === 'apartments' ? 'apartment_building' : 'house_complex',
     }
   )
   
@@ -616,9 +624,47 @@ export default function ListingsPage() {
     haptic.light()
   }
 
+  // Pull-to-refresh functionality
+  const handleRefresh = useCallback(async () => {
+    if (googleMapRef.current) {
+      const bounds = googleMapRef.current.getBounds()
+      if (bounds) {
+        const sw = bounds.getSouthWest()
+        const ne = bounds.getNorthEast()
+        setCurrentBounds({
+          sw_lat: sw.lat(),
+          sw_lng: sw.lng(),
+          ne_lat: ne.lat(),
+          ne_lng: ne.lng(),
+        })
+      }
+    }
+  }, [])
 
+  const { elementRef: pullToRefreshRef, isRefreshing, refreshIndicatorStyle, shouldShowIndicator } = usePullToRefresh({
+    onRefresh: handleRefresh,
+    threshold: 80,
+    maxPullDistance: 120,
+    resistance: 2.5
+  })
 
-
+  // Swipe gestures for mobile view switching
+  const { elementRef: swipeRef } = useSwipeGestures({
+    onSwipeLeft: () => {
+             if (!isMobileMapView) {
+         setIsMobileMapView(true)
+         haptic.light()
+       }
+    },
+    onSwipeRight: () => {
+             if (isMobileMapView) {
+         setIsMobileMapView(false)
+         haptic.light()
+       }
+    },
+    threshold: 50,
+    minSwipeDistance: 100
+  })
 
   // Set initial loading to false after first data fetch
   useEffect(() => {
@@ -626,29 +672,6 @@ export default function ListingsPage() {
       setIsInitialLoading(false)
     }
   }, [loading])
-
-  // Scroll detection for mobile map button behavior
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-
-    const handleScroll = () => {
-      if (window.innerWidth >= 1024) return // Only for mobile
-      
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop
-      const windowHeight = window.innerHeight
-      const documentHeight = document.documentElement.scrollHeight
-      
-      // Show pagination when near bottom, hide map button
-      if (scrollTop + windowHeight >= documentHeight - 100) {
-        setShowPagination(true)
-      } else {
-        setShowPagination(false)
-      }
-    }
-
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
 
 
   return (
@@ -662,220 +685,56 @@ export default function ListingsPage() {
       >
         {ariaLiveMessage}
       </div>
-       {/* Modern Mobile Filter Interface - Card-based Design */}
-       <section className="lg:hidden sticky top-0 z-20 bg-white/98 backdrop-blur-2xl border-b border-gray-100/60 shadow-lg">
-         <div className="px-4 py-6">
-           {/* Filter Header */}
-           <div className="flex items-center justify-between mb-6">
-             <div className="flex items-center space-x-3">
-               <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-                 <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                 </svg>
-               </div>
-               <div>
-                 <h2 className="text-lg font-bold text-gray-900">Find Your Home</h2>
-                 <p className="text-sm text-gray-600">Discover properties in Bulgaria</p>
-               </div>
+                    {/* Simple Mobile Filters - Clean Bar Design */}
+       <section className="lg:hidden bg-white border-b border-gray-200 sticky top-0 z-20">
+         <div className="px-4 py-4">
+           <div className="flex items-center gap-4">
+             {/* City Dropdown */}
+             <div className="flex-1">
+               <select
+                 value={selectedCity}
+                 onChange={(e) => handleCityChange(e.target.value)}
+                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-brand transition-colors bg-white text-gray-900 font-medium"
+               >
+                 <option value="Sofia">Sofia</option>
+                 <option value="Plovdiv">Plovdiv</option>
+                 <option value="Varna">Varna</option>
+               </select>
              </div>
              
-             {/* Filter Counter Badge */}
-             <div className="flex items-center space-x-2">
-               <div className="px-3 py-1 bg-blue-50 border border-blue-200 rounded-full">
-                 <span className="text-xs font-semibold text-blue-700">
-                   {filteredProperties.length} properties
-                 </span>
-               </div>
-             </div>
-           </div>
-
-           {/* Filter Cards Grid */}
-           <div className="grid grid-cols-1 gap-4">
-             {/* Location Filter Card */}
-             <div className="filter-card">
-               <div className="filter-card-header">
-                 <div className="flex items-center space-x-3">
-                   <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                     <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 111-6 0 3 3 0 016 0z" />
-                     </svg>
-                   </div>
-                   <div>
-                     <h3 className="text-sm font-semibold text-gray-900">Location</h3>
-                     <p className="text-xs text-gray-500">Choose your destination</p>
-                   </div>
-                 </div>
-                 <div className="filter-card-chevron">
-                   <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                   </svg>
-                 </div>
-               </div>
-               
-               {/* Location Options */}
-               <div className="filter-card-content">
-                 <div className="grid grid-cols-1 gap-3">
-                   {['Sofia', 'Plovdiv', 'Varna'].map((city) => (
-                     <button
-                       key={city}
-                       onClick={() => handleCityChange(city)}
-                       className={`location-option ${selectedCity === city ? 'location-option-selected' : 'location-option-default'}`}
-                       aria-label={`Select ${city} as location`}
-                     >
-                       <div className="flex items-center space-x-3">
-                         <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                           selectedCity === city 
-                             ? 'border-blue-500 bg-blue-500' 
-                             : 'border-gray-300 bg-white'
-                         }`}>
-                           {selectedCity === city && (
-                             <div className="w-2 h-2 bg-white rounded-full"></div>
-                           )}
-                         </div>
-                         <span className="text-sm font-medium">{city}</span>
-                       </div>
-                       {selectedCity === city && (
-                         <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
-                           <svg className="w-3 h-3 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                           </svg>
-                         </div>
-                       )}
-                     </button>
-                   ))}
-                 </div>
-               </div>
-             </div>
-
-             {/* Property Type Filter Card */}
-             <div className="filter-card">
-               <div className="filter-card-header">
-                 <div className="flex items-center space-x-3">
-                   <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                     <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                     </svg>
-                   </div>
-                   <div>
-                     <h3 className="text-sm font-semibold text-gray-900">Property Type</h3>
-                     <p className="text-xs text-gray-500">Select property category</p>
-                   </div>
-                 </div>
-                 <div className="filter-card-chevron">
-                   <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                   </svg>
-                 </div>
-               </div>
-               
-               {/* Property Type Options */}
-               <div className="filter-card-content">
-                 <div className="grid grid-cols-1 gap-3">
-                   {[
-                     { value: 'all', label: 'All Properties', description: 'Show everything' },
-                     { value: 'apartments', label: 'Apartments & Condos', description: 'Modern living spaces' },
-                     { value: 'houses', label: 'Houses & Villas', description: 'Private residences' }
-                   ].map((type) => (
-                     <button
-                       key={type.value}
-                       onClick={() => setPropertyTypeFilter(type.value as PropertyTypeFilter)}
-                       className={`property-type-option ${propertyTypeFilter === type.value ? 'property-type-option-selected' : 'property-type-option-default'}`}
-                       aria-label={`Select ${type.label}`}
-                     >
-                       <div className="flex items-center space-x-3">
-                         <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                           propertyTypeFilter === type.value 
-                             ? 'border-green-500 bg-green-500' 
-                             : 'border-gray-300 bg-white'
-                         }`}>
-                           {propertyTypeFilter === type.value && (
-                             <div className="w-2 h-2 bg-white rounded-full"></div>
-                           )}
-                         </div>
-                         <div className="text-left">
-                           <span className="text-sm font-medium text-gray-900">{type.label}</span>
-                           <p className="text-xs text-gray-500">{type.description}</p>
-                         </div>
-                       </div>
-                       {propertyTypeFilter === type.value && (
-                         <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
-                           <svg className="w-3 h-3 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                           </svg>
-                         </div>
-                       )}
-                     </button>
-                   ))}
-                 </div>
-               </div>
-             </div>
-           </div>
-
-           {/* Active Filters & Actions */}
-           <div className="mt-6 space-y-4">
-             {/* Active Filters Display */}
-             <div className="bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200/50 rounded-2xl p-4">
-               <div className="flex items-center justify-between">
-                 <div className="flex items-center space-x-3">
-                   <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                     <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                     </svg>
-                   </div>
-                   <div>
-                     <p className="text-sm font-medium text-gray-900">
-                       Active Filters
-                     </p>
-                     <p className="text-xs text-gray-600">
-                       {selectedCity} • {propertyTypeFilter === 'all' ? 'All Types' : propertyTypeFilter === 'apartments' ? 'Apartments' : 'Houses'}
-                     </p>
-                   </div>
-                 </div>
-                 
-                 <button 
-                   onClick={() => {
-                     setSelectedCity('Sofia')
-                     setPropertyTypeFilter('all')
-                     haptic.light()
-                   }}
-                   className="clear-filters-button"
-                   aria-label="Clear all filters"
-                 >
-                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                   </svg>
-                   <span>Clear all</span>
-                 </button>
-               </div>
-             </div>
-
-             {/* Quick Actions */}
-             <div className="flex space-x-3">
-               <button 
-                 onClick={() => {
-                   setSelectedCity('Sofia')
-                   haptic.light()
-                 }}
-                 className={`quick-action-button ${selectedCity === 'Sofia' ? 'quick-action-button-active' : 'quick-action-button-default'}`}
+             {/* Property Type Switcher */}
+             <div className="flex items-center bg-gray-100 rounded-lg p-1">
+               <button
+                 onClick={() => setPropertyTypeFilter('all')}
+                 className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                   propertyTypeFilter === 'all'
+                     ? 'bg-white text-gray-900 shadow-sm'
+                     : 'text-gray-600 hover:text-gray-900'
+                 }`}
                >
-                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                 </svg>
-                 Sofia
+                 All
                </button>
-               
-               <button 
-                 onClick={() => {
-                   setPropertyTypeFilter('apartments')
-                   haptic.light()
-                 }}
-                 className={`quick-action-button ${propertyTypeFilter === 'apartments' ? 'quick-action-button-active' : 'quick-action-button-default'}`}
+               <button
+                 onClick={() => setPropertyTypeFilter('apartments')}
+                 className={`px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
+                   propertyTypeFilter === 'apartments'
+                     ? 'bg-white text-gray-900 shadow-sm'
+                     : 'text-gray-600 hover:text-gray-900'
+                 }`}
                >
-                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                 </svg>
-                 Apartments
+                 <Building className="w-4 h-4" />
+                 <span className="hidden xs:inline">Apartments</span>
+               </button>
+               <button
+                 onClick={() => setPropertyTypeFilter('houses')}
+                 className={`px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
+                   propertyTypeFilter === 'houses'
+                     ? 'bg-white text-gray-900 shadow-sm'
+                     : 'text-gray-600 hover:text-gray-900'
+                 }`}
+               >
+                 <Home className="w-4 h-4" />
+                 <span className="hidden xs:inline">Houses</span>
                </button>
              </div>
            </div>
@@ -885,13 +744,32 @@ export default function ListingsPage() {
       {/* Airbnb-style layout with exact proportions */}
       <div className="mx-auto w-full max-w-[1905px] px-4 py-8">
                  {/* Mobile: Full-screen Map or List View */}
-         <div className="lg:hidden">
+         <div className="lg:hidden" ref={swipeRef}>
            {isMobileMapView ? (
-             <div className="fixed inset-0 z-30 bg-white">
+             <div className="h-[420px] w-full rounded-lg overflow-hidden">
                <div ref={mobileMapRef} className="w-full h-full bg-muted" />
              </div>
            ) : (
-             <div className="space-y-4 relative">
+             <div 
+               ref={pullToRefreshRef}
+               className="space-y-4 relative"
+             >
+               {/* Pull-to-refresh indicator */}
+               <RefreshIndicator
+                 isVisible={shouldShowIndicator}
+                 isRefreshing={isRefreshing}
+                 style={refreshIndicatorStyle}
+               />
+               
+                               {/* Swipe hint for new users */}
+                {!isInitialLoading && (
+                  <div className="text-center py-8">
+                    <div className="inline-flex items-center gap-2 text-sm text-gray-500 bg-gray-50 px-4 py-2 rounded-full">
+                      <span>💡</span>
+                      <span>Swipe left for map view, right for list view</span>
+                    </div>
+                  </div>
+                )}
                              {loading || isBoundsLoading ? (
                  isInitialLoading ? (
                    <ListingCardSkeletonGrid count={6} />
@@ -1214,56 +1092,12 @@ export default function ListingsPage() {
          <PropertyMapCard
            property={transformToPropertyMapData(selectedProperty)}
            onClose={() => setSelectedPropertyId(null)}
-           position={isMobileMapView ? { bottom: 0, left: 0, right: 0 } : cardPosition}
-           className={isMobileMapView ? "lg:hidden" : "hidden lg:block"}
+           position={cardPosition}
          />
        )}
        
        {/* PWA Install Button - TEMPORARILY DISABLED */}
        {/* <FloatingPWAInstallButton /> */}
-       
-       {/* Sticky Map Button - Mobile Only (Airbnb Style) */}
-       {!showPagination && (
-         <div className="lg:hidden fixed bottom-6 left-4 right-4 z-40">
-           <button
-             onClick={() => {
-               setIsMobileMapView(!isMobileMapView)
-               haptic.medium()
-             }}
-             className="w-full h-14 bg-[#222222] text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 font-semibold text-base flex items-center justify-center gap-3 border-0"
-           >
-             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-               <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-             </svg>
-             {isMobileMapView ? "List View" : "Map View"}
-           </button>
-         </div>
-       )}
-
-       {/* Mobile Pagination - Shows when map button is hidden (Airbnb Style) */}
-       {showPagination && (
-         <div className="lg:hidden fixed bottom-6 left-4 right-4 z-40">
-           <div className="flex items-center justify-center bg-white rounded-full shadow-lg px-4 py-2">
-             <button className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center hover:bg-gray-100 transition-colors mr-2">
-               <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-               </svg>
-             </button>
-             <div className="flex items-center gap-1 mx-2">
-               <div className="w-2 h-2 rounded-full bg-brand"></div>
-               <div className="w-2 h-2 rounded-full bg-gray-300"></div>
-               <div className="w-2 h-2 rounded-full bg-gray-300"></div>
-               <div className="w-2 h-2 rounded-full bg-gray-300"></div>
-               <div className="w-2 h-2 rounded-full bg-gray-300"></div>
-             </div>
-             <button className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center hover:bg-gray-100 transition-colors ml-2">
-               <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-             </svg>
-             </button>
-           </div>
-         </div>
-       )}
      </div>
    )
  }
