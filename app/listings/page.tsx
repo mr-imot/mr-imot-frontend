@@ -662,56 +662,82 @@ export default function ListingsPage() {
       >
         {ariaLiveMessage}
       </div>
-             {/* Filters - Professional styling (mobile & tablet only) */}
-       <section className="py-4 xs:py-6 lg:hidden bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 sticky top-0 z-20">
-           <div className="container mx-auto px-4 max-w-[1800px]">
-             <Card className="border-0 shadow-sm bg-white/80 backdrop-blur-sm">
-               <CardContent className="p-4 xs:p-6">
-                 <div className="flex flex-col gap-4 w-full">
-                   {/* City Dropdown */}
-                   <div className="w-full">
-                     <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
-                     <div className="relative">
-                       <select
-                         value={selectedCity}
-                         onChange={(e) => handleCityChange(e.target.value)}
-                         className="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-brand transition-all duration-200 appearance-none cursor-pointer bg-white hover:border-gray-400"
-                       >
-                         <option value="Sofia">Sofia</option>
-                         <option value="Plovdiv">Plovdiv</option>
-                         <option value="Varna">Varna</option>
-                       </select>
-                       <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                         <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                         </svg>
-                       </div>
-                     </div>
-                   </div>
-                   
-                   {/* Property Type Dropdown */}
-                   <div className="w-full">
-                     <label className="block text-sm font-medium text-gray-700 mb-2">Property Type</label>
-                     <div className="relative">
-                       <select
-                         value={propertyTypeFilter}
-                         onChange={(e) => setPropertyTypeFilter(e.target.value as PropertyTypeFilter)}
-                         className="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-brand transition-all duration-200 appearance-none cursor-pointer bg-white hover:border-gray-400"
-                       >
-                         <option value="all">All Properties</option>
-                         <option value="apartments">Apartments</option>
-                         <option value="houses">Houses</option>
-                       </select>
-                       <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                         <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                         </svg>
-                       </div>
-                     </div>
+             {/* Premium Mobile Filters - Airbnb-inspired design */}
+       <section className="py-5 xs:py-6 lg:hidden bg-white/95 backdrop-blur-xl border-b border-gray-100/50 sticky top-0 z-20 shadow-sm premium-filter-section">
+         <div className="container mx-auto px-4 max-w-[1800px]">
+           <div className="space-y-4">
+             {/* City Filter - Premium Design */}
+             <div className="relative group premium-filter-group">
+               <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-3 ml-1">
+                 Destination
+               </label>
+               <div className="relative">
+                 <select
+                   value={selectedCity}
+                   onChange={(e) => handleCityChange(e.target.value)}
+                   className="w-full px-5 py-4 pr-12 bg-white border-2 border-gray-100 rounded-2xl focus:ring-4 focus:ring-brand/20 focus:border-brand transition-all duration-300 appearance-none cursor-pointer text-gray-900 font-medium text-base hover:border-gray-200 hover:shadow-lg group-hover:shadow-md premium-filter-select"
+                 >
+                   <option value="Sofia">Sofia, Bulgaria</option>
+                   <option value="Plovdiv">Plovdiv, Bulgaria</option>
+                   <option value="Varna">Varna, Bulgaria</option>
+                 </select>
+                 <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                   <div className="w-6 h-6 bg-gray-50 rounded-full flex items-center justify-center group-hover:bg-gray-100 transition-colors duration-300 premium-filter-chevron">
+                     <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                     </svg>
                    </div>
                  </div>
-               </CardContent>
-             </Card>
+                 {/* Premium focus indicator */}
+                 <div className="absolute inset-0 rounded-2xl ring-0 ring-brand/0 group-focus-within:ring-4 group-focus-within:ring-brand/20 transition-all duration-300 pointer-events-none"></div>
+               </div>
+             </div>
+             
+             {/* Property Type Filter - Premium Design */}
+             <div className="relative group premium-filter-group">
+               <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-3 ml-1">
+                 Property Type
+               </label>
+               <div className="relative">
+                 <select
+                   value={propertyTypeFilter}
+                   onChange={(e) => setPropertyTypeFilter(e.target.value as PropertyTypeFilter)}
+                   className="w-full px-5 py-4 pr-12 bg-white border-2 border-gray-100 rounded-2xl focus:ring-4 focus:ring-brand/20 focus:border-brand transition-all duration-300 appearance-none cursor-pointer text-gray-900 font-medium text-base hover:border-gray-200 hover:shadow-lg group-hover:shadow-md premium-filter-select"
+                 >
+                   <option value="all">All Properties</option>
+                   <option value="apartments">Apartments & Condos</option>
+                   <option value="houses">Houses & Villas</option>
+                 </select>
+                 <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                   <div className="w-6 h-6 bg-gray-50 rounded-full flex items-center justify-center group-hover:bg-gray-100 transition-colors duration-300 premium-filter-chevron">
+                     <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                     </svg>
+                   </div>
+                 </div>
+                 {/* Premium focus indicator */}
+                 <div className="absolute inset-0 rounded-2xl ring-0 ring-brand/0 group-focus-within:ring-4 group-focus-within:ring-brand/20 transition-all duration-300 pointer-events-none"></div>
+               </div>
+             </div>
+             
+             {/* Active Filters Indicator */}
+             <div className="flex items-center justify-between px-3 py-2 rounded-xl active-filters-indicator">
+               <div className="flex items-center space-x-2">
+                 <span className="text-xs text-gray-600 font-medium">
+                   {selectedCity} • {propertyTypeFilter === 'all' ? 'All Types' : propertyTypeFilter === 'apartments' ? 'Apartments' : 'Houses'}
+                 </span>
+               </div>
+               <button 
+                 onClick={() => {
+                   setSelectedCity('Sofia')
+                   setPropertyTypeFilter('all')
+                 }}
+                 className="text-xs text-brand hover:text-brand/80 font-medium transition-colors duration-200 premium-clear-button px-3 py-1 rounded-lg hover:bg-brand/5"
+               >
+                 Clear all
+               </button>
+             </div>
+           </div>
          </div>
        </section>
 
