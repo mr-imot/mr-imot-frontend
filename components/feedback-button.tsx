@@ -84,7 +84,7 @@ export function FeedbackButton() {
       {/* Fixed Feedback Button */}
       <Button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-50 bg-gray-800 hover:bg-gray-700 text-white rounded-full px-4 py-3 shadow-lg flex items-center gap-2"
+        className="hidden lg:flex fixed bottom-6 right-6 z-50 bg-gray-800 hover:bg-gray-700 text-white rounded-full px-4 py-3 shadow-lg items-center gap-2"
         size="lg"
       >
         <Heart className="w-5 h-5" />

@@ -39,6 +39,13 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover }: Lis
   const [hasTrackedView, setHasTrackedView] = useState(false)
   const hasMultipleImages = listing.images?.length > 1
   const cardRef = useRef<HTMLElement>(null)
+  
+  // Touch/swipe functionality for mobile
+  const [touchStart, setTouchStart] = useState<number | null>(null)
+  const [touchEnd, setTouchEnd] = useState<number | null>(null)
+  
+  // Minimum swipe distance
+  const minSwipeDistance = 50
 
   const handleClick = (e: React.MouseEvent) => {
     // Call the parent click handler if provided (for map interactions)
@@ -72,6 +79,31 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover }: Lis
     e.preventDefault()
     e.stopPropagation()
     setCurrentImageIndex(index)
+  }
+  
+  // Touch event handlers for mobile swipe
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null)
+    setTouchStart(e.targetTouches[0].clientX)
+  }
+  
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX)
+  }
+  
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return
+    
+    const distance = touchStart - touchEnd
+    const isLeftSwipe = distance > minSwipeDistance
+    const isRightSwipe = distance < -minSwipeDistance
+    
+    if (isLeftSwipe && hasMultipleImages) {
+      setCurrentImageIndex((prev) => (prev + 1) % listing.images.length)
+    }
+    if (isRightSwipe && hasMultipleImages) {
+      setCurrentImageIndex((prev) => (prev - 1 + listing.images.length) % listing.images.length)
+    }
   }
 
   // Track view when card becomes visible
@@ -126,7 +158,12 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover }: Lis
       >
       {/* Image Container - 60-65% of card height like Airbnb */}
       <div className="relative overflow-hidden">
-        <div className="relative aspect-[4/3] w-full">
+        <div 
+          className="relative aspect-[4/3] w-full"
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
+        >
           <Image
             key={currentImageIndex}
             src={listing.images[currentImageIndex] || '/placeholder.svg'}
@@ -148,8 +185,8 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover }: Lis
                    key={idx}
                    type="button"
                    className={cn(
-                     "h-1.5 w-1.5 rounded-full transition-all duration-200",
-                     idx === currentImageIndex ? "bg-white scale-110" : "bg-white/60 hover:bg-white/80"
+                     "h-0.5 w-0.5 xs:h-0.5 xs:w-0.5 sm:h-1 sm:w-1 rounded-full transition-all duration-200 transform-none",
+                     idx === currentImageIndex ? "bg-white" : "bg-white/60 hover:bg-white/80"
                    )}
                    onClick={(e) => goToImage(idx, e)}
                    aria-label={`Go to image ${idx + 1}`}
@@ -157,23 +194,23 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover }: Lis
                ))}
              </div>
 
-                         {/* Previous/Next Arrows - Balanced size */}
-             <button
-               type="button"
-               aria-label="Previous image"
-               onClick={prevImage}
-               className="absolute left-2 top-1/2 -translate-y-1/2 grid place-items-center h-8 w-8 rounded-full bg-white/95 hover:bg-white shadow-md text-[#222222] font-bold text-base opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110"
-             >
-               ‹
-             </button>
-             <button
-               type="button"
-               aria-label="Next image"
-               onClick={nextImage}
-               className="absolute right-2 top-1/2 -translate-y-1/2 grid place-items-center h-8 w-8 rounded-full bg-white/95 hover:bg-white shadow-md text-[#222222] font-bold text-base opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110"
-             >
-               ›
-             </button>
+                                                  {/* Previous/Next Arrows - Hidden on mobile, visible on desktop */}
+                         <button
+                           type="button"
+                           aria-label="Previous image"
+                           onClick={prevImage}
+                           className="hidden sm:grid absolute left-2 top-1/2 -translate-y-1/2 place-items-center h-8 w-8 rounded-full bg-white/95 hover:bg-white shadow-md text-[#222222] font-bold text-base opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110"
+                         >
+                           ‹
+                         </button>
+                         <button
+                           type="button"
+                           aria-label="Next image"
+                           onClick={nextImage}
+                           className="hidden sm:grid absolute right-2 top-1/2 -translate-y-1/2 place-items-center h-8 w-8 rounded-full bg-white/95 hover:bg-white shadow-md text-[#222222] font-bold text-base opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110"
+                         >
+                           ›
+                         </button>
           </>
         )}
       </div>

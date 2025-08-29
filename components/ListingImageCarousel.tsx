@@ -59,7 +59,7 @@ export default function ListingImageCarousel({
               <button
                 key={idx}
                 className={cn(
-                  "h-1.5 w-1.5 rounded-full bg-white/60 transition-colors",
+                  "h-0.5 w-0.5 xs:h-1 xs:w-1 sm:h-1.5 sm:w-1.5 rounded-full bg-white/60 transition-colors",
                   idx === currentIndex && "bg-white"
                 )}
                 onClick={(e) => goToImage(idx, e)}
@@ -68,18 +68,18 @@ export default function ListingImageCarousel({
             ))}
           </div>
 
-          {/* Navigation arrows */}
+          {/* Navigation arrows - Hidden on mobile */}
           <button
             aria-label="Previous image"
             onClick={prevImage}
-            className="absolute left-3 top-1/2 -translate-y-1/2 grid place-items-center h-8 w-8 rounded-full bg-white/90 hover:bg-white shadow-md text-ink font-bold text-lg opacity-0 group-hover:opacity-100 transition-opacity"
+            className="hidden sm:grid absolute left-3 top-1/2 -translate-y-1/2 place-items-center h-8 w-8 rounded-full bg-white/90 hover:bg-white shadow-md text-ink font-bold text-lg opacity-0 group-hover:opacity-100 transition-opacity"
           >
             ‹
           </button>
           <button
             aria-label="Next image"
             onClick={nextImage}
-            className="absolute right-3 top-1/2 -translate-y-1/2 grid place-items-center h-8 w-8 rounded-full bg-white/90 hover:bg-white shadow-md text-ink font-bold text-lg opacity-0 group-hover:opacity-100 transition-opacity"
+            className="hidden sm:grid absolute right-3 top-1/2 -translate-y-1/2 place-items-center h-8 w-8 rounded-full bg-white/90 hover:bg-white shadow-md text-ink font-bold text-lg opacity-0 group-hover:opacity-100 transition-opacity"
           >
             ›
           </button>
