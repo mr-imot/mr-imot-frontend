@@ -123,7 +123,9 @@ export default function ListingsPage() {
   // Cleanup mobile map when switching views
   useEffect(() => {
     if (!isMobileMapView && mobileGoogleMapRef.current) {
+      // Properly destroy the mobile map instance
       mobileGoogleMapRef.current = null
+      
       // Re-render markers on desktop map only
       if (markerManagerRef.current && googleMapRef.current) {
         const availableMaps = [googleMapRef.current]
@@ -140,7 +142,7 @@ export default function ListingsPage() {
         markerManagerRef.current.renderMarkers()
       }
     }
-  }, [isMobileMapView, mobileGoogleMapRef.current])
+  }, [isMobileMapView])
   // Fullscreen map refs
   const fullscreenMapRef = useRef<HTMLDivElement>(null)
   const fullscreenGoogleMapRef = useRef<google.maps.Map | null>(null)
@@ -150,7 +152,7 @@ export default function ListingsPage() {
   const listContainerRef = useRef<HTMLDivElement>(null)
   const [mapBounds, setMapBounds] = useState<google.maps.LatLngBounds | null>(null)
 
-  // Fetch projects from API using map bounds (only when bounds are available)
+  // Fetch projects from API using map bounds and city filter
   const { projects: apiProjects, loading, error } = useProjects(
     currentBounds ? {
       per_page: 100,
@@ -158,6 +160,7 @@ export default function ListingsPage() {
       sw_lng: currentBounds.sw_lng,
       ne_lat: currentBounds.ne_lat,
       ne_lng: currentBounds.ne_lng,
+      city: selectedCity, // Add city filter
     } : {
       // Empty params when no bounds - useProjects will not fetch
       per_page: 0
@@ -602,6 +605,9 @@ export default function ListingsPage() {
     
     // Haptic feedback for city change
     haptic.light()
+    
+    // Clear current bounds to trigger new API call with city filter
+    setCurrentBounds(null)
     
     // Loading will be cleared when map finishes animating and bounds update
     setTimeout(() => setIsMapLoading(false), 1000)
