@@ -152,7 +152,7 @@ export default function ListingsPage() {
   const listContainerRef = useRef<HTMLDivElement>(null)
   const [mapBounds, setMapBounds] = useState<google.maps.LatLngBounds | null>(null)
 
-  // Fetch projects from API using map bounds and city filter
+  // Fetch projects from API using map bounds (no city filter - desktop shows all properties)
   const { projects: apiProjects, loading, error } = useProjects(
     currentBounds ? {
       per_page: 100,
@@ -160,7 +160,6 @@ export default function ListingsPage() {
       sw_lng: currentBounds.sw_lng,
       ne_lat: currentBounds.ne_lat,
       ne_lng: currentBounds.ne_lng,
-      city: selectedCity, // Add city filter
     } : {
       // Empty params when no bounds - useProjects will not fetch
       per_page: 0
@@ -605,9 +604,6 @@ export default function ListingsPage() {
     
     // Haptic feedback for city change
     haptic.light()
-    
-    // Clear current bounds to trigger new API call with city filter
-    setCurrentBounds(null)
     
     // Loading will be cleared when map finishes animating and bounds update
     setTimeout(() => setIsMapLoading(false), 1000)
