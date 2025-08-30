@@ -1,21 +1,4 @@
-/* Global pull-to-refresh prevention - TEMPORARILY DISABLED FOR TESTING */
-/*
-html, body {
-  overscroll-behavior: none;
-  overscroll-behavior-y: none;
-  overscroll-behavior-x: none;
-  -webkit-overflow-scrolling: auto;
-  touch-action: pan-x pan-y;
-}
 
-/* Additional pull-to-refresh prevention for main content */
-main, .main-content, [role="main"] {
-  overscroll-behavior: none;
-  overscroll-behavior-y: none;
-  overscroll-behavior-x: none;
-  -webkit-overflow-scrolling: auto;
-}
-*/
 
 /* Mobile-specific optimizations for listings page */
 
@@ -25,6 +8,8 @@ main, .main-content, [role="main"] {
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
   }
+
+
 
   /* Optimize touch targets for mobile */
   button, 
@@ -133,6 +118,8 @@ main, .main-content, [role="main"] {
   }
 
   /* Mobile-optimized dots for image carousels */
+
+
   .mobile-dots button {
     min-width: 4px !important;
     min-height: 4px !important;
