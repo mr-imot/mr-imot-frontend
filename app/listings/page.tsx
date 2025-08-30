@@ -833,21 +833,25 @@ export default function ListingsPage() {
                    </Button>
                  </div>
                ) : showEmpty ? (
-                 <div className="bg-gray-50 border border-gray-200 rounded-2xl p-4 xs:p-6 lg:p-8 text-center">
-                   <div className="w-12 xs:w-16 h-12 xs:h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3 xs:mb-4">
-                     <Building className="w-6 xs:w-8 h-6 xs:h-8 text-gray-400" />
+                 <div className="bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-2xl p-4 xs:p-6 lg:p-8 text-center shadow-sm">
+                   <div className="w-12 xs:w-16 h-12 xs:h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-3 xs:mb-4">
+                     <Building className="w-6 xs:w-8 h-6 xs:h-8 text-gray-500" />
                    </div>
-                   <h3 className="text-base xs:text-lg font-semibold text-gray-800 mb-2">No Properties in This Area</h3>
-                   <p className="text-gray-600 mb-4 xs:mb-6 text-sm">No properties found in the current map view. Try zooming out to see more properties or explore nearby areas.</p>
-                   <div className="flex flex-col gap-3">
-                     <Button 
-                       variant="outline" 
-                       onClick={() => setPropertyTypeFilter("all")}
-                       className="w-full px-4 xs:px-6"
-                     >
-                       Clear Property Type Filter
-                     </Button>
-                   </div>
+                   <h3 className="text-base xs:text-lg font-semibold text-gray-800 mb-2">
+                     {propertyTypeFilter === 'all' ? 'No Properties Available' : 
+                      propertyTypeFilter === 'apartments' ? 'No Apartments Found' : 'No Houses Found'}
+                   </h3>
+                   <p className="text-gray-600 mb-4 xs:mb-6 text-sm">
+                     {propertyTypeFilter === 'all' 
+                       ? `We couldn't find any properties in ${selectedCity} at the moment. New developments are added regularly, so check back soon!`
+                       : propertyTypeFilter === 'apartments'
+                       ? `No apartment complexes are currently available in ${selectedCity}. Consider expanding your search to include houses or check back later for new listings.`
+                       : `No residential houses are currently available in ${selectedCity}. Consider expanding your search to include apartments or check back later for new listings.`
+                     }
+                   </p>
+                   <p className="text-gray-500 text-sm">
+                     💡 Try exploring a different location or adjusting your filters to discover more properties.
+                   </p>
                  </div>
                              ) : hasData ? (
                  <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 xs:gap-4">
@@ -998,20 +1002,24 @@ export default function ListingsPage() {
                 </div>
               ) : showEmpty ? (
                 <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl border border-gray-200 p-12 text-center shadow-sm">
-                  <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <Building className="w-10 h-10 text-gray-400" />
+                  <div className="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <Building className="w-10 h-10 text-gray-500" />
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-800 mb-3">No Properties in This Area</h3>
-                  <p className="text-gray-600 mb-8 max-w-md mx-auto">No properties found in the current map view. Try zooming out to see more properties or explore nearby areas.</p>
-                  <div className="flex gap-4 justify-center">
-                    <Button 
-                      variant="secondary" 
-                      onClick={() => setPropertyTypeFilter("all")}
-                      className="h-11 px-6 rounded-full font-semibold shadow-sm hover:shadow-md transition-all duration-200"
-                    >
-                      Clear Filters
-                    </Button>
-                  </div>
+                  <h3 className="text-2xl font-bold text-gray-800 mb-3">
+                    {propertyTypeFilter === 'all' ? 'No Properties Available' : 
+                     propertyTypeFilter === 'apartments' ? 'No Apartments Found' : 'No Houses Found'}
+                  </h3>
+                  <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                    {propertyTypeFilter === 'all' 
+                      ? `We couldn't find any properties in ${selectedCity} at the moment. New developments are added regularly, so check back soon!`
+                      : propertyTypeFilter === 'apartments'
+                      ? `No apartment complexes are currently available in ${selectedCity}. Consider expanding your search to include houses or check back later for new listings.`
+                      : `No residential houses are currently available in ${selectedCity}. Consider expanding your search to include apartments or check back later for new listings.`
+                    }
+                  </p>
+                  <p className="text-gray-500 text-sm max-w-md mx-auto">
+                    💡 Try exploring a different location or adjusting your filters to discover more properties.
+                  </p>
                 </div>
               ) : hasData ? (
                 <div ref={listContainerRef} className="grid grid-cols-3 gap-6 pt-3">
