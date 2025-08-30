@@ -14,7 +14,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme-provider"
 import { FeedbackButton } from "@/components/feedback-button"
-import { StatusBarBackground } from "@/components/status-bar-background"
+
 
 
 const figtree = Figtree({
@@ -80,7 +80,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning className={cn(GeistSans.variable, GeistMono.variable, figtree.variable, instrumentSerif.variable)}>
       <head>
         {/* Mobile Viewport Meta Tags */}
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         
         {/* Mobile Theme Meta Tags - Prevent Blue Background */}
         <meta name="theme-color" content="#000000" media="(prefers-color-scheme: light)" />
@@ -116,7 +116,6 @@ html {
               <Footer />
             </div>
             <FeedbackButton />
-            <StatusBarBackground />
           </AuthProvider>
         </GlobalMaintenanceWrapper>
         </ThemeProvider>

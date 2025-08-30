@@ -43,17 +43,12 @@ export function ElegantBlueprintBackground() {
           backgroundColor: '#000',
           overflow: 'hidden',
           zIndex: -2,
-          /* Ensure background extends behind safe areas */
-          paddingTop: 'env(safe-area-inset-top)',
-          paddingBottom: 'env(safe-area-inset-bottom)',
-          paddingLeft: 'env(safe-area-inset-left)',
-          paddingRight: 'env(safe-area-inset-right)',
+          /* Let the background fill naturally - no complex padding or transforms */
         }}
       >
         {/* Base Layer: Subtle Texture */}
         <PaperTexture
-          colors={['#0a0a0a', '#1a1a1a']}
-          speed={0}
+          color="#0a0a0a"
           style={{ 
             position: 'absolute', 
             width: '100%', 
