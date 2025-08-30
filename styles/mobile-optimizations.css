@@ -144,11 +144,6 @@ main, .main-content, [role="main"] {
   }
 
   /* Mobile-optimized dots for image carousels */
-  .mobile-dots {
-    transform: none !important;
-    -webkit-transform: none !important;
-  }
-
   .mobile-dots button {
     min-width: 4px !important;
     min-height: 4px !important;
