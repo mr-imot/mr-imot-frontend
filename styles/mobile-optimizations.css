@@ -126,6 +126,24 @@
     max-width: 8px !important;
     max-height: 8px !important;
   }
+
+  /* Mobile filters balance and symmetry */
+  .mobile-filters-balanced {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .mobile-filters-balanced > div {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .mobile-filters-balanced button {
+    flex: 1;
+    min-width: 0;
+    text-align: center;
+  }
 }
 
 /* Mobile-first responsive breakpoints */
