@@ -79,7 +79,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning className={cn(GeistSans.variable, GeistMono.variable, figtree.variable, instrumentSerif.variable)}>
       <head>
         {/* Mobile Viewport Meta Tags */}
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
         
         {/* Mobile Theme Meta Tags - Prevent Blue Background */}
         <meta name="theme-color" content="#000000" media="(prefers-color-scheme: light)" />

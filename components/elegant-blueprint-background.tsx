@@ -33,6 +33,7 @@ export function ElegantBlueprintBackground() {
   try {
     return (
       <div 
+        className="elegant-blueprint-background"
         style={{
           position: 'fixed',
           top: 0,
@@ -42,6 +43,11 @@ export function ElegantBlueprintBackground() {
           backgroundColor: '#000',
           overflow: 'hidden',
           zIndex: -2,
+          /* Ensure background extends behind safe areas */
+          paddingTop: 'env(safe-area-inset-top)',
+          paddingBottom: 'env(safe-area-inset-bottom)',
+          paddingLeft: 'env(safe-area-inset-left)',
+          paddingRight: 'env(safe-area-inset-right)',
         }}
       >
         {/* Top Layer: Slow Color Wash */}
