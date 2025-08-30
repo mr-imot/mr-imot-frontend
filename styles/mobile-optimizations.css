@@ -113,6 +113,19 @@
       transition-duration: 0.01ms !important;
     }
   }
+
+  /* Mobile-optimized dots for image carousels */
+  .mobile-dots {
+    transform: none !important;
+    -webkit-transform: none !important;
+  }
+
+  .mobile-dots button {
+    min-width: 4px !important;
+    min-height: 4px !important;
+    max-width: 8px !important;
+    max-height: 8px !important;
+  }
 }
 
 /* Mobile-first responsive breakpoints */

@@ -178,14 +178,14 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover }: Lis
         {/* Image Navigation (only if multiple images) */}
         {hasMultipleImages && (
           <>
-                         {/* Dots - Balanced positioning */}
-             <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+                         {/* Dots - Mobile-optimized positioning */}
+             <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 mobile-dots">
                {listing.images.map((_, idx) => (
                  <button
                    key={idx}
                    type="button"
                    className={cn(
-                     "h-0.5 w-0.5 xs:h-0.5 xs:w-0.5 sm:h-1 sm:w-1 rounded-full transition-all duration-200 transform-none",
+                     "h-1 w-1 xs:h-1 xs:w-1 sm:h-1.5 sm:w-1.5 md:h-2 md:w-2 rounded-full transition-all duration-200 transform-none",
                      idx === currentImageIndex ? "bg-white" : "bg-white/60 hover:bg-white/80"
                    )}
                    onClick={(e) => goToImage(idx, e)}

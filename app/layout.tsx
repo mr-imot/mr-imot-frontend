@@ -64,8 +64,8 @@ export function generateViewport() {
   return {
     width: 'device-width',
     initialScale: 1,
-    maximumScale: 1,
-    userScalable: false
+    maximumScale: 5,
+    userScalable: true
   }
 }
 
@@ -80,7 +80,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning className={cn(GeistSans.variable, GeistMono.variable, figtree.variable, instrumentSerif.variable)}>
       <head>
         {/* Mobile Viewport Meta Tags */}
-        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes, viewport-fit=cover" />
         
         {/* Mobile Theme Meta Tags - Prevent Blue Background */}
         <meta name="theme-color" content="#000000" media="(prefers-color-scheme: light)" />
