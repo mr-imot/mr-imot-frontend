@@ -127,22 +127,36 @@
     max-height: 8px !important;
   }
 
-  /* Mobile filters balance and symmetry */
+  /* Mobile filters balance and symmetry - Force equal widths */
   .mobile-filters-balanced {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
+    display: flex !important;
+    align-items: center !important;
+    gap: 1rem !important;
   }
 
   .mobile-filters-balanced > div {
-    flex: 1;
-    min-width: 0;
+    flex: 1 !important;
+    min-width: 0 !important;
+    width: 50% !important;
+    max-width: 50% !important;
   }
 
   .mobile-filters-balanced button {
-    flex: 1;
-    min-width: 0;
-    text-align: center;
+    flex: 1 !important;
+    min-width: 0 !important;
+    text-align: center !important;
+    width: 33.333% !important;
+    max-width: 33.333% !important;
+  }
+
+  /* Force city filter and property type filter to be exactly equal */
+  .mobile-filters-balanced > div:first-child,
+  .mobile-filters-balanced > div:last-child {
+    flex: 1 !important;
+    min-width: 0 !important;
+    width: 50% !important;
+    max-width: 50% !important;
+    flex-basis: 50% !important;
   }
 }
 

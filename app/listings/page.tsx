@@ -691,7 +691,7 @@ export default function ListingsPage() {
           <div className="px-4 py-4">
             <div className="flex items-center gap-4 mobile-filters-balanced">
               {/* City Dropdown */}
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-0" style={{ flex: '1 1 50%', minWidth: '0', width: '50%' }}>
                 <div className="relative">
                   <select
                     value={selectedCity}
@@ -711,7 +711,7 @@ export default function ListingsPage() {
               </div>
               
               {/* Property Type Switcher */}
-              <div className="flex-1 min-w-0 flex items-center bg-white/20 backdrop-blur-md rounded-xl p-1.5 border border-white/30 shadow-lg">
+              <div className="flex-1 min-w-0 flex items-center bg-white/20 backdrop-blur-md rounded-xl p-1.5 border border-white/30 shadow-lg" style={{ flex: '1 1 50%', minWidth: '0', width: '50%' }}>
                 <button
                   onClick={() => setPropertyTypeFilter('all')}
                   className={`flex-1 px-4 py-3 rounded-lg text-base font-semibold transition-all duration-200 ${
@@ -719,6 +719,7 @@ export default function ListingsPage() {
                       ? 'bg-white/90 text-gray-900 shadow-lg'
                       : 'text-gray-700 hover:text-gray-900 hover:bg-white/30'
                   }`}
+                  style={{ flex: '1 1 33.333%', minWidth: '0', width: '33.333%' }}
                 >
                   All
                 </button>
@@ -729,6 +730,7 @@ export default function ListingsPage() {
                       ? 'bg-white/90 text-gray-900 shadow-lg'
                       : 'text-gray-700 hover:text-gray-900 hover:bg-white/30'
                   }`}
+                  style={{ flex: '1 1 33.333%', minWidth: '0', width: '33.333%' }}
                 >
                   <Building className="w-5 h-5" />
                   <span className="hidden xs:inline">Apartments</span>
@@ -740,6 +742,7 @@ export default function ListingsPage() {
                       ? 'bg-white/90 text-gray-900 shadow-lg'
                       : 'text-gray-700 hover:text-gray-900 hover:bg-white/30'
                   }`}
+                  style={{ flex: '1 1 33.333%', minWidth: '0', width: '33.333%' }}
                 >
                   <Home className="w-5 h-5" />
                   <span className="hidden xs:inline">Houses</span>
