@@ -1,3 +1,20 @@
+/* Global pull-to-refresh prevention */
+html, body {
+  overscroll-behavior: none;
+  overscroll-behavior-y: none;
+  overscroll-behavior-x: none;
+  -webkit-overflow-scrolling: auto;
+  touch-action: pan-x pan-y;
+}
+
+/* Additional pull-to-refresh prevention for main content */
+main, .main-content, [role="main"] {
+  overscroll-behavior: none;
+  overscroll-behavior-y: none;
+  overscroll-behavior-x: none;
+  -webkit-overflow-scrolling: auto;
+}
+
 /* Mobile-specific optimizations for listings page */
 
 /* Ensure smooth scrolling on mobile */
@@ -5,6 +22,16 @@
   html {
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
+    overscroll-behavior: none;
+    overscroll-behavior-y: none;
+    overscroll-behavior-x: none;
+  }
+
+  body {
+    overscroll-behavior: none;
+    overscroll-behavior-y: none;
+    overscroll-behavior-x: none;
+    -webkit-overflow-scrolling: auto;
   }
 
   /* Optimize touch targets for mobile */
@@ -102,7 +129,9 @@
   /* Improve scrolling performance */
   .mobile-scroll-container {
     -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
+    overscroll-behavior: none;
+    overscroll-behavior-y: none;
+    overscroll-behavior-x: none;
   }
 
   /* Reduce animations on low-power devices */
@@ -199,5 +228,16 @@
   /* Desktop styles remain exactly as they were */
   .desktop-preserve {
     /* All existing desktop styles are preserved */
+  }
+}
+
+/* iOS Safari specific - prevent elastic scrolling and pull-to-refresh */
+@supports (-webkit-touch-callout: none) {
+  html, body {
+    overscroll-behavior: none !important;
+    overscroll-behavior-y: none !important;
+    overscroll-behavior-x: none !important;
+    -webkit-overflow-scrolling: auto !important;
+    touch-action: manipulation;
   }
 }
