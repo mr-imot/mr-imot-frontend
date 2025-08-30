@@ -54,7 +54,7 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'default',
+    statusBarStyle: 'black-translucent', // Changed to prevent blue background
     title: 'Mr. Imot'
   }
 }
@@ -68,9 +68,7 @@ export function generateViewport() {
   }
 }
 
-export function generateThemeColor() {
-  return '#1e40af'
-}
+// REMOVED: generateThemeColor function that was causing blue background
 
 export default function RootLayout({
   children,
@@ -80,6 +78,18 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className={cn(GeistSans.variable, GeistMono.variable, figtree.variable, instrumentSerif.variable)}>
       <head>
+        {/* Mobile Viewport Meta Tags */}
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+        
+        {/* Mobile Theme Meta Tags - Prevent Blue Background */}
+        <meta name="theme-color" content="#000000" media="(prefers-color-scheme: light)" />
+        <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
+        
+        {/* iOS Safe Area Support */}
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="Mr. Imot" />
+        
         <style>{`
 html {
   font-family: ${figtree.style.fontFamily};
