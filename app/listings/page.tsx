@@ -689,14 +689,14 @@ export default function ListingsPage() {
                             {/* Glass Morphism Mobile Filters - Premium Design */}
         <section className="lg:hidden sticky top-0 z-20">
           <div className="px-4 py-4">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center justify-between gap-3">
               {/* City Dropdown */}
-              <div className="w-[calc(50%-0.5rem)] min-w-0">
-                <div className="relative">
+              <div className="flex-1 max-w-44 min-w-0 flex items-center bg-white/20 backdrop-blur-md rounded-xl p-1.5 border border-white/30 shadow-lg">
+                <div className="relative w-full">
                   <select
                     value={selectedCity}
                     onChange={(e) => handleCityChange(e.target.value)}
-                    className="w-full px-4 py-3 pr-12 border border-white/30 rounded-xl focus:ring-4 focus:ring-brand/20 focus:border-brand transition-all duration-200 bg-white/20 backdrop-blur-md text-gray-900 font-semibold hover:bg-white/30 hover:border-white/40 cursor-pointer appearance-none shadow-lg"
+                    className="w-full px-4 py-3 pr-12 border-0 rounded-lg focus:ring-4 focus:ring-brand/20 focus:border-brand transition-all duration-200 bg-transparent text-gray-900 font-semibold hover:bg-white/30 cursor-pointer appearance-none"
                   >
                     <option value="Sofia">📍 Sofia</option>
                     <option value="Plovdiv">📍 Plovdiv</option>
@@ -711,7 +711,7 @@ export default function ListingsPage() {
               </div>
               
               {/* Property Type Switcher */}
-              <div className="w-[calc(50%-0.5rem)] min-w-0 flex items-center bg-white/20 backdrop-blur-md rounded-xl p-1.5 border border-white/30 shadow-lg">
+              <div className="flex-1 max-w-44 min-w-0 flex items-center bg-white/20 backdrop-blur-md rounded-xl p-1.5 border border-white/30 shadow-lg">
                 <button
                   onClick={() => setPropertyTypeFilter('all')}
                   className={`w-1/3 px-4 py-3 rounded-lg text-base font-semibold transition-all duration-200 ${
