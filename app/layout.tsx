@@ -14,6 +14,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme-provider"
 import { FeedbackButton } from "@/components/feedback-button"
+import { StatusBarBackground } from "@/components/status-bar-background"
 
 
 const figtree = Figtree({
@@ -115,6 +116,7 @@ html {
               <Footer />
             </div>
             <FeedbackButton />
+            <StatusBarBackground />
           </AuthProvider>
         </GlobalMaintenanceWrapper>
         </ThemeProvider>

@@ -467,3 +467,39 @@
     padding-bottom: 0;
   }
 }
+
+/* Status Bar Background - Extends Paper Shaders into status bar area */
+.status-bar-background {
+  /* Ensure it's positioned correctly */
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: -1 !important;
+}
+
+.status-bar-background-fallback {
+  /* Fallback styling for when shaders fail */
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: -1 !important;
+}
+
+/* Ensure the status bar background extends fully */
+@media screen and (display-mode: standalone) {
+  .status-bar-background,
+  .status-bar-background-fallback {
+    height: env(safe-area-inset-top, 44px) !important;
+  }
+}
+
+/* Mobile Safari specific adjustments */
+@supports (-webkit-touch-callout: none) {
+  .status-bar-background,
+  .status-bar-background-fallback {
+    /* Ensure proper height on iOS devices */
+    height: max(env(safe-area-inset-top), 44px) !important;
+  }
+}

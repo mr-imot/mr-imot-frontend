@@ -3,7 +3,7 @@
 import { MeshGradient, PaperTexture } from '@paper-design/shaders-react'
 import { useEffect, useState } from 'react'
 
-export function ElegantBlueprintBackground() {
+export function StatusBarBackground() {
   const [mounted, setMounted] = useState(false)
   const [hasError, setHasError] = useState(false)
 
@@ -11,17 +11,19 @@ export function ElegantBlueprintBackground() {
     setMounted(true)
   }, [])
 
-  // Error boundary fallback
+  // Error boundary fallback - use CSS gradient that matches your theme
   const ErrorFallback = () => (
     <div 
+      className="status-bar-background-fallback"
       style={{
         position: 'fixed',
         top: 0,
         left: 0,
-        width: '100%',
-        height: '100%',
+        right: 0,
+        height: 'env(safe-area-inset-top, 0px)',
         background: 'linear-gradient(135deg, #051937 0%, #1a2332 50%, #1a1a1a 100%)',
-        zIndex: -2,
+        zIndex: -1,
+        pointerEvents: 'none',
       }}
     />
   )
@@ -33,21 +35,16 @@ export function ElegantBlueprintBackground() {
   try {
     return (
       <div 
-        className="elegant-blueprint-background"
+        className="status-bar-background"
         style={{
           position: 'fixed',
           top: 0,
           left: 0,
-          width: '100vw',
-          height: '100vh',
-          backgroundColor: '#000',
+          right: 0,
+          height: 'env(safe-area-inset-top, 0px)',
+          zIndex: -1,
+          pointerEvents: 'none',
           overflow: 'hidden',
-          zIndex: -2,
-          /* Ensure background extends behind safe areas */
-          paddingTop: 'env(safe-area-inset-top)',
-          paddingBottom: 'env(safe-area-inset-bottom)',
-          paddingLeft: 'env(safe-area-inset-left)',
-          paddingRight: 'env(safe-area-inset-right)',
         }}
       >
         {/* Base Layer: Subtle Texture */}
@@ -62,7 +59,7 @@ export function ElegantBlueprintBackground() {
           }}
         />
         
-        {/* Top Layer: Slow Color Wash */}
+        {/* Top Layer: Color Wash that matches your main background */}
         <MeshGradient
           colors={['#051937', '#004d40', '#f5f5f5', '#000000']}
           speed={0.1}
@@ -70,18 +67,16 @@ export function ElegantBlueprintBackground() {
           swirl={0.6}
           style={{ 
             position: 'absolute', 
-            top: 0,
-            left: 0,
-            width: '100vw', 
-            height: '100vh', 
-            opacity: 0.9
+            width: '100%', 
+            height: '100%', 
+            opacity: 0.7 
           }}
           onError={() => setHasError(true)}
         />
       </div>
     )
   } catch (error) {
-    console.warn('ElegantBlueprintBackground: Shader error, falling back to CSS gradient:', error)
+    console.warn('StatusBarBackground: Shader error, falling back to CSS gradient:', error)
     return <ErrorFallback />
   }
 }
