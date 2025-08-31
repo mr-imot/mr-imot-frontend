@@ -1,5 +1,6 @@
 // Marker management utilities for Airbnb-style maps
 import { createPricePillElement, createSvgMarkerIcon, createSvgHouseIcon, createClusterMarkerIcon, clusterProperties, PropertyCluster } from './google-maps'
+import { getDeviceType } from './device-detection'
 
 export interface PropertyData {
   id: string
@@ -71,12 +72,9 @@ export class MarkerManager {
     this.isInitialized = true
   }
 
-  // Update marker states based on hover/selection (Airbnb-style with CSS classes)
+  // Update marker states based on hover/selection (unified approach)
   updateMarkerStates() {
-    Object.entries(this.markerContents).forEach(([contentId, markerContent]) => {
-      // Extract property ID from content ID (handles both main and cloned markers)
-      const propertyId = contentId.split('_map_')[0]
-
+    Object.entries(this.markerContents).forEach(([propertyId, markerContent]) => {
       if (markerContent) {
         // Determine the current state
         let newState: "default" | "hovered" | "selected" = "default"
@@ -91,10 +89,10 @@ export class MarkerManager {
         }
 
         // Only update if state has actually changed
-        const currentState = this.markerStates[contentId] || "default"
+        const currentState = this.markerStates[propertyId] || "default"
         if (currentState !== newState) {
-          // Update stored state first
-          this.markerStates[contentId] = newState
+          // Update stored state
+          this.markerStates[propertyId] = newState
 
           // Update z-index
           const marker = this.markers[propertyId]
@@ -102,11 +100,11 @@ export class MarkerManager {
             marker.zIndex = newZIndex
           }
 
-          // SIMPLE APPROACH: Just change the SVG fill directly
+          // Update SVG colors directly
           const svg = markerContent.querySelector('svg')
           if (svg) {
             const paths = svg.querySelectorAll('path, polyline')
-            
+
             if (newState === "hovered" || newState === "selected") {
               // Hovered/Selected: Black house with white lines
               paths.forEach(path => {
@@ -124,7 +122,7 @@ export class MarkerManager {
                 path.setAttribute('stroke', '#000000') // Black lines
               })
             }
-            
+
             // Apply CSS classes for scaling/shadow effects
             markerContent.className = `map-marker-icon map-marker-${newState}`
           }
@@ -219,26 +217,30 @@ export class MarkerManager {
   }
 
   private clearAllMarkers() {
-    Object.values(this.markers).forEach((m) => {
-      if ('setMap' in m) {
-        m.setMap(null) // Legacy Marker
+    // Clear all markers from maps (unified approach - no clones to clean up)
+    Object.values(this.markers).forEach((marker) => {
+      if ('setMap' in marker) {
+        marker.setMap(null)
       } else {
-        m.map = null // AdvancedMarkerElement
+        marker.map = null
       }
     })
-    this.clusterMarkers.forEach((m) => {
-      if ('setMap' in m) {
-        m.setMap(null) // Legacy Marker
+
+    this.clusterMarkers.forEach((marker) => {
+      if ('setMap' in marker) {
+        marker.setMap(null)
       } else {
-        m.map = null // AdvancedMarkerElement
+        marker.map = null
       }
     })
+
+    // Clear all marker data (simplified - no cloned elements)
     this.markers = {}
     this.clusterMarkers = []
     this.markerElements = {}
     this.markerContents = {}
     this.markerStates = {}
-    // Note: We preserve markerCache for reuse, but clear any cached marker references
+    // Note: We preserve markerCache for reuse
   }
 
   private renderClustered() {
@@ -271,43 +273,14 @@ export class MarkerManager {
 
     // Check if marker is already cached
     if (this.markerCache[property.id]) {
-
       const cachedMarker = this.markerCache[property.id]
 
-      // For cached markers, we need to create new instances on additional maps
-      this.config.maps.forEach((map, index) => {
-        if (index === 0) {
-          // First map: use cached marker
-          if ('setMap' in cachedMarker) {
-            cachedMarker.setMap(map)
-          } else {
-            cachedMarker.map = map
-          }
+      // Add cached marker to ALL available maps (unified approach)
+      this.config.maps.forEach((map) => {
+        if (map && 'setMap' in cachedMarker) {
+          cachedMarker.setMap(map)
         } else if (map) {
-          // Additional maps: create new marker instances
-          const clonedElement = this.markerContents[property.id]?.cloneNode(true) as HTMLElement || document.createElement('div')
-          if (!this.markerContents[property.id]) {
-            // If no cached content, create new one
-            clonedElement.className = 'map-marker-icon map-marker-default'
-            const iconType = property.type === "Residential Houses" ? "house" : "apartment"
-            const markerIcon = createSvgHouseIcon(iconType, "default")
-            clonedElement.innerHTML = markerIcon
-            clonedElement.setAttribute('role', 'button')
-            clonedElement.setAttribute('tabindex', '0')
-            clonedElement.setAttribute('data-property-id', property.id)
-          }
-
-          const newMarker = new google.maps.marker.AdvancedMarkerElement({
-            position: { lat: property.lat, lng: property.lng },
-            map: map,
-            content: clonedElement,
-            title: property.title,
-            zIndex: 1,
-          })
-
-          // Store references for the new marker
-          this.markerContents[`${property.id}_map_${index}`] = clonedElement
-          this.markerStates[`${property.id}_map_${index}`] = "default"
+          cachedMarker.map = map
         }
       })
 
@@ -338,33 +311,25 @@ export class MarkerManager {
       zIndex: 1,
     })
 
-    // Add marker to ALL available maps
+    // Add the same marker to ALL available maps (unified approach - no cloning)
     this.config.maps.forEach((map, index) => {
-      if (index === 0) return // Already set on first map
-      if (map) {
-        // Create a clone of the marker element for additional maps
-        const clonedElement = markerElement.cloneNode(true) as HTMLElement
-        const clonedMarker = new google.maps.marker.AdvancedMarkerElement({
-          position: { lat: property.lat, lng: property.lng },
-          map: map,
-          content: clonedElement,
-          title: property.title,
-          zIndex: 1,
-        })
-        // Store references for the cloned marker too
-        this.markerContents[`${property.id}_map_${index}`] = clonedElement
-        this.markerStates[`${property.id}_map_${index}`] = "default"
+      if (index > 0 && map) {
+        // Add the same marker to additional maps
+        if ('setMap' in marker) {
+          marker.setMap(map)
+        } else {
+          marker.map = map
+        }
       }
     })
 
-    // Cache the marker for future use
+    // Cache and store the single marker (unified approach)
     this.markerCache[property.id] = marker
     this.markers[property.id] = marker
-    this.markerContents[property.id] = markerElement // Store content element for state updates
-    this.markerStates[property.id] = "default" // Initialize state
-    
+    this.markerContents[property.id] = markerElement
+    this.markerStates[property.id] = "default"
 
-    
+    // Add event listeners to the single marker element (works for all maps)
     this.addMarkerEventListeners(marker, property, markerElement)
   }
 
@@ -414,9 +379,12 @@ export class MarkerManager {
   }
 
   private addMarkerEventListeners(marker: google.maps.marker.AdvancedMarkerElement, property: PropertyData, pillElement: HTMLElement) {
-    // Add accessibility attributes to the pill element
+        // Add accessibility attributes to the pill element
     pillElement.setAttribute('aria-label', `Property: ${property.title} - ${property.shortPrice || 'Contact for price'}`)
-    
+
+    // Detect if this is a touch device
+    const isTouchDevice = getDeviceType() === 'mobile' || getDeviceType() === 'tablet'
+
     // Click marker to select/deselect
     marker.addListener("click", () => {
       if (this.config.selectedPropertyId === property.id) {
@@ -425,7 +393,7 @@ export class MarkerManager {
       } else {
         this.config.onPropertySelect(property.id)
         this.config.onAriaAnnouncement(`Selected property: ${property.title} - ${property.shortPrice || 'Contact for price'}`)
-        
+
         // Airbnb-style: Only pan/zoom if marker is not visible in current viewport
         const bounds = this.config.maps[0]?.getBounds()
         if (bounds && this.config.maps[0]) {
@@ -444,7 +412,7 @@ export class MarkerManager {
         }
       }
     })
-    
+
     // Add keyboard support directly to pill element
     pillElement.addEventListener('keydown', (e: KeyboardEvent) => {
       if (e.key === 'Enter' || e.key === ' ') {
@@ -454,14 +422,55 @@ export class MarkerManager {
       }
     })
 
-    // Hover events on pill element (CSS handles visual effects)
-    pillElement.addEventListener('mouseenter', () => {
-      this.config.onPropertyHover(property.id)
-    })
-    
-    pillElement.addEventListener('mouseleave', () => {
-      this.config.onPropertyHover(null)
-    })
+    if (isTouchDevice) {
+      // Touch device: Use touch events with preventDefault to avoid map gesture conflicts
+      let touchStartTime = 0
+      let touchStartX = 0
+      let touchStartY = 0
+
+      pillElement.addEventListener('touchstart', (e: TouchEvent) => {
+        e.preventDefault() // Prevent map gestures
+        touchStartTime = Date.now()
+        const touch = e.touches[0]
+        touchStartX = touch.clientX
+        touchStartY = touch.clientY
+        this.config.onPropertyHover(property.id)
+      }, { passive: false })
+
+      pillElement.addEventListener('touchend', (e: TouchEvent) => {
+        e.preventDefault() // Prevent map gestures
+        const touchEndTime = Date.now()
+        const touchDuration = touchEndTime - touchStartTime
+
+        // Only trigger click if touch duration is short (not a long press) and minimal movement
+        if (touchDuration < 300) { // Less than 300ms
+          const touch = e.changedTouches[0]
+          const deltaX = Math.abs(touch.clientX - touchStartX)
+          const deltaY = Math.abs(touch.clientY - touchStartY)
+
+          if (deltaX < 10 && deltaY < 10) { // Minimal movement threshold
+            // Trigger the marker click
+            google.maps.event.trigger(marker, 'click')
+          }
+        }
+
+        this.config.onPropertyHover(null)
+      }, { passive: false })
+
+      // Handle touch cancel (user moved finger away)
+      pillElement.addEventListener('touchcancel', () => {
+        this.config.onPropertyHover(null)
+      }, { passive: false })
+    } else {
+      // Desktop: Use mouse events
+      pillElement.addEventListener('mouseenter', () => {
+        this.config.onPropertyHover(property.id)
+      })
+
+      pillElement.addEventListener('mouseleave', () => {
+        this.config.onPropertyHover(null)
+      })
+    }
   }
 
 
@@ -469,7 +478,10 @@ export class MarkerManager {
   private addClusterEventListeners(marker: google.maps.marker.AdvancedMarkerElement, cluster: PropertyCluster, count: number, clusterElement: HTMLElement) {
     // Add accessibility attributes to the cluster element
     clusterElement.setAttribute('aria-label', `Cluster of ${count} properties. Click to zoom in and expand.`)
-    
+
+    // Detect if this is a touch device
+    const isTouchDevice = getDeviceType() === 'mobile' || getDeviceType() === 'tablet'
+
     // Click cluster to zoom in
     marker.addListener("click", () => {
       this.config.maps[0]?.fitBounds(cluster.bounds)
@@ -481,7 +493,7 @@ export class MarkerManager {
         }
       }, 500)
     })
-    
+
     // Add keyboard support directly to cluster element
     clusterElement.addEventListener('keydown', (e: KeyboardEvent) => {
       if (e.key === 'Enter' || e.key === ' ') {
@@ -489,17 +501,64 @@ export class MarkerManager {
         google.maps.event.trigger(marker, 'click')
       }
     })
-    
-    // Hover effects on cluster element (CSS handles visual effects)
-    clusterElement.addEventListener('mouseenter', () => {
-      clusterElement.style.transform = 'scale(1.06)'
-      clusterElement.style.boxShadow = '0 12px 28px rgba(0, 0, 0, 0.18)'
-    })
-    
-    clusterElement.addEventListener('mouseleave', () => {
-      clusterElement.style.transform = 'scale(1)'
-      clusterElement.style.boxShadow = '0 8px 20px rgba(0, 0, 0, 0.12)'
-    })
+
+    if (isTouchDevice) {
+      // Touch device: Use touch events with preventDefault
+      let touchStartTime = 0
+      let touchStartX = 0
+      let touchStartY = 0
+
+      clusterElement.addEventListener('touchstart', (e: TouchEvent) => {
+        e.preventDefault() // Prevent map gestures
+        touchStartTime = Date.now()
+        const touch = e.touches[0]
+        touchStartX = touch.clientX
+        touchStartY = touch.clientY
+
+        // Apply hover effect
+        clusterElement.style.transform = 'scale(1.06)'
+        clusterElement.style.boxShadow = '0 12px 28px rgba(0, 0, 0, 0.18)'
+      }, { passive: false })
+
+      clusterElement.addEventListener('touchend', (e: TouchEvent) => {
+        e.preventDefault() // Prevent map gestures
+        const touchEndTime = Date.now()
+        const touchDuration = touchEndTime - touchStartTime
+
+        // Reset hover effect
+        clusterElement.style.transform = 'scale(1)'
+        clusterElement.style.boxShadow = '0 8px 20px rgba(0, 0, 0, 0.12)'
+
+        // Only trigger click if touch duration is short and minimal movement
+        if (touchDuration < 300) {
+          const touch = e.changedTouches[0]
+          const deltaX = Math.abs(touch.clientX - touchStartX)
+          const deltaY = Math.abs(touch.clientY - touchStartY)
+
+          if (deltaX < 10 && deltaY < 10) {
+            // Trigger the cluster click
+            google.maps.event.trigger(marker, 'click')
+          }
+        }
+      }, { passive: false })
+
+      // Handle touch cancel
+      clusterElement.addEventListener('touchcancel', () => {
+        clusterElement.style.transform = 'scale(1)'
+        clusterElement.style.boxShadow = '0 8px 20px rgba(0, 0, 0, 0.12)'
+      }, { passive: false })
+    } else {
+      // Desktop: Use mouse events
+      clusterElement.addEventListener('mouseenter', () => {
+        clusterElement.style.transform = 'scale(1.06)'
+        clusterElement.style.boxShadow = '0 12px 28px rgba(0, 0, 0, 0.18)'
+      })
+
+      clusterElement.addEventListener('mouseleave', () => {
+        clusterElement.style.transform = 'scale(1)'
+        clusterElement.style.boxShadow = '0 8px 20px rgba(0, 0, 0, 0.12)'
+      })
+    }
   }
 
 
