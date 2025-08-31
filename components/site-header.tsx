@@ -22,6 +22,7 @@ export function SiteHeader() {
                 width={56}
                 height={56}
                 className="object-contain drop-shadow-lg"
+                priority
                 style={{
                   filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))'
                 }}
