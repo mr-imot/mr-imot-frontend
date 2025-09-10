@@ -82,9 +82,9 @@ export default function RootLayout({
         {/* Mobile Viewport Meta Tags */}
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes, viewport-fit=cover" />
         
-        {/* Mobile Theme Meta Tags - Prevent Blue Background */}
-        <meta name="theme-color" content="#000000" media="(prefers-color-scheme: light)" />
-        <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
+        {/* Mobile Theme Meta Tags - Match Background Color */}
+        <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+        <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: dark)" />
         
         {/* iOS Safe Area Support */}
         <meta name="mobile-web-app-capable" content="yes" />
