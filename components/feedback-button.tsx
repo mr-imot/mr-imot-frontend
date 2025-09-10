@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
+import { usePathname } from "next/navigation"
 import { Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -21,12 +22,15 @@ const ISSUE_TYPES = [
 
 export function FeedbackButton() {
   const { user, isAuthenticated } = useAuth()
+  const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
   const [issueType, setIssueType] = useState("")
   const [message, setMessage] = useState("")
   const [email, setEmail] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle")
+  const [isVisible, setIsVisible] = useState(true)
+  const heroRef = useRef<HTMLDivElement>(null)
 
   // Set email automatically if user is logged in
   useEffect(() => {
@@ -34,6 +38,71 @@ export function FeedbackButton() {
       setEmail(user.email)
     }
   }, [isAuthenticated, user])
+
+  // Smart feedback button visibility based on page and scroll position
+  useEffect(() => {
+    // Other pages: Always visible immediately
+    if (pathname !== '/' && pathname !== '/listings') {
+      setIsVisible(true)
+      return
+    }
+
+    // Homepage: Hide initially, show after hero section
+    if (pathname === '/') {
+      setIsVisible(false)
+      
+      const heroElement = document.querySelector('section[class*="py-16"]') as HTMLElement
+      if (!heroElement) {
+        // Fallback: show button after delay
+        const timer = setTimeout(() => setIsVisible(true), 1000)
+        return () => clearTimeout(timer)
+      }
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            // Show button when hero section is not intersecting (scrolled past)
+            setIsVisible(!entry.isIntersecting)
+          })
+        },
+        {
+          threshold: 0.1,
+          rootMargin: '-50px 0px 0px 0px'
+        }
+      )
+
+      observer.observe(heroElement)
+      return () => observer.disconnect()
+    }
+
+    // Listings page: Hide initially, show when footer comes into view
+    if (pathname === '/listings') {
+      setIsVisible(false)
+      
+      const footerElement = document.querySelector('footer') as HTMLElement
+      if (!footerElement) {
+        // Fallback: show button after delay
+        const timer = setTimeout(() => setIsVisible(true), 1000)
+        return () => clearTimeout(timer)
+      }
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            // Show button when footer comes into view, hide when footer goes out of view
+            setIsVisible(entry.isIntersecting)
+          })
+        },
+        {
+          threshold: 0.1,
+          rootMargin: '0px 0px -50px 0px'
+        }
+      )
+
+      observer.observe(footerElement)
+      return () => observer.disconnect()
+    }
+  }, [pathname])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -81,10 +150,14 @@ export function FeedbackButton() {
 
   return (
     <>
-      {/* Fixed Feedback Button */}
+      {/* Fixed Feedback Button with conditional visibility */}
       <Button
         onClick={() => setIsOpen(true)}
-        className="hidden lg:flex fixed bottom-6 right-6 z-50 bg-gray-800 hover:bg-gray-700 text-white rounded-full px-4 py-3 shadow-lg items-center gap-2"
+        className={`hidden lg:flex fixed bottom-6 right-6 z-50 bg-gray-800 hover:bg-gray-700 text-white rounded-full px-4 py-3 shadow-lg items-center gap-2 transition-all duration-500 ease-in-out ${
+          isVisible 
+            ? 'opacity-100 translate-y-0' 
+            : 'opacity-0 translate-y-4 pointer-events-none'
+        }`}
         size="lg"
       >
         <Heart className="w-5 h-5" />
