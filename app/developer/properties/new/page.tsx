@@ -36,8 +36,8 @@ const projectTypeOptions = [
 const formSchema = z.object({
   name: z.string().min(2, "Name is required"),
   description: z.string().min(10, "Please provide a more detailed description"),
-  city: z.string().min(2, "City is required"),
-  country: z.string().min(2, "Country is required"),
+  city: z.string().optional(),
+  country: z.string().optional(),
   address: z.string().min(5, "Address is required"),
   project_type: z.enum(["apartment_building", "house_complex"], {
     required_error: "Please select a project type",
@@ -131,7 +131,7 @@ export default function NewPropertyPage() {
       name: "",
       description: "",
       city: "",
-      country: "Bulgaria",
+      country: "",
       address: "",
       project_type: undefined as any,
       completion_month: "",
@@ -775,33 +775,6 @@ export default function NewPropertyPage() {
                      )}
                    />
 
-                                     <FormField
-                     control={form.control}
-                     name="city"
-                     render={({ field }) => (
-                       <FormItem>
-                         <FormLabel className="text-sm font-medium text-gray-700">City <span className="text-red-500">*</span></FormLabel>
-                         <FormControl>
-                           <Input placeholder="e.g., Sofia" className="h-11" {...field} />
-                         </FormControl>
-                         <FormMessage />
-                       </FormItem>
-                     )}
-                   />
-
-                   <FormField
-                     control={form.control}
-                     name="country"
-                     render={({ field }) => (
-                       <FormItem>
-                         <FormLabel className="text-sm font-medium text-gray-700">Country <span className="text-red-500">*</span></FormLabel>
-                         <FormControl>
-                           <Input placeholder="e.g., Bulgaria" className="h-11" {...field} />
-                         </FormControl>
-                         <FormMessage />
-                       </FormItem>
-                     )}
-                   />
 
                    <FormField
                      control={form.control}
