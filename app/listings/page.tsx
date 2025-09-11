@@ -885,35 +885,35 @@ export default function ListingsPage() {
             {/* Desktop Filters aligned with map top */}
             <div className="mb-6">
               <Card className="shadow-lg border" style={{backgroundColor: '#ffffff', borderColor: 'var(--brand-gray-200)'}}>
-                <CardContent className="p-6">
-                  <div className="flex flex-row items-center justify-center gap-12">
+                <CardContent className="p-4 laptop:p-4 xl:p-6">
+                  <div className="flex flex-row items-center justify-center gap-8 laptop:gap-6 xl:gap-12">
                     {/* City Selector */}
-                    <div className="flex flex-col items-center space-y-4 w-full lg:w-auto">
-                      <h3 className="text-lg font-bold flex items-center gap-3" style={{color: 'var(--brand-text-primary)'}}>
-                        <MapPin className="w-5 h-5" style={{color: 'var(--brand-btn-primary-bg)'}} />
+                    <div className="flex flex-col items-center space-y-2 laptop:space-y-2 xl:space-y-3 w-full lg:w-auto">
+                      <h3 className="text-base font-semibold flex items-center gap-2" style={{color: 'var(--brand-text-primary)'}}>
+                        <MapPin className="w-4 h-4" style={{color: 'var(--brand-btn-primary-bg)'}} />
                         Choose Your City
                       </h3>
                       <ToggleGroup
                         type="single"
                         value={selectedCity}
                         onValueChange={handleCityChange}
-                        className="flex gap-3 w-full lg:w-auto"
+                        className="flex gap-2 w-full lg:w-auto"
                       >
                         <ToggleGroupItem 
                           value="Sofia" 
-                          className="h-12 px-8 rounded-full border-2 font-semibold text-base shadow-sm hover:shadow-md transition-all duration-300 ease-out bg-transparent border-gray-700 text-gray-900 data-[state=on]:bg-gray-900 data-[state=on]:text-white data-[state=on]:border-gray-900"
+                          className="h-8 laptop:h-8 xl:h-10 px-4 laptop:px-3 xl:px-4 rounded-full border-2 font-medium text-sm laptop:text-sm xl:text-sm shadow-sm hover:shadow-md transition-all duration-300 ease-out bg-transparent border-gray-700 text-gray-900 data-[state=on]:bg-gray-900 data-[state=on]:text-white data-[state=on]:border-gray-900"
                         >
                           Sofia
                         </ToggleGroupItem>
                         <ToggleGroupItem 
                           value="Plovdiv" 
-                          className="h-12 px-8 rounded-full border-2 font-semibold text-base shadow-sm hover:shadow-md transition-all duration-300 ease-out bg-transparent border-gray-700 text-gray-900 data-[state=on]:bg-gray-900 data-[state=on]:text-white data-[state=on]:border-gray-900"
+                          className="h-8 laptop:h-8 xl:h-10 px-4 laptop:px-3 xl:px-4 rounded-full border-2 font-medium text-sm laptop:text-sm xl:text-sm shadow-sm hover:shadow-md transition-all duration-300 ease-out bg-transparent border-gray-700 text-gray-900 data-[state=on]:bg-gray-900 data-[state=on]:text-white data-[state=on]:border-gray-900"
                         >
                           Plovdiv
                         </ToggleGroupItem>
                         <ToggleGroupItem 
                           value="Varna" 
-                          className="h-12 px-8 rounded-full border-2 font-semibold text-base shadow-sm hover:shadow-md transition-all duration-300 ease-out bg-transparent border-gray-700 text-gray-900 data-[state=on]:bg-gray-900 data-[state=on]:text-white data-[state=on]:border-gray-900"
+                          className="h-8 laptop:h-8 xl:h-10 px-4 laptop:px-3 xl:px-4 rounded-full border-2 font-medium text-sm laptop:text-sm xl:text-sm shadow-sm hover:shadow-md transition-all duration-300 ease-out bg-transparent border-gray-700 text-gray-900 data-[state=on]:bg-gray-900 data-[state=on]:text-white data-[state=on]:border-gray-900"
                         >
                           Varna
                         </ToggleGroupItem>
@@ -921,37 +921,37 @@ export default function ListingsPage() {
                     </div>
 
                     {/* Divider */}
-                    <Separator orientation="vertical" className="hidden lg:block h-20" style={{backgroundColor: 'var(--brand-gray-200)'}} />
+                    <Separator orientation="vertical" className="hidden lg:block h-12" style={{backgroundColor: 'var(--brand-gray-200)'}} />
 
                     {/* Property Type Filter */}
-                    <div className="flex flex-col items-center space-y-4 w-full lg:w-auto">
-                      <h3 className="text-lg font-bold flex items-center gap-3" style={{color: 'var(--brand-text-primary)'}}>
-                        <Building className="w-5 h-5" style={{color: 'var(--brand-btn-primary-bg)'}} />
+                    <div className="flex flex-col items-center space-y-2 laptop:space-y-2 xl:space-y-3 w-full lg:w-auto">
+                      <h3 className="text-base font-semibold flex items-center gap-2" style={{color: 'var(--brand-text-primary)'}}>
+                        <Building className="w-4 h-4" style={{color: 'var(--brand-btn-primary-bg)'}} />
                         Property Type
                       </h3>
                       <ToggleGroup
                         type="single"
                         value={propertyTypeFilter}
                         onValueChange={handlePropertyTypeFilter}
-                        className="flex flex-wrap gap-3 w-full lg:w-auto justify-center"
+                        className="flex gap-2 w-full lg:w-auto justify-center"
                       >
                         <ToggleGroupItem 
                           value="all" 
-                          className="h-12 px-8 rounded-full border-2 font-semibold text-base shadow-sm hover:shadow-md transition-all duration-300 ease-out bg-transparent border-gray-700 text-gray-900 data-[state=on]:bg-gray-900 data-[state=on]:text-white data-[state=on]:border-gray-900"
+                          className="h-8 laptop:h-8 xl:h-10 px-4 laptop:px-3 xl:px-4 rounded-full border-2 font-medium text-sm laptop:text-sm xl:text-sm shadow-sm hover:shadow-md transition-all duration-300 ease-out bg-transparent border-gray-700 text-gray-900 data-[state=on]:bg-gray-900 data-[state=on]:text-white data-[state=on]:border-gray-900"
                         >
                           All
                         </ToggleGroupItem>
                         <ToggleGroupItem 
                           value="apartments" 
-                          className="h-12 px-6 rounded-full border-2 font-semibold text-base shadow-sm hover:shadow-md transition-all duration-300 ease-out flex items-center gap-2 bg-transparent border-gray-700 text-gray-900 data-[state=on]:bg-gray-900 data-[state=on]:text-white data-[state=on]:border-gray-900"
+                          className="h-8 laptop:h-8 xl:h-10 px-3 laptop:px-2 xl:px-3 rounded-full border-2 font-medium text-sm laptop:text-sm xl:text-sm shadow-sm hover:shadow-md transition-all duration-300 ease-out flex items-center gap-1 bg-transparent border-gray-700 text-gray-900 data-[state=on]:bg-gray-900 data-[state=on]:text-white data-[state=on]:border-gray-900"
                         >
-                          <Building className="w-4 h-4" /> Apartments
+                          <Building className="w-3 h-3" /> Apartments
                         </ToggleGroupItem>
                         <ToggleGroupItem 
                           value="houses" 
-                          className="h-12 px-6 rounded-full border-2 font-semibold text-base shadow-sm hover:shadow-md transition-all duration-300 ease-out flex items-center gap-2 bg-transparent border-gray-700 text-gray-900 data-[state=on]:bg-gray-900 data-[state=on]:text-white data-[state=on]:border-gray-900"
+                          className="h-8 laptop:h-8 xl:h-10 px-3 laptop:px-2 xl:px-3 rounded-full border-2 font-medium text-sm laptop:text-sm xl:text-sm shadow-sm hover:shadow-md transition-all duration-300 ease-out flex items-center gap-1 bg-transparent border-gray-700 text-gray-900 data-[state=on]:bg-gray-900 data-[state=on]:text-white data-[state=on]:border-gray-900"
                         >
-                          <Home className="w-4 h-4" /> Houses
+                          <Home className="w-3 h-3" /> Houses
                         </ToggleGroupItem>
                       </ToggleGroup>
                     </div>
