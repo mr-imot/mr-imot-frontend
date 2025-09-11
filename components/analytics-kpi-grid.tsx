@@ -73,7 +73,7 @@ export function AnalyticsKpiGrid({ metrics, onDrill }: AnalyticsKpiGridProps) {
           return (
             <div
               key={index}
-              className="bg-gradient-to-t from-slate-300 to-slate-400 rounded-sm flex-1 min-h-[2px]"
+              className="bg-gradient-to-t from-slate-300 to-slate-400 rounded-sm flex-1 min-h-[0.125rem]"
               style={{ height: `${Math.max(height, 8)}%` }}
             />
           )

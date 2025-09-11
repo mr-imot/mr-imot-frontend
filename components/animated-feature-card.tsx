@@ -43,7 +43,7 @@ export function AnimatedFeatureCard({ icon: Icon, title, description, delay = 0 
   return (
     <div
       ref={cardRef}
-      className={`group bg-white p-8 rounded-2xl shadow-md border border-ds-neutral-200 hover:shadow-xl hover:border-ds-neutral-300 hover:-translate-y-2 transition-all duration-500 ease-out h-full flex flex-col min-h-[320px] ${
+      className={`group bg-white p-8 rounded-2xl shadow-md border border-ds-neutral-200 hover:shadow-xl hover:border-ds-neutral-300 hover:-translate-y-2 transition-all duration-500 ease-out h-full flex flex-col min-h-[20rem] ${
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
       }`}
       style={{

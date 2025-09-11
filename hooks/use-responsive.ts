@@ -13,8 +13,8 @@ export function useResponsive(): ResponsiveState {
     isMobile: false,
     isTablet: false,
     isDesktop: true,
-    width: 1920,
-    height: 1080
+    width: 120, // 1920px converted to em (1920/16)
+    height: 67.5 // 1080px converted to em (1080/16)
   })
 
   useEffect(() => {
@@ -23,9 +23,9 @@ export function useResponsive(): ResponsiveState {
       const height = window.innerHeight
       
       setState({
-        isMobile: width < 768,
-        isTablet: width >= 768 && width < 1024,
-        isDesktop: width >= 1024,
+        isMobile: width < 48, // 768px converted to em
+        isTablet: width >= 48 && width < 64, // 768px-1024px converted to em
+        isDesktop: width >= 64, // 1024px converted to em
         width,
         height
       })

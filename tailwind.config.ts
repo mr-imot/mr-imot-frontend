@@ -15,17 +15,19 @@ const config = {
   		center: true,
   		padding: '1rem',
   		screens: {
-  			'2xl': '1200px'
+  			'2xl': '90em'  // 1440px converted to em
   		}
   	},
-  	screens: {
-  		'xs': '475px',
-  		'sm': '640px',
-  		'md': '768px',
-  		'lg': '1024px',
-  		'xl': '1280px',
-  		'2xl': '1536px',
-  	},
+	screens: {
+		'xs': '40em',    // 640px - Mobile
+		'sm': '40em',    // 640px - Tablet start
+		'md': '48em',    // 768px - Tablet
+		'lg': '64em',    // 1024px - Laptop start
+		'xl': '75em',    // 1200px - Desktop start
+		'2xl': '90em',   // 1440px - Large desktop
+		'laptop': '64em', // 1024px - Laptop range start
+		'laptop-lg': '75em', // 1200px - Laptop range end
+	},
   	extend: {
   		colors: {
   			brand: 'var(--brand)',

@@ -265,7 +265,7 @@ function AnalyticsContent() {
 
             <Card className="p-6 border-border/50 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm shadow-lg">
               <TabsContent value="area" className="m-0">
-                <ChartContainer config={chartConfig} className="h-[400px] w-full">
+                <ChartContainer config={chartConfig} className="h-[25rem] w-full">
                   <AreaChart data={chartData}>
                     <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
                     <XAxis dataKey="day" axisLine={false} tickLine={false} />
@@ -301,7 +301,7 @@ function AnalyticsContent() {
               </TabsContent>
 
               <TabsContent value="line" className="m-0">
-                <ChartContainer config={chartConfig} className="h-[400px] w-full">
+                <ChartContainer config={chartConfig} className="h-[25rem] w-full">
                   <LineChart data={chartData}>
                     <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
                     <XAxis dataKey="day" axisLine={false} tickLine={false} />
@@ -337,7 +337,7 @@ function AnalyticsContent() {
               </TabsContent>
 
               <TabsContent value="bar" className="m-0">
-                <ChartContainer config={chartConfig} className="h-[400px] w-full">
+                <ChartContainer config={chartConfig} className="h-[25rem] w-full">
                   <BarChart data={chartData}>
                     <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
                     <XAxis dataKey="day" axisLine={false} tickLine={false} />
@@ -353,7 +353,7 @@ function AnalyticsContent() {
 
               <TabsContent value="pie" className="m-0">
                 <div className="grid md:grid-cols-2 gap-8 items-center">
-                  <div className="h-[400px]">
+                  <div className="h-[25rem]">
                     <ChartContainer config={chartConfig} className="h-full w-full">
                       <PieChart>
                         <Pie

@@ -3,3 +3,8 @@
 [33m705fb5c[m fix: improve mobile filters layout - wider containers for city names, closer spacing, maintain symmetry
 [33m62a2927[m fix: simplify mobile filters to exact equal sizing using calc() and w-1/3 classes
 [33meb5d2a2[m fix: force mobile filters symmetry with inline styles and stronger CSS rules
+[33ma00f70b[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m fix: resolve CSS syntax error causing Vercel build failure - remove problematic overscroll CSS rules and clean up mobile optimizations
+[33m20c7056[m fix: temporarily disable pull-to-refresh prevention CSS that was interfering with ImageKit transformations and causing image blurriness - restore original image quality
+[33m86a412e[m fix: remove problematic transform: none CSS that was causing image blurriness - clean up mobile-dots class
+[33mced0d42[m fix: disable pull-to-refresh globally on all pages - add overscroll-behavior: none and iOS Safari specific rules
+[33m705fb5c[m fix: improve mobile filters layout - wider containers for city names, closer spacing, maintain symmetry

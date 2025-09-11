@@ -55,7 +55,7 @@ export function EnhancedFeatureCard({
     return (
       <div
         ref={cardRef}
-        className={`group relative bg-gradient-to-br from-ds-primary-600 via-ds-primary-700 to-ds-primary-800 text-white p-10 lg:p-12 rounded-3xl shadow-2xl hover:shadow-3xl border-2 border-ds-primary-500 hover:-translate-y-4 transition-all duration-700 ease-out h-full flex flex-col min-h-[420px] overflow-hidden ${
+        className={`group relative bg-gradient-to-br from-ds-primary-600 via-ds-primary-700 to-ds-primary-800 text-white p-10 lg:p-12 rounded-3xl shadow-2xl hover:shadow-3xl border-2 border-ds-primary-500 hover:-translate-y-4 transition-all duration-700 ease-out h-full flex flex-col min-h-[26.25rem] overflow-hidden ${
           isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
         } ${className}`}
         style={{
@@ -99,7 +99,7 @@ export function EnhancedFeatureCard({
   return (
     <div
       ref={cardRef}
-      className={`group bg-white p-8 lg:p-10 rounded-2xl shadow-lg border border-ds-neutral-200 hover:shadow-2xl hover:border-ds-neutral-300 hover:-translate-y-3 transition-all duration-500 ease-out h-full flex flex-col min-h-[380px] ${
+      className={`group bg-white p-8 lg:p-10 rounded-2xl shadow-lg border border-ds-neutral-200 hover:shadow-2xl hover:border-ds-neutral-300 hover:-translate-y-3 transition-all duration-500 ease-out h-full flex flex-col min-h-[23.75rem] ${
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
       } ${className}`}
       style={{

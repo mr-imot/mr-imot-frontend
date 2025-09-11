@@ -166,7 +166,7 @@ export function FeedbackButton() {
 
       {/* Feedback Modal */}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-[31.25rem] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-left">
               <div className="flex items-center gap-3 mb-4">
@@ -246,7 +246,7 @@ export function FeedbackButton() {
                   placeholder="Please describe your feedback or issue in detail..."
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
-                  className="min-h-[120px] resize-none"
+                  className="min-h-[7.5rem] resize-none"
                   required
                 />
               </div>

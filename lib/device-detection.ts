@@ -14,7 +14,7 @@ export function isMobileDevice(): boolean {
   const isMobileUserAgent = mobileKeywords.some(keyword => userAgent.includes(keyword))
   
   // Check screen size (mobile-first breakpoint)
-  const isSmallScreen = window.innerWidth < 1024 // lg breakpoint
+  const isSmallScreen = window.innerWidth < 64 // lg breakpoint (1024px converted to em)
   
   // Check for touch capability
   const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0

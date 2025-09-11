@@ -97,10 +97,10 @@ interface PropertyMapWithCardsProps {
 
 export function PropertyMapWithCards({
   properties,
-  className = 'w-full h-[600px]',
+  className = 'w-full h-[37.5rem]',
   defaultCenter = { lat: 42.6977, lng: 23.3219 },
   defaultZoom = 12,
-  height = '600px',
+  height = '37.5rem',
   useRealData = true
 }: PropertyMapWithCardsProps) {
   const { isLoaded } = useJsApiLoader({

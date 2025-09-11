@@ -46,7 +46,7 @@ export default function ListingImageCarousel({
           alt={alt}
           fill
           className="object-cover transition-transform duration-300 ease-soft group-hover:scale-[1.02]"
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          sizes="(max-width: 40em) 100vw, (max-width: 64em) 50vw, 33vw"
           loading="lazy"
         />
       </div>

@@ -305,7 +305,7 @@ function DeveloperManagementContent() {
               </div>
             </div>
             <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-[11.25rem]">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent>

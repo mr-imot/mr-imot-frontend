@@ -47,8 +47,8 @@ export function TestimonialCarousel({ testimonials }: TestimonialCarouselProps) 
     const gap = 24 // 1.5rem gap
     const availableWidth = containerWidth
     const calculatedWidth = (availableWidth - gap * (cardsPerView - 1)) / cardsPerView
-    // Limit maximum card width to 400px for better readability
-    const width = Math.min(Math.max(calculatedWidth, 320), 400)
+    // Limit maximum card width to 25rem for better readability
+    const width = Math.min(Math.max(calculatedWidth, 20), 25) // Convert to rem
     setCardWidth(width)
   }, [cardsPerView])
 
@@ -233,9 +233,9 @@ export function TestimonialCarousel({ testimonials }: TestimonialCarouselProps) 
             <div
               key={`${testimonial.author}-${index}`}
               className="flex-shrink-0 flex justify-center"
-              style={{ width: `${cardWidth}px` }}
+              style={{ width: `${cardWidth}rem` }}
             >
-              <div style={{ maxWidth: "400px", width: "100%" }}>
+              <div style={{ maxWidth: "25rem", width: "100%" }}>
                 <TestimonialCard
                   quote={testimonial.quote}
                   author={testimonial.author}

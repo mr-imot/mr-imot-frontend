@@ -21,7 +21,7 @@ function getInitials(name: string): string {
 
 export function TestimonialCard({ quote, author, role, imageSrc, rating = 5 }: TestimonialCardProps) {
   return (
-    <Card className="bg-white shadow-lg hover:shadow-xl rounded-xl border border-ds-neutral-100 hover:border-ds-neutral-200 transition-all duration-300 h-full flex flex-col min-h-[400px] group hover:-translate-y-1">
+    <Card className="bg-white shadow-lg hover:shadow-xl rounded-xl border border-ds-neutral-100 hover:border-ds-neutral-200 transition-all duration-300 h-full flex flex-col min-h-[25rem] group hover:-translate-y-1">
       <CardContent className="p-8 flex flex-col h-full">
         {/* Star Rating */}
         <div className="flex items-center mb-6">

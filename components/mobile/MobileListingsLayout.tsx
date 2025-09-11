@@ -89,7 +89,7 @@ export function MobileListingsLayout() {
       {/* Main Content */}
       <div className="container mx-auto px-4 py-6">
         {viewMode === 'map' ? (
-          <div className="h-[60vh] min-h-[400px] rounded-lg overflow-hidden">
+          <div className="h-[60vh] min-h-[25rem] rounded-lg overflow-hidden">
             <MobileSimpleMap
               properties={filteredProperties}
               selectedPropertyId={selectedPropertyId}

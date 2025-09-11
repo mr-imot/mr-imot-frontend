@@ -263,7 +263,7 @@ export default function ListingPage({ params }: PageProps) {
                       alt={`${property.title || property.name} - Image ${currentImageIndex + 1}`}
                       fill
                       className="object-cover transition-transform duration-300 group-hover:scale-105"
-                      sizes="(max-width: 1024px) 100vw, 66vw"
+                      sizes="(max-width: 64em) 100vw, 66vw"
                       priority
                     />
                   ) : (
@@ -309,7 +309,7 @@ export default function ListingPage({ params }: PageProps) {
                     alt={`${property.title || property.name} - Thumbnail ${index + 2}`}
                     fill
                     className="object-cover transition-transform duration-300 group-hover:scale-105"
-                    sizes="(max-width: 1024px) 25vw, 16vw"
+                    sizes="(max-width: 64em) 25vw, 16vw"
                   />
                   {currentImageIndex === index + 1 && (
                     <div className="absolute inset-0 rounded-xl" style={{backgroundColor: 'var(--brand-primary)', opacity: 0.2, border: `2px solid var(--brand-primary)`}}></div>

@@ -3,7 +3,7 @@
 /* Mobile-specific optimizations for listings page */
 
 /* Ensure smooth scrolling on mobile */
-@media (max-width: 1023px) {
+@media (max-width: 63.9375em) { /* 1023px */
   html {
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
@@ -15,8 +15,8 @@
   button, 
   [role="button"],
   .clickable {
-    min-height: 44px;
-    min-width: 44px;
+    min-height: 2.75rem; /* 44px */
+    min-width: 2.75rem;  /* 44px */
   }
 
   /* Prevent zoom on form inputs */
@@ -121,10 +121,10 @@
 
 
   .mobile-dots button {
-    min-width: 4px !important;
-    min-height: 4px !important;
-    max-width: 8px !important;
-    max-height: 8px !important;
+    min-width: 0.25rem !important; /* 4px */
+    min-height: 0.25rem !important; /* 4px */
+    max-width: 0.5rem !important;   /* 8px */
+    max-height: 0.5rem !important;  /* 8px */
   }
 
   /* Mobile filters balance and symmetry - Force equal widths */
@@ -161,7 +161,7 @@
 }
 
 /* Mobile-first responsive breakpoints */
-@media (max-width: 767px) {
+@media (max-width: 47.9375em) { /* 767px */
   /* Stack filters vertically on small mobile */
   .mobile-filters-stack {
     flex-direction: column;
@@ -179,7 +179,7 @@
   }
 }
 
-@media (min-width: 768px) and (max-width: 1023px) {
+@media (min-width: 48em) and (max-width: 63.9375em) { /* 768px - 1023px */
   /* Tablet-specific optimizations */
   .tablet-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -195,7 +195,7 @@
 }
 
 /* Desktop preservation - don't change anything above 1024px */
-@media (min-width: 1024px) {
+@media (min-width: 64em) { /* 1024px+ */
   /* Desktop styles remain exactly as they were */
   .desktop-preserve {
     /* All existing desktop styles are preserved */

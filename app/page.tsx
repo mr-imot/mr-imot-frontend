@@ -161,7 +161,7 @@ export default function HomePage() {
           <div className="hidden lg:block absolute inset-0 pointer-events-none">
             <div className="relative w-full h-full">
               {/* Video positioned responsively within container bounds */}
-              <div className="absolute w-[400px] h-[400px] xl:w-[450px] xl:h-[450px] 2xl:w-[500px] 2xl:h-[500px]"
+              <div className="absolute w-[25rem] h-[25rem] xl:w-[28.125rem] xl:h-[28.125rem] 2xl:w-[31.25rem] 2xl:h-[31.25rem]"
                    style={{
                      top: '10%',
                      right: 'max(2rem, calc((100vw - 100%) / 2 - 2rem))'
@@ -235,7 +235,7 @@ export default function HomePage() {
              
              {/* Step 1 - DISCOVER HIDDEN GEMS */}
              <div className="relative w-full max-w-sm mx-auto md:max-w-none">
-               <div className="p-6 sm:p-8 relative min-h-[250px] sm:min-h-[280px] md:min-h-[300px] flex flex-col rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl border" style={{
+               <div className="p-6 sm:p-8 relative min-h-[15.625rem] sm:min-h-[17.5rem] md:min-h-[18.75rem] flex flex-col rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl border" style={{
                  backgroundColor: '#ffffff',
                  borderColor: 'var(--brand-gray-200)'
                }}>
@@ -274,7 +274,7 @@ export default function HomePage() {
 
              {/* Step 2 - NEGOTIATE LIKE AN INSIDER */}
              <div className="relative w-full max-w-sm mx-auto md:max-w-none">
-               <div className="p-6 sm:p-8 relative min-h-[250px] sm:min-h-[280px] md:min-h-[300px] flex flex-col rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl border" style={{
+               <div className="p-6 sm:p-8 relative min-h-[15.625rem] sm:min-h-[17.5rem] md:min-h-[18.75rem] flex flex-col rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl border" style={{
                  backgroundColor: '#ffffff',
                  borderColor: 'var(--brand-gray-200)'
                }}>
@@ -313,7 +313,7 @@ export default function HomePage() {
 
              {/* Step 3 - LOCK IN FUTURE VALUE */}
              <div className="relative w-full max-w-sm mx-auto md:max-w-none">
-               <div className="p-6 sm:p-8 relative min-h-[250px] sm:min-h-[280px] md:min-h-[300px] flex flex-col rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl border" style={{
+               <div className="p-6 sm:p-8 relative min-h-[15.625rem] sm:min-h-[17.5rem] md:min-h-[18.75rem] flex flex-col rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl border" style={{
                  backgroundColor: '#ffffff',
                  borderColor: 'var(--brand-gray-200)'
                }}>
