@@ -137,8 +137,8 @@ export default function HomePage() {
                 </p>
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4 pt-3 sm:pt-4">
+              {/* Action Buttons - Order 5 on mobile (after video) */}
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4 pt-3 sm:pt-4 order-5 lg:order-none">
                 <Link href="/listings">
                   <button className="w-full sm:w-auto px-6 py-3 sm:px-8 sm:py-3 md:px-10 md:py-4 rounded-full bg-transparent border-2 border-gray-700 text-gray-900 font-bold text-sm sm:text-base transition-all duration-200 hover:bg-gray-900 hover:text-white shadow-lg hover:shadow-xl cursor-pointer transform hover:scale-105">
                     Browse Properties
@@ -161,8 +161,8 @@ export default function HomePage() {
           {/* Video Container - Responsive positioned relative to container */}
           <div className="lg:absolute lg:inset-0 lg:pointer-events-none">
             <div className="relative w-full h-full flex justify-center lg:block">
-              {/* Video positioned responsively within container bounds - Order 2 on mobile */}
-              <div className="w-[17.5rem] h-[17.5rem] sm:w-[20rem] sm:h-[20rem] laptop:w-[18.75rem] laptop:h-[18.75rem] laptop:absolute laptop:top-[5%] xl:w-[28.125rem] xl:h-[28.125rem] xl:top-[10%] 2xl:w-[31.25rem] 2xl:h-[31.25rem] order-2 lg:order-none"
+              {/* Video positioned responsively within container bounds - Order 4 on mobile (before buttons) */}
+              <div className="w-[17.5rem] h-[17.5rem] sm:w-[20rem] sm:h-[20rem] laptop:w-[18.75rem] laptop:h-[18.75rem] laptop:absolute laptop:top-[5%] xl:w-[28.125rem] xl:h-[28.125rem] xl:top-[10%] 2xl:w-[31.25rem] 2xl:h-[31.25rem] order-4 lg:order-none"
                    style={{
                      top: '10%',
                      right: 'max(2rem, calc((100vw - 100%) / 2 - 2rem))'
