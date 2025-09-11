@@ -113,7 +113,7 @@ export default function HomePage() {
         <div className="container mx-auto px-3 xs:px-4 sm:px-6 md:px-8">
           <div className="flex flex-col lg:grid lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8 laptop:gap-8 lg:gap-12 items-center min-h-[50vh] sm:min-h-[60vh] md:min-h-[60vh] laptop:min-h-[70vh] lg:min-h-[80vh]">
             {/* Left Column - Content */}
-            <div className="space-y-3 sm:space-y-4 md:space-y-6 lg:space-y-6 order-1 lg:order-none lg:col-span-1">
+            <div className="space-y-3 sm:space-y-4 md:space-y-6 lg:space-y-6 order-1 lg:order-none">
               {/* Main Headline */}
               <div className="space-y-1">
                 <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-4xl laptop:text-5xl lg:text-6xl leading-tight tracking-tight font-bold text-gray-900 drop-shadow-sm">
@@ -136,20 +136,20 @@ export default function HomePage() {
                   Skip the middleman. Skip the markup.
                 </p>
               </div>
-            </div>
 
-            {/* Action Buttons - Now separate element for proper ordering */}
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4 pt-3 sm:pt-4 order-3 lg:order-none lg:col-span-1">
-              <Link href="/listings">
-                <button className="w-full sm:w-auto px-6 py-3 sm:px-8 sm:py-3 md:px-10 md:py-4 rounded-full bg-transparent border-2 border-gray-700 text-gray-900 font-bold text-sm sm:text-base transition-all duration-200 hover:bg-gray-900 hover:text-white shadow-lg hover:shadow-xl cursor-pointer transform hover:scale-105">
-                  Browse Properties
-                </button>
-              </Link>
-              <Link href="/register?type=developer">
-                <button className="w-full sm:w-auto px-6 py-3 sm:px-8 sm:py-3 md:px-10 md:py-4 rounded-full bg-gray-900 text-white font-bold text-sm sm:text-base transition-all duration-200 hover:bg-gray-800 shadow-lg hover:shadow-xl cursor-pointer transform hover:scale-105">
-                  List Your Project
-                </button>
-              </Link>
+              {/* Action Buttons - Order 5 on mobile (after video) */}
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4 pt-3 sm:pt-4 order-5 lg:order-none">
+                <Link href="/listings">
+                  <button className="w-full sm:w-auto px-6 py-3 sm:px-8 sm:py-3 md:px-10 md:py-4 rounded-full bg-transparent border-2 border-gray-700 text-gray-900 font-bold text-sm sm:text-base transition-all duration-200 hover:bg-gray-900 hover:text-white shadow-lg hover:shadow-xl cursor-pointer transform hover:scale-105">
+                    Browse Properties
+                  </button>
+                </Link>
+                <Link href="/register?type=developer">
+                  <button className="w-full sm:w-auto px-6 py-3 sm:px-8 sm:py-3 md:px-10 md:py-4 rounded-full bg-gray-900 text-white font-bold text-sm sm:text-base transition-all duration-200 hover:bg-gray-800 shadow-lg hover:shadow-xl cursor-pointer transform hover:scale-105">
+                    List Your Project
+                  </button>
+                </Link>
+              </div>
             </div>
 
             {/* Right Column - Video on large screens, hidden on mobile/tablet */}
@@ -158,7 +158,7 @@ export default function HomePage() {
             </div>
 
             {/* Video Container - Now inside main container for proper ordering */}
-            <div className="order-2 lg:order-none lg:col-span-2 lg:absolute lg:inset-0 lg:pointer-events-none">
+            <div className="order-4 lg:order-none lg:col-span-2 lg:absolute lg:inset-0 lg:pointer-events-none">
               <div className="relative w-full h-full flex justify-center lg:block">
                 {/* Video positioned responsively within container bounds */}
                 <div className="w-[17.5rem] h-[17.5rem] sm:w-[20rem] sm:h-[20rem] laptop:w-[18.75rem] laptop:h-[18.75rem] laptop:absolute laptop:top-[5%] xl:w-[28.125rem] xl:h-[28.125rem] xl:top-[10%] 2xl:w-[31.25rem] 2xl:h-[31.25rem]"
@@ -196,8 +196,8 @@ export default function HomePage() {
                     </video>
                   </div>
                   
-                  {/* Video Caption - Order 4 on mobile */}
-                  <div className="mt-4 sm:mt-6 text-center pointer-events-auto order-4 lg:order-none">
+                  {/* Video Caption - Order 6 on mobile */}
+                  <div className="mt-4 sm:mt-6 text-center pointer-events-auto order-6 lg:order-none">
                     <p className="text-base sm:text-lg xl:text-xl font-semibold text-gray-800 leading-relaxed" style={{
                       fontFamily: 'var(--font-instrument-serif)'
                     }}>
