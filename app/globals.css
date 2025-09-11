@@ -458,3 +458,85 @@
   height: 100vh;
   z-index: -2;
 }
+
+/* ===== CURSOR AND CARET MANAGEMENT ===== */
+/* Disable unwanted caret animations */
+@keyframes caret-blink {
+  display: none !important;
+}
+
+.animate-caret-blink {
+  display: none !important;
+}
+
+/* Disable pseudo-element animations that might create visual artifacts */
+*::after, *::before {
+  animation: none !important;
+}
+
+/* Text cursor and caret for input fields only */
+input[type="text"], 
+input[type="email"], 
+input[type="password"], 
+input[type="search"], 
+input[type="tel"],
+input[type="url"],
+input[type="number"],
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"],
+input[type="month"],
+input[type="week"],
+textarea,
+[contenteditable="true"],
+[contenteditable],
+[role="textbox"],
+[role="searchbox"],
+[role="combobox"],
+[role="spinbutton"] {
+  cursor: text !important;
+  caret-color: auto !important;
+}
+
+/* Pointer cursor for interactive elements */
+button, 
+a, 
+[role="button"], 
+[role="link"],
+[role="menuitem"],
+[role="tab"],
+[role="option"],
+[onclick],
+.clickable,
+[data-clickable="true"] {
+  cursor: pointer !important;
+}
+
+/* Default cursor for text elements (no caret) */
+h1, h2, h3, h4, h5, h6, p, span, div, label {
+  cursor: default !important;
+  caret-color: transparent !important;
+}
+
+/* Disabled elements */
+button:disabled,
+input:disabled,
+textarea:disabled,
+[aria-disabled="true"],
+.disabled {
+  cursor: not-allowed !important;
+}
+
+/* Override Tailwind cursor classes */
+.cursor-default,
+.cursor-auto,
+.cursor-text,
+.cursor-pointer,
+.cursor-not-allowed,
+.cursor-wait,
+.cursor-help,
+.cursor-move,
+.cursor-grab,
+.cursor-grabbing {
+  cursor: inherit !important;
+}
