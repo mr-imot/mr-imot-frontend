@@ -151,7 +151,6 @@ export default function ListingsPage() {
   const fullscreenMapRef = useRef<HTMLDivElement>(null)
   const fullscreenGoogleMapRef = useRef<google.maps.Map | null>(null)
   const markerManagerRef = useRef<MarkerManager | null>(null)
-  const fullscreenMarkersRef = useRef<Record<string, google.maps.Marker>>({})
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null)
   const listContainerRef = useRef<HTMLDivElement>(null)
   const [mapBounds, setMapBounds] = useState<google.maps.LatLngBounds | null>(null)
@@ -464,51 +463,33 @@ export default function ListingsPage() {
       markerManagerRef.current.updateMarkerStates()
     }
     
-         // Update fullscreen map markers (if any) - keeping old logic for now
-     Object.entries(fullscreenMarkersRef.current).forEach(([id, marker]) => {
-       const propertyId = id
-       // Note: We'll need to refactor fullscreen markers later or keep a reference to prices
-       // For now, keeping the old behavior
-     })
+         // Fullscreen markers are now handled by MarkerManager
   }, [hoveredPropertyId, selectedPropertyId])
 
-  // When fullscreen map is opened or data changes, sync center/zoom and markers
+  // When fullscreen map is opened, update marker manager to include it
   useEffect(() => {
-    const mountFullscreenMarkers = () => {
-      if (!isMapExpanded || !fullscreenGoogleMapRef.current) return
+    if (isMapExpanded && fullscreenGoogleMapRef.current && markerManagerRef.current) {
+      // Update marker manager to include fullscreen map
+      const availableMaps = [googleMapRef.current]
+      if (isMobileMapView && mobileGoogleMapRef.current) {
+        availableMaps.push(mobileGoogleMapRef.current)
+      }
+      availableMaps.push(fullscreenGoogleMapRef.current)
 
-      // Clear existing fullscreen markers
-      Object.values(fullscreenMarkersRef.current).forEach((m) => m.setMap(null))
-      fullscreenMarkersRef.current = {}
+      // Update the marker manager with the new map list
+      markerManagerRef.current.updateConfig({ maps: availableMaps })
+      markerManagerRef.current.renderMarkers()
+    } else if (!isMapExpanded && markerManagerRef.current) {
+      // Remove fullscreen map from marker manager when closed
+      const availableMaps = [googleMapRef.current]
+      if (isMobileMapView && mobileGoogleMapRef.current) {
+        availableMaps.push(mobileGoogleMapRef.current)
+      }
 
-      const list = (apiProjects || []) as unknown as PropertyData[]
-      list.forEach((p) => {
-        if (typeof p.lat !== "number" || typeof p.lng !== "number") return
-        const m = new google.maps.Marker({
-          position: { lat: p.lat, lng: p.lng },
-          map: fullscreenGoogleMapRef.current!,
-          zIndex: 1,
-        })
-        fullscreenMarkersRef.current[p.id] = m
-
-        // Scroll to card on fullscreen marker click
-        m.addListener("click", () => {
-          const card = listContainerRef.current?.querySelector(
-            `[data-prop-id="${p.id}"]`
-          ) as HTMLElement | null
-          if (card) {
-            setIsMapExpanded(false)
-      setTimeout(() => {
-              card.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" })
-              setHoveredPropertyId(p.id)
-            }, 50)
-          }
-        })
-      })
+      markerManagerRef.current.updateConfig({ maps: availableMaps })
+      markerManagerRef.current.renderMarkers()
     }
-
-    mountFullscreenMarkers()
-  }, [isMapExpanded, apiProjects])
+  }, [isMapExpanded, isMobileMapView])
 
   // Transform PropertyData to match PropertyMapCard interface (strictly from API values)
   const transformToPropertyMapData = (property: PropertyData) => {
@@ -1086,6 +1067,12 @@ export default function ListingsPage() {
                         fullscreenGoogleMapRef.current.setZoom(
                           googleMapRef.current?.getZoom() || CITY_COORDINATES[selectedCity].zoom
                         )
+                        
+                        // Add click handler to deselect properties when clicking on empty space
+                        fullscreenGoogleMapRef.current.addListener('click', () => {
+                          setSelectedPropertyId(null)
+                        })
+                        
                         // Render markers on fullscreen map via sync effect
                         // (markers are mounted in useEffect when isMapExpanded changes)
                       }
