@@ -186,13 +186,110 @@ module.exports = {
 - Remove old breakpoint references
 - Document new design system
 
+## Advanced Responsive Implementation (Hero Section)
+
+### Mobile-First Content Ordering
+**File**: `app/page.tsx` - Hero Section
+
+**Problem Solved**: Mobile content hierarchy where video needed to appear above text content.
+
+**Implementation**:
+```tsx
+// Mobile: Video first, then content
+<div className="flex flex-col lg:grid lg:grid-cols-2">
+  {/* Video Container - Order 1 on mobile */}
+  <div className="order-1 lg:order-none lg:col-span-2 lg:absolute">
+    {/* Video content */}
+  </div>
+  
+  {/* Content Container - Order 2 on mobile */}
+  <div className="order-2 lg:order-none">
+    {/* Headline, subtitle, buttons */}
+  </div>
+</div>
+```
+
+**Key Features**:
+- **Mobile**: `flex flex-col` with `order-1`, `order-2` for content reordering
+- **Desktop**: `lg:grid lg:grid-cols-2` with `lg:order-none` to reset order
+- **Video Positioning**: `lg:absolute lg:inset-0` for desktop overlay
+- **Spacing**: Mobile-specific margins (`mb-8 sm:mb-10 md:mb-12 lg:mb-0`)
+
+### CSS Specificity Resolution
+**Problem**: Inline styles overriding Tailwind responsive classes.
+
+**Solution**:
+```tsx
+// Inline styles allow Tailwind override
+style={{
+  top: '10%',
+  right: 'max(2rem, calc((100vw - 100%) / 2 - 2rem))',
+  width: 'auto',    // Allows Tailwind classes to take precedence
+  height: 'auto'    // Allows Tailwind classes to take precedence
+}}
+```
+
+**CSS Specificity Hierarchy**:
+1. **Inline styles** (highest priority) - but set to `auto` to allow override
+2. **Tailwind classes** - responsive sizing (`laptop:w-[14rem]`)
+3. **Element styles** (lowest priority)
+
+### Laptop-Specific Optimizations
+**Video Sizing by Breakpoint**:
+- **Mobile**: `17.5rem` (280px)
+- **Small tablet**: `20rem` (320px)
+- **Laptop**: `14rem` (224px) - **optimized for caption visibility**
+- **Desktop (xl)**: `28.125rem` (450px)
+- **Large desktop (2xl)**: `31.25rem` (500px)
+
+**Laptop Container Height**:
+- **Laptop**: `laptop:min-h-[70vh]` - provides space for video + caption
+- **Desktop**: `lg:min-h-[80vh]` - maintains original desktop layout
+
+### Responsive Spacing System
+**Mobile Spacing**:
+```tsx
+// Video container bottom margin
+mb-8 sm:mb-10 md:mb-12 lg:mb-0
+
+// Content container top margin  
+mt-4 sm:mt-6 md:mt-8 lg:mt-0
+```
+
+**Desktop Spacing**:
+- **Grid gaps**: `gap-4 sm:gap-6 md:gap-8 laptop:gap-8 lg:gap-12`
+- **Content spacing**: `space-y-3 sm:space-y-4 md:space-y-6 lg:space-y-6`
+
+### Challenges Solved
+
+#### 1. **Mobile Content Hierarchy**
+**Problem**: Mobile users needed to see video before text content for better UX flow.
+**Solution**: Used CSS flexbox `order` properties to reorder content on mobile while preserving desktop layout.
+
+#### 2. **CSS Specificity Conflicts**
+**Problem**: Inline styles were overriding Tailwind responsive classes, preventing laptop video size reduction.
+**Solution**: Set inline `width` and `height` to `auto` to allow Tailwind classes to take precedence.
+
+#### 3. **Laptop Screen Optimization**
+**Problem**: Video caption was cut off on real laptop screens due to dimension differences between browser dev tools and actual devices.
+**Solution**: Reduced laptop video size to `14rem` (224px) specifically for laptop breakpoint while maintaining other screen sizes.
+
+#### 4. **Cross-Device Layout Preservation**
+**Problem**: Mobile improvements were breaking desktop layout.
+**Solution**: Used conditional classes (`lg:order-none`, `lg:absolute`) to maintain desktop functionality while enabling mobile improvements.
+
+#### 5. **Visual Separation on Mobile**
+**Problem**: Video and text content appeared too close together on mobile.
+**Solution**: Added responsive margins (`mb-8 sm:mb-10 md:mb-12 lg:mb-0`) to create clear visual separation.
+
 ## Current Status vs Future Vision
 
-### What We Have Now (Pragmatic Solution):
-✅ **Immediate Problem Solved**: Dimension mismatches resolved
-✅ **Minimal Disruption**: Existing codebase mostly intact
-✅ **Team Familiarity**: Uses standard Tailwind conventions
-✅ **Quick Implementation**: Completed in single session
+### What We Have Now (Advanced Implementation):
+✅ **Mobile Content Ordering**: Video above text on mobile, text above video on desktop
+✅ **CSS Specificity Resolution**: Inline styles work with Tailwind responsive classes
+✅ **Laptop-Specific Optimizations**: Video size optimized for caption visibility
+✅ **Responsive Spacing**: Clear visual separation between elements
+✅ **Cross-Device Compatibility**: Works across mobile, tablet, laptop, desktop
 
 ### What GPT Suggests (Enterprise Solution):
 🎯 **Semantic Design System**: More maintainable long-term
@@ -260,12 +357,25 @@ module.exports = {
 
 ## Conclusion
 
-The current implementation successfully resolves the dimension mismatch issues while maintaining code familiarity and minimal disruption. GPT's advanced approach offers a more sophisticated solution for long-term maintainability and design system evolution.
+The current implementation has evolved beyond the initial px-to-relative-units migration to include advanced responsive design patterns that solve complex cross-device layout challenges. The hero section implementation demonstrates sophisticated techniques for:
 
-**Current approach is recommended for immediate needs**, while **GPT's approach should be considered for future design system improvements** when the project scales or requires more sophisticated responsive design management.
+- **Mobile-first content ordering** with CSS flexbox
+- **CSS specificity resolution** for inline style conflicts  
+- **Device-specific optimizations** for laptop screens
+- **Cross-device layout preservation** without breaking existing functionality
+
+**Key Achievements**:
+✅ **Dimension Mismatch Resolution**: Browser dev tools vs real device differences solved
+✅ **Advanced Mobile UX**: Content hierarchy optimized for mobile user flow
+✅ **Laptop-Specific Optimization**: Video sizing tuned for real laptop constraints
+✅ **CSS Architecture**: Proper specificity handling for maintainable code
+✅ **Cross-Device Compatibility**: Seamless experience across all screen sizes
+
+**Current approach provides a robust foundation** for responsive design that handles real-world complexity while maintaining code maintainability. **GPT's semantic design system approach** remains valuable for future scaling when the project requires more structured design token management.
 
 ---
 
 *Document created: December 2024*
 *Migration completed: All hardcoded px values converted to relative units*
-*Status: Production ready*
+*Advanced responsive patterns implemented: Mobile content ordering, CSS specificity resolution, laptop optimizations*
+*Status: Production ready with advanced responsive features*
