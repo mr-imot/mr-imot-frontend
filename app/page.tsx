@@ -116,7 +116,7 @@ export default function HomePage() {
             <div className="order-1 lg:order-none lg:col-span-2 lg:absolute lg:inset-0 lg:pointer-events-none mb-8 sm:mb-10 md:mb-12 lg:mb-0">
               <div className="relative w-full h-full flex justify-center lg:block">
                 {/* Video positioned responsively within container bounds */}
-                <div className="w-[17.5rem] h-[17.5rem] sm:w-[20rem] sm:h-[20rem] laptop:w-[18.75rem] laptop:h-[18.75rem] laptop:absolute laptop:top-[5%] xl:w-[28.125rem] xl:h-[28.125rem] xl:top-[10%] 2xl:w-[31.25rem] 2xl:h-[31.25rem]"
+                <div className="w-[17.5rem] h-[17.5rem] sm:w-[20rem] sm:h-[20rem] laptop:w-[16rem] laptop:h-[16rem] laptop:absolute laptop:top-[5%] xl:w-[28.125rem] xl:h-[28.125rem] xl:top-[10%] 2xl:w-[31.25rem] 2xl:h-[31.25rem]"
                      style={{
                        top: '10%',
                        right: 'max(2rem, calc((100vw - 100%) / 2 - 2rem))'
