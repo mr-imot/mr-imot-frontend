@@ -147,9 +147,7 @@ export default function ListingsPage() {
       }
     }
   }, [isMobileMapView, mobileGoogleMapRef.current])
-  // Fullscreen map refs
-  const fullscreenMapRef = useRef<HTMLDivElement>(null)
-  const fullscreenGoogleMapRef = useRef<google.maps.Map | null>(null)
+  // Map refs
   const markerManagerRef = useRef<MarkerManager | null>(null)
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null)
   const listContainerRef = useRef<HTMLDivElement>(null)
@@ -466,30 +464,7 @@ export default function ListingsPage() {
          // Fullscreen markers are now handled by MarkerManager
   }, [hoveredPropertyId, selectedPropertyId])
 
-  // When fullscreen map is opened, update marker manager to include it
-  useEffect(() => {
-    if (isMapExpanded && fullscreenGoogleMapRef.current && markerManagerRef.current) {
-      // Update marker manager to include fullscreen map
-      const availableMaps = [googleMapRef.current]
-      if (isMobileMapView && mobileGoogleMapRef.current) {
-        availableMaps.push(mobileGoogleMapRef.current)
-      }
-      availableMaps.push(fullscreenGoogleMapRef.current)
-
-      // Update the marker manager with the new map list
-      markerManagerRef.current.updateConfig({ maps: availableMaps })
-      markerManagerRef.current.renderMarkers()
-    } else if (!isMapExpanded && markerManagerRef.current) {
-      // Remove fullscreen map from marker manager when closed
-      const availableMaps = [googleMapRef.current]
-      if (isMobileMapView && mobileGoogleMapRef.current) {
-        availableMaps.push(mobileGoogleMapRef.current)
-      }
-
-      markerManagerRef.current.updateConfig({ maps: availableMaps })
-      markerManagerRef.current.renderMarkers()
-    }
-  }, [isMapExpanded, isMobileMapView])
+  // No need for fullscreen map logic - using single map with CSS transforms
 
   // Transform PropertyData to match PropertyMapCard interface (strictly from API values)
   const transformToPropertyMapData = (property: PropertyData) => {
@@ -1034,54 +1009,21 @@ export default function ListingsPage() {
 
           {/* Right: Sticky Map (fixed width on 2XL to match Airbnb) */}
           <aside className="w-[40%] 2xl:w-[752px] flex-shrink-0">
-            <div className="sticky top-8 h-[calc(100vh-120px)] rounded-2xl overflow-hidden border border-gray-200 shadow-lg">
+            <div className={`sticky top-8 h-[calc(100vh-120px)] rounded-2xl overflow-hidden border border-gray-200 shadow-lg transition-all duration-300 ${
+              isMapExpanded 
+                ? 'fixed inset-4 z-50 h-[calc(100vh-32px)] w-[calc(100vw-32px)]' 
+                : ''
+            }`}>
               <div ref={mapRef} className="w-full h-full bg-muted" />
               
               {/* Expand control */}
               <button
                 type="button"
                 className="absolute top-4 right-4 z-20 w-11 h-11 rounded-full bg-white/95 border border-gray-200 shadow-lg flex items-center justify-center hover:bg-white hover:shadow-xl transition-all duration-200"
-                onClick={() => {
-                  setIsMapExpanded(true)
-                  setTimeout(async () => {
-                    try {
-                      await ensureGoogleMaps()
-                      if (fullscreenMapRef.current && !fullscreenGoogleMapRef.current) {
-                        fullscreenGoogleMapRef.current = new google.maps.Map(fullscreenMapRef.current, {
-                          center: googleMapRef.current?.getCenter() || CITY_COORDINATES[selectedCity],
-                          zoom: googleMapRef.current?.getZoom() || CITY_COORDINATES[selectedCity].zoom,
-                          streetViewControl: false,
-                          mapTypeControl: false,
-                          fullscreenControl: false,
-                          zoomControl: true,
-                          scrollwheel: true,
-                          gestureHandling: 'greedy',
-                          mapId: 'DEMO_MAP_ID', // Required for AdvancedMarkerElement
-                        })
-                      }
-                      // Sync center/zoom and markers
-                      if (fullscreenGoogleMapRef.current) {
-                        fullscreenGoogleMapRef.current.setCenter(
-                          googleMapRef.current?.getCenter() || CITY_COORDINATES[selectedCity]
-                        )
-                        fullscreenGoogleMapRef.current.setZoom(
-                          googleMapRef.current?.getZoom() || CITY_COORDINATES[selectedCity].zoom
-                        )
-                        
-                        // Add click handler to deselect properties when clicking on empty space
-                        fullscreenGoogleMapRef.current.addListener('click', () => {
-                          setSelectedPropertyId(null)
-                        })
-                        
-                        // Render markers on fullscreen map via sync effect
-                        // (markers are mounted in useEffect when isMapExpanded changes)
-                      }
-                    } catch {}
-                  }, 0)
-                }}
-                aria-label="Expand map"
+                onClick={() => setIsMapExpanded(!isMapExpanded)}
+                aria-label={isMapExpanded ? "Collapse map" : "Expand map"}
               >
-                <Maximize2 className="h-5 w-5 text-gray-700" />
+                {isMapExpanded ? <X className="h-5 w-5 text-gray-700" /> : <Maximize2 className="h-5 w-5 text-gray-700" />}
               </button>
               {isMapLoading && (
                 <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center">
@@ -1096,20 +1038,7 @@ export default function ListingsPage() {
         </div>
       </div>
 
-      {/* Expanded map overlay */}
-      {isMapExpanded && (
-        <div className="fixed left-6 right-6 bottom-6 top-8 z-50">
-          <div className="absolute inset-0 rounded-2xl border shadow-xl overflow-hidden bg-muted" ref={fullscreenMapRef} />
-          <button
-            type="button"
-            aria-label="Collapse map"
-            className="absolute top-6 right-8 z-50 w-9 h-9 rounded-full bg-card/95 border shadow flex items-center justify-center hover:bg-muted"
-            onClick={() => setIsMapExpanded(false)}
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-      )}
+      {/* Map expansion is now handled by CSS transforms on the main map container */}
 
              {/* Airbnb-style Property Map Card - Desktop Map View Only */}
        {!isMobileMapView && selectedProperty && (
