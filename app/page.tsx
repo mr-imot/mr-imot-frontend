@@ -156,54 +156,54 @@ export default function HomePage() {
             <div className="hidden lg:block">
               {/* This space allows the EtchedGlassBackground to be clearly visible on large screens */}
             </div>
-          </div>
-          
-          {/* Video Container - Responsive positioned relative to container */}
-          <div className="lg:absolute lg:inset-0 lg:pointer-events-none">
-            <div className="relative w-full h-full flex justify-center lg:block">
-              {/* Video positioned responsively within container bounds - Order 4 on mobile (before buttons) */}
-              <div className="w-[17.5rem] h-[17.5rem] sm:w-[20rem] sm:h-[20rem] laptop:w-[18.75rem] laptop:h-[18.75rem] laptop:absolute laptop:top-[5%] xl:w-[28.125rem] xl:h-[28.125rem] xl:top-[10%] 2xl:w-[31.25rem] 2xl:h-[31.25rem] order-4 lg:order-none"
-                   style={{
-                     top: '10%',
-                     right: 'max(2rem, calc((100vw - 100%) / 2 - 2rem))'
-                   }}>
-                <div className="relative w-full aspect-square overflow-hidden rounded-2xl transition-all duration-300 backdrop-blur-xl"
+
+            {/* Video Container - Now inside main container for proper ordering */}
+            <div className="order-4 lg:order-none lg:col-span-2 lg:absolute lg:inset-0 lg:pointer-events-none">
+              <div className="relative w-full h-full flex justify-center lg:block">
+                {/* Video positioned responsively within container bounds */}
+                <div className="w-[17.5rem] h-[17.5rem] sm:w-[20rem] sm:h-[20rem] laptop:w-[18.75rem] laptop:h-[18.75rem] laptop:absolute laptop:top-[5%] xl:w-[28.125rem] xl:h-[28.125rem] xl:top-[10%] 2xl:w-[31.25rem] 2xl:h-[31.25rem]"
                      style={{
-                       background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.1) 100%)',
-                       border: '1px solid rgba(255,255,255,0.2)',
-                       boxShadow: `
-                         0 8px 32px rgba(31, 38, 135, 0.37),
-                         0 0 0 1px rgba(255, 255, 255, 0.1),
-                         inset 0 1px 0 rgba(255, 255, 255, 0.2),
-                         inset 0 -1px 0 rgba(0, 0, 0, 0.1)
-                       `,
-                       backdropFilter: 'blur(20px)',
-                       WebkitBackdropFilter: 'blur(20px)'
+                       top: '10%',
+                       right: 'max(2rem, calc((100vw - 100%) / 2 - 2rem))'
                      }}>
-                  <video
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    preload="auto"
-                    className="absolute inset-0 w-full h-full object-cover"
-                    style={{
-                      willChange: 'transform',
-                      transform: 'translateZ(0)'
-                    }}
-                  >
-                    <source src="https://ik.imagekit.io/ts59gf2ul/Video_hero/mr-imot-demo.mp4?updatedAt=1756133338645" type="video/mp4" />
-                    Your browser does not support the video tag.
-                  </video>
-                </div>
-                
-                {/* Video Caption - Order 3 on mobile */}
-                <div className="mt-4 sm:mt-6 text-center pointer-events-auto order-3 lg:order-none">
-                  <p className="text-base sm:text-lg xl:text-xl font-semibold text-gray-800 leading-relaxed" style={{
-                    fontFamily: 'var(--font-instrument-serif)'
-                  }}>
-                    ✨ See exactly what's being built near you on our interactive map
-                  </p>
+                  <div className="relative w-full aspect-square overflow-hidden rounded-2xl transition-all duration-300 backdrop-blur-xl"
+                       style={{
+                         background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.1) 100%)',
+                         border: '1px solid rgba(255,255,255,0.2)',
+                         boxShadow: `
+                           0 8px 32px rgba(31, 38, 135, 0.37),
+                           0 0 0 1px rgba(255, 255, 255, 0.1),
+                           inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                           inset 0 -1px 0 rgba(0, 0, 0, 0.1)
+                         `,
+                         backdropFilter: 'blur(20px)',
+                         WebkitBackdropFilter: 'blur(20px)'
+                       }}>
+                    <video
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      preload="auto"
+                      className="absolute inset-0 w-full h-full object-cover"
+                      style={{
+                        willChange: 'transform',
+                        transform: 'translateZ(0)'
+                      }}
+                    >
+                      <source src="https://ik.imagekit.io/ts59gf2ul/Video_hero/mr-imot-demo.mp4?updatedAt=1756133338645" type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </video>
+                  </div>
+                  
+                  {/* Video Caption - Order 6 on mobile */}
+                  <div className="mt-4 sm:mt-6 text-center pointer-events-auto order-6 lg:order-none">
+                    <p className="text-base sm:text-lg xl:text-xl font-semibold text-gray-800 leading-relaxed" style={{
+                      fontFamily: 'var(--font-instrument-serif)'
+                    }}>
+                      ✨ See exactly what's being built near you on our interactive map
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
