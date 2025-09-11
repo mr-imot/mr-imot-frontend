@@ -1,6 +1,7 @@
 import Link from "next/link"
+import Image from "next/image"
 import { Separator } from "@/components/ui/separator"
-import { Facebook, Twitter, Linkedin, Instagram } from "lucide-react"
+import { Facebook, Twitter, Linkedin, Instagram, ExternalLink } from "lucide-react"
 
 export function Footer() {
   const navColumns = [
@@ -102,6 +103,31 @@ export function Footer() {
                 &copy; {new Date().getFullYear()} Mr imot. All rights reserved.
               </p>
               <p className="text-muted-foreground/70 text-xs mt-1">Bulgaria's platform for new construction properties.</p>
+            </div>
+
+            {/* Part of Prodigy Corp */}
+            <div className="flex items-center justify-center md:justify-center space-x-3 px-4 py-2 rounded-lg bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-800 dark:to-gray-800 border border-slate-200 dark:border-slate-700">
+              <div className="flex items-center space-x-2">
+                <Image
+                  src="/prodigy-corp-logo-nobg.png"
+                  alt="Prodigy Corp"
+                  width={24}
+                  height={24}
+                  className="w-6 h-6 object-contain"
+                />
+                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Part of
+                </span>
+                <Link
+                  href="https://www.prodigycorp.io/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center space-x-1 text-sm font-semibold text-slate-900 dark:text-slate-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 group"
+                >
+                  <span>Prodigy Corp</span>
+                  <ExternalLink className="w-3 h-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-200" />
+                </Link>
+              </div>
             </div>
 
             {/* Legal Links */}
