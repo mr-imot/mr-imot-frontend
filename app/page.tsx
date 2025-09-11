@@ -113,7 +113,7 @@ export default function HomePage() {
         <div className="container mx-auto px-3 xs:px-4 sm:px-6 md:px-8">
           <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8 laptop:gap-8 lg:gap-12 items-center min-h-[50vh] sm:min-h-[60vh] md:min-h-[60vh] laptop:min-h-[70vh] lg:min-h-[80vh]">
             {/* Left Column - Content */}
-            <div className="space-y-3 sm:space-y-4 md:space-y-6">
+            <div className="space-y-3 sm:space-y-4 md:space-y-6 lg:space-y-6">
                             {/* Main Headline */}
               <div className="space-y-1">
                 <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-4xl laptop:text-5xl lg:text-6xl leading-tight tracking-tight font-bold text-gray-900 drop-shadow-sm">
@@ -150,18 +150,17 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Right Column - Empty for background visibility */}
+            {/* Right Column - Video on large screens, hidden on mobile/tablet */}
             <div className="hidden lg:block">
-              {/* This space allows the EtchedGlassBackground to be clearly visible */}
-              {/* TODO: Add mobile/tablet video alternative or fallback content for screens below lg breakpoint */}
+              {/* This space allows the EtchedGlassBackground to be clearly visible on large screens */}
             </div>
           </div>
           
           {/* Video Container - Responsive positioned relative to container */}
-          <div className="hidden lg:block absolute inset-0 pointer-events-none">
-            <div className="relative w-full h-full">
+          <div className="lg:absolute lg:inset-0 lg:pointer-events-none">
+            <div className="relative w-full h-full flex justify-center lg:block">
               {/* Video positioned responsively within container bounds */}
-              <div className="absolute w-[25rem] h-[25rem] laptop:w-[18.75rem] laptop:h-[18.75rem] laptop:top-[5%] xl:w-[28.125rem] xl:h-[28.125rem] xl:top-[10%] 2xl:w-[31.25rem] 2xl:h-[31.25rem]"
+              <div className="w-[17.5rem] h-[17.5rem] sm:w-[20rem] sm:h-[20rem] laptop:w-[18.75rem] laptop:h-[18.75rem] laptop:absolute laptop:top-[5%] xl:w-[28.125rem] xl:h-[28.125rem] xl:top-[10%] 2xl:w-[31.25rem] 2xl:h-[31.25rem]"
                    style={{
                      top: '10%',
                      right: 'max(2rem, calc((100vw - 100%) / 2 - 2rem))'
@@ -197,8 +196,8 @@ export default function HomePage() {
                 </div>
                 
                 {/* Video Caption - Underneath the video container */}
-                <div className="mt-6 text-center pointer-events-auto">
-                  <p className="text-lg xl:text-xl font-semibold text-gray-800 leading-relaxed" style={{
+                <div className="mt-4 sm:mt-6 text-center pointer-events-auto">
+                  <p className="text-base sm:text-lg xl:text-xl font-semibold text-gray-800 leading-relaxed" style={{
                     fontFamily: 'var(--font-instrument-serif)'
                   }}>
                     ✨ See exactly what's being built near you on our interactive map
