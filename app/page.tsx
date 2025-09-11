@@ -111,7 +111,7 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="py-16 md:py-24 lg:py-32 relative overflow-hidden">
         <div className="container mx-auto px-3 xs:px-4 sm:px-6 md:px-8">
-          <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8 laptop:gap-8 lg:gap-12 items-center min-h-[50vh] sm:min-h-[60vh] md:min-h-[60vh] laptop:min-h-[55vh] lg:min-h-[80vh]">
+          <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8 laptop:gap-8 lg:gap-12 items-center min-h-[50vh] sm:min-h-[60vh] md:min-h-[60vh] laptop:min-h-[70vh] lg:min-h-[80vh]">
             {/* Left Column - Content */}
             <div className="space-y-3 sm:space-y-4 md:space-y-6">
                             {/* Main Headline */}
@@ -161,7 +161,7 @@ export default function HomePage() {
           <div className="hidden lg:block absolute inset-0 pointer-events-none">
             <div className="relative w-full h-full">
               {/* Video positioned responsively within container bounds */}
-              <div className="absolute w-[25rem] h-[25rem] laptop:w-[21.875rem] laptop:h-[21.875rem] xl:w-[28.125rem] xl:h-[28.125rem] 2xl:w-[31.25rem] 2xl:h-[31.25rem]"
+              <div className="absolute w-[25rem] h-[25rem] laptop:w-[21.875rem] laptop:h-[21.875rem] laptop:top-[5%] xl:w-[28.125rem] xl:h-[28.125rem] xl:top-[10%] 2xl:w-[31.25rem] 2xl:h-[31.25rem]"
                    style={{
                      top: '10%',
                      right: 'max(2rem, calc((100vw - 100%) / 2 - 2rem))'
