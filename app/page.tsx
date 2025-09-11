@@ -111,19 +111,19 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="py-16 md:py-24 lg:py-32 relative overflow-hidden">
         <div className="container mx-auto px-3 xs:px-4 sm:px-6 md:px-8">
-          <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8 lg:gap-12 items-center min-h-[50vh] sm:min-h-[60vh] md:min-h-[70vh] lg:min-h-[80vh]">
+          <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8 laptop:gap-8 lg:gap-12 items-center min-h-[50vh] sm:min-h-[60vh] md:min-h-[60vh] laptop:min-h-[70vh] lg:min-h-[80vh]">
             {/* Left Column - Content */}
             <div className="space-y-3 sm:space-y-4 md:space-y-6">
                             {/* Main Headline */}
               <div className="space-y-1">
-                <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl leading-tight tracking-tight font-bold text-gray-900 drop-shadow-sm">
+                <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-4xl laptop:text-5xl lg:text-6xl leading-tight tracking-tight font-bold text-gray-900 drop-shadow-sm">
                   <span className="font-bold italic instrument">Find</span> Your
                   <br />
                   <span className="font-bold tracking-tight text-gray-900">Perfect Property Directly from Developers</span>
                 </h1>
                 
                 {/* Enhanced Directory Messaging */}
-                <p className="text-base sm:text-lg md:text-xl lg:text-2xl font-semibold text-gray-800 leading-relaxed drop-shadow-sm">
+                <p className="text-base sm:text-lg md:text-lg laptop:text-xl lg:text-2xl font-semibold text-gray-800 leading-relaxed drop-shadow-sm">
                   Browse off-plan projects in Bulgaria.
                 </p>
               </div>
@@ -161,7 +161,7 @@ export default function HomePage() {
           <div className="hidden lg:block absolute inset-0 pointer-events-none">
             <div className="relative w-full h-full">
               {/* Video positioned responsively within container bounds */}
-              <div className="absolute w-[25rem] h-[25rem] xl:w-[28.125rem] xl:h-[28.125rem] 2xl:w-[31.25rem] 2xl:h-[31.25rem]"
+              <div className="absolute w-[25rem] h-[25rem] laptop:w-[21.875rem] laptop:h-[21.875rem] xl:w-[28.125rem] xl:h-[28.125rem] 2xl:w-[31.25rem] 2xl:h-[31.25rem]"
                    style={{
                      top: '10%',
                      right: 'max(2rem, calc((100vw - 100%) / 2 - 2rem))'
