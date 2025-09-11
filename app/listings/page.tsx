@@ -750,7 +750,7 @@ export default function ListingsPage() {
         </section>
 
       {/* Airbnb-style layout with exact proportions */}
-      <div className="mx-auto w-full max-w-screen-2xl px-4 py-8">
+      <div className="mx-auto w-full max-w-[1905px] px-3 xs:px-4 sm:px-6 md:px-8 py-8">
                            {/* Mobile: Full-screen Map or List View */}
           <div className="lg:hidden">
                        {isMobileMapView ? (
@@ -1052,7 +1052,7 @@ export default function ListingsPage() {
           </section>
 
           {/* Right: Sticky Map (fixed width on 2XL to match Airbnb) */}
-          <aside className="w-[40%] 2xl:w-[47rem] flex-shrink-0">
+          <aside className="w-[40%] 2xl:w-[752px] flex-shrink-0">
             <div className="sticky top-8 h-[calc(100vh-120px)] rounded-2xl overflow-hidden border border-gray-200 shadow-lg">
               <div ref={mapRef} className="w-full h-full bg-muted" />
               
