@@ -1,7 +1,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { Separator } from "@/components/ui/separator"
-import { Facebook, Twitter, Linkedin, Instagram, ExternalLink } from "lucide-react"
+import { Facebook, Twitter, Linkedin, Instagram } from "lucide-react"
 
 export function Footer() {
   const navColumns = [
@@ -98,36 +98,27 @@ export function Footer() {
         <div className="container px-4 md:px-6 py-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             {/* Copyright */}
-            <div className="text-center md:text-left">
-              <p className="text-muted-foreground text-sm">
-                &copy; {new Date().getFullYear()} Mr imot. All rights reserved.
-              </p>
-              <p className="text-muted-foreground/70 text-xs mt-1">Bulgaria's platform for new construction properties.</p>
-            </div>
-
-            {/* Part of Prodigy Corp */}
-            <div className="flex items-center justify-center md:justify-center space-x-3 px-4 py-2 rounded-lg bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-800 dark:to-gray-800 border border-slate-200 dark:border-slate-700">
-              <div className="flex items-center space-x-2">
+            <div className="text-center md:text-left flex items-center gap-4">
+              <div>
+                <p className="text-muted-foreground text-sm">
+                  &copy; {new Date().getFullYear()} Mr imot. All rights reserved. | Part of Prodigy Corp
+                </p>
+                <p className="text-muted-foreground/70 text-xs mt-1">Bulgaria's platform for new construction properties.</p>
+              </div>
+              <Link
+                href="https://www.prodigycorp.io/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:opacity-80 transition-all duration-200 hover:drop-shadow-[0_0_8px_rgba(139,92,246,0.4)]"
+              >
                 <Image
                   src="/prodigy-corp-logo-nobg.png"
                   alt="Prodigy Corp"
-                  width={24}
-                  height={24}
-                  className="w-6 h-6 object-contain"
+                  width={96}
+                  height={96}
+                  className="w-24 h-24 object-contain"
                 />
-                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                  Part of
-                </span>
-                <Link
-                  href="https://www.prodigycorp.io/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center space-x-1 text-sm font-semibold text-slate-900 dark:text-slate-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 group"
-                >
-                  <span>Prodigy Corp</span>
-                  <ExternalLink className="w-3 h-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-200" />
-                </Link>
-              </div>
+              </Link>
             </div>
 
             {/* Legal Links */}
