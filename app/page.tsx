@@ -113,7 +113,7 @@ export default function HomePage() {
         <div className="container mx-auto px-3 xs:px-4 sm:px-6 md:px-8">
           <div className="flex flex-col lg:grid lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8 laptop:gap-8 lg:gap-12 items-center min-h-[50vh] sm:min-h-[60vh] md:min-h-[60vh] laptop:min-h-[70vh] lg:min-h-[80vh]">
             {/* Video Container - Now first for mobile ordering */}
-            <div className="order-1 lg:order-none lg:col-span-2 lg:absolute lg:inset-0 lg:pointer-events-none">
+            <div className="order-1 lg:order-none lg:col-span-2 lg:absolute lg:inset-0 lg:pointer-events-none mb-8 sm:mb-10 md:mb-12 lg:mb-0">
               <div className="relative w-full h-full flex justify-center lg:block">
                 {/* Video positioned responsively within container bounds */}
                 <div className="w-[17.5rem] h-[17.5rem] sm:w-[20rem] sm:h-[20rem] laptop:w-[18.75rem] laptop:h-[18.75rem] laptop:absolute laptop:top-[5%] xl:w-[28.125rem] xl:h-[28.125rem] xl:top-[10%] 2xl:w-[31.25rem] 2xl:h-[31.25rem]"
@@ -164,7 +164,7 @@ export default function HomePage() {
             </div>
 
             {/* Left Column - Content */}
-            <div className="space-y-3 sm:space-y-4 md:space-y-6 lg:space-y-6 order-2 lg:order-none">
+            <div className="space-y-3 sm:space-y-4 md:space-y-6 lg:space-y-6 order-2 lg:order-none mt-4 sm:mt-6 md:mt-8 lg:mt-0">
               {/* Main Headline */}
               <div className="space-y-1">
                 <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-4xl laptop:text-5xl lg:text-6xl leading-tight tracking-tight font-bold text-gray-900 drop-shadow-sm">
