@@ -273,16 +273,29 @@ export class MarkerManager {
 
     // Check if marker is already cached
     if (this.markerCache[property.id]) {
+      // For cached markers, we need to recreate them for each map
+      // since AdvancedMarkerElement can only be on one map at a time
       const cachedMarker = this.markerCache[property.id]
-
-      // Add cached marker to ALL available maps (unified approach)
-      this.config.maps.forEach((map) => {
-        if (map && 'setMap' in cachedMarker) {
-          cachedMarker.setMap(map)
-        } else if (map) {
-          cachedMarker.map = map
-        }
-      })
+      const originalElement = this.markerContents[property.id]
+      
+      if (originalElement) {
+        // Create new markers for each map using the cached marker as reference
+        this.config.maps.forEach((map, index) => {
+          if (map) {
+            const clonedElement = originalElement.cloneNode(true) as HTMLElement
+            const marker = new google.maps.marker.AdvancedMarkerElement({
+              position: { lat: property.lat, lng: property.lng },
+              map: map,
+              content: clonedElement,
+              title: property.title,
+              zIndex: 1,
+            })
+            
+            // Add event listeners to the new marker
+            this.addMarkerEventListeners(marker, property, clonedElement)
+          }
+        })
+      }
 
       this.markers[property.id] = cachedMarker
       return
@@ -302,35 +315,34 @@ export class MarkerManager {
     
 
 
-    // Create marker on the first map (primary map)
-    const marker = new google.maps.marker.AdvancedMarkerElement({
-      position: { lat: property.lat, lng: property.lng },
-      map: this.config.maps[0],
-      content: markerElement,
-      title: property.title,
-      zIndex: 1,
-    })
-
-    // Add the same marker to ALL available maps (unified approach - no cloning)
+    // Create separate markers for each map (AdvancedMarkerElement can only be on one map)
+    const markers: google.maps.marker.AdvancedMarkerElement[] = []
+    
     this.config.maps.forEach((map, index) => {
-      if (index > 0 && map) {
-        // Add the same marker to additional maps
-        if ('setMap' in marker) {
-          marker.setMap(map)
-        } else {
-          marker.map = map
-        }
+      if (map) {
+        // Clone the marker element for each map
+        const clonedElement = markerElement.cloneNode(true) as HTMLElement
+        
+        const marker = new google.maps.marker.AdvancedMarkerElement({
+          position: { lat: property.lat, lng: property.lng },
+          map: map,
+          content: clonedElement,
+          title: property.title,
+          zIndex: 1,
+        })
+        
+        markers.push(marker)
+        
+        // Add event listeners to each marker
+        this.addMarkerEventListeners(marker, property, clonedElement)
       }
     })
 
-    // Cache and store the single marker (unified approach)
-    this.markerCache[property.id] = marker
-    this.markers[property.id] = marker
+    // Store the first marker as the primary one for state management
+    this.markerCache[property.id] = markers[0]
+    this.markers[property.id] = markers[0]
     this.markerContents[property.id] = markerElement
     this.markerStates[property.id] = "default"
-
-    // Add event listeners to the single marker element (works for all maps)
-    this.addMarkerEventListeners(marker, property, markerElement)
   }
 
   private createClusterMarker(cluster: PropertyCluster, clusterIndex: number) {
