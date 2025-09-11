@@ -111,7 +111,7 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="py-16 md:py-24 lg:py-32 relative overflow-hidden">
         <div className="container mx-auto px-3 xs:px-4 sm:px-6 md:px-8">
-          <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8 laptop:gap-8 lg:gap-12 items-center min-h-[50vh] sm:min-h-[60vh] md:min-h-[60vh] laptop:min-h-[70vh] lg:min-h-[80vh]">
+          <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8 laptop:gap-8 lg:gap-12 items-center min-h-[50vh] sm:min-h-[60vh] md:min-h-[60vh] laptop:min-h-[55vh] lg:min-h-[80vh]">
             {/* Left Column - Content */}
             <div className="space-y-3 sm:space-y-4 md:space-y-6">
                             {/* Main Headline */}
