@@ -119,7 +119,9 @@ export default function HomePage() {
                 <div className="w-[17.5rem] h-[17.5rem] sm:w-[20rem] sm:h-[20rem] laptop:w-[14rem] laptop:h-[14rem] laptop:absolute laptop:top-[5%] xl:w-[28.125rem] xl:h-[28.125rem] xl:top-[10%] 2xl:w-[31.25rem] 2xl:h-[31.25rem]"
                      style={{
                        top: '10%',
-                       right: 'max(2rem, calc((100vw - 100%) / 2 - 2rem))'
+                       right: 'max(2rem, calc((100vw - 100%) / 2 - 2rem))',
+                       width: 'auto',
+                       height: 'auto'
                      }}>
                   <div className="relative w-full aspect-square overflow-hidden rounded-2xl transition-all duration-300 backdrop-blur-xl"
                        style={{
