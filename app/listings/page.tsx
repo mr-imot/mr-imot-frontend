@@ -783,8 +783,8 @@ export default function ListingsPage() {
                 {/* Full Screen Map */}
                 <div ref={mobileMapRef} className="w-full h-full bg-muted" />
                 
-                {/* Property Card Overlay - Bottom 50% when marker is clicked */}
-                {selectedProperty && (
+                {/* Property Card Overlay - Bottom 50% when marker is clicked - Mobile Map View Only */}
+                {isMobileMapView && selectedProperty && (
                   <div className="absolute bottom-0 left-0 right-0 h-[50vh] bg-white rounded-t-3xl shadow-2xl z-50">
                     <PropertyMapCard
                       property={transformToPropertyMapData(selectedProperty)}
@@ -1124,8 +1124,8 @@ export default function ListingsPage() {
         </div>
       )}
 
-             {/* Airbnb-style Property Map Card */}
-       {selectedProperty && (
+             {/* Airbnb-style Property Map Card - Desktop Map View Only */}
+       {!isMobileMapView && selectedProperty && (
          <PropertyMapCard
            property={transformToPropertyMapData(selectedProperty)}
            onClose={() => setSelectedPropertyId(null)}
