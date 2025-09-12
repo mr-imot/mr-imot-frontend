@@ -2,7 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 import { GeistSans } from "geist/font/sans"
 import { GeistMono } from "geist/font/mono"
-import { Figtree, Instrument_Serif, Outfit, Source_Sans_3 } from "next/font/google"
+import { Figtree, Instrument_Serif, Outfit, Source_Sans_3, Playfair_Display, Inter } from "next/font/google"
 import "./globals.css"
 import "../styles/mobile-optimizations.css"
 import { cn } from "@/lib/utils"
@@ -43,6 +43,21 @@ const sourceSans = Source_Sans_3({
   subsets: ["latin", "cyrillic"],
   weight: ["300", "400", "500", "600", "700"],
   variable: "--font-source-sans",
+  display: "swap",
+})
+
+const playfairDisplay = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800", "900"],
+  style: ["normal", "italic"],
+  variable: "--font-playfair-display",
+  display: "swap",
+})
+
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-inter",
   display: "swap",
 })
 
@@ -91,7 +106,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning className={cn(GeistSans.variable, GeistMono.variable, figtree.variable, instrumentSerif.variable)}>
+    <html lang="en" suppressHydrationWarning className={cn(GeistSans.variable, GeistMono.variable, figtree.variable, instrumentSerif.variable, playfairDisplay.variable, inter.variable)}>
       <head>
         {/* Mobile Viewport Meta Tags */}
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes, viewport-fit=cover" />
@@ -114,10 +129,12 @@ html {
   --font-instrument-serif: ${instrumentSerif.variable};
   --font-outfit: ${outfit.variable};
   --font-source-sans: ${sourceSans.variable};
+  --font-playfair-display: ${playfairDisplay.variable};
+  --font-inter: ${inter.variable};
 }
         `}</style>
       </head>
-      <body className={cn("min-h-screen font-sans antialiased", figtree.variable, instrumentSerif.variable, outfit.variable, sourceSans.variable)}>      
+      <body className={cn("min-h-screen font-sans antialiased", figtree.variable, instrumentSerif.variable, outfit.variable, sourceSans.variable, playfairDisplay.variable, inter.variable)}>      
         <ThemeProvider>
         <GlobalMaintenanceWrapper>
           <AuthProvider>

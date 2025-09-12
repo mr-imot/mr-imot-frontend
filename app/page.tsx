@@ -109,99 +109,70 @@ export default function HomePage() {
         <EtchedGlassBackground />
       
       {/* Hero Section */}
-      <section className="py-16 md:py-24 lg:py-32 relative overflow-hidden">
+      <section className="py-20 md:py-32 lg:py-40 relative">
         <div className="container mx-auto px-3 xs:px-4 sm:px-6 md:px-8">
-          <div className="flex flex-col lg:grid lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8 laptop:gap-8 lg:gap-12 items-center min-h-[50vh] sm:min-h-[60vh] md:min-h-[60vh] laptop:min-h-[70vh] lg:min-h-[80vh]">
-            {/* Video Container - Now first for mobile ordering */}
-            <div className="order-1 lg:order-none lg:col-span-2 lg:absolute lg:inset-0 lg:pointer-events-none mb-8 sm:mb-10 md:mb-12 lg:mb-0">
-              <div className="relative w-full h-full flex justify-center lg:block">
-                {/* Video positioned responsively within container bounds */}
-                <div className="w-[17.5rem] h-[17.5rem] sm:w-[20rem] sm:h-[20rem] laptop:w-[14rem] laptop:h-[14rem] laptop:absolute laptop:top-[5%] xl:w-[28.125rem] xl:h-[28.125rem] xl:top-[10%] 2xl:w-[31.25rem] 2xl:h-[31.25rem]"
-                     style={{
-                       top: '10%',
-                       right: 'max(2rem, calc((100vw - 100%) / 2 - 2rem))',
-                       width: 'auto',
-                       height: 'auto'
-                     }}>
-                  <div className="relative w-full aspect-square overflow-hidden rounded-2xl transition-all duration-300 backdrop-blur-xl"
-                       style={{
-                         background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.1) 100%)',
-                         border: '1px solid rgba(255,255,255,0.2)',
-                         boxShadow: `
-                           0 8px 32px rgba(31, 38, 135, 0.37),
-                           0 0 0 1px rgba(255, 255, 255, 0.1),
-                           inset 0 1px 0 rgba(255, 255, 255, 0.2),
-                           inset 0 -1px 0 rgba(0, 0, 0, 0.1)
-                         `,
-                         backdropFilter: 'blur(20px)',
-                         WebkitBackdropFilter: 'blur(20px)'
-                       }}>
-                    <video
-                      autoPlay
-                      loop
-                      muted
-                      playsInline
-                      preload="auto"
-                      className="absolute inset-0 w-full h-full object-cover"
-                      style={{
-                        willChange: 'transform',
-                        transform: 'translateZ(0)'
-                      }}
-                    >
-                      <source src="https://ik.imagekit.io/ts59gf2ul/Video_hero/mr-imot-demo.mp4?updatedAt=1756133338645" type="video/mp4" />
-                      Your browser does not support the video tag.
-                    </video>
-                  </div>
-                  
-                  {/* Video Caption - Order 6 on mobile */}
-                  <div className="mt-4 sm:mt-6 text-center pointer-events-auto order-6 lg:order-none">
-                    <p className="text-base sm:text-lg xl:text-xl font-semibold text-gray-800 leading-relaxed" style={{
-                      fontFamily: 'var(--font-instrument-serif)'
-                    }}>
-                      ✨ See exactly what's being built near you on our interactive map
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
+          <div className="flex flex-col lg:grid lg:grid-cols-2 gap-6 sm:gap-8 md:gap-10 laptop:gap-12 lg:gap-16 items-center min-h-[70vh] sm:min-h-[80vh] md:min-h-[85vh] laptop:min-h-[90vh] lg:min-h-[95vh]">
             {/* Left Column - Content */}
-            <div className="space-y-3 sm:space-y-4 md:space-y-6 lg:space-y-6 order-2 lg:order-none mt-4 sm:mt-6 md:mt-8 lg:mt-0">
+            <div className="space-y-4 sm:space-y-5 md:space-y-6 lg:space-y-8 order-2 lg:order-none mt-4 sm:mt-6 md:mt-8 lg:mt-0">
               {/* Main Headline */}
-              <div className="space-y-1">
-                <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-4xl laptop:text-5xl lg:text-6xl leading-tight tracking-tight font-bold text-gray-900 drop-shadow-sm">
-                  <span className="font-bold italic instrument">Find</span> Your
+              <div className="space-y-2">
+                <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl laptop:text-6xl lg:text-7xl leading-[1.1] tracking-tight text-gray-900" style={{
+                  fontFamily: 'Playfair Display, serif',
+                  fontSize: 'clamp(2rem, 5vw, 4.5rem)'
+                }}>
+                  <span className="font-normal text-gray-600 italic">Find</span> Your
                   <br />
-                  <span className="font-bold tracking-tight text-gray-900">Perfect Property Directly from Developers</span>
+                  <span className="font-bold text-gray-900">Perfect Property</span>
+                  <br />
+                  <span className="font-semibold text-gray-800">Directly from Developers</span>
                 </h1>
               </div>
               
               {/* Subtitle */}
-              <div>
-                <p className="text-base sm:text-lg md:text-lg laptop:text-xl lg:text-2xl font-semibold text-gray-800 leading-relaxed drop-shadow-sm">
+              <div className="space-y-2">
+                <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-normal text-gray-600 leading-relaxed" style={{
+                  fontFamily: 'Inter, system-ui, sans-serif'
+                }}>
                   Browse off-plan projects in Bulgaria.
                 </p>
               </div>
               
               {/* Tagline */}
-              <div className="pt-2">
-                <p className="text-sm sm:text-base font-medium text-gray-700 leading-relaxed drop-shadow-sm">
+              <div className="space-y-2">
+                <p className="text-base sm:text-lg md:text-xl font-light text-gray-500 leading-relaxed italic" style={{
+                  fontFamily: 'Inter, system-ui, sans-serif'
+                }}>
                   Skip the middleman. Skip the markup.
                 </p>
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4 pt-3 sm:pt-4">
+              {/* Single CTA - Positioned under text, left-aligned */}
+              <div className="mt-8 lg:mt-10">
                 <Link href="/listings">
-                  <button className="w-full sm:w-auto px-6 py-3 sm:px-8 sm:py-3 md:px-10 md:py-4 rounded-full bg-transparent border-2 border-gray-700 text-gray-900 font-bold text-sm sm:text-base transition-all duration-200 hover:bg-gray-900 hover:text-white shadow-lg hover:shadow-xl cursor-pointer transform hover:scale-105">
+                  <button className="w-full sm:w-auto px-6 py-3 min-h-[48px] rounded-xl bg-slate-900 text-white font-medium text-lg transition-all duration-200 ease-in-out hover:bg-slate-800 hover:shadow-lg active:scale-[0.98] cursor-pointer" style={{
+                    fontFamily: 'Playfair Display, serif',
+                    backgroundColor: '#0f172a'
+                  }}>
                     Browse Properties
                   </button>
                 </Link>
-                <Link href="/register?type=developer">
-                  <button className="w-full sm:w-auto px-6 py-3 sm:px-8 sm:py-3 md:px-10 md:py-4 rounded-full bg-gray-900 text-white font-bold text-sm sm:text-base transition-all duration-200 hover:bg-gray-800 shadow-lg hover:shadow-xl cursor-pointer transform hover:scale-105">
-                    List Your Project
-                  </button>
-                </Link>
+              </div>
+            </div>
+
+            {/* Right Column - Supporting Mascot */}
+            <div className="order-1 lg:order-none lg:flex lg:items-center lg:justify-end lg:h-full">
+              {/* Hero Image - Resized and repositioned as supporting element */}
+              <div className="w-full flex justify-center lg:justify-end">
+                <img
+                  src="https://ik.imagekit.io/ts59gf2ul/Logo/Generated%20Image%20September%2012,%202025%20-%205_13PM.png?updatedAt=1757686598043"
+                  alt="MR-IMOT Logo - No Brokers, No Commissions"
+                  className="w-auto h-auto max-w-[300px] sm:max-w-[400px] md:max-w-[500px] lg:max-w-[550px] xl:max-w-[600px] transition-all duration-700 hover:scale-105 hover:rotate-1"
+                  style={{
+                    willChange: 'transform',
+                    transform: 'translateZ(0)',
+                    filter: 'drop-shadow(0 4px 15px rgba(0, 0, 0, 0.1))'
+                  }}
+                />
               </div>
             </div>
 
@@ -413,6 +384,53 @@ export default function HomePage() {
                 <ExternalLink className="ml-2 w-5 h-5" />
               </Link>
             </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Developer Join Section */}
+      <section className="py-16 sm:py-20 md:py-24" style={{backgroundColor: 'var(--brand-glass-light)'}}>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8">
+          <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
+            {/* Left Content */}
+            <div className="flex-1 text-center lg:text-left">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6" style={{
+                fontFamily: 'Playfair Display, serif',
+                color: 'var(--brand-text-primary)'
+              }}>
+                Ready to List Your Project?
+              </h2>
+              <p className="text-lg sm:text-xl md:text-2xl text-gray-700 mb-6 sm:mb-8 leading-relaxed" style={{
+                fontFamily: 'Inter, system-ui, sans-serif'
+              }}>
+                Join Bulgaria's fastest-growing platform for off-plan properties. 
+                <span className="font-semibold text-gray-900"> Zero fees. Direct connections. Maximum exposure.</span>
+              </p>
+              <div className="flex justify-center lg:justify-start">
+                <Link href="/register?type=developer">
+                  <button className="px-8 py-4 rounded-xl bg-slate-900 text-white font-semibold text-lg transition-all duration-200 ease-in-out hover:bg-slate-800 hover:shadow-lg active:scale-[0.98] cursor-pointer" style={{
+                    fontFamily: 'Playfair Display, serif',
+                    backgroundColor: '#0f172a'
+                  }}>
+                    Register for Free
+                  </button>
+                </Link>
+              </div>
+            </div>
+
+            {/* Right Mascot */}
+            <div className="flex-shrink-0">
+              <img
+                src="https://ik.imagekit.io/ts59gf2ul/Logo/join-us-mr-imot-no-bg?updatedAt=1757692449277"
+                alt="Join Mr. Imot - Developer Registration"
+                className="w-auto h-auto max-w-[300px] sm:max-w-[400px] md:max-w-[500px] lg:max-w-[400px] xl:max-w-[450px] transition-all duration-700 hover:scale-105 hover:rotate-1"
+                style={{
+                  willChange: 'transform',
+                  transform: 'translateZ(0)',
+                  filter: 'drop-shadow(0 8px 25px rgba(0, 0, 0, 0.15))'
+                }}
+              />
+            </div>
           </div>
         </div>
       </section>
