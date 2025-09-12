@@ -148,6 +148,7 @@ export default function ListingsPage() {
     }
   }, [isMobileMapView, mobileGoogleMapRef.current])
   // Map refs
+  const fullscreenMapRef = useRef<HTMLDivElement>(null)
   const markerManagerRef = useRef<MarkerManager | null>(null)
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null)
   const listContainerRef = useRef<HTMLDivElement>(null)
@@ -464,7 +465,18 @@ export default function ListingsPage() {
          // Fullscreen markers are now handled by MarkerManager
   }, [hoveredPropertyId, selectedPropertyId])
 
-  // No need for fullscreen map logic - using single map with CSS transforms
+  // Handle map container switching for fullscreen mode
+  useEffect(() => {
+    if (!googleMapRef.current) return
+
+    if (isMapExpanded && fullscreenMapRef.current) {
+      // Move map to fullscreen container
+      googleMapRef.current.setDiv(fullscreenMapRef.current)
+    } else if (!isMapExpanded && mapRef.current) {
+      // Move map back to normal container
+      googleMapRef.current.setDiv(mapRef.current)
+    }
+  }, [isMapExpanded])
 
   // Transform PropertyData to match PropertyMapCard interface (strictly from API values)
   const transformToPropertyMapData = (property: PropertyData) => {
@@ -1009,11 +1021,7 @@ export default function ListingsPage() {
 
           {/* Right: Sticky Map (fixed width on 2XL to match Airbnb) */}
           <aside className="w-[40%] 2xl:w-[752px] flex-shrink-0">
-            <div className={`sticky top-8 h-[calc(100vh-120px)] rounded-2xl overflow-hidden border border-gray-200 shadow-lg transition-all duration-300 ${
-              isMapExpanded 
-                ? 'fixed inset-4 z-50 h-[calc(100vh-32px)] w-[calc(100vw-32px)]' 
-                : ''
-            }`}>
+            <div className="sticky top-8 h-[calc(100vh-120px)] rounded-2xl overflow-hidden border border-gray-200 shadow-lg">
               <div ref={mapRef} className="w-full h-full bg-muted" />
               
               {/* Expand control */}
@@ -1038,7 +1046,25 @@ export default function ListingsPage() {
         </div>
       </div>
 
-      {/* Map expansion is now handled by CSS transforms on the main map container */}
+      {/* True fullscreen map overlay */}
+      {isMapExpanded && (
+        <div className="fixed inset-0 z-50 bg-white">
+          <div className="w-full h-full relative">
+            {/* Fullscreen map container */}
+            <div ref={fullscreenMapRef} className="w-full h-full bg-muted" />
+            
+            {/* Close button */}
+            <button
+              type="button"
+              className="absolute top-6 right-6 z-20 w-12 h-12 rounded-full bg-white/95 border border-gray-200 shadow-lg flex items-center justify-center hover:bg-white hover:shadow-xl transition-all duration-200"
+              onClick={() => setIsMapExpanded(false)}
+              aria-label="Close fullscreen map"
+            >
+              <X className="h-6 w-6 text-gray-700" />
+            </button>
+          </div>
+        </div>
+      )}
 
              {/* Airbnb-style Property Map Card - Desktop Map View Only */}
        {!isMobileMapView && selectedProperty && (
