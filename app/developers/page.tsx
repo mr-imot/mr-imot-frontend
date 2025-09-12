@@ -83,9 +83,14 @@ export default function DevelopersPage() {
                             <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
                               {developer.company_name}
                             </h3>
+                            {developer.contact_person && (
+                              <p className="text-sm text-gray-600 mb-2">
+                                Contact: {developer.contact_person}
+                              </p>
+                            )}
                             <div className="flex items-center text-sm text-gray-500 mb-2">
                               <MapPin className="w-4 h-4 mr-1" />
-                              {developer.city}
+                              {developer.office_address || developer.city}
                             </div>
                           </div>
                         </div>
@@ -114,6 +119,19 @@ export default function DevelopersPage() {
                             <div className="flex items-center text-sm text-gray-600">
                               <Mail className="w-4 h-4 mr-2" />
                               <span>{developer.email}</span>
+                            </div>
+                          )}
+                          {developer.website && (
+                            <div className="flex items-center text-sm text-gray-600">
+                              <Globe className="w-4 h-4 mr-2" />
+                              <a 
+                                href={developer.website} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:text-blue-700 hover:underline"
+                              >
+                                Website
+                              </a>
                             </div>
                           )}
                         </div>

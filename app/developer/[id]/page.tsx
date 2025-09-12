@@ -68,7 +68,8 @@ export default function DeveloperPage({ params }: PageProps) {
               <div>
                 <h2 className="text-xl font-semibold mb-4">Contact Information</h2>
                 <div className="space-y-2">
-                  <p><strong>City:</strong> {developer.city}</p>
+                  {developer.contact_person && <p><strong>Contact Person:</strong> {developer.contact_person}</p>}
+                  <p><strong>Location:</strong> {developer.office_address || developer.city}</p>
                   {developer.phone && <p><strong>Phone:</strong> {developer.phone}</p>}
                   {developer.email && <p><strong>Email:</strong> {developer.email}</p>}
                   {developer.website && (
@@ -84,6 +85,7 @@ export default function DeveloperPage({ params }: PageProps) {
               <div>
                 <h2 className="text-xl font-semibold mb-4">Company Details</h2>
                 <div className="space-y-2">
+                  <p><strong>Company:</strong> {developer.company_name}</p>
                   <p><strong>Verification Status:</strong> 
                     <span className={`ml-2 px-2 py-1 rounded text-sm ${developer.is_verified ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
                       {developer.is_verified ? 'Verified' : 'Pending Verification'}

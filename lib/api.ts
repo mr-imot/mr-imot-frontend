@@ -423,6 +423,38 @@ class ApiClient {
     });
   }
 
+  // Developer profile management
+  async updateDeveloperProfile(profileData: {
+    company_name: string;
+    contact_person: string;
+    phone: string;
+    office_address: string;
+    website?: string;
+    office_latitude?: number;
+    office_longitude?: number;
+  }): Promise<{ message: string; developer: any }> {
+    return this.request('/api/v1/developer/profile', {
+      method: 'PUT',
+      body: JSON.stringify(profileData),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  }
+
+  async changeDeveloperPassword(passwordData: {
+    current_password: string;
+    new_password: string;
+  }): Promise<{ message: string }> {
+    return this.request('/api/v1/developer/change-password', {
+      method: 'POST',
+      body: JSON.stringify(passwordData),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  }
+
   // Health check endpoints
   async getAuthHealth(): Promise<{ status: string; auth_provider: string }> {
     return this.request('/api/v1/auth/health');
@@ -467,6 +499,8 @@ export const recordProjectPhoneClick = (projectId: string) => apiClient.recordPr
 export const registerDeveloper = (developerData: any) => apiClient.registerDeveloper(developerData);
 export const verifyEmail = (token: string) => apiClient.verifyEmail(token);
 export const resendVerification = (email: string) => apiClient.resendVerification(email);
+export const updateDeveloperProfile = (profileData: any) => apiClient.updateDeveloperProfile(profileData);
+export const changeDeveloperPassword = (passwordData: any) => apiClient.changeDeveloperPassword(passwordData);
 export const getAuthHealth = () => apiClient.getAuthHealth();
 export const testConnection = () => apiClient.testConnection(); 
 
