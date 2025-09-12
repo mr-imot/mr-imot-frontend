@@ -201,9 +201,9 @@ export default function DeveloperPropertiesPage() {
 
             {/* Properties Grid */}
             {isLoading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <Card key={i} className="h-48 animate-pulse bg-muted" />
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <Card key={i} className="h-80 animate-pulse bg-gray-100 border border-gray-200" />
                 ))}
               </div>
             ) : projects.length > 0 ? (
@@ -217,15 +217,15 @@ export default function DeveloperPropertiesPage() {
                   // Get property type icon
                   const getPropertyIcon = (type: string) => {
                     if (type === 'house_complex' || type === 'HOUSE_COMPLEX') {
-                      return <Home className="h-4 w-4 text-brand" />
+                      return <Home className="h-4 w-4 text-blue-600" />
                     }
-                    return <Building2 className="h-4 w-4 text-brand" />
+                    return <Building2 className="h-4 w-4 text-blue-600" />
                   }
                   
                   return (
                     <article
                       key={p.id}
-                      className="group bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 ease-out overflow-hidden"
+                      className="group bg-white rounded-xl border border-gray-200 shadow-md hover:shadow-xl transition-all duration-300 ease-out overflow-hidden"
                     >
                       {/* Image Container */}
                       <Link href={`/developer/properties/new?id=${p.id}`} className="block">
@@ -244,23 +244,25 @@ export default function DeveloperPropertiesPage() {
 
                       {/* Content */}
                       <div className="p-4">
-                        {/* Property Name with Typography */}
-                        <h3 className="font-outfit text-[#222222] text-[18px] font-semibold leading-tight mb-2 line-clamp-2 tracking-[-0.01em]">
-                          <Link href={`/developer/properties/new?id=${p.id}`} className="hover:text-brand transition-colors">
-                            {p.name || p.title || 'Untitled project'}
-                          </Link>
-                        </h3>
+                        {/* Property Name with Fixed Height Container */}
+                        <div className="h-12 mb-3">
+                          <h3 className="font-outfit text-gray-900 text-[18px] font-semibold leading-tight line-clamp-2 tracking-[-0.01em] h-full flex items-start">
+                            <Link href={`/developer/properties/new?id=${p.id}`} className="hover:text-blue-600 transition-colors">
+                              {p.name || p.title || 'Untitled project'}
+                            </Link>
+                          </h3>
+                        </div>
                         
-                        {/* City with Icon */}
+                        {/* City with Icon - Now Fixed Position */}
                         <div className="flex items-center gap-2 mb-3">
                           {getPropertyIcon(p.project_type)}
-                          <p className="font-source-sans text-[#717171] text-[15px] font-normal leading-relaxed">
+                          <p className="font-source-sans text-gray-600 text-[15px] font-normal leading-relaxed">
                             {p.city || p.location || '—'}
                           </p>
                         </div>
 
                         {/* Analytics Stats */}
-                        <div className="flex items-center justify-between text-xs text-[#717171] mb-4 py-2 border-t border-gray-100">
+                        <div className="flex items-center justify-between text-xs text-gray-500 mb-4 py-2 border-t border-gray-200">
                           <div className="flex items-center gap-3">
                             <span className="inline-flex items-center gap-1">
                               <Eye className="h-3.5 w-3.5" />
@@ -283,7 +285,7 @@ export default function DeveloperPropertiesPage() {
 
                         {/* Action Buttons */}
                         <div className="flex items-center gap-2">
-                          <Button asChild variant="outline" size="sm" className="flex-1">
+                          <Button asChild variant="outline" size="sm" className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400">
                             <Link href={`/developer/properties/new?id=${p.id}`}>
                               <Pencil className="h-3.5 w-3.5 mr-1" />
                               Edit
@@ -291,7 +293,7 @@ export default function DeveloperPropertiesPage() {
                           </Button>
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
-                              <Button variant="destructive" size="sm" className="flex-1">
+                              <Button variant="destructive" size="sm" className="flex-1 bg-red-600 hover:bg-red-700 text-white">
                                 <Trash2 className="h-3.5 w-3.5 mr-1" />
                                 Delete
                               </Button>
@@ -314,9 +316,9 @@ export default function DeveloperPropertiesPage() {
                 })}
               </div>
             ) : (
-              <Card className="p-8 text-center">
-                <CardTitle className="mb-2">No properties yet</CardTitle>
-                <CardDescription className="mb-6">Create your first listing to get started.</CardDescription>
+              <Card className="p-8 text-center bg-white border border-gray-200 shadow-sm">
+                <CardTitle className="mb-2 text-gray-900">No properties yet</CardTitle>
+                <CardDescription className="mb-6 text-gray-600">Create your first listing to get started.</CardDescription>
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
