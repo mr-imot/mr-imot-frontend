@@ -109,11 +109,11 @@ export default function HomePage() {
         <EtchedGlassBackground />
       
       {/* Hero Section */}
-      <section className="py-20 md:py-32 lg:py-40 relative">
+      <section className="py-8 xs:py-12 sm:py-16 md:py-20 laptop:py-24 lg:py-40 relative">
         <div className="container mx-auto px-3 xs:px-4 sm:px-6 md:px-8">
-          <div className="flex flex-col lg:grid lg:grid-cols-2 gap-6 sm:gap-8 md:gap-10 laptop:gap-12 lg:gap-16 items-center min-h-[70vh] sm:min-h-[80vh] md:min-h-[85vh] laptop:min-h-[90vh] lg:min-h-[95vh]">
+          <div className="flex flex-col lg:grid lg:grid-cols-2 gap-3 xs:gap-4 sm:gap-6 md:gap-8 laptop:gap-8 lg:gap-12 items-center min-h-[65vh] xs:min-h-[70vh] sm:min-h-[75vh] md:min-h-[80vh] laptop:min-h-[70vh] lg:min-h-[80vh]">
             {/* Left Column - Content */}
-            <div className="space-y-4 sm:space-y-5 md:space-y-6 lg:space-y-8 order-2 lg:order-none mt-4 sm:mt-6 md:mt-8 lg:mt-0">
+            <div className="space-y-2 xs:space-y-3 sm:space-y-4 md:space-y-6 lg:space-y-6 order-2 lg:order-none mt-2 xs:mt-4 sm:mt-6 md:mt-8 lg:mt-0">
               {/* Main Headline */}
               <div className="space-y-2">
                 <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl laptop:text-6xl lg:text-7xl leading-[1.1] tracking-tight text-gray-900" style={{
@@ -130,7 +130,7 @@ export default function HomePage() {
               
               {/* Subtitle */}
               <div className="space-y-2">
-                <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-normal text-gray-600 leading-relaxed" style={{
+                <p className="text-base xs:text-lg sm:text-xl md:text-2xl lg:text-3xl font-normal text-gray-600 leading-relaxed" style={{
                   fontFamily: 'Inter, system-ui, sans-serif'
                 }}>
                   Browse off-plan projects in Bulgaria.
@@ -139,7 +139,7 @@ export default function HomePage() {
               
               {/* Tagline */}
               <div className="space-y-2">
-                <p className="text-base sm:text-lg md:text-xl font-light text-gray-500 leading-relaxed italic" style={{
+                <p className="text-sm xs:text-base sm:text-lg md:text-xl font-light text-gray-500 leading-relaxed italic" style={{
                   fontFamily: 'Inter, system-ui, sans-serif'
                 }}>
                   Skip the middleman. Skip the markup.
@@ -147,9 +147,9 @@ export default function HomePage() {
               </div>
 
               {/* Single CTA - Positioned under text, left-aligned */}
-              <div className="mt-8 lg:mt-10">
+              <div className="mt-4 xs:mt-6 sm:mt-8 lg:mt-10">
                 <Link href="/listings">
-                  <button className="w-full sm:w-auto px-6 py-3 min-h-[48px] rounded-xl bg-slate-900 text-white font-medium text-lg transition-all duration-200 ease-in-out hover:bg-slate-800 hover:shadow-lg active:scale-[0.98] cursor-pointer" style={{
+                  <button className="w-full xs:w-auto px-4 xs:px-6 py-2 xs:py-3 min-h-[44px] xs:min-h-[48px] rounded-xl bg-slate-900 text-white font-medium text-base xs:text-lg transition-all duration-200 ease-in-out hover:bg-slate-800 hover:shadow-lg active:scale-[0.98] cursor-pointer" style={{
                     fontFamily: 'Playfair Display, serif',
                     backgroundColor: '#0f172a'
                   }}>
