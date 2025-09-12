@@ -196,8 +196,8 @@ export default function ListingsPage() {
           sw_lng: sw.lng(),
           ne_lat: ne.lat(),
           ne_lng: ne.lng(),
-          // Add city filter for mobile to ensure proper city-specific results
-          ...(typeof window !== 'undefined' && window.innerWidth < 1024 ? {
+          // Add city filter for mobile view to ensure city-specific results
+          ...(isMobileMapView ? {
             city: CITY_MAPPING[selectedCity],
             project_type: propertyTypeFilter === 'all' ? undefined :
               propertyTypeFilter === 'apartments' ? 'apartment_building' : 'house_complex'
@@ -208,7 +208,7 @@ export default function ListingsPage() {
         setFetchParams({ per_page: 0 })
       }
     }, 500),
-    [selectedCity, propertyTypeFilter]
+    [selectedCity, propertyTypeFilter, isMobileMapView]
   )
 
   // Clear bounds loading when API call completes
@@ -328,19 +328,14 @@ export default function ListingsPage() {
         mobileMap.setCenter(CITY_COORDINATES[selectedCity])
         mobileMap.setZoom(CITY_COORDINATES[selectedCity].zoom)
         
-        // Add bounds listener for mobile map to update markers
+        // Add bounds listener for mobile map to update markers and data
         mobileMap.addListener('idle', () => {
           const bounds = mobileMap.getBounds()
           if (bounds) {
-            // Update current bounds for API calls
-            const sw = bounds.getSouthWest()
-            const ne = bounds.getNorthEast()
-            setCurrentBounds({
-              sw_lat: sw.lat(),
-              sw_lng: sw.lng(),
-              ne_lat: ne.lat(),
-              ne_lng: ne.lng(),
-            })
+            // Keep mapBounds in sync for viewport filtering
+            setMapBounds(bounds)
+            // Trigger debounced fetch + bounds state
+            debouncedBoundsUpdate(bounds)
           }
         })
         
@@ -351,6 +346,13 @@ export default function ListingsPage() {
           )
           markerManagerRef.current.updateConfig({ maps: availableMaps })
           markerManagerRef.current.renderMarkers()
+        }
+
+        // Kick off initial data fetch for mobile after centering
+        const initialBounds = mobileMap.getBounds()
+        if (initialBounds) {
+          setMapBounds(initialBounds)
+          debouncedBoundsUpdate(initialBounds)
         }
       } catch (e) {
         console.error("Error initializing mobile Google Maps:", e)
@@ -368,14 +370,11 @@ export default function ListingsPage() {
     // Set bounds immediately for API call
     const bounds = googleMapRef.current.getBounds()
     if (bounds) {
-      const sw = bounds.getSouthWest()
-      const ne = bounds.getNorthEast()
-      setCurrentBounds({
-        sw_lat: sw.lat(),
-        sw_lng: sw.lng(),
-        ne_lat: ne.lat(),
-        ne_lng: ne.lng(),
-      })
+      // Reset caches for new city to avoid stale tile hits
+      loadedTilesRef.current.clear()
+      // Re-sync map bounds and trigger fetch for the new city
+      setMapBounds(bounds)
+      debouncedBoundsUpdate(bounds)
     }
   }, [selectedCity])
 
