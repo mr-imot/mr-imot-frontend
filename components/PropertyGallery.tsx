@@ -11,8 +11,8 @@ interface PropertyGalleryProps {
   title: string;
 }
 
-// Helper function to get high-quality ImageKit URLs
-const getImageKitUrl = (originalUrl: string, width: number, height: number, quality: number = 85) => {
+// Enhanced ImageKit transformation function - NO PRE-CROPPING for fullscreen
+const getImageKitUrl = (originalUrl: string, width: number, height: number, quality: number = 90, imageType: 'main' | 'thumbnail' | 'fullscreen' = 'main') => {
   if (!originalUrl || !originalUrl.includes('imagekit.io')) {
     return originalUrl
   }
@@ -21,26 +21,93 @@ const getImageKitUrl = (originalUrl: string, width: number, height: number, qual
   const urlParts = originalUrl.split('/')
   const imageName = urlParts[urlParts.length - 1]
   
-  // Create high-quality transformation URL
-  return `https://ik.imagekit.io/ts59gf2ul/tr:h-${height},w-${width},c-maintain_ratio,cm-focus,fo-auto,q-${quality},f-auto,pr-true,enhancement-true/${imageName}`
+  // Smart transformations based on image type and usage
+  let transformations = ''
+  
+  if (imageType === 'fullscreen') {
+    // Fullscreen: NO size constraints - only quality and format optimizations
+    // This prevents ImageKit from pre-cropping the image
+    transformations = `fo-auto,q-${quality},f-webp,pr-true,enhancement-true,sharpen-true,contrast-true`
+  } else if (imageType === 'thumbnail') {
+    // Thumbnails: Optimized for speed, smaller size
+    transformations = `h-${height},w-${width},c-maintain_ratio,cm-focus,fo-auto,q-85,f-webp,pr-true`
+  } else {
+    // Main images: Balanced quality and performance
+    transformations = `h-${height},w-${width},c-maintain_ratio,cm-focus,fo-auto,q-${quality},f-webp,pr-true,enhancement-true`
+  }
+  
+  return `https://ik.imagekit.io/ts59gf2ul/tr:${transformations}/${imageName}`
 }
 
 export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [imageDimensions, setImageDimensions] = useState<{ width: number; height: number } | null>(null);
+  
+  // Mobile touch state
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+  
+  // Detect mobile device
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768 || 'ontouchstart' in window);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const nextImage = useCallback(() => {
     setCurrentIndex((prev) => (prev + 1) % images.length);
+    setImageDimensions(null); // Reset dimensions for new image
   }, [images.length]);
 
   const prevImage = useCallback(() => {
     setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
+    setImageDimensions(null); // Reset dimensions for new image
   }, [images.length]);
 
   const openFullscreen = (index: number) => {
     setCurrentIndex(index);
     setIsFullscreen(true);
+  };
+
+  // Image fitting is now handled by CSS classes directly
+
+  const handleImageLoad = (event: React.SyntheticEvent<HTMLImageElement>) => {
+    const img = event.currentTarget;
+    setImageDimensions({ width: img.naturalWidth, height: img.naturalHeight });
+    setIsLoading(false);
+  };
+
+  // Mobile touch gesture handling
+  const minSwipeDistance = 50;
+  
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+  
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+  
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+    
+    if (isLeftSwipe && images.length > 1) {
+      nextImage();
+    }
+    if (isRightSwipe && images.length > 1) {
+      prevImage();
+    }
   };
 
   // Enhanced keyboard navigation
@@ -97,11 +164,14 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
       <div className="relative animate-fade-in">
         {/* Main large image with enhanced hover effects - Mobile Optimized */}
         <div 
-          className="relative h-[60vh] md:h-[70vh] bg-muted rounded-2xl overflow-hidden cursor-pointer group shadow-elegant"
+          className="relative h-[50vh] sm:h-[55vh] md:h-[60vh] lg:h-[70vh] bg-muted rounded-xl sm:rounded-2xl overflow-hidden cursor-pointer group shadow-lg sm:shadow-elegant"
           onClick={() => openFullscreen(0)}
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
         >
           <Image
-            src={getImageKitUrl(images[0], 1200, 800, 90)}
+            src={getImageKitUrl(images[0], isMobile ? 800 : 1200, isMobile ? 600 : 800, 90, 'main')}
             alt={`${title} - Main view`}
             fill
             className="object-cover transition-all duration-500 group-hover:scale-110"
@@ -138,7 +208,7 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
               onClick={() => openFullscreen(index + 1)}
             >
               <Image
-                src={getImageKitUrl(image, 400, 300, 85)}
+                src={getImageKitUrl(image, 400, 300, 85, 'thumbnail')}
                 alt={`${title} - View ${index + 2}`}
                 fill
                 className="object-cover transition-all duration-300 group-hover:scale-110"
@@ -155,92 +225,95 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
         </div>
       </div>
 
-      {/* Enhanced Fullscreen Gallery Modal - Mobile Optimized */}
+      {/* Modern Stunning Fullscreen Gallery */}
       <Dialog open={isFullscreen} onOpenChange={setIsFullscreen}>
-        <DialogContent className="max-w-screen-xl max-h-screen w-screen h-screen p-0 bg-black/98 backdrop-blur-sm">
+        <DialogContent className="max-w-none max-h-none w-screen h-screen p-0 bg-gradient-to-br from-gray-900 via-black to-gray-900 border-0 rounded-none">
           <DialogTitle className="sr-only">Property Gallery - {title}</DialogTitle>
-          <div className="relative w-full h-full flex items-center justify-center">
-            {/* Enhanced close button */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute top-4 md:top-6 right-4 md:right-6 z-50 text-white hover:bg-white/20 transition-all duration-300 rounded-full backdrop-blur-sm"
-              onClick={() => setIsFullscreen(false)}
-            >
-              <X className="h-5 w-5 md:h-6 md:w-6" />
-            </Button>
+          
+          {/* Mobile-Optimized Header Bar */}
+          <div className="absolute top-0 left-0 right-0 z-50 bg-gradient-to-b from-black/90 via-black/50 to-transparent backdrop-blur-xl">
+            <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4">
+              <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
+                <div className="bg-white/10 backdrop-blur-md rounded-full p-1.5 sm:p-2 flex-shrink-0">
+                  <Grid3X3 className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h2 className="text-white font-semibold text-sm sm:text-lg truncate">{title}</h2>
+                  <p className="text-white/70 text-xs sm:text-sm">Property Gallery • {currentIndex + 1} of {images.length}</p>
+                </div>
+              </div>
+              
+              <Button
+                variant="ghost"
+                size="icon"
+                className="w-10 h-10 sm:w-12 sm:h-12 text-white hover:bg-white/20 transition-all duration-300 rounded-full backdrop-blur-md border border-white/20 flex-shrink-0"
+                onClick={() => setIsFullscreen(false)}
+              >
+                <X className="h-5 w-5 sm:h-6 sm:w-6" />
+              </Button>
+            </div>
+          </div>
 
-            {/* Enhanced navigation buttons */}
+          {/* Main Image Container - FULL SCREEN UTILIZATION */}
+          <div className="absolute inset-0 w-full h-full" style={{ 
+            top: '80px', // Space for header only
+            bottom: '0px' // No footer - use full screen
+          }}>
+            {/* Mobile-Optimized Navigation Arrows */}
             <Button
               variant="ghost"
               size="icon"
-              className="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 z-50 text-white hover:bg-white/20 transition-all duration-300 rounded-full backdrop-blur-sm disabled:opacity-50"
+              className="absolute left-2 sm:left-4 md:left-8 top-1/2 -translate-y-1/2 z-40 w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 text-white hover:bg-white/20 transition-all duration-300 rounded-full backdrop-blur-md border border-white/20 shadow-2xl disabled:opacity-30 disabled:cursor-not-allowed"
               onClick={prevImage}
               disabled={images.length <= 1}
             >
-              <ChevronLeft className="h-8 w-8 md:h-10 md:w-10" />
+              <ChevronLeft className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8" />
             </Button>
 
             <Button
               variant="ghost"
               size="icon"
-              className="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 z-50 text-white hover:bg-white/20 transition-all duration-300 rounded-full backdrop-blur-sm disabled:opacity-50"
+              className="absolute right-2 sm:right-4 md:right-8 top-1/2 -translate-y-1/2 z-40 w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 text-white hover:bg-white/20 transition-all duration-300 rounded-full backdrop-blur-md border border-white/20 shadow-2xl disabled:opacity-30 disabled:cursor-not-allowed"
               onClick={nextImage}
               disabled={images.length <= 1}
             >
-              <ChevronRight className="h-8 w-8 md:h-10 md:w-10" />
+              <ChevronRight className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8" />
             </Button>
 
-            {/* Main image with loading state */}
-            <div className="relative max-w-full max-h-full flex items-center justify-center px-4 md:px-8">
+            {/* PERFECT FULLSCREEN IMAGE - FILLS EXACT AVAILABLE SPACE */}
+            <div className="absolute inset-0 w-full h-full">
               <Image
-                src={getImageKitUrl(images[currentIndex], 1920, 1080, 95)}
+                src={getImageKitUrl(images[currentIndex], 1920, 1080, 95, 'fullscreen')}
                 alt={`${title} - View ${currentIndex + 1}`}
-                width={1920}
-                height={1080}
-                className="max-w-full max-h-full object-contain transition-opacity duration-300 rounded-lg shadow-2xl"
-                onLoad={() => setIsLoading(false)}
+                fill
+                className="transition-all duration-500 ease-out"
+                style={{
+                  objectFit: 'contain',
+                  objectPosition: 'center',
+                  width: '100%',
+                  height: '100%'
+                }}
+                onLoad={handleImageLoad}
                 onLoadStart={() => setIsLoading(true)}
                 priority
+                sizes="100vw"
               />
+              
+              {/* Modern Loading State */}
               {isLoading && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg">
-                  <div className="animate-spin rounded-full h-6 w-6 md:h-8 md:w-8 border-b-2 border-white"></div>
+                <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-900/95 to-black/95 backdrop-blur-sm">
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="relative">
+                      <div className="w-12 h-12 border-4 border-white/20 rounded-full animate-spin"></div>
+                      <div className="absolute top-0 left-0 w-12 h-12 border-4 border-transparent border-t-white rounded-full animate-spin"></div>
+                    </div>
+                    <p className="text-white/80 text-sm font-medium">Loading image...</p>
+                  </div>
                 </div>
               )}
             </div>
-
-            {/* Enhanced image counter and navigation */}
-            <div className="absolute bottom-4 md:bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-4">
-              <div className="bg-black/70 text-white px-4 md:px-6 py-2 md:py-3 rounded-full backdrop-blur-md font-medium text-sm md:text-base">
-                {currentIndex + 1} of {images.length}
-              </div>
-            </div>
-
-
-            {/* Thumbnail strip - Mobile Optimized */}
-            <div className="absolute bottom-16 md:bottom-20 left-1/2 -translate-x-1/2 flex gap-2 max-w-xs md:max-w-md overflow-x-auto scrollbar-hide px-4">
-              {images.map((image, index) => (
-                <div
-                  key={index}
-                  className={`relative w-12 h-12 md:w-16 md:h-16 rounded-lg overflow-hidden cursor-pointer transition-all duration-300 flex-shrink-0 ${
-                    index === currentIndex
-                      ? 'ring-2 ring-white shadow-lg scale-110'
-                      : 'opacity-60 hover:opacity-100'
-                  }`}
-                  onClick={() => setCurrentIndex(index)}
-                >
-                  <Image
-                    src={getImageKitUrl(image, 200, 200, 80)}
-                    alt={`Thumbnail ${index + 1}`}
-                    width={64}
-                    height={64}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              ))}
-            </div>
           </div>
+
         </DialogContent>
       </Dialog>
     </>
