@@ -45,6 +45,13 @@ const CITY_COORDINATES: Record<CityType, { lat: number; lng: number; zoom: numbe
   Varna: { lat: 43.2141, lng: 27.9147, zoom: 11 },
 }
 
+// City bounds for mobile filtering
+const CITY_BOUNDS: Record<CityType, { sw_lat: number; sw_lng: number; ne_lat: number; ne_lng: number }> = {
+  Sofia: { sw_lat: 42.5977, sw_lng: 23.2219, ne_lat: 42.7977, ne_lng: 23.4219 },
+  Plovdiv: { sw_lat: 42.0354, sw_lng: 24.6453, ne_lat: 42.2354, ne_lng: 24.8453 },
+  Varna: { sw_lat: 43.1141, sw_lng: 27.8147, ne_lat: 43.3141, ne_lng: 28.0147 }
+}
+
 // Add city mapping for Bulgarian database values
 const CITY_MAPPING: Record<CityType, string> = {
   "Sofia": "София",
@@ -189,14 +196,19 @@ export default function ListingsPage() {
           sw_lng: sw.lng(),
           ne_lat: ne.lat(),
           ne_lng: ne.lng(),
-          // Intentionally do NOT include project_type or city; fetch full tile contents for cache
+          // Add city filter for mobile to ensure proper city-specific results
+          ...(typeof window !== 'undefined' && window.innerWidth < 1024 ? {
+            city: CITY_MAPPING[selectedCity],
+            project_type: propertyTypeFilter === 'all' ? undefined :
+              propertyTypeFilter === 'apartments' ? 'apartment_building' : 'house_complex'
+          } : {}),
         })
       } else {
         // Using cache only – no network
         setFetchParams({ per_page: 0 })
       }
     }, 500),
-    []
+    [selectedCity, propertyTypeFilter]
   )
 
   // Clear bounds loading when API call completes
