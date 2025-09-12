@@ -496,30 +496,35 @@ export default function ListingsPage() {
         }
       }
       initFullscreenMap()
+    } else if (!isMapExpanded && fullscreenGoogleMapRef.current) {
+      // Clean up fullscreen map when closed
+      fullscreenGoogleMapRef.current = null
     }
   }, [isMapExpanded, selectedCity])
 
   // Update marker manager to include fullscreen map when available
   useEffect(() => {
-    if (isMapExpanded && fullscreenGoogleMapRef.current && markerManagerRef.current) {
-      const availableMaps = [googleMapRef.current]
-      if (isMobileMapView && mobileGoogleMapRef.current) {
-        availableMaps.push(mobileGoogleMapRef.current)
-      }
+    if (!markerManagerRef.current) return
+
+    const availableMaps = [googleMapRef.current]
+    if (isMobileMapView && mobileGoogleMapRef.current) {
+      availableMaps.push(mobileGoogleMapRef.current)
+    }
+    if (isMapExpanded && fullscreenGoogleMapRef.current) {
       availableMaps.push(fullscreenGoogleMapRef.current)
+    }
 
-      markerManagerRef.current.updateConfig({ maps: availableMaps })
-      markerManagerRef.current.renderMarkers()
-    } else if (!isMapExpanded && markerManagerRef.current) {
-      const availableMaps = [googleMapRef.current]
-      if (isMobileMapView && mobileGoogleMapRef.current) {
-        availableMaps.push(mobileGoogleMapRef.current)
-      }
+    // Always update maps and re-render markers
+    markerManagerRef.current.updateConfig({ maps: availableMaps })
+    markerManagerRef.current.renderMarkers()
+  }, [isMapExpanded, isMobileMapView, fullscreenGoogleMapRef.current])
 
-      markerManagerRef.current.updateConfig({ maps: availableMaps })
+  // Re-render markers when city changes
+  useEffect(() => {
+    if (markerManagerRef.current) {
       markerManagerRef.current.renderMarkers()
     }
-  }, [isMapExpanded, isMobileMapView, fullscreenGoogleMapRef.current])
+  }, [selectedCity])
 
   // Handle Escape key to close fullscreen map
   useEffect(() => {
@@ -1111,21 +1116,46 @@ export default function ListingsPage() {
         </div>
       </div>
 
-      {/* Airbnb-style fullscreen map modal */}
+      {/* Airbnb-style expanded map - within content area */}
       {isMapExpanded && (
-        <div className="fixed inset-0 z-[9999] bg-white">
-          {/* Fullscreen map container - covers entire viewport */}
-          <div ref={fullscreenMapRef} className="w-full h-full" />
+        <div className="fixed inset-0 z-50 bg-white">
+          {/* Header stays visible */}
+          <div className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
+            <div className="flex items-center space-x-8">
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-brand rounded-full flex items-center justify-center">
+                  <span className="text-white text-sm font-bold">M</span>
+                </div>
+                <span className="text-xl font-bold text-gray-900">Mr Imot</span>
+              </div>
+              <nav className="hidden md:flex space-x-6">
+                <a href="/listings" className="text-gray-900 font-medium">Listings</a>
+                <a href="/developers" className="text-gray-600 hover:text-gray-900">Developers</a>
+                <a href="/about-us" className="text-gray-600 hover:text-gray-900">About Us</a>
+              </nav>
+            </div>
+            <button
+              type="button"
+              className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 font-medium transition-colors"
+            >
+              Login
+            </button>
+          </div>
           
-          {/* Close button - top right corner */}
-          <button
-            type="button"
-            className="absolute top-6 right-6 z-20 w-12 h-12 rounded-full bg-white/95 border border-gray-200 shadow-lg flex items-center justify-center hover:bg-white hover:shadow-xl transition-all duration-200"
-            onClick={() => setIsMapExpanded(false)}
-            aria-label="Close fullscreen map"
-          >
-            <X className="h-6 w-6 text-gray-700" />
-          </button>
+          {/* Expanded map takes over the content area */}
+          <div className="h-[calc(100vh-64px)] relative">
+            <div ref={fullscreenMapRef} className="w-full h-full" />
+            
+            {/* Close button - top right of map area */}
+            <button
+              type="button"
+              className="absolute top-6 right-6 z-20 w-12 h-12 rounded-full bg-white/95 border border-gray-200 shadow-lg flex items-center justify-center hover:bg-white hover:shadow-xl transition-all duration-200"
+              onClick={() => setIsMapExpanded(false)}
+              aria-label="Close fullscreen map"
+            >
+              <X className="h-6 w-6 text-gray-700" />
+            </button>
+          </div>
         </div>
       )}
 
