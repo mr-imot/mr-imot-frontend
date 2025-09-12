@@ -36,6 +36,7 @@ import {
 } from "lucide-react"
 import { recordProjectView, recordProjectPhoneClick, recordProjectWebsiteClick } from "@/lib/api"
 import Image from "next/image"
+import { PropertyGallery } from "@/components/PropertyGallery"
 
 interface PageProps {
   params: Promise<{
@@ -61,7 +62,6 @@ export default function ListingPage({ params }: PageProps) {
   const resolvedParams = use(params)
   const propertyId = resolvedParams.id
   const [hasTrackedView, setHasTrackedView] = useState(false)
-  const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [showContactForm, setShowContactForm] = useState(false)
   const [formData, setFormData] = useState({
     name: "",
@@ -150,17 +150,6 @@ export default function ListingPage({ params }: PageProps) {
     setFormData({ name: "", email: "", phone: "", message: "" })
   }
 
-  const nextImage = () => {
-    if (property.images && property.images.length > 0) {
-      setCurrentImageIndex((prev) => (prev + 1) % property.images.length)
-    }
-  }
-
-  const prevImage = () => {
-    if (property.images && property.images.length > 0) {
-      setCurrentImageIndex((prev) => (prev - 1 + property.images.length) % property.images.length)
-    }
-  }
 
   const handlePhoneClick = async () => {
       try {
@@ -180,52 +169,29 @@ export default function ListingPage({ params }: PageProps) {
 
   return (
     <div className="min-h-screen" style={{backgroundColor: 'var(--brand-glass-light)'}}>
-      {/* Header with Back Button */}
-      <div className="sticky top-16 z-40 border-b shadow-sm" style={{backgroundColor: 'var(--brand-glass)', borderColor: 'var(--brand-border)'}}>
-        <div className="container px-4 py-4">
-          <div className="flex items-center justify-between">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => window.history.back()}
-              className="flex items-center space-x-2"
-              style={{borderColor: 'var(--brand-border)', color: 'var(--brand-text-primary)'}}
-            >
-              <ArrowLeft className="h-4 w-4" />
-              <span>Back to Listings</span>
-            </Button>
-            <div className="flex items-center space-x-2">
-              <Button variant="outline" size="sm" style={{borderColor: 'var(--brand-border)', color: 'var(--brand-text-primary)'}}>
-                <Heart className="h-4 w-4 mr-2" />
-                Save
-              </Button>
-              <Button variant="outline" size="sm" style={{borderColor: 'var(--brand-border)', color: 'var(--brand-text-primary)'}}>
-                <Share2 className="h-4 w-4 mr-2" />
-                Share
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
 
       <div className="container px-4 py-8">
         <div className="max-w-7xl mx-auto">
-          {/* Property Header */}
+
+          {/* Property Gallery */}
           <div className="mb-8">
-            <div className="flex items-start justify-between mb-4">
-            <div>
-                <h1 className="text-3xl md:text-4xl font-bold mb-2" style={{color: 'var(--brand-text-primary)'}}>
+            <PropertyGallery 
+              images={property.images || (property.image ? [property.image] : [])}
+              title={property.title || property.name || 'Property'}
+            />
+          </div>
+
+          {/* Property Header - After Images */}
+          <div className="mb-8">
+            <div className="flex items-start justify-between mb-6">
+              <div className="flex-1">
+                <h1 className="text-4xl md:text-5xl font-bold mb-4" style={{color: 'var(--brand-text-primary)'}}>
                   {property.title || property.name}
                 </h1>
-                <div className="flex items-center space-x-4 mb-4" style={{color: 'var(--brand-text-secondary)'}}>
+                <div className="flex items-center space-x-6 mb-4" style={{color: 'var(--brand-text-secondary)'}}>
                   <div className="flex items-center">
                     <MapPin className="h-5 w-5 mr-2" style={{color: 'var(--brand-accent)'}} />
-                    <span>{property.location || property.formatted_address || `${property.neighborhood}, ${property.city}`}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Star className="h-5 w-5 mr-1 text-amber-400 fill-amber-400" />
-                    <span className="font-semibold">{property.rating?.toFixed(1) || '4.5'}</span>
-                    <span className="ml-1">({property.reviews || 0} reviews)</span>
+                    <span className="text-lg">{property.location || property.formatted_address || `${property.neighborhood}, ${property.city}`}</span>
                   </div>
                   <div className="flex items-center">
                     {property.type === "Residential Houses" ? (
@@ -233,118 +199,19 @@ export default function ListingPage({ params }: PageProps) {
                     ) : (
                       <Building className="h-5 w-5 mr-2" style={{color: 'var(--brand-primary)'}} />
                     )}
-                    <span>{property.type}</span>
+                    <span className="text-lg">{property.type}</span>
                   </div>
                 </div>
               </div>
               <div className="text-right">
                 <div className="flex items-baseline space-x-2 mb-2">
-                  <span className="text-3xl font-bold" style={{color: 'var(--brand-primary)'}}>
+                  <span className="text-4xl md:text-5xl font-bold" style={{color: 'var(--brand-primary)'}}>
                     {property.priceRange || property.shortPrice || 'Request Price'}
                   </span>
                 </div>
-                <p className="text-sm" style={{color: 'var(--brand-text-secondary)'}}>Starting price</p>
-                <Badge variant="secondary" className="mt-2" style={{backgroundColor: 'var(--brand-accent)', color: 'white'}}>
-                  {property.status}
-                </Badge>
+                <p className="text-lg" style={{color: 'var(--brand-text-secondary)'}}>Starting price</p>
               </div>
             </div>
-          </div>
-
-          {/* Image Gallery with Navigation */}
-          <div className="mb-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {/* Main Image - High Quality 800x600 */}
-              <div className="lg:col-span-2 lg:row-span-2 relative">
-                <div className="relative h-64 md:h-96 rounded-xl overflow-hidden group">
-                  {property.images && property.images.length > 0 ? (
-                    <Image
-                      src={getImageKitUrl(property.images[currentImageIndex] || property.image, 800, 600, 90)}
-                      alt={`${property.title || property.name} - Image ${currentImageIndex + 1}`}
-                      fill
-                      className="object-cover transition-transform duration-300 group-hover:scale-105"
-                      sizes="(max-width: 64em) 100vw, 66vw"
-                      priority
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center" style={{backgroundColor: 'var(--brand-glass)'}}>
-                      <span style={{color: 'var(--brand-text-secondary)'}}>No images available</span>
-                    </div>
-                  )}
-                  {/* Navigation Arrows */}
-                  {property.images && property.images.length > 1 && (
-                    <>
-                      <button
-                        onClick={prevImage}
-                        className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-all duration-200 opacity-0 group-hover:opacity-100"
-                      >
-                        <ChevronLeft className="h-5 w-5" style={{color: 'var(--brand-text-primary)'}} />
-                      </button>
-                      <button
-                        onClick={nextImage}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-all duration-200 opacity-0 group-hover:opacity-100"
-                      >
-                        <ChevronRight className="h-5 w-5" style={{color: 'var(--brand-text-primary)'}} />
-                      </button>
-                    </>
-                  )}
-                  {/* Image Counter */}
-                  {property.images && property.images.length > 1 && (
-                    <div className="absolute bottom-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
-                      {currentImageIndex + 1} / {property.images.length}
-                    </div>
-                )}
-              </div>
-            </div>
-            
-              {/* Thumbnail Images - Medium Quality 400x300 */}
-              {property.images && property.images.slice(1, 4).map((image: string, index: number) => (
-                <div
-                  key={index}
-                  className="relative h-32 md:h-44 rounded-xl overflow-hidden cursor-pointer group"
-                  onClick={() => setCurrentImageIndex(index + 1)}
-                >
-                  <Image
-                    src={getImageKitUrl(image, 400, 300, 85)}
-                    alt={`${property.title || property.name} - Thumbnail ${index + 2}`}
-                    fill
-                    className="object-cover transition-transform duration-300 group-hover:scale-105"
-                    sizes="(max-width: 64em) 25vw, 16vw"
-                  />
-                  {currentImageIndex === index + 1 && (
-                    <div className="absolute inset-0 rounded-xl" style={{backgroundColor: 'var(--brand-primary)', opacity: 0.2, border: `2px solid var(--brand-primary)`}}></div>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            {/* Image Thumbnails Row - Small Quality 200x150 */}
-            {property.images && property.images.length > 1 && (
-              <div className="flex space-x-2 mt-4 overflow-x-auto pb-2">
-                {property.images.map((image: string, index: number) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentImageIndex(index)}
-                    className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all duration-200 ${
-                      currentImageIndex === index
-                        ? "border-2"
-                        : "border-transparent hover:border-gray-300"
-                    }`}
-                    style={{
-                      borderColor: currentImageIndex === index ? 'var(--brand-primary)' : 'transparent'
-                    }}
-                  >
-                    <Image
-                      src={getImageKitUrl(image, 200, 150, 80)}
-                      alt={`Thumbnail ${index + 1}`}
-                      width={64}
-                      height={64}
-                      className="object-cover w-full h-full"
-                    />
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -610,7 +477,7 @@ export default function ListingPage({ params }: PageProps) {
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium" style={{color: 'var(--brand-text-primary)'}}>Current Status</span>
-                      <Badge variant="secondary" style={{backgroundColor: 'var(--brand-accent)', color: 'white'}}>{property.status}</Badge>
+                      <span className="text-sm font-medium" style={{color: 'var(--brand-text-secondary)'}}>{property.status}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium" style={{color: 'var(--brand-text-primary)'}}>Expected Completion</span>
@@ -653,12 +520,12 @@ export default function ListingPage({ params }: PageProps) {
                 <CardContent>
                   <div className="grid grid-cols-2 gap-4 text-center">
                     <div>
-                      <div className="text-2xl font-bold" style={{color: 'var(--brand-primary)'}}>{property.rating?.toFixed(1) || '4.5'}</div>
-                      <div className="text-xs" style={{color: 'var(--brand-text-secondary)'}}>Rating</div>
+                      <div className="text-2xl font-bold" style={{color: 'var(--brand-primary)'}}>{property.specifications?.totalUnits || 'N/A'}</div>
+                      <div className="text-xs" style={{color: 'var(--brand-text-secondary)'}}>Total Units</div>
                     </div>
                     <div>
-                      <div className="text-2xl font-bold" style={{color: 'var(--brand-primary)'}}>{property.reviews || 0}</div>
-                      <div className="text-xs" style={{color: 'var(--brand-text-secondary)'}}>Reviews</div>
+                      <div className="text-2xl font-bold" style={{color: 'var(--brand-primary)'}}>{property.specifications?.floors || 'N/A'}</div>
+                      <div className="text-xs" style={{color: 'var(--brand-text-secondary)'}}>Floors</div>
                     </div>
                   </div>
                 </CardContent>
