@@ -408,7 +408,7 @@ export default function ListingsPage() {
       typeof p.lat === 'number' && typeof p.lng === 'number' &&
       mapBounds.contains(new google.maps.LatLng(p.lat, p.lng))
     )
-  }, [propertyTypeFilter, mapBounds, cacheVersion, apiProjects])
+  }, [propertyTypeFilter, mapBounds, cacheVersion, apiProjects]) || []
 
   // Memoize to prevent effects from re-running on equivalent arrays
   const memoizedProperties = useMemo(() => filteredProperties, [
@@ -675,9 +675,9 @@ export default function ListingsPage() {
 
 
 
-  const showEmpty = !loading && !error && filteredProperties.length === 0
+  const showEmpty = !loading && !error && filteredProperties && filteredProperties.length === 0
   const showError = !loading && (error || localError)
-  const hasData = !loading && !error && filteredProperties.length > 0
+  const hasData = !loading && !error && filteredProperties && filteredProperties.length > 0
 
   // Get selected property data for info popup
   const selectedProperty = selectedPropertyId 
