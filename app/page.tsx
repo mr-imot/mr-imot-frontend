@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import {
@@ -15,7 +16,52 @@ import { Badge } from "@/components/ui/badge"
 import { EtchedGlassBackground } from "@/components/etched-glass-background"
 import { FaqSection } from "@/components/faq-section"
 
+// Dynamic header height calculation + robust viewport unit fallback
+const useHeaderHeight = () => {
+  useEffect(() => {
+    const setVhUnit = () => {
+      const vh = window.innerHeight * 0.01
+      document.documentElement.style.setProperty('--vh', `${vh}px`)
+    }
+
+    const updateHeaderHeight = () => {
+      const header = document.querySelector('header')
+      if (header) {
+        const height = header.offsetHeight
+        document.documentElement.style.setProperty('--header-height', `${height}px`)
+        
+        // Debug: Log the calculated height for verification
+        console.log(`Header height calculated: ${height}px`)
+      }
+    }
+
+    // Initial calculation with a small delay to ensure DOM is ready
+    const timeoutId = setTimeout(() => {
+      setVhUnit()
+      updateHeaderHeight()
+    }, 100)
+
+    // Recalculate on resize
+    window.addEventListener('resize', setVhUnit)
+    window.addEventListener('resize', updateHeaderHeight)
+    
+    // Recalculate when DOM changes
+    const observer = new MutationObserver(updateHeaderHeight)
+    observer.observe(document.body, { childList: true, subtree: true })
+
+    return () => {
+      clearTimeout(timeoutId)
+      window.removeEventListener('resize', setVhUnit)
+      window.removeEventListener('resize', updateHeaderHeight)
+      observer.disconnect()
+    }
+  }, [])
+}
+
 export default function HomePage() {
+  // Dynamic header height calculation
+  useHeaderHeight()
+
   // FAQ Schema for SEO
   const faqSchema = {
     "@context": "https://schema.org",
@@ -109,11 +155,11 @@ export default function HomePage() {
         <EtchedGlassBackground />
       
       {/* Hero Section */}
-      <section className="py-8 xs:py-12 sm:py-16 md:py-20 laptop:py-24 lg:py-40 relative">
-        <div className="container mx-auto px-3 xs:px-4 sm:px-6 md:px-8">
-          <div className="flex flex-col lg:grid lg:grid-cols-2 gap-3 xs:gap-4 sm:gap-6 md:gap-8 laptop:gap-8 lg:gap-12 items-center min-h-[65vh] xs:min-h-[70vh] sm:min-h-[75vh] md:min-h-[80vh] laptop:min-h-[70vh] lg:min-h-[80vh]">
+      <section className="hero-section">
+        <div className="container mx-auto px-3 xs:px-4 sm:px-6 md:px-8 w-full">
+          <div className="hero-grid grid grid-rows-[auto_1fr] lg:grid-cols-2 lg:grid-rows-none gap-2 sm:gap-4 md:gap-6 lg:gap-8 items-center w-full">
             {/* Left Column - Content */}
-            <div className="space-y-2 xs:space-y-3 sm:space-y-4 md:space-y-6 lg:space-y-6 order-2 lg:order-none mt-2 xs:mt-4 sm:mt-6 md:mt-8 lg:mt-0">
+            <div className="hero-content space-y-2 sm:space-y-3 md:space-y-4 lg:space-y-5 order-2 lg:order-none">
               {/* Main Headline */}
               <div className="space-y-2">
                 <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl laptop:text-6xl lg:text-7xl leading-[1.1] tracking-tight text-gray-900" style={{
@@ -130,7 +176,7 @@ export default function HomePage() {
               
               {/* Subtitle */}
               <div className="space-y-2">
-                <p className="text-base xs:text-lg sm:text-xl md:text-2xl lg:text-3xl font-normal text-gray-600 leading-relaxed" style={{
+                <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-normal text-gray-600 leading-relaxed" style={{
                   fontFamily: 'Inter, system-ui, sans-serif'
                 }}>
                   Browse off-plan projects in Bulgaria.
@@ -139,7 +185,7 @@ export default function HomePage() {
               
               {/* Tagline */}
               <div className="space-y-2">
-                <p className="text-sm xs:text-base sm:text-lg md:text-xl font-light text-gray-500 leading-relaxed italic" style={{
+                <p className="text-base sm:text-lg md:text-xl font-light text-gray-500 leading-relaxed italic" style={{
                   fontFamily: 'Inter, system-ui, sans-serif'
                 }}>
                   Skip the middleman. Skip the markup.
@@ -147,9 +193,9 @@ export default function HomePage() {
               </div>
 
               {/* Single CTA - Positioned under text, left-aligned */}
-              <div className="mt-4 xs:mt-6 sm:mt-8 lg:mt-10">
+              <div className="hero-cta mt-2 sm:mt-4 lg:mt-6">
                 <Link href="/listings">
-                  <button className="w-full xs:w-auto px-4 xs:px-6 py-2 xs:py-3 min-h-[44px] xs:min-h-[48px] rounded-xl bg-slate-900 text-white font-medium text-base xs:text-lg transition-all duration-200 ease-in-out hover:bg-slate-800 hover:shadow-lg active:scale-[0.98] cursor-pointer" style={{
+                  <button className="w-full sm:w-auto px-6 py-3 min-h-[48px] rounded-xl bg-slate-900 text-white font-medium text-lg transition-all duration-200 ease-in-out hover:bg-slate-800 hover:shadow-lg active:scale-[0.98] cursor-pointer" style={{
                     fontFamily: 'Playfair Display, serif',
                     backgroundColor: '#0f172a'
                   }}>
@@ -160,7 +206,7 @@ export default function HomePage() {
             </div>
 
             {/* Right Column - Supporting Mascot */}
-            <div className="order-1 lg:order-none lg:flex lg:items-center lg:justify-end lg:h-full">
+            <div className="hero-visual order-1 lg:order-none lg:flex lg:items-center lg:justify-end lg:h-full">
               {/* Hero Image - Resized and repositioned as supporting element */}
               <div className="w-full flex justify-center lg:justify-end">
                 <img

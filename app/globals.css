@@ -540,3 +540,94 @@ textarea:disabled,
 .cursor-grabbing {
   cursor: inherit !important;
 }
+
+/* ===== HERO SECTION: PERMANENT, DEVICE-AGNOSTIC LAYOUT ===== */
+.hero-section {
+  /* Use JS-updated --vh as primary fallback to avoid mobile URL bar issues */
+  height: calc(var(--vh, 1vh) * 100 - var(--header-height, 0px));
+  position: relative;
+}
+
+/* Prefer modern dynamic viewport units when available */
+@supports (height: 100dvh) {
+  .hero-section {
+    height: calc(100dvh - var(--header-height, 0px));
+  }
+}
+
+/* Let the immediate container fill the section and center content robustly */
+.hero-section > .container {
+  height: 100%;
+  display: grid;
+  align-content: center;
+}
+
+/* Internal grid spans full height so we can control vertical distribution */
+.hero-grid {
+  height: 100%;
+}
+
+/* Left content column stacks elements and pushes CTA if needed */
+.hero-content {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.hero-cta {
+  margin-top: auto;
+}
+
+/* Visual constraints to prevent media from pushing CTA below fold */
+.hero-visual img {
+  width: auto;
+  height: auto;
+  max-height: clamp(160px, 32vh, 340px);
+  object-fit: contain;
+}
+
+/* Mobile-first responsive adjustments */
+@media (max-width: 640px) {
+  .hero-section > .container {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+  .hero-visual img {
+    max-height: clamp(140px, 30vh, 300px);
+  }
+}
+
+/* Tablet adjustments */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .hero-section > .container {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+}
+
+/* Desktop and larger screens */
+@media (min-width: 1025px) {
+  .hero-section > .container {
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+}
+
+/* Ultra-wide screens */
+@media (min-width: 1920px) {
+  .hero-section > .container {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+}
+
+/* Ensure inner areas don't exceed the section height */
+.hero-section .grid {
+  max-height: 100%;
+  width: 100%;
+}
+
+/* Debug helper: Uncomment during layout checks */
+/*
+.hero-section { border: 2px solid red !important; }
+*/
