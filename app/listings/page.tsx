@@ -160,18 +160,32 @@ export default function ListingsPage() {
   const listContainerRef = useRef<HTMLDivElement>(null)
   const [mapBounds, setMapBounds] = useState<google.maps.LatLngBounds | null>(null)
 
-  // In-memory cache for properties and loaded tiles
+  // In-memory cache for properties and loaded tiles (desktop only)
   const propertyCacheRef = useRef<Map<string, PropertyData>>(new Map())
   const loadedTilesRef = useRef<Set<string>>(new Set())
   const [cacheVersion, setCacheVersion] = useState(0)
   const [fetchParams, setFetchParams] = useState<any>({ per_page: 0 })
 
-  // Controlled fetch by params (we'll update fetchParams when entering new areas)
-  const { projects: apiProjects, loading, error } = useProjects(fetchParams)
+  // Mobile: Simple direct fetch by city and type
+  const mobileFetchParams = useMemo(() => ({
+    per_page: 50,
+    city: CITY_MAPPING[selectedCity],
+    project_type: propertyTypeFilter === 'all' ? undefined :
+      propertyTypeFilter === 'apartments' ? 'apartment_building' : 'house_complex'
+  }), [selectedCity, propertyTypeFilter])
+
+  // Desktop: Controlled fetch by params (caching system)
+  // Mobile: Direct fetch by city/type (simple system)
+  const { projects: apiProjects, loading, error } = useProjects(
+    typeof window !== 'undefined' && window.innerWidth < 1024 ? mobileFetchParams : fetchParams
+  )
   
-  // Debounced bounds update to avoid spamming API
+  // Debounced bounds update for desktop caching system only
   const debouncedBoundsUpdate = useCallback(
     debounce((bounds: google.maps.LatLngBounds) => {
+      // Skip bounds updates on mobile - mobile uses simple city-based fetching
+      if (typeof window !== 'undefined' && window.innerWidth < 1024) return
+      
       const sw = bounds.getSouthWest()
       const ne = bounds.getNorthEast()
       
@@ -196,19 +210,14 @@ export default function ListingsPage() {
           sw_lng: sw.lng(),
           ne_lat: ne.lat(),
           ne_lng: ne.lng(),
-          // Add city filter for mobile view to ensure city-specific results
-          ...(isMobileMapView ? {
-            city: CITY_MAPPING[selectedCity],
-            project_type: propertyTypeFilter === 'all' ? undefined :
-              propertyTypeFilter === 'apartments' ? 'apartment_building' : 'house_complex'
-          } : {}),
+          // Desktop: no city filter, fetch all properties in bounds
         })
       } else {
         // Using cache only – no network
         setFetchParams({ per_page: 0 })
       }
     }, 500),
-    [selectedCity, propertyTypeFilter, isMobileMapView]
+    []
   )
 
   // Clear bounds loading when API call completes
@@ -218,8 +227,11 @@ export default function ListingsPage() {
     }
   }, [loading, isBoundsLoading])
 
-  // Merge API data into cache; prefer cache for UI
+  // Merge API data into cache (desktop only)
   useEffect(() => {
+    // Only cache on desktop - mobile uses direct API results
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) return
+    
     if (apiProjects && apiProjects.length > 0) {
       (apiProjects as unknown as PropertyData[]).forEach((p) => {
         propertyCacheRef.current.set(String((p as any).id || p.id), p)
@@ -328,16 +340,8 @@ export default function ListingsPage() {
         mobileMap.setCenter(CITY_COORDINATES[selectedCity])
         mobileMap.setZoom(CITY_COORDINATES[selectedCity].zoom)
         
-        // Add bounds listener for mobile map to update markers and data
-        mobileMap.addListener('idle', () => {
-          const bounds = mobileMap.getBounds()
-          if (bounds) {
-            // Keep mapBounds in sync for viewport filtering
-            setMapBounds(bounds)
-            // Trigger debounced fetch + bounds state
-            debouncedBoundsUpdate(bounds)
-          }
-        })
+        // Mobile map doesn't need bounds listeners - it shows filtered properties from grid
+        // No bounds updates needed for mobile
         
         // Structural change: mobile map created → re-render
         if (markerManagerRef.current) {
@@ -348,12 +352,7 @@ export default function ListingsPage() {
           markerManagerRef.current.renderMarkers()
         }
 
-        // Kick off initial data fetch for mobile after centering
-        const initialBounds = mobileMap.getBounds()
-        if (initialBounds) {
-          setMapBounds(initialBounds)
-          debouncedBoundsUpdate(initialBounds)
-        }
+        // Mobile map shows properties from current grid filter - no initial fetch needed
       } catch (e) {
         console.error("Error initializing mobile Google Maps:", e)
       }
@@ -375,19 +374,26 @@ export default function ListingsPage() {
       mobileGoogleMapRef.current.setZoom(CITY_COORDINATES[selectedCity].zoom)
     }
     
-    // Set bounds immediately for API call (use desktop map as primary)
-    const bounds = googleMapRef.current?.getBounds()
-    if (bounds) {
-      // Reset caches for new city to avoid stale tile hits
-      loadedTilesRef.current.clear()
-      // Re-sync map bounds and trigger fetch for the new city
-      setMapBounds(bounds)
-      debouncedBoundsUpdate(bounds)
+    // Desktop: Reset caches and trigger fetch for new city
+    if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
+      const bounds = googleMapRef.current?.getBounds()
+      if (bounds) {
+        loadedTilesRef.current.clear()
+        setMapBounds(bounds)
+        debouncedBoundsUpdate(bounds)
+      }
     }
+    // Mobile: No cache reset needed - mobileFetchParams will trigger new fetch automatically
   }, [selectedCity])
 
-  // Build filtered list from cache + bounds instead of raw API array
+  // Build filtered list - different logic for mobile vs desktop
   const filteredProperties = useMemo(() => {
+    // Mobile: Use direct API results (already filtered by city and type)
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+      return (apiProjects as unknown as PropertyData[]) || []
+    }
+    
+    // Desktop: Use cache + bounds filtering
     const all = Array.from(propertyCacheRef.current.values())
     // Filter by type
     const typeFiltered = all.filter((p) => {
@@ -402,7 +408,7 @@ export default function ListingsPage() {
       typeof p.lat === 'number' && typeof p.lng === 'number' &&
       mapBounds.contains(new google.maps.LatLng(p.lat, p.lng))
     )
-  }, [propertyTypeFilter, mapBounds, cacheVersion])
+  }, [propertyTypeFilter, mapBounds, cacheVersion, apiProjects])
 
   // Memoize to prevent effects from re-running on equivalent arrays
   const memoizedProperties = useMemo(() => filteredProperties, [
