@@ -149,6 +149,7 @@ export default function ListingsPage() {
   }, [isMobileMapView, mobileGoogleMapRef.current])
   // Map refs
   const fullscreenMapRef = useRef<HTMLDivElement>(null)
+  const fullscreenGoogleMapRef = useRef<google.maps.Map | null>(null)
   const markerManagerRef = useRef<MarkerManager | null>(null)
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null)
   const listContainerRef = useRef<HTMLDivElement>(null)
@@ -465,16 +466,80 @@ export default function ListingsPage() {
          // Fullscreen markers are now handled by MarkerManager
   }, [hoveredPropertyId, selectedPropertyId])
 
-  // Handle map container switching for fullscreen mode
+  // Handle fullscreen map initialization
   useEffect(() => {
-    if (!googleMapRef.current) return
+    if (isMapExpanded && fullscreenMapRef.current && !fullscreenGoogleMapRef.current) {
+      // Create a new map instance for fullscreen mode
+      const initFullscreenMap = async () => {
+        try {
+          await ensureGoogleMaps()
+          if (fullscreenMapRef.current) {
+            fullscreenGoogleMapRef.current = new google.maps.Map(fullscreenMapRef.current, {
+              center: googleMapRef.current?.getCenter() || CITY_COORDINATES[selectedCity],
+              zoom: googleMapRef.current?.getZoom() || CITY_COORDINATES[selectedCity].zoom,
+              streetViewControl: false,
+              mapTypeControl: false,
+              fullscreenControl: false,
+              zoomControl: true,
+              scrollwheel: true,
+              gestureHandling: 'greedy',
+              mapId: 'DEMO_MAP_ID',
+            })
 
-    if (isMapExpanded && fullscreenMapRef.current) {
-      // Move map to fullscreen container
-      googleMapRef.current.setDiv(fullscreenMapRef.current)
-    } else if (!isMapExpanded && mapRef.current) {
-      // Move map back to normal container
-      googleMapRef.current.setDiv(mapRef.current)
+            // Add click handler to deselect properties
+            fullscreenGoogleMapRef.current.addListener('click', () => {
+              setSelectedPropertyId(null)
+            })
+          }
+        } catch (error) {
+          console.error('Error initializing fullscreen map:', error)
+        }
+      }
+      initFullscreenMap()
+    }
+  }, [isMapExpanded, selectedCity])
+
+  // Update marker manager to include fullscreen map when available
+  useEffect(() => {
+    if (isMapExpanded && fullscreenGoogleMapRef.current && markerManagerRef.current) {
+      const availableMaps = [googleMapRef.current]
+      if (isMobileMapView && mobileGoogleMapRef.current) {
+        availableMaps.push(mobileGoogleMapRef.current)
+      }
+      availableMaps.push(fullscreenGoogleMapRef.current)
+
+      markerManagerRef.current.updateConfig({ maps: availableMaps })
+      markerManagerRef.current.renderMarkers()
+    } else if (!isMapExpanded && markerManagerRef.current) {
+      const availableMaps = [googleMapRef.current]
+      if (isMobileMapView && mobileGoogleMapRef.current) {
+        availableMaps.push(mobileGoogleMapRef.current)
+      }
+
+      markerManagerRef.current.updateConfig({ maps: availableMaps })
+      markerManagerRef.current.renderMarkers()
+    }
+  }, [isMapExpanded, isMobileMapView, fullscreenGoogleMapRef.current])
+
+  // Handle Escape key to close fullscreen map
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isMapExpanded) {
+        setIsMapExpanded(false)
+      }
+    }
+
+    if (isMapExpanded) {
+      document.addEventListener('keydown', handleKeyDown)
+      // Prevent body scroll when fullscreen
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+      document.body.style.overflow = 'unset'
     }
   }, [isMapExpanded])
 
@@ -1046,23 +1111,21 @@ export default function ListingsPage() {
         </div>
       </div>
 
-      {/* True fullscreen map overlay */}
+      {/* Airbnb-style fullscreen map modal */}
       {isMapExpanded && (
-        <div className="fixed inset-0 z-50 bg-white">
-          <div className="w-full h-full relative">
-            {/* Fullscreen map container */}
-            <div ref={fullscreenMapRef} className="w-full h-full bg-muted" />
-            
-            {/* Close button */}
-            <button
-              type="button"
-              className="absolute top-6 right-6 z-20 w-12 h-12 rounded-full bg-white/95 border border-gray-200 shadow-lg flex items-center justify-center hover:bg-white hover:shadow-xl transition-all duration-200"
-              onClick={() => setIsMapExpanded(false)}
-              aria-label="Close fullscreen map"
-            >
-              <X className="h-6 w-6 text-gray-700" />
-            </button>
-          </div>
+        <div className="fixed inset-0 z-[9999] bg-white">
+          {/* Fullscreen map container - covers entire viewport */}
+          <div ref={fullscreenMapRef} className="w-full h-full" />
+          
+          {/* Close button - top right corner */}
+          <button
+            type="button"
+            className="absolute top-6 right-6 z-20 w-12 h-12 rounded-full bg-white/95 border border-gray-200 shadow-lg flex items-center justify-center hover:bg-white hover:shadow-xl transition-all duration-200"
+            onClick={() => setIsMapExpanded(false)}
+            aria-label="Close fullscreen map"
+          >
+            <X className="h-6 w-6 text-gray-700" />
+          </button>
         </div>
       )}
 
