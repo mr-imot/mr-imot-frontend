@@ -582,8 +582,26 @@ textarea:disabled,
 .hero-visual img {
   width: auto;
   height: auto;
-  max-height: clamp(160px, 32vh, 340px);
   object-fit: contain;
+}
+
+/* Mobile first - conservative sizing */
+.hero-visual img {
+  max-height: clamp(160px, 32vh, 300px);
+}
+
+/* Tablet and up - slightly larger */
+@media (min-width: 768px) {
+  .hero-visual img {
+    max-height: clamp(200px, 35vh, 400px);
+  }
+}
+
+/* Desktop - much larger */
+@media (min-width: 1024px) {
+  .hero-visual img {
+    max-height: clamp(250px, 40vh, 500px);
+  }
 }
 
 /* Mobile-first responsive adjustments */
@@ -591,9 +609,6 @@ textarea:disabled,
   .hero-section > .container {
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
-  }
-  .hero-visual img {
-    max-height: clamp(140px, 30vh, 300px);
   }
 }
 
