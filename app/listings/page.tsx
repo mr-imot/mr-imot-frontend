@@ -857,7 +857,7 @@ export default function ListingsPage() {
                 className="space-y-4 relative"
               >
                
-                             {loading && isInitialLoading ? (
+                             {loading ? (
                  isInitialLoading ? (
                    <ListingCardSkeletonGrid count={6} />
                  ) : (
@@ -867,12 +867,8 @@ export default function ListingsPage() {
                        <div className="absolute inset-0 rounded-full border-4 border-gray-200"></div>
                      </div>
                      <div className="text-center">
-                       <p className="text-base xs:text-lg font-semibold text-gray-700 mb-1">
-                         {isBoundsLoading ? 'Updating Properties' : 'Loading Properties'}
-                       </p>
-                       <p className="text-gray-500 text-sm">
-                         {isBoundsLoading ? 'Finding properties in this area...' : 'Finding the perfect properties for you...'}
-                       </p>
+                       <p className="text-base xs:text-lg font-semibold text-gray-700 mb-1">Loading Properties</p>
+                       <p className="text-gray-500 text-sm">Finding the perfect properties for you...</p>
                      </div>
                    </div>
                  )
