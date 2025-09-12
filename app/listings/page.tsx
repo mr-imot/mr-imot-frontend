@@ -363,12 +363,20 @@ export default function ListingsPage() {
   
   // Recenter when city changes (navigation only, not filtering)
   useEffect(() => {
-    if (!googleMapRef.current) return
-    googleMapRef.current.panTo(CITY_COORDINATES[selectedCity])
-    googleMapRef.current.setZoom(CITY_COORDINATES[selectedCity].zoom)
+    // Recenter desktop map
+    if (googleMapRef.current) {
+      googleMapRef.current.panTo(CITY_COORDINATES[selectedCity])
+      googleMapRef.current.setZoom(CITY_COORDINATES[selectedCity].zoom)
+    }
     
-    // Set bounds immediately for API call
-    const bounds = googleMapRef.current.getBounds()
+    // Recenter mobile map if it exists
+    if (mobileGoogleMapRef.current) {
+      mobileGoogleMapRef.current.panTo(CITY_COORDINATES[selectedCity])
+      mobileGoogleMapRef.current.setZoom(CITY_COORDINATES[selectedCity].zoom)
+    }
+    
+    // Set bounds immediately for API call (use desktop map as primary)
+    const bounds = googleMapRef.current?.getBounds()
     if (bounds) {
       // Reset caches for new city to avoid stale tile hits
       loadedTilesRef.current.clear()
