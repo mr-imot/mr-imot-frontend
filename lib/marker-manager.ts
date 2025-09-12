@@ -168,23 +168,40 @@ export class MarkerManager {
   // Update properties without recreating markers
   updateProperties(newProperties: PropertyData[]) {
     const newPropertyIds = new Set(newProperties.map(p => p.id))
-    const currentPropertyIds = new Set(Object.keys(this.markers))
     
-    // Remove markers for properties that are no longer in the list
-    currentPropertyIds.forEach(id => {
-      if (!newPropertyIds.has(id)) {
-        this.removeMarker(id)
-      }
-    })
-    
-    // Add markers for new properties
+    // 1) Show or create markers for properties in the new list
     newProperties.forEach(property => {
-      if (!this.markers[property.id]) {
+      const existing = this.markers[property.id]
+      if (existing) {
+        // Ensure marker is visible on the first map
+        const primaryMap = this.config.maps[0]
+        if (primaryMap) {
+          if ('setMap' in existing) {
+            existing.setMap(primaryMap)
+          } else {
+            existing.map = primaryMap
+          }
+        }
+      } else {
         this.createSingleMarker(property)
       }
     })
     
-    // Update marker states
+    // 2) Hide markers for properties not present in the new list (but DO NOT delete)
+    Object.keys(this.markers).forEach(id => {
+      if (!newPropertyIds.has(id)) {
+        const marker = this.markers[id]
+        if (marker) {
+          if ('setMap' in marker) {
+            marker.setMap(null)
+          } else {
+            marker.map = null
+          }
+        }
+      }
+    })
+    
+    // 3) Update marker states
     this.updateMarkerStates()
   }
 
@@ -271,33 +288,27 @@ export class MarkerManager {
       return
     }
 
-    // Check if marker is already cached
-    if (this.markerCache[property.id]) {
-      // For cached markers, we need to recreate them for each map
-      // since AdvancedMarkerElement can only be on one map at a time
-      const cachedMarker = this.markerCache[property.id]
+    // Check if marker is already cached AND we have its original content to clone
+    if (this.markerCache[property.id] && this.markerContents[property.id]) {
       const originalElement = this.markerContents[property.id]
-      
-      if (originalElement) {
-        // Create new markers for each map using the cached marker as reference
-        this.config.maps.forEach((map, index) => {
-          if (map) {
-            const clonedElement = originalElement.cloneNode(true) as HTMLElement
-            const marker = new google.maps.marker.AdvancedMarkerElement({
-              position: { lat: property.lat, lng: property.lng },
-              map: map,
-              content: clonedElement,
-              title: property.title,
-              zIndex: 1,
-            })
-            
-            // Add event listeners to the new marker
-            this.addMarkerEventListeners(marker, property, clonedElement)
-          }
-        })
+      // Create new markers for each map using the cached content as reference
+      this.config.maps.forEach((map) => {
+        if (map && originalElement) {
+          const clonedElement = originalElement.cloneNode(true) as HTMLElement
+          const marker = new google.maps.marker.AdvancedMarkerElement({
+            position: { lat: property.lat, lng: property.lng },
+            map: map,
+            content: clonedElement,
+            title: property.title,
+            zIndex: 1,
+          })
+          this.addMarkerEventListeners(marker, property, clonedElement)
+        }
+      })
+      // Ensure primary reference exists
+      if (!this.markers[property.id]) {
+        this.markers[property.id] = this.markerCache[property.id]
       }
-
-      this.markers[property.id] = cachedMarker
       return
     }
 

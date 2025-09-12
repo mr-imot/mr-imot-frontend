@@ -53,9 +53,17 @@ export function createSvgHouseIcon(
   const houseIcon = `<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" fill="${fillColor}" stroke="${strokeColor}" stroke-width="1.5"/>
     <polyline points="9,22 9,12 15,12 15,22" fill="none" stroke="${strokeColor}" stroke-width="1.5"/>`
 
-  // Apartment/Building icon SVG path (matches Lucide Building icon used in property type buttons)
-  const apartmentIcon = `<path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z" fill="${fillColor}" stroke="${strokeColor}" stroke-width="1.5"/>
-    <path d="M6 12h4m0 0h4m-4 0v6m-4-3h4m0 0h4" fill="none" stroke="${strokeColor}" stroke-width="1.5"/>`
+  // Apartment/Building icon SVG path - clean minimal design matching house icon style
+  const apartmentIcon = `<rect x="6" y="4" width="12" height="18" rx="1" fill="${fillColor}" stroke="${strokeColor}" stroke-width="1.5"/>
+    <rect x="8" y="7" width="2" height="2" fill="${strokeColor}" opacity="0.7"/>
+    <rect x="11" y="7" width="2" height="2" fill="${strokeColor}" opacity="0.7"/>
+    <rect x="14" y="7" width="2" height="2" fill="${strokeColor}" opacity="0.7"/>
+    <rect x="8" y="11" width="2" height="2" fill="${strokeColor}" opacity="0.7"/>
+    <rect x="11" y="11" width="2" height="2" fill="${strokeColor}" opacity="0.7"/>
+    <rect x="14" y="11" width="2" height="2" fill="${strokeColor}" opacity="0.7"/>
+    <rect x="8" y="15" width="2" height="2" fill="${strokeColor}" opacity="0.7"/>
+    <rect x="11" y="15" width="2" height="2" fill="${strokeColor}" opacity="0.7"/>
+    <rect x="14" y="15" width="2" height="2" fill="${strokeColor}" opacity="0.7"/>`
 
   const iconPath = type === "house" ? houseIcon : apartmentIcon
 

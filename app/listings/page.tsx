@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState, useCallback } from "react"
+import { useEffect, useRef, useState, useCallback, useMemo } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useSearchParams } from "next/navigation"
@@ -130,14 +130,14 @@ export default function ListingsPage() {
   useEffect(() => {
     if (!isMobileMapView && mobileGoogleMapRef.current) {
       mobileGoogleMapRef.current = null
-      // Re-render markers on desktop map only
+      // Structural change: desktop map becomes sole map → re-render
       if (markerManagerRef.current && googleMapRef.current) {
-        const availableMaps = [googleMapRef.current]
+        const availableMaps = [googleMapRef.current as unknown as google.maps.Map]
         markerManagerRef.current.updateConfig({ maps: availableMaps })
         markerManagerRef.current.renderMarkers()
       }
     } else if (isMobileMapView && mobileGoogleMapRef.current) {
-      // Re-render markers on both maps when mobile map is available
+      // Structural change: desktop + mobile maps active → re-render
       if (markerManagerRef.current) {
         const availableMaps = [googleMapRef.current, mobileGoogleMapRef.current].filter(
           (map): map is google.maps.Map => map !== null
@@ -153,28 +153,14 @@ export default function ListingsPage() {
   const listContainerRef = useRef<HTMLDivElement>(null)
   const [mapBounds, setMapBounds] = useState<google.maps.LatLngBounds | null>(null)
 
-  // Fetch projects from API using map bounds (only when bounds are available)
-  const { projects: apiProjects, loading, error } = useProjects(
-    currentBounds ? {
-      per_page: 100,
-      sw_lat: currentBounds.sw_lat,
-      sw_lng: currentBounds.sw_lng,
-      ne_lat: currentBounds.ne_lat,
-      ne_lng: currentBounds.ne_lng,
-      // Add city and property type filters for mobile only (desktop shows all properties in bounds)
-      ...(typeof window !== 'undefined' && window.innerWidth < 1024 ? {
-        city: CITY_MAPPING[selectedCity], // Use Bulgarian city name for API
-        project_type: propertyTypeFilter === 'all' ? undefined :
-          propertyTypeFilter === 'apartments' ? 'apartment_building' : 'house_complex'
-      } : {}),
-    } : {
-      // For mobile without bounds, fetch by city and property type
-      per_page: 100,
-      city: CITY_MAPPING[selectedCity], // Use Bulgarian city name for API
-      project_type: propertyTypeFilter === 'all' ? undefined :
-        propertyTypeFilter === 'apartments' ? 'apartment_building' : 'house_complex',
-    }
-  )
+  // In-memory cache for properties and loaded tiles
+  const propertyCacheRef = useRef<Map<string, PropertyData>>(new Map())
+  const loadedTilesRef = useRef<Set<string>>(new Set())
+  const [cacheVersion, setCacheVersion] = useState(0)
+  const [fetchParams, setFetchParams] = useState<any>({ per_page: 0 })
+
+  // Controlled fetch by params (we'll update fetchParams when entering new areas)
+  const { projects: apiProjects, loading, error } = useProjects(fetchParams)
   
   // Debounced bounds update to avoid spamming API
   const debouncedBoundsUpdate = useCallback(
@@ -182,13 +168,33 @@ export default function ListingsPage() {
       const sw = bounds.getSouthWest()
       const ne = bounds.getNorthEast()
       
-      setIsBoundsLoading(true)
+      // Only set bounds-loading if we will actually fetch
       setCurrentBounds({
         sw_lat: sw.lat(),
         sw_lng: sw.lng(),
         ne_lat: ne.lat(),
         ne_lng: ne.lng(),
       })
+
+      // Compute a stable tile key to avoid duplicate fetches (0.05° grid, center-based)
+      const center = bounds.getCenter()
+      const tileKey = `${Math.floor(center.lat()/0.05)}:${Math.floor(center.lng()/0.05)}`
+      const willFetch = !loadedTilesRef.current.has(tileKey)
+      if (willFetch) {
+        setIsBoundsLoading(true)
+        loadedTilesRef.current.add(tileKey)
+        setFetchParams({
+          per_page: 100,
+          sw_lat: sw.lat(),
+          sw_lng: sw.lng(),
+          ne_lat: ne.lat(),
+          ne_lng: ne.lng(),
+          // Intentionally do NOT include project_type or city; fetch full tile contents for cache
+        })
+      } else {
+        // Using cache only – no network
+        setFetchParams({ per_page: 0 })
+      }
     }, 500),
     []
   )
@@ -200,10 +206,18 @@ export default function ListingsPage() {
     }
   }, [loading, isBoundsLoading])
 
-  // Debug API data
+  // Merge API data into cache; prefer cache for UI
   useEffect(() => {
-
-  }, [apiProjects, loading, error, currentBounds, isBoundsLoading])
+    if (apiProjects && apiProjects.length > 0) {
+      (apiProjects as unknown as PropertyData[]).forEach((p) => {
+        propertyCacheRef.current.set(String((p as any).id || p.id), p)
+      })
+      setCacheVersion((v) => v + 1)
+    }
+    if (!loading) {
+      setIsBoundsLoading(false)
+    }
+  }, [apiProjects])
 
   // Initialize Google Maps like the homepage
   useEffect(() => {
@@ -318,7 +332,7 @@ export default function ListingsPage() {
           }
         })
         
-        // Ensure markers are rendered on mobile map
+        // Structural change: mobile map created → re-render
         if (markerManagerRef.current) {
           const availableMaps = [googleMapRef.current, mobileMap].filter(
             (map): map is google.maps.Map => map !== null
@@ -353,46 +367,59 @@ export default function ListingsPage() {
     }
   }, [selectedCity])
 
-  // Apply only property type filters (map bounds drive the data, not city)
-  const filteredProperties = (apiProjects as unknown as PropertyData[] | undefined)?.filter((p) => {
-    // Apply property type filter only
-    if (propertyTypeFilter === "all") return true;
-    if (propertyTypeFilter === "apartments") {
-      return p.type === "Apartment Complex";
-    }
-    if (propertyTypeFilter === "houses") {
-      return p.type === "Residential Houses";
-    }
-    return true;
-  }) || [];
+  // Build filtered list from cache + bounds instead of raw API array
+  const filteredProperties = useMemo(() => {
+    const all = Array.from(propertyCacheRef.current.values())
+    // Filter by type
+    const typeFiltered = all.filter((p) => {
+      if (propertyTypeFilter === 'all') return true
+      if (propertyTypeFilter === 'apartments') return p.type === 'Apartment Complex'
+      if (propertyTypeFilter === 'houses') return p.type === 'Residential Houses'
+      return true
+    })
+    // Filter by current bounds
+    if (!mapBounds) return typeFiltered
+    return typeFiltered.filter((p) =>
+      typeof p.lat === 'number' && typeof p.lng === 'number' &&
+      mapBounds.contains(new google.maps.LatLng(p.lat, p.lng))
+    )
+  }, [propertyTypeFilter, mapBounds, cacheVersion])
+
+  // Memoize to prevent effects from re-running on equivalent arrays
+  const memoizedProperties = useMemo(() => filteredProperties, [
+    filteredProperties.length,
+    JSON.stringify(filteredProperties.map(p => p.id)),
+  ])
 
   // Debug filtered properties
   useEffect(() => {
 
   }, [filteredProperties, propertyTypeFilter, selectedCity])
 
-  // Update mobile map markers when mobile map view or filtered properties change
+  // Data-change only: do not call renderMarkers here
   useEffect(() => {
     if (isMobileMapView && mobileGoogleMapRef.current && markerManagerRef.current) {
       const availableMaps = [googleMapRef.current, mobileGoogleMapRef.current].filter(
         (map): map is google.maps.Map => map !== null
       )
       markerManagerRef.current.updateConfig({ maps: availableMaps })
-      markerManagerRef.current.renderMarkers()
+      // No renderMarkers; properties effect will update visibility
     }
-  }, [isMobileMapView, filteredProperties])
+  }, [isMobileMapView])
 
-  // Render markers when filtered data changes with clustering
+  // Render/update markers when data changes (visibility mode)
   useEffect(() => {
-    if (!googleMapRef.current || !filteredProperties) return
+    if (!googleMapRef.current || !memoizedProperties) return
 
-    const list = filteredProperties
+    const list = memoizedProperties
+
+    // Effect runs to update marker visibility and grid from memoized data
 
 
     // Initialize marker manager only once
     if (!markerManagerRef.current) {
       // Get available maps (desktop + mobile if exists and we're in mobile view)
-      const availableMaps = [googleMapRef.current]
+      const availableMaps = [googleMapRef.current as unknown as google.maps.Map]
       if (isMobileMapView && mobileGoogleMapRef.current) {
         availableMaps.push(mobileGoogleMapRef.current)
       }
@@ -422,7 +449,7 @@ export default function ListingsPage() {
         hoveredPropertyId,
       })
 
-      // Initial render
+      // Initial render for first-time setup
       markerManagerRef.current.renderMarkers()
     } else {
       // Update configuration for callbacks that depend on current state
@@ -451,7 +478,7 @@ export default function ListingsPage() {
       // Update properties efficiently without recreating markers
       markerManagerRef.current.updateProperties(list)
     }
-  }, [filteredProperties, mapBounds, selectedPropertyId, hoveredPropertyId])
+  }, [memoizedProperties, mapBounds])
 
 
 
@@ -465,21 +492,21 @@ export default function ListingsPage() {
   }, [hoveredPropertyId, selectedPropertyId])
 
 
-  // Update marker manager to include mobile map when available
+  // Structural: desktop/mobile map set changed → re-render
   useEffect(() => {
     if (!markerManagerRef.current) return
 
-    const availableMaps = [googleMapRef.current]
+    const availableMaps = [googleMapRef.current as unknown as google.maps.Map]
     if (isMobileMapView && mobileGoogleMapRef.current) {
       availableMaps.push(mobileGoogleMapRef.current)
     }
 
-    // Always update maps and re-render markers
+    // Update maps and re-render for structural change only
     markerManagerRef.current.updateConfig({ maps: availableMaps })
     markerManagerRef.current.renderMarkers()
   }, [isMobileMapView])
 
-  // Re-render markers when city changes
+  // Structural: city change → re-render
   useEffect(() => {
     if (markerManagerRef.current) {
       markerManagerRef.current.renderMarkers()
@@ -510,7 +537,7 @@ export default function ListingsPage() {
     if (googleMapRef.current) {
       // Small delay to ensure DOM has updated
       setTimeout(() => {
-        google.maps.event.trigger(googleMapRef.current, 'resize')
+        google.maps.event.trigger(googleMapRef.current as unknown as object, 'resize')
         
       }, 100)
     }
@@ -805,7 +832,7 @@ export default function ListingsPage() {
                 className="space-y-4 relative"
               >
                
-                             {loading || isBoundsLoading ? (
+                             {loading && isInitialLoading ? (
                  isInitialLoading ? (
                    <ListingCardSkeletonGrid count={6} />
                  ) : (
@@ -976,10 +1003,10 @@ export default function ListingsPage() {
                   </div>
                   <div className="text-center">
                     <p className="text-lg font-semibold mb-2" style={{color: 'var(--brand-text-primary)'}}>
-                      {isBoundsLoading ? 'Updating Properties' : 'Loading Properties'}
+                      Loading Properties
                     </p>
                     <p style={{color: 'var(--brand-text-muted)'}}>
-                      {isBoundsLoading ? 'Finding properties in this area...' : 'Finding the perfect properties for you...'}
+                      Finding the perfect properties for you...
                     </p>
                   </div>
                 </div>
