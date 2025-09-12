@@ -148,8 +148,6 @@ export default function ListingsPage() {
     }
   }, [isMobileMapView, mobileGoogleMapRef.current])
   // Map refs
-  const fullscreenMapRef = useRef<HTMLDivElement>(null)
-  const fullscreenGoogleMapRef = useRef<google.maps.Map | null>(null)
   const markerManagerRef = useRef<MarkerManager | null>(null)
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null)
   const listContainerRef = useRef<HTMLDivElement>(null)
@@ -466,43 +464,8 @@ export default function ListingsPage() {
          // Fullscreen markers are now handled by MarkerManager
   }, [hoveredPropertyId, selectedPropertyId])
 
-  // Handle fullscreen map initialization
-  useEffect(() => {
-    if (isMapExpanded && fullscreenMapRef.current && !fullscreenGoogleMapRef.current) {
-      // Create a new map instance for fullscreen mode
-      const initFullscreenMap = async () => {
-        try {
-          await ensureGoogleMaps()
-          if (fullscreenMapRef.current) {
-            fullscreenGoogleMapRef.current = new google.maps.Map(fullscreenMapRef.current, {
-              center: googleMapRef.current?.getCenter() || CITY_COORDINATES[selectedCity],
-              zoom: googleMapRef.current?.getZoom() || CITY_COORDINATES[selectedCity].zoom,
-              streetViewControl: false,
-              mapTypeControl: false,
-              fullscreenControl: false,
-              zoomControl: true,
-              scrollwheel: true,
-              gestureHandling: 'greedy',
-              mapId: 'DEMO_MAP_ID',
-            })
 
-            // Add click handler to deselect properties
-            fullscreenGoogleMapRef.current.addListener('click', () => {
-              setSelectedPropertyId(null)
-            })
-          }
-        } catch (error) {
-          console.error('Error initializing fullscreen map:', error)
-        }
-      }
-      initFullscreenMap()
-    } else if (!isMapExpanded && fullscreenGoogleMapRef.current) {
-      // Clean up fullscreen map when closed
-      fullscreenGoogleMapRef.current = null
-    }
-  }, [isMapExpanded, selectedCity])
-
-  // Update marker manager to include fullscreen map when available
+  // Update marker manager to include mobile map when available
   useEffect(() => {
     if (!markerManagerRef.current) return
 
@@ -510,14 +473,11 @@ export default function ListingsPage() {
     if (isMobileMapView && mobileGoogleMapRef.current) {
       availableMaps.push(mobileGoogleMapRef.current)
     }
-    if (isMapExpanded && fullscreenGoogleMapRef.current) {
-      availableMaps.push(fullscreenGoogleMapRef.current)
-    }
 
     // Always update maps and re-render markers
     markerManagerRef.current.updateConfig({ maps: availableMaps })
     markerManagerRef.current.renderMarkers()
-  }, [isMapExpanded, isMobileMapView, fullscreenGoogleMapRef.current])
+  }, [isMobileMapView])
 
   // Re-render markers when city changes
   useEffect(() => {
@@ -536,15 +496,23 @@ export default function ListingsPage() {
 
     if (isMapExpanded) {
       document.addEventListener('keydown', handleKeyDown)
-      // Prevent body scroll when fullscreen
-      document.body.style.overflow = 'hidden'
     } else {
-      document.body.style.overflow = 'unset'
+      document.removeEventListener('keydown', handleKeyDown)
     }
 
     return () => {
       document.removeEventListener('keydown', handleKeyDown)
-      document.body.style.overflow = 'unset'
+    }
+  }, [isMapExpanded])
+
+  // Trigger map resize when fullscreen mode changes
+  useEffect(() => {
+    if (googleMapRef.current) {
+      // Small delay to ensure DOM has updated
+      setTimeout(() => {
+        google.maps.event.trigger(googleMapRef.current, 'resize')
+        
+      }, 100)
     }
   }, [isMapExpanded])
 
@@ -788,7 +756,7 @@ export default function ListingsPage() {
         </section>
 
       {/* Airbnb-style layout with exact proportions */}
-      <div className="mx-auto w-full max-w-[1905px] px-3 xs:px-4 sm:px-6 md:px-8 py-8">
+        <div className={`mx-auto w-full max-w-[1905px] px-3 xs:px-4 sm:px-6 md:px-8 py-8`}>
                            {/* Mobile: Full-screen Map or List View */}
           <div className="lg:hidden">
                        {isMobileMapView ? (
@@ -917,9 +885,9 @@ export default function ListingsPage() {
         </div>
 
         {/* Desktop: Professional layout with 3 listings per row and wider map */}
-        <div className="hidden lg:flex gap-8">
+        <div className={`hidden lg:flex ${isMapExpanded ? 'gap-0' : 'gap-8'}`}>
           {/* Left: Scrollable Listings Container (60% width) */}
-          <section className="flex-1 min-w-0">
+          <section className={`flex-1 min-w-0 ${isMapExpanded ? '!flex-none !w-0 !min-w-0' : ''}`} style={isMapExpanded ? {display: 'none'} : {}}>
             {/* Desktop Filters aligned with map top */}
             <div className="mb-6">
               <Card className="shadow-lg border" style={{backgroundColor: '#ffffff', borderColor: 'var(--brand-gray-200)'}}>
@@ -1090,7 +1058,7 @@ export default function ListingsPage() {
           </section>
 
           {/* Right: Sticky Map (fixed width on 2XL to match Airbnb) */}
-          <aside className="w-[40%] 2xl:w-[752px] flex-shrink-0">
+          <aside className={`w-[40%] ${isMapExpanded ? '!flex-1 !w-full' : '2xl:w-[752px] flex-shrink-0'}`}>
             <div className="sticky top-8 h-[calc(100vh-120px)] rounded-2xl overflow-hidden border border-gray-200 shadow-lg">
               <div ref={mapRef} className="w-full h-full bg-muted" />
               
@@ -1116,48 +1084,6 @@ export default function ListingsPage() {
         </div>
       </div>
 
-      {/* Airbnb-style expanded map - within content area */}
-      {isMapExpanded && (
-        <div className="fixed inset-0 z-50 bg-white">
-          {/* Header stays visible */}
-          <div className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
-            <div className="flex items-center space-x-8">
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-brand rounded-full flex items-center justify-center">
-                  <span className="text-white text-sm font-bold">M</span>
-                </div>
-                <span className="text-xl font-bold text-gray-900">Mr Imot</span>
-              </div>
-              <nav className="hidden md:flex space-x-6">
-                <a href="/listings" className="text-gray-900 font-medium">Listings</a>
-                <a href="/developers" className="text-gray-600 hover:text-gray-900">Developers</a>
-                <a href="/about-us" className="text-gray-600 hover:text-gray-900">About Us</a>
-              </nav>
-            </div>
-            <button
-              type="button"
-              className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 font-medium transition-colors"
-            >
-              Login
-            </button>
-          </div>
-          
-          {/* Expanded map takes over the content area */}
-          <div className="h-[calc(100vh-64px)] relative">
-            <div ref={fullscreenMapRef} className="w-full h-full" />
-            
-            {/* Close button - top right of map area */}
-            <button
-              type="button"
-              className="absolute top-6 right-6 z-20 w-12 h-12 rounded-full bg-white/95 border border-gray-200 shadow-lg flex items-center justify-center hover:bg-white hover:shadow-xl transition-all duration-200"
-              onClick={() => setIsMapExpanded(false)}
-              aria-label="Close fullscreen map"
-            >
-              <X className="h-6 w-6 text-gray-700" />
-            </button>
-          </div>
-        </div>
-      )}
 
              {/* Airbnb-style Property Map Card - Desktop Map View Only */}
        {!isMobileMapView && selectedProperty && (
