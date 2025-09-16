@@ -513,9 +513,23 @@ a,
 }
 
 /* Default cursor for text elements (no caret) */
-h1, h2, h3, h4, h5, h6, p, span, div, label {
+h1, h2, h3, h4, h5, h6, p, span, label {
   cursor: default !important;
   caret-color: transparent !important;
+}
+/* Removed div - let it inherit cursor from parent */
+
+/* Override for text inside clickable elements */
+.clickable h1, 
+.clickable h2, 
+.clickable h3, 
+.clickable h4, 
+.clickable h5, 
+.clickable h6, 
+.clickable p, 
+.clickable span, 
+.clickable label {
+  cursor: pointer !important;
 }
 
 /* Disabled elements */
@@ -531,7 +545,6 @@ textarea:disabled,
 .cursor-default,
 .cursor-auto,
 .cursor-text,
-.cursor-pointer,
 .cursor-not-allowed,
 .cursor-wait,
 .cursor-help,
@@ -540,6 +553,7 @@ textarea:disabled,
 .cursor-grabbing {
   cursor: inherit !important;
 }
+/* Removed .cursor-pointer from inherit rule to allow clickable elements to work */
 
 /* ===== HERO SECTION: PERMANENT, DEVICE-AGNOSTIC LAYOUT ===== */
 .hero-section {

@@ -144,7 +144,7 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover }: Lis
       target={`listing_${listing.id}`}
       rel="noopener noreferrer nofollow"
       aria-labelledby={`title_${listing.id}`}
-      className="block"
+      className="block clickable"
     >
       <article
         ref={cardRef}

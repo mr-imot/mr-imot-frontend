@@ -14,7 +14,7 @@ export function SiteHeader() {
         <div className="w-full flex items-center justify-between">
         {/* Logo */}
         <div className="flex items-center">
-          <Link href="/" className="flex items-center space-x-3 group">
+          <Link href="/" className="flex items-center space-x-3 group clickable">
             <div className="relative w-14 h-14 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-200 border border-white/20">
               <Image
                 src="/images/mr-imot-logo-no-background.png"
