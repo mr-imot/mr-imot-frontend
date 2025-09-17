@@ -59,7 +59,49 @@ const CITY_MAPPING: Record<CityType, string> = {
   "Varna": "Варна"
 }
 
+// Dynamic header height calculation + robust viewport unit fallback
+const useHeaderHeight = () => {
+  useEffect(() => {
+    const setVhUnit = () => {
+      const vh = window.innerHeight * 0.01
+      document.documentElement.style.setProperty('--vh', `${vh}px`)
+    }
+
+    const updateHeaderHeight = () => {
+      const header = document.querySelector('header')
+      if (header) {
+        const height = header.offsetHeight
+        document.documentElement.style.setProperty('--header-height', `${height}px`)
+      }
+    }
+
+    // Initial calculation with a small delay to ensure DOM is ready
+    const timeoutId = setTimeout(() => {
+      setVhUnit()
+      updateHeaderHeight()
+    }, 100)
+
+    // Recalculate on resize
+    window.addEventListener('resize', setVhUnit)
+    window.addEventListener('resize', updateHeaderHeight)
+    
+    // Recalculate when DOM changes
+    const observer = new MutationObserver(updateHeaderHeight)
+    observer.observe(document.body, { childList: true, subtree: true })
+
+    return () => {
+      clearTimeout(timeoutId)
+      window.removeEventListener('resize', setVhUnit)
+      window.removeEventListener('resize', updateHeaderHeight)
+      observer.disconnect()
+    }
+  }, [])
+}
+
 export default function ListingsPage() {
+  // Dynamic header height calculation
+  useHeaderHeight()
+  
   const searchParams = useSearchParams()
   const urlCity = searchParams.get("city") as CityType | null
   const urlType = searchParams.get("type") as PropertyTypeFilter | null
@@ -808,7 +850,7 @@ export default function ListingsPage() {
         </section>
 
       {/* Airbnb-style layout with exact proportions */}
-        <div className={`mx-auto w-full max-w-[1905px] px-3 xs:px-4 sm:px-6 md:px-8 py-8`}>
+        <div className={`mx-auto w-full max-w-[1905px] px-3 xs:px-4 sm:px-6 md:px-8 py-4`}>
                            {/* Mobile: Full-screen Map or List View */}
           <div className="lg:hidden">
                        {isMobileMapView ? (
@@ -936,8 +978,8 @@ export default function ListingsPage() {
         <div className={`hidden lg:flex ${isMapExpanded ? 'gap-0' : 'gap-8'}`}>
           {/* Left: Scrollable Listings Container (60% width) */}
           <section className={`flex-1 min-w-0 ${isMapExpanded ? '!flex-none !w-0 !min-w-0' : ''}`} style={isMapExpanded ? {display: 'none'} : {}}>
-            {/* Desktop Filters aligned with map top */}
-            <div className="mb-6">
+             {/* Desktop Filters aligned with map top */}
+             <div className="mt-4 mb-4">
               <Card className="shadow-lg border" style={{backgroundColor: '#ffffff', borderColor: 'var(--brand-gray-200)'}}>
                 <CardContent className="p-4 laptop:p-4 xl:p-6">
                   <div className="flex flex-row items-center justify-center gap-8 laptop:gap-6 xl:gap-12">
@@ -1013,9 +1055,9 @@ export default function ListingsPage() {
                 </CardContent>
               </Card>
             </div>
-            <div className="h-[calc(100vh-120px)] overflow-y-auto pr-4 scrollbar-thin" style={{
-              scrollbarColor: 'var(--brand-gray-300) var(--brand-gray-100)'
-            }}>
+             <div className="listings-map-container overflow-y-auto pr-4 scrollbar-thin" style={{
+               scrollbarColor: 'var(--brand-gray-300) var(--brand-gray-100)'
+             }}>
               {loading || isBoundsLoading ? (
                 <div className="flex flex-col items-center justify-center py-24 space-y-6">
                   <div className="relative">
@@ -1105,9 +1147,9 @@ export default function ListingsPage() {
             </div>
           </section>
 
-          {/* Right: Sticky Map (fixed width on 2XL to match Airbnb) */}
-          <aside className={`w-[40%] ${isMapExpanded ? '!flex-1 !w-full' : '2xl:w-[752px] flex-shrink-0'}`}>
-            <div className="sticky top-8 h-[calc(100vh-120px)] rounded-2xl overflow-hidden border border-gray-200 shadow-lg">
+           {/* Right: Sticky Map (fixed width on 2XL to match Airbnb) */}
+           <aside className={`w-[32%] ${isMapExpanded ? '!flex-1 !w-full' : '2xl:w-[600px] flex-shrink-0'}`}>
+             <div className="sticky top-4 listings-map-container rounded-2xl overflow-hidden border border-gray-200 shadow-lg">
               <div ref={mapRef} className="w-full h-full bg-muted" />
               
               {/* Expand control */}

@@ -569,6 +569,20 @@ textarea:disabled,
   }
 }
 
+/* ===== LISTINGS MAP: PERMANENT, DEVICE-AGNOSTIC LAYOUT ===== */
+.listings-map-container {
+  /* Use JS-updated --vh as primary fallback to avoid mobile URL bar issues */
+  height: calc(var(--vh, 1vh) * 100 - var(--header-height, 0px) - 4rem);
+  position: relative;
+}
+
+/* Prefer modern dynamic viewport units when available */
+@supports (height: 100dvh) {
+  .listings-map-container {
+    height: calc(100dvh - var(--header-height, 0px) - 4rem);
+  }
+}
+
 /* Let the immediate container fill the section and center content robustly */
 .hero-section > .container {
   height: 100%;
