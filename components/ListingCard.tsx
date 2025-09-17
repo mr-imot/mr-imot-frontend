@@ -149,15 +149,16 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover }: Lis
       <article
         ref={cardRef}
         data-id={listing.id}
-        className={cn(
-          "group cursor-pointer bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 ease-out overflow-hidden hover:border-brand/30 h-[420px] flex flex-col",
-          isActive && "bg-gray-50 border-gray-200 shadow-lg"
-        )}
+        className="group cursor-pointer transition-all duration-300 ease-out"
+        style={{
+          filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.1))',
+          ...(isActive && { filter: 'drop-shadow(0 4px 16px rgba(0,0,0,0.15))' })
+        }}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-      {/* Image Container - Fixed height like card 2 */}
-      <div className="relative overflow-hidden h-[240px] flex-shrink-0">
+      {/* Image Container - Airbnb approach: container clips image with rounded corners */}
+      <div className="relative overflow-hidden h-[240px] w-full" style={{ borderRadius: '20px' }}>
         <div 
           className="relative w-full h-full"
           onTouchStart={onTouchStart}
@@ -215,57 +216,47 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover }: Lis
         )}
       </div>
 
-      {/* Content - Fixed height like card 2 */}
-      <div className="p-3 h-[180px] flex flex-col justify-between">
-        {/* Top section - Title and description with fixed height */}
-        <div className="h-[120px] flex flex-col justify-start">
-          {/* Project name - Premium typography with fixed height */}
-          <div className="h-[48px] flex items-start justify-between gap-2 mb-2">
-            <h3 
-              id={`title_${listing.id}`}
-              className="font-outfit text-[#222222] text-[16px] font-semibold leading-tight line-clamp-2 tracking-[-0.01em] flex-1"
-            >
-              {listing.title}
-            </h3>
-            <ExternalLink className="h-3.5 w-3.5 text-gray-400 flex-shrink-0 mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-          </div>
-          
-          {/* Summary description with fixed height */}
-          <div className="h-[48px] flex items-start">
-            {summarize(listing.description) && (
-              <p className="font-source-sans text-[#717171] text-[13px] font-normal leading-snug line-clamp-2">
-                {summarize(listing.description)}
-              </p>
-            )}
-          </div>
-        </div>
+       {/* Text floating directly below image - Fixed heights for consistency */}
+       <div className="pt-3 flex flex-col gap-1">
+         {/* Title - Fixed height container, max 2 lines */}
+         <div className="h-12 flex items-start justify-between gap-2">
+           <h3 
+             id={`title_${listing.id}`}
+             className="font-semibold text-gray-900 text-[16px] leading-tight line-clamp-2 flex-1 text-left"
+           >
+             {listing.title}
+           </h3>
+           <ExternalLink className="h-4 w-4 text-gray-400 flex-shrink-0 mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+         </div>
+         
+         {/* Description - Fixed height, max 1 line */}
+         <div className="h-5 flex items-center">
+           {summarize(listing.description, 60) && (
+             <p className="text-gray-600 text-[14px] font-normal leading-relaxed line-clamp-1 text-left">
+               {summarize(listing.description, 60)}
+             </p>
+           )}
+         </div>
 
-        {/* Bottom section - Location and price with fixed height */}
-        <div className="h-[60px] flex flex-col justify-end">
-          {/* City with property type icon */}
-          <div className="flex items-center gap-2 mb-2">
-            {listing.propertyType === 'Residential Houses' ? (
-              <Home className="h-3.5 w-3.5 text-brand flex-shrink-0" />
-            ) : (
-              <Building className="h-3.5 w-3.5 text-brand flex-shrink-0" />
-            )}
-            <p className="font-source-sans text-[#717171] text-[14px] font-normal leading-tight truncate">
-              {listing.city}
-            </p>
-          </div>
-          
-          {/* Price - Premium typography */}
-          <div className="text-sm text-[#222222] leading-tight">
-            {listing.priceLabel ? (
-              <span className="font-outfit text-[15px] font-medium tracking-[-0.005em]">{listing.priceLabel}</span>
-            ) : listing.price ? (
-              <span className="font-outfit text-[15px] font-medium tracking-[-0.005em]">{`${listing.price.amount} ${listing.price.currency}`}</span>
-            ) : (
-              <span className="font-outfit text-[15px] font-medium text-brand tracking-[-0.005em]">Request price</span>
-            )}
-          </div>
-        </div>
-      </div>
+         {/* Location - Fixed height, max 1 line */}
+         <div className="h-5 flex items-center gap-2">
+           {listing.propertyType === 'Residential Houses' ? (
+             <Home className="h-4 w-4 text-gray-500 flex-shrink-0" />
+           ) : (
+             <Building className="h-4 w-4 text-gray-500 flex-shrink-0" />
+           )}
+           <span className="text-gray-600 text-[14px] font-medium text-left truncate">
+             {listing.city}
+           </span>
+         </div>
+         
+         {/* Price - Fixed height, max 1 line */}
+         <div className="h-6 flex items-center">
+           <span className="text-gray-900 font-semibold text-[15px] text-left">
+             {listing.priceLabel || (listing.price?.amount && listing.price?.currency ? `${listing.price.amount} ${listing.price.currency}` : 'Request price')}
+           </span>
+         </div>
+       </div>
        </article>
      </a>
    )

@@ -976,8 +976,8 @@ export default function ListingsPage() {
 
         {/* Desktop: Professional layout with 3 listings per row and wider map */}
         <div className={`hidden lg:flex ${isMapExpanded ? 'gap-0' : 'gap-8'}`}>
-          {/* Left: Scrollable Listings Container (60% width) */}
-          <section className={`flex-1 min-w-0 ${isMapExpanded ? '!flex-none !w-0 !min-w-0' : ''}`} style={isMapExpanded ? {display: 'none'} : {}}>
+          {/* Left: Scrollable Listings Container */}
+          <section className={`min-w-0 ${isMapExpanded ? '!flex-none !w-0 !min-w-0' : ''}`} style={isMapExpanded ? {display: 'none'} : { width: 'calc(100% - max(600px, 40vw) - 2rem)' }}>
              {/* Desktop Filters aligned with map top */}
              <div className="mt-4 mb-4">
               <Card className="shadow-lg border" style={{backgroundColor: '#ffffff', borderColor: 'var(--brand-gray-200)'}}>
@@ -1147,8 +1147,8 @@ export default function ListingsPage() {
             </div>
           </section>
 
-           {/* Right: Sticky Map (fixed width on 2XL to match Airbnb) */}
-           <aside className={`w-[32%] ${isMapExpanded ? '!flex-1 !w-full' : '2xl:w-[600px] flex-shrink-0'}`}>
+           {/* Right: Sticky Map (responsive with minimum width) */}
+           <aside className={`${isMapExpanded ? '!flex-1 !w-full' : 'flex-shrink-0'}`} style={{ width: isMapExpanded ? '100%' : 'max(600px, 40vw)' }}>
              <div className="sticky top-4 listings-map-container rounded-2xl overflow-hidden border border-gray-200 shadow-lg">
               <div ref={mapRef} className="w-full h-full bg-muted" />
               
