@@ -152,6 +152,7 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover }: Lis
         className="group cursor-pointer transition-all duration-300 ease-out"
         style={{
           filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.1))',
+          touchAction: 'manipulation',
           ...(isActive && { filter: 'drop-shadow(0 4px 16px rgba(0,0,0,0.15))' })
         }}
         onMouseEnter={handleMouseEnter}
