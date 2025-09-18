@@ -553,6 +553,7 @@ export default function NewPropertyPage() {
         latitude: values.latitude,
         longitude: values.longitude,
         completion_note: `${values.completion_month} ${values.completion_year}`,  // Fixed: backend expects 'completion_note'
+        feature_ids: values.feature_ids || [],  // Add missing feature_ids field
       })
       
       setCreatedProjectId(project.id.toString())
