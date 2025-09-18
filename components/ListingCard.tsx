@@ -149,7 +149,7 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover }: Lis
       <article
         ref={cardRef}
         data-id={listing.id}
-        className="group cursor-pointer transition-all duration-300 ease-out"
+        className="group cursor-pointer transition-[filter] duration-300 ease-out"
         style={{
           filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.1))',
           touchAction: 'manipulation',
