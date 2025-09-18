@@ -490,7 +490,7 @@ export class MarkerManager {
         const touch = e.touches[0]
         touchStartX = touch.clientX
         touchStartY = touch.clientY
-        this.config.onPropertyHover(property.id)
+        // No hover on mobile - touch devices don't need hover states
       }, { passive: false })
 
       pillElement.addEventListener('touchend', (e: TouchEvent) => {
@@ -505,17 +505,41 @@ export class MarkerManager {
           const deltaY = Math.abs(touch.clientY - touchStartY)
 
           if (deltaX < 10 && deltaY < 10) { // Minimal movement threshold
-            // Trigger the marker click
-            google.maps.event.trigger(marker, 'click')
+            // Directly call the click logic instead of triggering Google Maps click event
+            // This prevents the double-tap issue on mobile
+            if (this.config.selectedPropertyId === property.id) {
+              this.config.onPropertySelect(null)
+              this.config.onAriaAnnouncement("Property details closed")
+            } else {
+              this.config.onPropertySelect(property.id)
+              this.config.onAriaAnnouncement(`Selected property: ${property.title} - ${property.shortPrice || 'Contact for price'}`)
+
+              // Airbnb-style: Only pan/zoom if marker is not visible in current viewport
+              const bounds = this.config.maps[0]?.getBounds()
+              if (bounds && this.config.maps[0]) {
+                const markerLatLng = new google.maps.LatLng(property.lat, property.lng)
+                const isVisible = bounds.contains(markerLatLng)
+                const currentZoom = this.config.maps[0].getZoom() || 10
+
+                // Only move map if marker is outside viewport OR zoom is too low
+                if (!isVisible || currentZoom < 12) {
+                  const targetZoom = Math.max(currentZoom, 14)
+                  this.config.maps[0].panTo({ lat: property.lat, lng: property.lng })
+                  if (targetZoom > currentZoom) {
+                    this.config.maps[0].setZoom(targetZoom)
+                  }
+                }
+              }
+            }
           }
         }
 
-        this.config.onPropertyHover(null)
+        // No hover cleanup needed on mobile
       }, { passive: false })
 
       // Handle touch cancel (user moved finger away)
       pillElement.addEventListener('touchcancel', () => {
-        this.config.onPropertyHover(null)
+        // No hover cleanup needed on mobile
       }, { passive: false })
     } else {
       // Desktop: Use mouse events
