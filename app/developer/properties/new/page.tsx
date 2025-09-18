@@ -540,12 +540,25 @@ export default function NewPropertyPage() {
     setSubmitSuccess(null)
     
     try {
-      // First, create the project
-      const project = await createProject({
+      // Debug: Log the form values being sent
+      console.log('🚀 Creating project with values:', {
         name: values.name,
         description: values.description,
         city: values.city,
         country: values.country,
+        formatted_address: values.address,
+        project_type: values.project_type,
+        latitude: values.latitude,
+        longitude: values.longitude,
+        feature_ids: values.feature_ids
+      });
+      
+      // First, create the project
+      const project = await createProject({
+        name: values.name,
+        description: values.description,
+        city: values.city || "Sofia", // Default to Sofia if city is empty
+        country: values.country || "Bulgaria",
         formatted_address: values.address,  // Fixed: backend expects 'formatted_address'
         project_type: values.project_type,
         price_label: values.requestPrice ? "Request price" : 
@@ -582,7 +595,7 @@ export default function NewPropertyPage() {
       
       // Redirect after a short delay to show success message
       setTimeout(() => {
-        router.push("/developer/dashboard")
+        router.push(`/listing/${project.id}`)
       }, 2000)
       
     } catch (err: any) {
@@ -590,7 +603,11 @@ export default function NewPropertyPage() {
       let errorMessage = "Failed to create project. Please try again."
       
       // Handle specific error types
-      if (err.isServerError) {
+      if (err.message && err.message.includes("Invalid request format")) {
+        errorMessage = "Invalid data format. Please ensure all required fields are filled correctly. Try selecting an address from the dropdown suggestions."
+      } else if (err.message && err.message.includes("city")) {
+        errorMessage = "Please provide a valid city. Try selecting an address from the Google Maps suggestions."
+      } else if (err.isServerError) {
         errorMessage = "Server error occurred. Please try again later."
       } else if (err.message) {
         if (err.message.includes("Failed to fetch")) {
