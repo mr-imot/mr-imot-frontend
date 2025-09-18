@@ -159,7 +159,13 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover }: Lis
         onMouseLeave={handleMouseLeave}
       >
       {/* Image Container - Airbnb approach: container clips image with rounded corners */}
-      <div className="relative overflow-hidden h-[240px] w-full" style={{ borderRadius: '20px' }}>
+      <div className="relative overflow-hidden h-[240px] w-full" style={{ 
+        borderRadius: '20px',
+        WebkitBorderRadius: '20px',
+        transform: 'translateZ(0)',
+        WebkitTransform: 'translateZ(0)',
+        isolation: 'isolate'
+      }}>
         <div 
           className="relative w-full h-full"
           onTouchStart={onTouchStart}
