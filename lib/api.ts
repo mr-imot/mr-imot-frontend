@@ -98,6 +98,14 @@ class ApiClient {
     options: RequestInit = {}
   ): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
+    
+    // Debug logging for API requests
+    console.log('🌐 API Request Debug:', {
+      baseURL: this.baseURL,
+      endpoint: endpoint,
+      fullURL: url,
+      NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL
+    });
 
     // Build headers - no manual token handling needed
     const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
