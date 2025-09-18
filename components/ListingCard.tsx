@@ -171,7 +171,7 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover }: Lis
             src={listing.images[currentImageIndex] || '/placeholder.svg'}
             alt={listing.title}
             fill
-            className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+            className="object-cover"
             sizes="(max-width: 40em) 100vw, (max-width: 64em) 50vw, 33vw"
             loading="lazy"
           />
