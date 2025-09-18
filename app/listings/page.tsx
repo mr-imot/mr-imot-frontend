@@ -305,6 +305,14 @@ export default function ListingsPage() {
         })
                  googleMapRef.current = map
          
+         // Add click listener to close property card when clicking on map (Airbnb-style)
+         map.addListener('click', () => {
+           if (selectedPropertyId) {
+             console.log('🗺️ DESKTOP MAP CLICKED - Closing property card')
+             setSelectedPropertyId(null)
+           }
+         })
+         
          // Initialize advanced map gestures - TEMPORARILY DISABLED
          // const gestures = new AdvancedMapGestures({
          //   map,
@@ -378,6 +386,14 @@ export default function ListingsPage() {
           mapId: 'DEMO_MAP_ID',
         })
         mobileGoogleMapRef.current = mobileMap
+        
+        // Add click listener to close property card when tapping on map (Airbnb-style)
+        mobileMap.addListener('click', () => {
+          if (selectedPropertyId) {
+            console.log('🗺️ MOBILE MAP CLICKED - Closing property card')
+            setSelectedPropertyId(null)
+          }
+        })
         
         // Center on selected city with current filters
         mobileMap.setCenter(CITY_COORDINATES[selectedCity])

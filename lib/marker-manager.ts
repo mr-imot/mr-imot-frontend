@@ -486,6 +486,7 @@ export class MarkerManager {
 
       pillElement.addEventListener('touchstart', (e: TouchEvent) => {
         e.preventDefault() // Prevent map gestures
+        console.log('📱 TOUCH START for property:', property.id)
         touchStartTime = Date.now()
         const touch = e.touches[0]
         touchStartX = touch.clientX
@@ -495,18 +496,25 @@ export class MarkerManager {
 
       pillElement.addEventListener('touchend', (e: TouchEvent) => {
         e.preventDefault() // Prevent map gestures
+        e.stopPropagation() // Stop event bubbling
+        
         const touchEndTime = Date.now()
         const touchDuration = touchEndTime - touchStartTime
 
-        // Only trigger click if touch duration is short (not a long press) and minimal movement
-        if (touchDuration < 300) { // Less than 300ms
+        console.log('📱 TOUCH END - Duration:', touchDuration, 'Property:', property.id)
+
+        // More lenient touch detection for mobile
+        if (touchDuration < 500) { // Increased from 300ms to 500ms
           const touch = e.changedTouches[0]
           const deltaX = Math.abs(touch.clientX - touchStartX)
           const deltaY = Math.abs(touch.clientY - touchStartY)
 
-          if (deltaX < 10 && deltaY < 10) { // Minimal movement threshold
-            // Directly call the click logic instead of triggering Google Maps click event
-            // This prevents the double-tap issue on mobile
+          console.log('📱 TOUCH MOVEMENT - X:', deltaX, 'Y:', deltaY)
+
+          if (deltaX < 20 && deltaY < 20) { // Increased threshold from 10px to 20px
+            console.log('📱 TRIGGERING PROPERTY SELECT for:', property.id)
+            
+            // Directly call the click logic for immediate response
             if (this.config.selectedPropertyId === property.id) {
               this.config.onPropertySelect(null)
               this.config.onAriaAnnouncement("Property details closed")
@@ -531,7 +539,11 @@ export class MarkerManager {
                 }
               }
             }
+          } else {
+            console.log('📱 TOUCH MOVEMENT TOO LARGE')
           }
+        } else {
+          console.log('📱 TOUCH DURATION TOO LONG')
         }
 
         // No hover cleanup needed on mobile
@@ -541,6 +553,21 @@ export class MarkerManager {
       pillElement.addEventListener('touchcancel', () => {
         // No hover cleanup needed on mobile
       }, { passive: false })
+      
+      // Also add click listener as fallback for mobile devices
+      pillElement.addEventListener('click', (e: MouseEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
+        console.log('📱 CLICK FALLBACK triggered for:', property.id)
+        
+        if (this.config.selectedPropertyId === property.id) {
+          this.config.onPropertySelect(null)
+          this.config.onAriaAnnouncement("Property details closed")
+        } else {
+          this.config.onPropertySelect(property.id)
+          this.config.onAriaAnnouncement(`Selected property: ${property.title} - ${property.shortPrice || 'Contact for price'}`)
+        }
+      })
     } else {
       // Desktop: Use mouse events
       pillElement.addEventListener('mouseenter', () => {
