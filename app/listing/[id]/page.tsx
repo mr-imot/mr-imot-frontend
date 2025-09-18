@@ -1,8 +1,8 @@
 "use client"
 
 import { notFound } from "next/navigation"
-import { useEffect, useState, use } from "react"
-import { useProjects } from "@/hooks/use-projects"
+import { useEffect, useState, use, useRef } from "react"
+import { getProject } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -37,6 +37,8 @@ import {
 import { recordProjectView, recordProjectPhoneClick, recordProjectWebsiteClick } from "@/lib/api"
 import Image from "next/image"
 import { PropertyGallery } from "@/components/PropertyGallery"
+import { FeaturesDisplay } from "@/components/FeaturesDisplay"
+import { ensureGoogleMaps } from "@/lib/google-maps"
 
 interface PageProps {
   params: Promise<{
@@ -49,609 +51,494 @@ const getImageKitUrl = (originalUrl: string, width: number, height: number, qual
   if (!originalUrl || !originalUrl.includes('imagekit.io')) {
     return originalUrl
   }
+
+  const baseUrl = originalUrl.split('?')[0]
   
-  // Extract the base path from the original URL
-  const urlParts = originalUrl.split('/')
-  const imageName = urlParts[urlParts.length - 1]
-  
-  // Smart transformations based on image type and usage
-  let transformations = ''
+  let transformations = []
   
   if (imageType === 'fullscreen') {
-    // Fullscreen: NO cropping, NO focus, NO size constraints - only quality and format optimizations
-    // This ensures the full image is shown without any pre-cropping by ImageKit
-    transformations = `q-${quality},f-webp,pr-true,enhancement-true,sharpen-true,contrast-true`
+    // For fullscreen, use higher quality but reasonable size
+    transformations = [
+      'q-95',
+      'f-auto',
+      'c-maintain_ar',
+      `w-${Math.min(width, 1920)}`,
+      `h-${Math.min(height, 1080)}`
+    ]
   } else if (imageType === 'thumbnail') {
-    // Thumbnails: Optimized for speed, smaller size
-    transformations = `h-${height},w-${width},c-maintain_ratio,cm-focus,fo-auto,q-85,f-webp,pr-true`
+    transformations = [
+      `q-${quality}`,
+      'f-auto',
+      'c-maintain_ar',
+      `w-${width}`,
+      `h-${height}`
+    ]
   } else {
-    // Main images: Balanced quality and performance
-    transformations = `h-${height},w-${width},c-maintain_ratio,cm-focus,fo-auto,q-${quality},f-webp,pr-true,enhancement-true`
+    // For main images
+    transformations = [
+      `q-${quality}`,
+      'f-auto',
+      'c-maintain_ar',
+      `w-${width}`,
+      `h-${height}`
+    ]
   }
   
-  return `https://ik.imagekit.io/ts59gf2ul/tr:${transformations}/${imageName}`
+  return `${baseUrl}?tr=${transformations.join(',')}`
 }
+
+// Property Map Component
+const PropertyMap = ({ latitude, longitude, title }: { latitude: number, longitude: number, title: string }) => {
+  const mapRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const initMap = async () => {
+      try {
+        await ensureGoogleMaps()
+        if (mapRef.current && window.google) {
+          const map = new window.google.maps.Map(mapRef.current, {
+            center: { lat: latitude, lng: longitude },
+            zoom: 15,
+            mapTypeControl: false,
+            streetViewControl: false,
+            fullscreenControl: false,
+          })
+
+          new window.google.maps.Marker({
+            position: { lat: latitude, lng: longitude },
+            map,
+            title: title
+          })
+        }
+      } catch (error) {
+        console.error('Failed to load Google Maps:', error)
+      }
+    }
+
+    initMap()
+  }, [latitude, longitude, title])
+
+  return (
+    <div className="mt-4 h-64 bg-gray-100 rounded-lg overflow-hidden">
+      <div ref={mapRef} className="w-full h-full" />
+    </div>
+  )
+}
+
+const LoadingSkeletonPropertyDetail = () => (
+  <div className="max-w-7xl mx-auto px-4 py-6">
+    <div className="animate-pulse">
+      <div className="h-8 bg-gray-200 rounded w-3/4 mb-4"></div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2">
+          <div className="h-96 bg-gray-200 rounded-lg mb-6"></div>
+          <div className="h-6 bg-gray-200 rounded w-1/2 mb-4"></div>
+          <div className="space-y-2">
+            <div className="h-4 bg-gray-200 rounded"></div>
+            <div className="h-4 bg-gray-200 rounded"></div>
+            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+          </div>
+        </div>
+        <div className="space-y-6">
+          <div className="h-48 bg-gray-200 rounded-lg"></div>
+          <div className="h-32 bg-gray-200 rounded-lg"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+)
 
 export default function ListingPage({ params }: PageProps) {
   const resolvedParams = use(params)
-  const propertyId = resolvedParams.id
-  const [hasTrackedView, setHasTrackedView] = useState(false)
+  const projectId = resolvedParams.id
+  const [property, setProperty] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [isSaved, setIsSaved] = useState(false)
   const [showContactForm, setShowContactForm] = useState(false)
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    message: "",
-  })
-  
-  // Use real API data instead of mock data
-  const { projects, loading, error } = useProjects({ per_page: 100 })
+  const [contactMessage, setContactMessage] = useState("")
 
-  // Track project view
   useEffect(() => {
-    const property = projects?.find(p => p.id === propertyId)
-    if (property && !hasTrackedView) {
-      const trackView = async () => {
-        try {
-          await recordProjectView(property.id)
-          setHasTrackedView(true)
-        } catch (error) {
-          console.warn('Analytics tracking failed:', error)
-          setHasTrackedView(true)
+    const loadProperty = async () => {
+      try {
+        if (!projectId) {
+          setError("Invalid project ID")
+          setLoading(false)
+          return
         }
+
+        const data = await getProject(projectId)
+        if (!data) {
+          throw new Error("Project not found")
+        }
+        
+        setProperty(data)
+        
+        // Record view
+        try {
+          await recordProjectView(projectId)
+        } catch (viewError) {
+          console.warn("Failed to record project view:", viewError)
+        }
+        
+      } catch (err) {
+        console.error("Error loading property:", err)
+        setError(err instanceof Error ? err.message : "Failed to load property")
+      } finally {
+        setLoading(false)
       }
-      trackView()
     }
-  }, [projects, propertyId, hasTrackedView])
-  
+
+    loadProperty()
+  }, [projectId, getProject])
+
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center" style={{backgroundColor: 'var(--brand-glass-light)'}}>
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4" style={{borderColor: 'var(--brand-primary)'}}></div>
-          <p style={{color: 'var(--brand-text-secondary)'}}>Loading property details...</p>
-        </div>
-      </div>
-    )
+    return <LoadingSkeletonPropertyDetail />
   }
 
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center" style={{backgroundColor: 'var(--brand-glass-light)'}}>
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4" style={{color: 'var(--brand-error)'}}>Error Loading Property</h1>
-          <p style={{color: 'var(--brand-text-secondary)'}}>Unable to load property details. Please try again later.</p>
-        </div>
-      </div>
-    )
+  if (error || !property) {
+    return notFound()
   }
 
-  const property = projects?.find(p => p.id === propertyId)
-
-  if (!property) {
-    notFound()
+  const handleSave = () => {
+    setIsSaved(!isSaved)
   }
 
-  const amenityIcons: Record<string, any> = {
-    "Fitness Center": Dumbbell,
-    "Rooftop Terrace": Trees,
-    "24/7 Concierge": Users,
-    "Underground Parking": Car,
-    "High-Speed Internet": Wifi,
-    "Security System": Shield,
-    "Smart Home System": Zap,
-    "Private Beach Access": Trees,
-    "Infinity Pool": Trees,
-    "Spa & Wellness Center": Shield,
-    "Full-Service Spa": Shield,
-    "Rooftop Infinity Pool": Trees,
-    "Valet Parking": Car,
-    "Private Wine Cellar": Shield,
-    "Solar Panel System": Zap,
-    "Electric Car Charging": Car,
-    "Modern Amenities": CheckCircle,
-    "Parking": Car,
-    "Quality Finishes": CheckCircle,
-    "Great Location": MapPin,
-    "Investment Potential": Euro,
-  }
-
-  const handleContactSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-
-    alert("Thank you for your inquiry! We'll contact you soon.")
-    setShowContactForm(false)
-    setFormData({ name: "", email: "", phone: "", message: "" })
-  }
-
-
-  const handlePhoneClick = async () => {
+  const handleShare = async () => {
+    if (navigator.share) {
       try {
-        await recordProjectPhoneClick(property.id)
-      } catch (error) {
-        console.warn('Analytics tracking failed:', error)
+        await navigator.share({
+          title: property.title,
+          text: property.description?.substring(0, 100) + "...",
+          url: window.location.href,
+        })
+      } catch (err) {
+        console.log("Share canceled or failed:", err)
+      }
+    } else {
+      // Fallback: copy to clipboard
+      try {
+        await navigator.clipboard.writeText(window.location.href)
+        // Could add a toast notification here
+      } catch (err) {
+        console.error("Failed to copy to clipboard:", err)
+      }
     }
   }
 
-  const handleWebsiteClick = async () => {
-      try {
-        await recordProjectWebsiteClick(property.id)
-      } catch (error) {
-        console.warn('Analytics tracking failed:', error)
+  const handlePhoneClick = async (phone: any) => {
+    try {
+      await recordProjectPhoneClick(projectId)
+    } catch (err) {
+      console.warn("Failed to record phone click:", err)
     }
   }
+
+  const handleWebsiteClick = async (website: any) => {
+    try {
+      await recordProjectWebsiteClick(projectId)
+    } catch (err) {
+      console.warn("Failed to record website click:", err)
+    }
+  }
+
+  const handleContact = () => {
+    setShowContactForm(!showContactForm)
+  }
+
+  // Parse completion date for timeline
+  const parseCompletionNote = (completionNote: any) => {
+    if (!completionNote) return { month: "TBD", year: "TBD" }
+    
+    const parts = completionNote.split(' ')
+    return {
+      month: parts[0] || "TBD",
+      year: parts[1] || "TBD"
+    }
+  }
+
+  const completionData = parseCompletionNote(property.completion_note)
 
   return (
-    <div className="min-h-screen" style={{backgroundColor: 'var(--brand-glass-light)'}}>
+    <div className="max-w-7xl mx-auto px-4 py-6">
+      {/* Header */}
+      <div className="flex justify-end mb-6">
+        <Button variant="outline" size="sm" onClick={handleShare}>
+          <Share2 className="h-4 w-4" />
+          Share
+        </Button>
+      </div>
 
-      <div className="container px-4 py-8">
-        <div className="max-w-7xl mx-auto">
-
+      {/* New Layout: Image at top, aligned with sidebar */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8">
+        {/* Left Column - Property Gallery (spans 3 columns) */}
+        <div className="lg:col-span-3 order-1 lg:order-1">
           {/* Property Gallery */}
-          <div className="mb-8">
-            <PropertyGallery 
-              images={property.images || (property.image ? [property.image] : [])}
-              title={property.title || property.name || 'Property'}
-            />
-          </div>
-
-          {/* Property Header - After Images */}
-          <div className="mb-8">
-            <div className="flex items-start justify-between mb-6">
-              <div className="flex-1">
-                <h1 className="text-4xl md:text-5xl font-bold mb-4" style={{color: 'var(--brand-text-primary)'}}>
-                  {property.title || property.name}
-                </h1>
-                <div className="flex items-center space-x-6 mb-4" style={{color: 'var(--brand-text-secondary)'}}>
-                  <div className="flex items-center">
-                    <MapPin className="h-5 w-5 mr-2" style={{color: 'var(--brand-accent)'}} />
-                    <span className="text-lg">{property.location || property.formatted_address || `${property.neighborhood}, ${property.city}`}</span>
-                  </div>
-                  <div className="flex items-center">
-                    {property.type === "Residential Houses" ? (
-                      <Home className="h-5 w-5 mr-2" style={{color: 'var(--brand-primary)'}} />
-                    ) : (
-                      <Building className="h-5 w-5 mr-2" style={{color: 'var(--brand-primary)'}} />
-                    )}
-                    <span className="text-lg">{property.type}</span>
-                  </div>
-                </div>
+          {(() => {
+            const allImages = [];
+            
+            // Handle the correct image structure from backend
+            if (property.images && property.images.length > 0) {
+              // Extract image URLs from the images array
+              allImages.push(...property.images.map((img: any) => img.image_url));
+            }
+            
+            // Debug logging
+            console.log('Gallery Debug:', {
+              property_images: property.images,
+              allImages: allImages
+            });
+            
+            return allImages.length > 0 ? (
+              <PropertyGallery 
+                images={allImages} 
+                title={property.title}
+              />
+            ) : (
+              <div className="h-96 bg-gray-200 rounded-lg flex items-center justify-center">
+                <p className="text-gray-500">No images available for this property</p>
               </div>
-              <div className="text-right">
-                <div className="flex items-baseline space-x-2 mb-2">
-                  <span className="text-4xl md:text-5xl font-bold" style={{color: 'var(--brand-primary)'}}>
-                    {property.priceRange || property.shortPrice || 'Request Price'}
+            );
+          })()}
+        </div>
+
+        {/* Right Column - Price & Timeline */}
+        <div className="space-y-4 lg:space-y-6 order-2 lg:order-2">
+          {/* Price Information */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Euro className="h-5 w-5" />
+                Price Information
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Price Range</span>
+                  <span className="font-semibold text-lg">
+                    {property.price_label || property.price_per_m2 || "Request price"}
                   </span>
                 </div>
-                <p className="text-lg" style={{color: 'var(--brand-text-secondary)'}}>Starting price</p>
+                <p className="text-xs text-gray-500">
+                  Prices may vary based on unit size, floor, and view. Contact for detailed pricing and available units.
+                </p>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Main Content */}
-            <div className="lg:col-span-2 space-y-8">
-              {/* Description */}
-              <Card style={{backgroundColor: 'var(--brand-glass)', borderColor: 'var(--brand-border)'}}>
-                <CardHeader>
-                  <CardTitle className="flex items-center" style={{color: 'var(--brand-text-primary)'}}>
-                    {property.type === "Residential Houses" ? (
-                      <Home className="h-5 w-5 mr-2" style={{color: 'var(--brand-primary)'}} />
-                    ) : (
-                      <Building className="h-5 w-5 mr-2" style={{color: 'var(--brand-primary)'}} />
-                    )}
-                    About This Property
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="leading-relaxed mb-6" style={{color: 'var(--brand-text-secondary)'}}>
-                    {property.description || property.longDescription || 'No description available.'}
-                  </p>
-
-                  {/* Key Features */}
-                  {property.features && property.features.length > 0 && (
-                    <div className="mb-6">
-                      <h4 className="font-semibold mb-3" style={{color: 'var(--brand-text-primary)'}}>Key Features</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {property.features.map((feature: string, index: number) => (
-                          <Badge key={index} variant="outline" style={{borderColor: 'var(--brand-accent)', color: 'var(--brand-accent)'}}>
-                            <CheckCircle className="h-3 w-3 mr-1" />
-                            {feature}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Highlights */}
-                  {property.highlights && property.highlights.length > 0 && (
-            <div>
-                      <h4 className="font-semibold mb-3" style={{color: 'var(--brand-text-primary)'}}>Property Highlights</h4>
-                      <ul className="space-y-2">
-                        {property.highlights.map((highlight: string, index: number) => (
-                          <li key={index} className="flex items-center" style={{color: 'var(--brand-text-secondary)'}}>
-                            <CheckCircle className="h-4 w-4 mr-2 flex-shrink-0" style={{color: 'var(--brand-accent)'}} />
-                            {highlight}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Location Map */}
-              <Card style={{backgroundColor: 'var(--brand-glass)', borderColor: 'var(--brand-border)'}}>
-                <CardHeader>
-                  <CardTitle className="flex items-center" style={{color: 'var(--brand-text-primary)'}}>
-                    <MapPin className="h-5 w-5 mr-2" style={{color: 'var(--brand-primary)'}} />
-                    Location & Map
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
+          {/* Project Timeline */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calendar className="h-5 w-5" />
+                Project Timeline
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
               <div className="space-y-4">
-                    {/* Address Information */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <h4 className="font-semibold mb-2" style={{color: 'var(--brand-text-primary)'}}>Property Location</h4>
-                        <div className="space-y-2" style={{color: 'var(--brand-text-secondary)'}}>
-                          <p>{property.location || property.formatted_address || 'Location not specified'}</p>
-                          {property.city && <p>City: {property.city}</p>}
-                          {property.neighborhood && <p>Neighborhood: {property.neighborhood}</p>}
-                        </div>
-                      </div>
-                      <div>
-                        <h4 className="font-semibold mb-2" style={{color: 'var(--brand-text-primary)'}}>Developer Office</h4>
-                        <div className="space-y-2" style={{color: 'var(--brand-text-secondary)'}}>
-                          <p>{property.developer || 'Unknown Developer'}</p>
-                          <p>Contact for office location</p>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {/* Interactive Google Maps */}
-                    {property.lat && property.lng ? (
-                      <div className="w-full h-80 rounded-lg overflow-hidden border" style={{borderColor: 'var(--brand-border)'}}>
-                        <iframe
-                          width="100%"
-                          height="100%"
-                          style={{ border: 0 }}
-                          loading="lazy"
-                          allowFullScreen
-                          referrerPolicy="no-referrer-when-downgrade"
-                          src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${property.lat},${property.lng}&zoom=16&maptype=roadmap`}
-                        />
-                      </div>
-                    ) : (
-                      <div className="w-full h-80 rounded-lg overflow-hidden flex items-center justify-center" style={{backgroundColor: 'var(--brand-glass-light)'}}>
-                        <div className="text-center">
-                          <MapPin className="h-12 w-12 mx-auto mb-2" style={{color: 'var(--brand-accent)'}} />
-                          <p className="text-sm" style={{color: 'var(--brand-text-secondary)'}}>
-                            Map coordinates not available
-                          </p>
-                        </div>
-                      </div>
-                    )}
-                    
-                    {/* Map Instructions */}
-                    <div className="text-center pt-2">
-                      <p className="text-xs" style={{color: 'var(--brand-text-secondary)'}}>
-                        💡 Click and drag to pan around, use the + and - buttons to zoom in/out
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Specifications */}
-              <Card style={{backgroundColor: 'var(--brand-glass)', borderColor: 'var(--brand-border)'}}>
-                <CardHeader>
-                  <CardTitle className="flex items-center" style={{color: 'var(--brand-text-primary)'}}>
-                    <Ruler className="h-5 w-5 mr-2" style={{color: 'var(--brand-primary)'}} />
-                    Property Specifications
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    <div className="text-center p-4 rounded-lg" style={{backgroundColor: 'var(--brand-glass-light)'}}>
-                      <div className="text-2xl font-bold mb-1" style={{color: 'var(--brand-primary)'}}>
-                        {property.specifications?.totalUnits || 'N/A'}
-                      </div>
-                      <div className="text-sm" style={{color: 'var(--brand-text-secondary)'}}>Total Units</div>
-                    </div>
-                    <div className="text-center p-4 rounded-lg" style={{backgroundColor: 'var(--brand-glass-light)'}}>
-                      <div className="text-2xl font-bold mb-1" style={{color: 'var(--brand-primary)'}}>
-                        {property.specifications?.floors || 'N/A'}
-                      </div>
-                      <div className="text-sm" style={{color: 'var(--brand-text-secondary)'}}>Floors</div>
-                    </div>
-                    <div className="text-center p-4 rounded-lg" style={{backgroundColor: 'var(--brand-glass-light)'}}>
-                      <div className="text-2xl font-bold mb-1" style={{color: 'var(--brand-primary)'}}>
-                        {property.specifications?.parkingSpaces || 'N/A'}
-                      </div>
-                      <div className="text-sm" style={{color: 'var(--brand-text-secondary)'}}>Parking Spaces</div>
-                    </div>
-                    <div className="text-center p-4 rounded-lg" style={{backgroundColor: 'var(--brand-glass-light)'}}>
-                      <div className="text-lg font-bold mb-1" style={{color: 'var(--brand-primary)'}}>
-                        {property.specifications?.unitSizes || 'N/A'}
-                      </div>
-                      <div className="text-sm" style={{color: 'var(--brand-text-secondary)'}}>Unit Sizes</div>
-                    </div>
-                    <div className="text-center p-4 rounded-lg" style={{backgroundColor: 'var(--brand-glass-light)'}}>
-                      <div className="text-lg font-bold mb-1" style={{color: 'var(--brand-primary)'}}>
-                        {property.specifications?.bedrooms || 'N/A'}
-                      </div>
-                      <div className="text-sm" style={{color: 'var(--brand-text-secondary)'}}>Bedrooms</div>
-                    </div>
-                    <div className="text-center p-4 rounded-lg" style={{backgroundColor: 'var(--brand-glass-light)'}}>
-                      <div className="text-lg font-bold mb-1" style={{color: 'var(--brand-primary)'}}>
-                        {property.specifications?.bathrooms || 'N/A'}
-                      </div>
-                      <div className="text-sm" style={{color: 'var(--brand-text-secondary)'}}>Bathrooms</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Amenities */}
-              {property.amenities && property.amenities.length > 0 && (
-                <Card style={{backgroundColor: 'var(--brand-glass)', borderColor: 'var(--brand-border)'}}>
-                  <CardHeader>
-                    <CardTitle className="flex items-center" style={{color: 'var(--brand-text-primary)'}}>
-                      <Zap className="h-5 w-5 mr-2" style={{color: 'var(--brand-primary)'}} />
-                      Amenities & Features
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {property.amenities.map((amenity: string, index: number) => {
-                        const IconComponent = amenityIcons[amenity] || CheckCircle
-                        return (
-                          <div key={index} className="flex items-center space-x-3 p-3 rounded-lg" style={{backgroundColor: 'var(--brand-glass-light)'}}>
-                            <IconComponent className="h-5 w-5 flex-shrink-0" style={{color: 'var(--brand-accent)'}} />
-                            <span className="font-medium" style={{color: 'var(--brand-text-primary)'}}>{amenity}</span>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* Nearby Attractions */}
-              {property.nearbyAttractions && property.nearbyAttractions.length > 0 && (
-                <Card style={{backgroundColor: 'var(--brand-glass)', borderColor: 'var(--brand-border)'}}>
-                  <CardHeader>
-                    <CardTitle className="flex items-center" style={{color: 'var(--brand-text-primary)'}}>
-                      <MapPin className="h-5 w-5 mr-2" style={{color: 'var(--brand-primary)'}} />
-                      Nearby Attractions
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {property.nearbyAttractions.map((attraction: string, index: number) => (
-                        <div key={index} className="flex items-center" style={{color: 'var(--brand-text-secondary)'}}>
-                          <MapPin className="h-4 w-4 mr-3 flex-shrink-0" style={{color: 'var(--brand-accent)'}} />
-                          {attraction}
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-
-            {/* Sidebar */}
-            <div className="space-y-6">
-              {/* Contact Developer */}
-              <Card style={{backgroundColor: 'var(--brand-glass)', borderColor: 'var(--brand-border)'}}>
-                <CardHeader>
-                  <CardTitle style={{color: 'var(--brand-text-primary)'}}>Contact Developer</CardTitle>
-                  <p className="text-sm" style={{color: 'var(--brand-text-secondary)'}}>{property.developer || 'Unknown Developer'}</p>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <Button
-                    className="w-full text-white"
-                          onClick={handlePhoneClick}
-                    style={{backgroundColor: 'var(--brand-primary)'}}
-                  >
-                    <Phone className="h-4 w-4 mr-2" />
-                    Call Developer
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    className="w-full bg-transparent" 
-                    onClick={() => setShowContactForm(true)}
-                    style={{borderColor: 'var(--brand-border)', color: 'var(--brand-text-primary)'}}
-                  >
-                    <Mail className="h-4 w-4 mr-2" />
-                    Send Message
-                      </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full bg-transparent"
-                          onClick={handleWebsiteClick}
-                    style={{borderColor: 'var(--brand-border)', color: 'var(--brand-text-primary)'}}
-                        >
-                    <Globe className="h-4 w-4 mr-2" />
-                          Visit Website
-                      </Button>
-                </CardContent>
-              </Card>
-
-              {/* Project Timeline */}
-              <Card style={{backgroundColor: 'var(--brand-glass)', borderColor: 'var(--brand-border)'}}>
-                <CardHeader>
-                  <CardTitle className="flex items-center" style={{color: 'var(--brand-text-primary)'}}>
-                    <Calendar className="h-5 w-5 mr-2" style={{color: 'var(--brand-primary)'}} />
-                    Project Timeline
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium" style={{color: 'var(--brand-text-primary)'}}>Current Status</span>
-                      <span className="text-sm font-medium" style={{color: 'var(--brand-text-secondary)'}}>{property.status}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium" style={{color: 'var(--brand-text-primary)'}}>Expected Completion</span>
-                      <span className="text-sm" style={{color: 'var(--brand-text-secondary)'}}>{property.completionDate || 'TBD'}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium" style={{color: 'var(--brand-text-primary)'}}>Building Type</span>
-                      <span className="text-sm" style={{color: 'var(--brand-text-secondary)'}}>{property.type}</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Price Information */}
-              <Card style={{backgroundColor: 'var(--brand-glass)', borderColor: 'var(--brand-border)'}}>
-                <CardHeader>
-                  <CardTitle className="flex items-center" style={{color: 'var(--brand-text-primary)'}}>
-                    <Euro className="h-5 w-5 mr-2" style={{color: 'var(--brand-primary)'}} />
-                    Price Information
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium" style={{color: 'var(--brand-text-primary)'}}>Price Range</span>
-                      <span className="text-sm font-bold" style={{color: 'var(--brand-primary)'}}>{property.priceRange || 'Request Price'}</span>
-                    </div>
-                    <div className="text-xs pt-2 border-t" style={{color: 'var(--brand-text-secondary)', borderColor: 'var(--brand-border)'}}>
-                      Prices may vary based on unit size, floor, and view. Contact developer for detailed pricing and available units.
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Quick Stats */}
-              <Card style={{backgroundColor: 'var(--brand-glass)', borderColor: 'var(--brand-border)'}}>
-                <CardHeader>
-                  <CardTitle style={{color: 'var(--brand-text-primary)'}}>Quick Stats</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 gap-4 text-center">
-                    <div>
-                      <div className="text-2xl font-bold" style={{color: 'var(--brand-primary)'}}>{property.specifications?.totalUnits || 'N/A'}</div>
-                      <div className="text-xs" style={{color: 'var(--brand-text-secondary)'}}>Total Units</div>
-                    </div>
-                    <div>
-                      <div className="text-2xl font-bold" style={{color: 'var(--brand-primary)'}}>{property.specifications?.floors || 'N/A'}</div>
-                      <div className="text-xs" style={{color: 'var(--brand-text-secondary)'}}>Floors</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-                  </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Expected Completion</span>
+                  <span className="font-medium">
+                    {completionData.month} {completionData.year}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Building Type</span>
+                  <span className="font-medium">
+                    {property.project_type === 'apartment_building' ? 'Apartment Complex' : 'House Complex'}
+                  </span>
+                </div>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
-      {/* Contact Form Modal */}
-      {showContactForm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto" style={{backgroundColor: 'var(--brand-glass)'}}>
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-bold" style={{color: 'var(--brand-text-primary)'}}>Contact Developer</h3>
-                <button
-                  onClick={() => setShowContactForm(false)}
-                  className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-opacity-10 transition-colors"
-                  style={{backgroundColor: 'var(--brand-glass-light)'}}
+          {/* Contact Developer - Made smaller */}
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg">Contact Developer</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div>
+                <h4 className="font-medium text-sm">Unknown Developer</h4>
+                <p className="text-xs text-gray-600">Property Developer</p>
+                <p className="text-xs text-gray-500 mt-1">Office: Contact for location</p>
+                <p className="text-xs text-gray-500">Phone: Contact for details</p>
+              </div>
+              
+              <div className="space-y-2">
+                <Button 
+                  size="sm"
+                  className="w-full text-xs"
+                  onClick={handleContact}
                 >
-                  <X className="h-4 w-4" style={{color: 'var(--brand-text-primary)'}} />
-                </button>
+                  <Mail className="h-3 w-3 mr-1" />
+                  Send Message
+                </Button>
+                
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="w-full text-xs"
+                  onClick={() => handleWebsiteClick(property.website)}
+                >
+                  <Globe className="h-3 w-3 mr-1" />
+                  Visit Website
+                </Button>
               </div>
 
-              <form onSubmit={handleContactSubmit} className="space-y-4">
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium mb-1" style={{color: 'var(--brand-text-primary)'}}>
-                    Full Name *
-                  </label>
-                  <Input
-                    id="name"
-                    type="text"
-                    required
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="Your full name"
-                    className="w-full"
-                    style={{backgroundColor: 'var(--brand-glass-light)', borderColor: 'var(--brand-border)', color: 'var(--brand-text-primary)'}}
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium mb-1" style={{color: 'var(--brand-text-primary)'}}>
-                    Email Address *
-                  </label>
-                  <Input
-                    id="email"
-                    type="email"
-                    required
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    placeholder="your@email.com"
-                    className="w-full"
-                    style={{backgroundColor: 'var(--brand-glass-light)', borderColor: 'var(--brand-border)', color: 'var(--brand-text-primary)'}}
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="phone" className="block text-sm font-medium mb-1" style={{color: 'var(--brand-text-primary)'}}>
-                    Phone Number
-                  </label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    placeholder="+359 ..."
-                    className="w-full"
-                    style={{backgroundColor: 'var(--brand-glass-light)', borderColor: 'var(--brand-border)', color: 'var(--brand-text-primary)'}}
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="message" className="block text-sm font-medium mb-1" style={{color: 'var(--brand-text-primary)'}}>
-                    Message *
-                  </label>
-                  <Textarea
-                    id="message"
-                    required
-                    value={formData.message}
-                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    placeholder={`I'm interested in ${property.title || property.name}. Please provide more information about available units and pricing.`}
-                    rows={4}
-                    className="w-full"
-                    style={{backgroundColor: 'var(--brand-glass-light)', borderColor: 'var(--brand-border)', color: 'var(--brand-text-primary)'}}
+              {/* Contact Form - Compact */}
+              {showContactForm && (
+                <div className="space-y-3 pt-3 border-t">
+                  <div>
+                    <label className="text-xs font-medium">Your Message</label>
+                    <Textarea
+                      placeholder="I'm interested in this property..."
+                      value={contactMessage}
+                      onChange={(e) => setContactMessage(e.target.value)}
+                      className="mt-1 text-xs"
+                      rows={3}
                     />
                   </div>
-
-                <div className="flex space-x-3 pt-4">
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={() => setShowContactForm(false)} 
-                    className="flex-1"
-                    style={{borderColor: 'var(--brand-border)', color: 'var(--brand-text-primary)'}}
-                  >
-                    Cancel
-                  </Button>
-                  <Button 
-                    type="submit" 
-                    className="flex-1 text-white"
-                    style={{backgroundColor: 'var(--brand-primary)'}}
-                  >
-                    Send Message
-                  </Button>
+                  <div className="flex gap-1">
+                    <Button size="sm" className="flex-1 text-xs">
+                      Send
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      onClick={() => setShowContactForm(false)}
+                      className="text-xs"
+                    >
+                      Cancel
+                    </Button>
+                  </div>
                 </div>
-              </form>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* Project Title & Info - Under the image */}
+      <div className="mt-6 lg:mt-8">
+        {(() => {
+          console.log('Property Debug:', {
+            title: property.title,
+            name: property.name,
+            all_property_keys: Object.keys(property)
+          });
+          return null;
+        })()}
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3 lg:mb-4">
+          {property.title || property.name || 'Untitled Project'}
+        </h1>
+        
+        <div className="flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center gap-2 sm:gap-4 text-gray-600 mb-6 lg:mb-8">
+          <div className="flex items-center gap-1">
+            <MapPin className="h-4 w-4" />
+            <span className="text-sm sm:text-base">{property.location || property.city}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Building className="h-4 w-4" />
+            <span className="text-sm sm:text-base">{property.project_type === 'apartment_building' ? 'Apartment Complex' : 'House Complex'}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Content Sections */}
+      <div className="space-y-6 lg:space-y-8">
+        {/* About This Property */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Building className="h-5 w-5" />
+              About This Property
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-700 leading-relaxed">
+              {property.description}
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Property Features - Main Features Section */}
+        {(() => {
+          console.log('Features Debug:', {
+            features: property.features,
+            hasFeatures: property.features && property.features.length > 0,
+            featuresLength: property.features?.length || 0
+          });
+          
+          return property.features && property.features.length > 0 ? (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CheckCircle className="h-5 w-5" />
+                  Property Features & Amenities
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <FeaturesDisplay
+                  features={property.features}
+                  title=""
+                  compact={false}
+                  showCategories={true}
+                />
+              </CardContent>
+            </Card>
+          ) : (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CheckCircle className="h-5 w-5" />
+                  Property Features & Amenities
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-500 text-center py-8">No features available for this property</p>
+              </CardContent>
+            </Card>
+          );
+        })()}
+      </div>
+
+      {/* Bottom Section - Location Only (wider) */}
+      <div className="mt-12">
+        {/* Property Location - Full Width */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <MapPin className="h-5 w-5" />
+              Property Location
+            </CardTitle>
+            <p className="text-gray-600 mt-2">
+              Explore the neighborhood and visit the property location without a broker - take your time, no obligations!
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="mb-6">
+              <h4 className="font-medium mb-2">Address</h4>
+              <p className="text-gray-600">{property.location || property.city}</p>
             </div>
+            
+            {/* Google Maps */}
+            {property.latitude && property.longitude ? (
+              <PropertyMap 
+                latitude={property.latitude} 
+                longitude={property.longitude} 
+                title={property.title}
+              />
+            ) : (
+              <div className="mt-4 h-64 bg-gray-100 rounded-lg flex items-center justify-center">
+                <p className="text-gray-500">Location coordinates not available</p>
               </div>
-            </div>
-          )}
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
     </div>
   )
 }

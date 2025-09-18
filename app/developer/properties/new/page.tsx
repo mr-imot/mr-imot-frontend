@@ -20,6 +20,7 @@ import { ensureGoogleMaps } from "@/lib/google-maps"
 import { Info, Loader, Upload, X, Move, Star, Image as ImageIcon, Plus } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
 import { getCurrentDeveloper } from "@/lib/api"
+import { FeaturesSelector } from "@/components/FeaturesSelector"
 
 // Extend Window interface for Google Maps
 declare global {
@@ -54,12 +55,15 @@ const formSchema = z.object({
   longitude: z.number(),
   coverImage: z.any().optional(),
   galleryImages: z.any().optional(),
+  feature_ids: z.array(z.string()).default([]),
+}).refine((data) => {
+  return data.coverImage || (data.galleryImages && data.galleryImages.length > 0)
+}, {
+  message: "At least one project image is required",
+  path: ["coverImage"]
 }).refine((data) => data.requestPrice || !!data.price_per_m2, {
   path: ["price_per_m2"],
   message: "Price per m² is required unless Request price is checked",
-}).refine((data) => data.coverImage || (data.galleryImages && data.galleryImages.length > 0), {
-  path: ["coverImage"],
-  message: "At least one project image is required",
 })
 
 type FormValues = z.infer<typeof formSchema>
@@ -536,29 +540,6 @@ export default function NewPropertyPage() {
     setSubmitSuccess(null)
     
     try {
-      // Validate required fields before submission
-      if (!values.name?.trim()) {
-        throw new Error("Project name is required")
-      }
-      if (!values.description?.trim()) {
-        throw new Error("Project description is required")
-      }
-      if (!values.address?.trim()) {
-        throw new Error("Project address is required")
-      }
-      if (!values.project_type) {
-        throw new Error("Project type is required")
-      }
-      if (!values.completion_month) {
-        throw new Error("Project completion month is required")
-      }
-      if (!values.completion_year) {
-        throw new Error("Project completion year is required")
-      }
-      if (!values.coverImage && (!values.galleryImages || values.galleryImages.length === 0)) {
-        throw new Error("At least one project image is required")
-      }
-      
       // First, create the project
       const project = await createProject({
         name: values.name,
@@ -574,11 +555,13 @@ export default function NewPropertyPage() {
         completion_note: `${values.completion_month} ${values.completion_year}`,  // Fixed: backend expects 'completion_note'
       })
       
-      setSubmitSuccess("Project created successfully!")
       setCreatedProjectId(project.id.toString())
       
-      // Then upload images if any
-      if (values.coverImage || (values.galleryImages && values.galleryImages.length > 0)) {
+      // Check if we have images to upload
+      const hasImages = values.coverImage || (values.galleryImages && values.galleryImages.length > 0)
+      
+      if (hasImages) {
+        setSubmitSuccess("Project created! Uploading images...")
         try {
           await uploadImagesToProject(
             project.id.toString(),
@@ -592,12 +575,14 @@ export default function NewPropertyPage() {
           setLoading(false)
           return
         }
+      } else {
+        setSubmitSuccess("Project created successfully!")
       }
       
       // Redirect after a short delay to show success message
       setTimeout(() => {
         router.push("/developer/dashboard")
-      }, 1500)
+      }, 2000)
       
     } catch (err: any) {
       console.error("Failed to create project", err)
@@ -1102,6 +1087,26 @@ export default function NewPropertyPage() {
                   <input type="hidden" value={field.value} readOnly />
                 )}
               />
+
+              {/* Features Section */}
+              <div className="space-y-6">
+                <FormField
+                  control={form.control}
+                  name="feature_ids"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FeaturesSelector
+                        selectedFeatureIds={field.value}
+                        onSelectionChange={field.onChange}
+                        title="Property Features"
+                        description="Select the features and amenities available in your property. This helps potential buyers understand what your project offers."
+                        disabled={isSubmitting}
+                      />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               {/* Submit Section */}
               <div className="pt-6 border-t">

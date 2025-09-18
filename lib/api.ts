@@ -16,6 +16,24 @@ export interface Developer {
   created_at: string;
 }
 
+export interface Feature {
+  id: string;
+  name: string;
+  display_name: string;
+  description?: string;
+  category: 'building_infrastructure' | 'security_access' | 'amenities' | 'modern_features';
+  icon?: string;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface FeaturesByCategory {
+  building_infrastructure: Feature[];
+  security_access: Feature[];
+  amenities: Feature[];
+  modern_features: Feature[];
+}
+
 export interface Project {
   id: number;
   title: string;
@@ -38,6 +56,7 @@ export interface Project {
   cover_image_url?: string;
   gallery_urls?: string[];
   amenities_list?: string[];
+  features?: Feature[];
   developer?: {
     id: number;
     company_name: string;
@@ -455,6 +474,27 @@ class ApiClient {
     });
   }
 
+  // Features endpoints
+  async getFeatures(category?: string): Promise<{ features: Feature[]; total: number }> {
+    const searchParams = new URLSearchParams();
+    if (category) {
+      searchParams.append('category', category);
+    }
+    
+    const queryString = searchParams.toString();
+    const endpoint = `/api/v1/features/${queryString ? `?${queryString}` : ''}`;
+    
+    return this.requestWithoutAuth(endpoint);
+  }
+
+  async getFeaturesByCategory(): Promise<FeaturesByCategory> {
+    return this.requestWithoutAuth('/api/v1/features/by-category');
+  }
+
+  async getFeature(id: string): Promise<Feature> {
+    return this.requestWithoutAuth(`/api/v1/features/${id}`);
+  }
+
   // Health check endpoints
   async getAuthHealth(): Promise<{ status: string; auth_provider: string }> {
     return this.request('/api/v1/auth/health');
@@ -501,6 +541,9 @@ export const verifyEmail = (token: string) => apiClient.verifyEmail(token);
 export const resendVerification = (email: string) => apiClient.resendVerification(email);
 export const updateDeveloperProfile = (profileData: any) => apiClient.updateDeveloperProfile(profileData);
 export const changeDeveloperPassword = (passwordData: any) => apiClient.changeDeveloperPassword(passwordData);
+export const getFeatures = (category?: string) => apiClient.getFeatures(category);
+export const getFeaturesByCategory = () => apiClient.getFeaturesByCategory();
+export const getFeature = (id: string) => apiClient.getFeature(id);
 export const getAuthHealth = () => apiClient.getAuthHealth();
 export const testConnection = () => apiClient.testConnection(); 
 

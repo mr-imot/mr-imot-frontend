@@ -286,7 +286,7 @@ export default function DeveloperPropertiesPage() {
                         {/* Action Buttons */}
                         <div className="flex items-center gap-2">
                           <Button asChild variant="outline" size="sm" className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400">
-                            <Link href={`/developer/properties/new?id=${p.id}`}>
+                            <Link href={`/developer/properties/edit/${p.id}`}>
                               <Pencil className="h-3.5 w-3.5 mr-1" />
                               Edit
                             </Link>
