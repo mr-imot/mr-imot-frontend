@@ -37,26 +37,36 @@ export interface FeaturesByCategory {
 export interface Project {
   id: number;
   title: string;
+  name?: string; // Backend sometimes returns 'name' instead of 'title'
   description: string;
   location?: string;
+  formatted_address?: string;
   city: string;
   neighborhood?: string;
   project_type: string;
-  status: string;
+  status?: string;
   price_from?: number;
   price_to?: number;
   price_per_m2?: string;
+  price_label?: string;
   completion_date?: string;
+  completion_note?: string;
   expected_completion_date?: string;
   developer_id: number;
   created_at: string;
-  updated_at: string;
+  updated_at?: string;
   latitude?: number;
   longitude?: number;
   cover_image_url?: string;
   gallery_urls?: string[];
   amenities_list?: string[];
   features?: Feature[];
+  images?: {
+    id: string;
+    image_url: string;
+    is_cover?: boolean;
+    created_at?: string;
+  }[];
   developer?: {
     id: number;
     company_name: string;
@@ -98,14 +108,6 @@ class ApiClient {
     options: RequestInit = {}
   ): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
-    
-    // Debug logging for API requests
-    console.log('🌐 API Request Debug:', {
-      baseURL: this.baseURL,
-      endpoint: endpoint,
-      fullURL: url,
-      NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL
-    });
 
     // Build headers - no manual token handling needed
     const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
