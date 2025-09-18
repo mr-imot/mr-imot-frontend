@@ -11,7 +11,7 @@ interface PropertyGalleryProps {
   title: string;
 }
 
-// Enhanced ImageKit transformation function - NO PRE-CROPPING for fullscreen
+// Enhanced ImageKit transformation function - PROPER FULLSCREEN HANDLING
 const getImageKitUrl = (originalUrl: string, width: number, height: number, quality: number = 90, imageType: 'main' | 'thumbnail' | 'fullscreen' = 'main') => {
   if (!originalUrl || !originalUrl.includes('imagekit.io')) {
     return originalUrl
@@ -25,9 +25,9 @@ const getImageKitUrl = (originalUrl: string, width: number, height: number, qual
   let transformations = ''
   
   if (imageType === 'fullscreen') {
-    // Fullscreen: NO size constraints - only quality and format optimizations
-    // This prevents ImageKit from pre-cropping the image
-    transformations = `fo-auto,q-${quality},f-webp,pr-true,enhancement-true,sharpen-true,contrast-true`
+    // Fullscreen: NO cropping, NO focus, NO size constraints - only quality and format optimizations
+    // This ensures the full image is shown without any pre-cropping by ImageKit
+    transformations = `q-${quality},f-webp,pr-true,enhancement-true,sharpen-true,contrast-true`
   } else if (imageType === 'thumbnail') {
     // Thumbnails: Optimized for speed, smaller size
     transformations = `h-${height},w-${width},c-maintain_ratio,cm-focus,fo-auto,q-85,f-webp,pr-true`
@@ -73,6 +73,22 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
   const openFullscreen = (index: number) => {
     setCurrentIndex(index);
     setIsFullscreen(true);
+    
+    // Prevent body scrolling when in fullscreen
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
+    document.body.style.height = '100%';
+  };
+
+  const closeFullscreen = () => {
+    setIsFullscreen(false);
+    
+    // Restore body scrolling
+    document.body.style.overflow = '';
+    document.body.style.position = '';
+    document.body.style.width = '';
+    document.body.style.height = '';
   };
 
   // Image fitting is now handled by CSS classes directly
@@ -126,7 +142,7 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
             break;
           case 'Escape':
             event.preventDefault();
-            setIsFullscreen(false);
+            closeFullscreen();
             break;
           case '1':
           case '2':
@@ -150,6 +166,17 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isFullscreen, nextImage, prevImage, images.length]);
+
+  // Cleanup effect to restore body styles when component unmounts
+  useEffect(() => {
+    return () => {
+      // Restore body scrolling when component unmounts
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.height = '';
+    };
+  }, []);
 
   if (!images || images.length === 0) {
     return (
@@ -225,11 +252,24 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
         </div>
       </div>
 
-      {/* Modern Stunning Fullscreen Gallery */}
-      <Dialog open={isFullscreen} onOpenChange={setIsFullscreen}>
-        <DialogContent className="max-w-none max-h-none w-screen h-screen p-0 bg-gradient-to-br from-gray-900 via-black to-gray-900 border-0 rounded-none">
-          <DialogTitle className="sr-only">Property Gallery - {title}</DialogTitle>
-          
+      {/* TRUE FULLSCREEN GALLERY - BYPASSES BROWSER UI */}
+      {isFullscreen && (
+        <div 
+          className="fixed inset-0 z-[9999] bg-black"
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: '100vw',
+            height: '100vh',
+            height: '100dvh', // Dynamic viewport height for mobile
+            margin: 0,
+            padding: 0,
+            overflow: 'hidden'
+          }}
+        >
           {/* Mobile-Optimized Header Bar */}
           <div className="absolute top-0 left-0 right-0 z-50 bg-gradient-to-b from-black/90 via-black/50 to-transparent backdrop-blur-xl">
             <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4">
@@ -247,18 +287,26 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
                 variant="ghost"
                 size="icon"
                 className="w-10 h-10 sm:w-12 sm:h-12 text-white hover:bg-white/20 transition-all duration-300 rounded-full backdrop-blur-md border border-white/20 flex-shrink-0"
-                onClick={() => setIsFullscreen(false)}
+                onClick={closeFullscreen}
               >
                 <X className="h-5 w-5 sm:h-6 sm:w-6" />
               </Button>
             </div>
           </div>
 
-          {/* Main Image Container - FULL SCREEN UTILIZATION */}
-          <div className="absolute inset-0 w-full h-full" style={{ 
-            top: '80px', // Space for header only
-            bottom: '0px' // No footer - use full screen
-          }}>
+          {/* TRUE FULLSCREEN IMAGE CONTAINER */}
+          <div 
+            className="absolute inset-0 w-full h-full"
+            style={{
+              top: '80px', // Space for header
+              left: 0,
+              right: 0,
+              bottom: 0,
+              width: '100%',
+              height: 'calc(100vh - 80px)',
+              height: 'calc(100dvh - 80px)', // Dynamic viewport height for mobile
+            }}
+          >
             {/* Mobile-Optimized Navigation Arrows */}
             <Button
               variant="ghost"
@@ -280,18 +328,21 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
               <ChevronRight className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8" />
             </Button>
 
-            {/* PERFECT FULLSCREEN IMAGE - FILLS EXACT AVAILABLE SPACE */}
-            <div className="absolute inset-0 w-full h-full">
+            {/* PERFECT FULLSCREEN IMAGE - NO CROPPING, FULL IMAGE VISIBLE */}
+            <div className="absolute inset-0 w-full h-full flex items-center justify-center">
               <Image
                 src={getImageKitUrl(images[currentIndex], 1920, 1080, 95, 'fullscreen')}
                 alt={`${title} - View ${currentIndex + 1}`}
-                fill
-                className="transition-all duration-500 ease-out"
+                width={1920}
+                height={1080}
+                className="transition-all duration-500 ease-out max-w-full max-h-full"
                 style={{
                   objectFit: 'contain',
                   objectPosition: 'center',
-                  width: '100%',
-                  height: '100%'
+                  width: 'auto',
+                  height: 'auto',
+                  maxWidth: '100%',
+                  maxHeight: '100%'
                 }}
                 onLoad={handleImageLoad}
                 onLoadStart={() => setIsLoading(true)}
@@ -313,9 +364,8 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
               )}
             </div>
           </div>
-
-        </DialogContent>
-      </Dialog>
+        </div>
+      )}
     </>
   );
 };

@@ -44,7 +44,7 @@ interface PageProps {
   }>
 }
 
-// Enhanced ImageKit transformation function - NO PRE-CROPPING for fullscreen
+// Enhanced ImageKit transformation function - PROPER FULLSCREEN HANDLING
 const getImageKitUrl = (originalUrl: string, width: number, height: number, quality: number = 90, imageType: 'main' | 'thumbnail' | 'fullscreen' = 'main') => {
   if (!originalUrl || !originalUrl.includes('imagekit.io')) {
     return originalUrl
@@ -58,9 +58,9 @@ const getImageKitUrl = (originalUrl: string, width: number, height: number, qual
   let transformations = ''
   
   if (imageType === 'fullscreen') {
-    // Fullscreen: NO size constraints - only quality and format optimizations
-    // This prevents ImageKit from pre-cropping the image
-    transformations = `fo-auto,q-${quality},f-webp,pr-true,enhancement-true,sharpen-true,contrast-true`
+    // Fullscreen: NO cropping, NO focus, NO size constraints - only quality and format optimizations
+    // This ensures the full image is shown without any pre-cropping by ImageKit
+    transformations = `q-${quality},f-webp,pr-true,enhancement-true,sharpen-true,contrast-true`
   } else if (imageType === 'thumbnail') {
     // Thumbnails: Optimized for speed, smaller size
     transformations = `h-${height},w-${width},c-maintain_ratio,cm-focus,fo-auto,q-85,f-webp,pr-true`
