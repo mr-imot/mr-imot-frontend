@@ -513,11 +513,28 @@ a,
 }
 
 /* Default cursor for text elements (no caret) */
-h1, h2, h3, h4, h5, h6, p, span, label {
+h1, h2, h3, h4, h5, h6, p, span, label, div, section, article, aside, header, footer, nav {
   cursor: default !important;
   caret-color: transparent !important;
+  user-select: none !important;
 }
-/* Removed div - let it inherit cursor from parent */
+
+/* Images and media should never show text cursor */
+img, video, canvas, svg, picture {
+  cursor: default !important;
+  caret-color: transparent !important;
+  user-select: none !important;
+}
+
+/* Buttons and interactive elements */
+button, 
+[role="button"],
+[data-clickable="true"],
+.clickable {
+  cursor: pointer !important;
+  caret-color: transparent !important;
+  user-select: none !important;
+}
 
 /* Override for text inside clickable elements */
 .clickable h1, 
@@ -554,6 +571,33 @@ textarea:disabled,
   cursor: inherit !important;
 }
 /* Removed .cursor-pointer from inherit rule to allow clickable elements to work */
+
+/* Allow text selection and text cursor for actual input elements */
+input[type="text"],
+input[type="email"], 
+input[type="password"],
+input[type="search"],
+input[type="url"],
+input[type="tel"],
+input[type="number"],
+textarea,
+[contenteditable="true"],
+[role="textbox"],
+[role="searchbox"],
+[role="combobox"],
+[role="spinbutton"] {
+  cursor: text !important;
+  caret-color: auto !important;
+  user-select: text !important;
+}
+
+/* Allow text selection for actual text content when user needs to copy */
+.selectable-text,
+[data-selectable="true"] {
+  cursor: text !important;
+  user-select: text !important;
+  caret-color: transparent !important; /* Still no blinking cursor, but allow selection */
+}
 
 /* ===== HERO SECTION: PERMANENT, DEVICE-AGNOSTIC LAYOUT ===== */
 .hero-section {

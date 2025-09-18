@@ -98,8 +98,6 @@ export function MobileSimpleMap({
   // Render simple, performance-optimized markers
   useEffect(() => {
     if (!googleMapRef.current || !properties.length) return
-    
-    if (!googleMapRef.current || !properties.length) return
 
     // Clear existing markers
     Object.values(markersRef.current).forEach(marker => marker.setMap(null))
@@ -136,6 +134,7 @@ export function MobileSimpleMap({
 
       // Add click handler
       marker.addListener('click', () => {
+        console.log('🔴 MOBILE MARKER CLICKED:', property.id, property.title)
         onPropertySelect(property.id)
       })
 

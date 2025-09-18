@@ -115,6 +115,7 @@ export default function ListingsPage() {
   const [isMapExpanded, setIsMapExpanded] = useState(false)
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null)
   const [ariaLiveMessage, setAriaLiveMessage] = useState<string>("")
+  
   const [isMobileMapView, setIsMobileMapView] = useState(false)
   const [cardPosition, setCardPosition] = useState<{
     top?: number
@@ -552,10 +553,14 @@ export default function ListingsPage() {
   // Update marker states when hover/selection changes
   useEffect(() => {
     if (markerManagerRef.current) {
+      // First update the config with current hover/selection state
+      markerManagerRef.current.updateConfig({
+        hoveredPropertyId,
+        selectedPropertyId
+      })
+      // Then update marker states with the new config
       markerManagerRef.current.updateMarkerStates()
     }
-    
-         // Fullscreen markers are now handled by MarkerManager
   }, [hoveredPropertyId, selectedPropertyId])
 
 
@@ -725,6 +730,7 @@ export default function ListingsPage() {
   const selectedProperty = selectedPropertyId 
     ? filteredProperties.find(p => p.id === selectedPropertyId)
     : null
+    
 
   // Close card when clicking on the map (outside the card)
   useEffect(() => {
@@ -787,7 +793,7 @@ export default function ListingsPage() {
         {ariaLiveMessage}
       </div>
                             {/* Glass Morphism Mobile Filters - Premium Design */}
-        <section className="lg:hidden sticky top-0 z-20">
+        <section className="xl:hidden sticky top-0 z-20">
           <div className="px-4 py-4">
             <div className="flex items-center justify-between gap-3">
               {/* City Dropdown */}
@@ -831,7 +837,7 @@ export default function ListingsPage() {
                   }`}
                 >
                   <Building className="w-5 h-5" />
-                  <span className="hidden xs:inline">Apartments</span>
+                  <span className="hidden xl:inline">Apartments</span>
                 </button>
                 <button
                   onClick={() => setPropertyTypeFilter('houses')}
@@ -842,7 +848,7 @@ export default function ListingsPage() {
                   }`}
                 >
                   <Home className="w-5 h-5" />
-                  <span className="hidden xs:inline">Houses</span>
+                  <span className="hidden xl:inline">Houses</span>
                 </button>
               </div>
             </div>
@@ -852,7 +858,7 @@ export default function ListingsPage() {
       {/* Airbnb-style layout with exact proportions */}
         <div className={`mx-auto w-full max-w-[1905px] px-3 xs:px-4 sm:px-6 md:px-8 py-4`}>
                            {/* Mobile: Full-screen Map or List View */}
-          <div className="lg:hidden">
+          <div className="xl:hidden">
                        {isMobileMapView ? (
               <div className="fixed inset-0 z-30 bg-white">
                 {/* Mobile Full Screen Map Header */}
@@ -886,11 +892,15 @@ export default function ListingsPage() {
                 {/* Property Card Overlay - Bottom 50% when marker is clicked - Mobile Map View Only */}
                 {isMobileMapView && selectedProperty && (
                   <div className="absolute bottom-0 left-0 right-0 h-[50vh] bg-white rounded-t-3xl shadow-2xl z-50">
-                    <PropertyMapCard
-                      property={transformToPropertyMapData(selectedProperty)}
-                      onClose={() => setSelectedPropertyId(null)}
-                      position={{ bottom: 0, left: 0, right: 0 }}
-                    />
+                    <div className="w-full h-full">
+                      <PropertyMapCard
+                        property={transformToPropertyMapData(selectedProperty)}
+                        onClose={() => setSelectedPropertyId(null)}
+                        position={{ bottom: 0, left: 0, right: 0 }}
+                        floating={true}
+                        forceMobile={true}
+                      />
+                    </div>
                   </div>
                 )}
               </div>
@@ -975,7 +985,7 @@ export default function ListingsPage() {
         </div>
 
         {/* Desktop: Professional layout with 3 listings per row and wider map */}
-        <div className={`hidden lg:flex ${isMapExpanded ? 'gap-0' : 'gap-8'}`}>
+        <div className={`hidden xl:flex ${isMapExpanded ? 'gap-0' : 'gap-8'}`}>
           {/* Left: Scrollable Listings Container */}
           <section className={`min-w-0 ${isMapExpanded ? '!flex-none !w-0 !min-w-0' : ''}`} style={isMapExpanded ? {display: 'none'} : { width: 'calc(100% - max(600px, 40vw) - 2rem)' }}>
              {/* Desktop Filters aligned with map top */}
@@ -984,7 +994,7 @@ export default function ListingsPage() {
                 <CardContent className="p-4 laptop:p-4 xl:p-6">
                   <div className="flex flex-row items-center justify-center gap-8 laptop:gap-6 xl:gap-12">
                     {/* City Selector */}
-                    <div className="flex flex-col items-center space-y-2 laptop:space-y-2 xl:space-y-3 w-full lg:w-auto">
+                    <div className="flex flex-col items-center space-y-2 laptop:space-y-2 xl:space-y-3 w-full xl:w-auto">
                       <h3 className="text-base font-semibold flex items-center gap-2" style={{color: 'var(--brand-text-primary)'}}>
                         <MapPin className="w-4 h-4" style={{color: 'var(--brand-btn-primary-bg)'}} />
                         Choose Your City
@@ -993,7 +1003,7 @@ export default function ListingsPage() {
                         type="single"
                         value={selectedCity}
                         onValueChange={handleCityChange}
-                        className="flex gap-2 w-full lg:w-auto"
+                        className="flex gap-2 w-full xl:w-auto"
                       >
                         <ToggleGroupItem 
                           value="Sofia" 
@@ -1017,10 +1027,10 @@ export default function ListingsPage() {
                     </div>
 
                     {/* Divider */}
-                    <Separator orientation="vertical" className="hidden lg:block h-12" style={{backgroundColor: 'var(--brand-gray-200)'}} />
+                    <Separator orientation="vertical" className="hidden xl:block h-12" style={{backgroundColor: 'var(--brand-gray-200)'}} />
 
                     {/* Property Type Filter */}
-                    <div className="flex flex-col items-center space-y-2 laptop:space-y-2 xl:space-y-3 w-full lg:w-auto">
+                    <div className="flex flex-col items-center space-y-2 laptop:space-y-2 xl:space-y-3 w-full xl:w-auto">
                       <h3 className="text-base font-semibold flex items-center gap-2" style={{color: 'var(--brand-text-primary)'}}>
                         <Building className="w-4 h-4" style={{color: 'var(--brand-btn-primary-bg)'}} />
                         Property Type
@@ -1029,7 +1039,7 @@ export default function ListingsPage() {
                         type="single"
                         value={propertyTypeFilter}
                         onValueChange={handlePropertyTypeFilter}
-                        className="flex gap-2 w-full lg:w-auto justify-center"
+                        className="flex gap-2 w-full xl:w-auto justify-center"
                       >
                         <ToggleGroupItem 
                           value="all" 
@@ -1188,7 +1198,7 @@ export default function ListingsPage() {
         {/* <FloatingPWAInstallButton /> */}
 
                                    {/* Mobile: Sticky Map Button/Pagination - End of Entire Listings Section */}
-                  <div className="lg:hidden sticky bottom-6 z-40">
+                  <div className="xl:hidden sticky bottom-6 z-40">
                     <div className="flex justify-center">
                       {filteredProperties.length >= 18 ? (
                         /* Pagination Navigation - Airbnb Style */

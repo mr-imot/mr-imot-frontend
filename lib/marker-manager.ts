@@ -36,6 +36,7 @@ export class MarkerManager {
   private markerElements: Record<string, HTMLElement> = {}
   private markerPrices: Record<string, string> = {}
   private markerContents: Record<string, HTMLElement> = {} // Store marker content elements for state updates
+  private allMarkerInstances: Record<string, HTMLElement[]> = {} // Store ALL marker instances (original + clones) for each property
   private markerStates: Record<string, "default" | "hovered" | "selected"> = {} // Track current state of each marker
   private clusters: PropertyCluster[] = []
   private markerCache: Record<string, google.maps.marker.AdvancedMarkerElement> = {}
@@ -72,10 +73,11 @@ export class MarkerManager {
     this.isInitialized = true
   }
 
-  // Update marker states based on hover/selection (unified approach)
+  // Update marker states based on hover/selection
   updateMarkerStates() {
-    Object.entries(this.markerContents).forEach(([propertyId, markerContent]) => {
-      if (markerContent) {
+    // Use allMarkerInstances to update ALL visible markers (clones + originals)
+    Object.entries(this.allMarkerInstances).forEach(([propertyId, markerElements]) => {
+      if (markerElements && markerElements.length > 0) {
         // Determine the current state
         let newState: "default" | "hovered" | "selected" = "default"
         let newZIndex = 1
@@ -94,38 +96,57 @@ export class MarkerManager {
           // Update stored state
           this.markerStates[propertyId] = newState
 
-          // Update z-index
+          // Update z-index on the primary marker
           const marker = this.markers[propertyId]
           if (marker) {
             marker.zIndex = newZIndex
           }
 
-          // Update SVG colors directly
-          const svg = markerContent.querySelector('svg')
-          if (svg) {
-            const paths = svg.querySelectorAll('path, polyline')
+          // Update all marker instances by modifying SVG elements
+          markerElements.forEach((markerElement) => {
+            const svg = markerElement.querySelector('svg')
+            
+            if (svg) {
+              // Define colors based on state
+              const mainFillColor = (newState === "hovered" || newState === "selected") ? "#000000" : "#FFFFFF"
+              const strokeColor = (newState === "hovered" || newState === "selected") ? "#FFFFFF" : "#000000"
+              const windowColor = strokeColor // Windows use stroke color
 
-            if (newState === "hovered" || newState === "selected") {
-              // Hovered/Selected: Black house with white lines
-              paths.forEach(path => {
-                if (path.getAttribute('fill') !== 'none') {
-                  path.setAttribute('fill', '#000000') // Black house
+              // Update main building elements (path, polyline, main rect)
+              const mainElements = svg.querySelectorAll('path, polyline')
+              mainElements.forEach((element) => {
+                const currentFill = element.getAttribute('fill')
+                if (currentFill && currentFill !== 'none') {
+                  element.setAttribute('fill', mainFillColor)
                 }
-                path.setAttribute('stroke', '#FFFFFF') // White lines
-              })
-            } else {
-              // Default: White house with black lines
-              paths.forEach(path => {
-                if (path.getAttribute('fill') !== 'none') {
-                  path.setAttribute('fill', '#FFFFFF') // White house
+                if (element.hasAttribute('stroke')) {
+                  element.setAttribute('stroke', strokeColor)
                 }
-                path.setAttribute('stroke', '#000000') // Black lines
+                if (element.hasAttribute('stroke-width')) {
+                  element.setAttribute('stroke-width', '1.5')
+                }
               })
+
+              // Update building frame (first rect - the main building outline)
+              const rects = svg.querySelectorAll('rect')
+              if (rects.length > 0) {
+                const mainBuilding = rects[0] // First rect is the main building
+                mainBuilding.setAttribute('fill', mainFillColor)
+                mainBuilding.setAttribute('stroke', strokeColor)
+                mainBuilding.setAttribute('stroke-width', '1.5')
+
+                // Update window elements (remaining rects are windows)
+                for (let i = 1; i < rects.length; i++) {
+                  const window = rects[i]
+                  window.setAttribute('fill', windowColor)
+                  // Windows don't have stroke, so no stroke update needed
+                }
+              }
+
+              // Apply CSS classes for any additional styling
+              markerElement.className = `map-marker-icon map-marker-${newState}`
             }
-
-            // Apply CSS classes for scaling/shadow effects
-            markerContent.className = `map-marker-icon map-marker-${newState}`
-          }
+          })
         }
       }
     })
@@ -257,6 +278,7 @@ export class MarkerManager {
     this.markerElements = {}
     this.markerContents = {}
     this.markerStates = {}
+    this.allMarkerInstances = {} // Clear all marker instances
     // Note: We preserve markerCache for reuse
   }
 
@@ -291,10 +313,14 @@ export class MarkerManager {
     // Check if marker is already cached AND we have its original content to clone
     if (this.markerCache[property.id] && this.markerContents[property.id]) {
       const originalElement = this.markerContents[property.id]
+      const clonedElements: HTMLElement[] = []
+      
       // Create new markers for each map using the cached content as reference
       this.config.maps.forEach((map) => {
         if (map && originalElement) {
           const clonedElement = originalElement.cloneNode(true) as HTMLElement
+          clonedElements.push(clonedElement)
+          
           const marker = new google.maps.marker.AdvancedMarkerElement({
             position: { lat: property.lat, lng: property.lng },
             map: map,
@@ -305,6 +331,10 @@ export class MarkerManager {
           this.addMarkerEventListeners(marker, property, clonedElement)
         }
       })
+      
+      // Store all cloned instances for state updates
+      this.allMarkerInstances[property.id] = clonedElements
+      
       // Ensure primary reference exists
       if (!this.markers[property.id]) {
         this.markers[property.id] = this.markerCache[property.id]
@@ -328,11 +358,13 @@ export class MarkerManager {
 
     // Create separate markers for each map (AdvancedMarkerElement can only be on one map)
     const markers: google.maps.marker.AdvancedMarkerElement[] = []
+    const allMarkerElements: HTMLElement[] = []
     
     this.config.maps.forEach((map, index) => {
       if (map) {
         // Clone the marker element for each map
         const clonedElement = markerElement.cloneNode(true) as HTMLElement
+        allMarkerElements.push(clonedElement)
         
         const marker = new google.maps.marker.AdvancedMarkerElement({
           position: { lat: property.lat, lng: property.lng },
@@ -353,6 +385,7 @@ export class MarkerManager {
     this.markerCache[property.id] = markers[0]
     this.markers[property.id] = markers[0]
     this.markerContents[property.id] = markerElement
+    this.allMarkerInstances[property.id] = allMarkerElements // Track all instances for state updates
     this.markerStates[property.id] = "default"
   }
 

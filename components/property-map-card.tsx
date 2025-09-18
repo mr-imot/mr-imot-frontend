@@ -34,6 +34,7 @@ interface PropertyMapCardProps {
     bottom?: number
   }
   floating?: boolean
+  forceMobile?: boolean
 }
 
 export function PropertyMapCard({ 
@@ -41,7 +42,8 @@ export function PropertyMapCard({
   onClose, 
   className,
   position,
-  floating = false
+  floating = false,
+  forceMobile = false
 }: PropertyMapCardProps) {
   const [isClosing, setIsClosing] = useState(false)
   const [hasTrackedView, setHasTrackedView] = useState(false)
@@ -132,7 +134,9 @@ export function PropertyMapCard({
         className={cn(
           "relative bg-white rounded-[20px] overflow-hidden hover:translate-y-[-2px]",
           // Mobile: full width, 1/2 screen height | Desktop: fixed width
-          "w-full h-[50vh] lg:w-[20.4375rem] lg:h-auto"
+          forceMobile 
+            ? "w-full h-[50vh]" 
+            : "w-full h-[50vh] lg:w-[20.4375rem] lg:h-auto"
         )}
         style={{
           boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
@@ -149,7 +153,12 @@ export function PropertyMapCard({
         </button>
 
         {/* Image Carousel */}
-        <div className="relative w-full h-[60%] lg:w-[20.4375rem] lg:h-[13.25rem]">
+        <div className={cn(
+          "relative w-full",
+          forceMobile 
+            ? "h-[60%]" 
+            : "h-[60%] lg:w-[20.4375rem] lg:h-[13.25rem]"
+        )}>
           <Link 
             href={`/listing/${String(property.id)}`} 
             target={`listing_${String(property.id)}`}

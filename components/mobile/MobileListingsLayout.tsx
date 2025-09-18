@@ -34,8 +34,8 @@ export function MobileListingsLayout() {
     urlCity && ["Sofia", "Plovdiv", "Varna"].includes(urlCity) ? urlCity : "Sofia"
   )
   const [propertyTypeFilter, setPropertyTypeFilter] = useState<PropertyTypeFilter>(urlType || "all")
-  const [selectedPropertyId, setSelectedPropertyId] = useState<number | null>(null)
-  const [hoveredPropertyId, setHoveredPropertyId] = useState<number | null>(null)
+  const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null)
+  const [hoveredPropertyId, setHoveredPropertyId] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list')
 
   // Fetch projects with city bounds
@@ -62,7 +62,8 @@ export function MobileListingsLayout() {
     setSelectedPropertyId(null)
   }
 
-  const handlePropertySelect = (propertyId: number | null) => {
+  const handlePropertySelect = (propertyId: string | null) => {
+    console.log('🔵 MOBILE LAYOUT: Property selected:', propertyId)
     setSelectedPropertyId(propertyId)
     if (propertyId && viewMode === 'list') {
       // Switch to map view when property is selected from list
@@ -70,7 +71,7 @@ export function MobileListingsLayout() {
     }
   }
 
-  const handlePropertyHover = (propertyId: number | null) => {
+  const handlePropertyHover = (propertyId: string | null) => {
     setHoveredPropertyId(propertyId)
   }
 

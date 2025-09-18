@@ -13,10 +13,10 @@ interface MobilePropertyListProps {
   properties: PropertyData[]
   loading: boolean
   error: string | null
-  selectedPropertyId: number | null
-  hoveredPropertyId: number | null
-  onPropertySelect: (propertyId: number | null) => void
-  onPropertyHover: (propertyId: number | null) => void
+  selectedPropertyId: string | null
+  hoveredPropertyId: string | null
+  onPropertySelect: (propertyId: string | null) => void
+  onPropertyHover: (propertyId: string | null) => void
   selectedCity: CityType
   propertyTypeFilter: PropertyTypeFilter
   onClearFilters: () => void
