@@ -228,7 +228,7 @@ export default function DeveloperPropertiesPage() {
                       className="group bg-white rounded-xl border border-gray-200 shadow-md hover:shadow-xl transition-all duration-300 ease-out overflow-hidden cursor-pointer"
                     >
                       {/* Image Container */}
-                      <Link href={`/developer/properties/new?id=${p.id}`} className="block cursor-pointer">
+                      <Link href={`/developer/properties/edit/${p.id}`} className="block cursor-pointer">
                         <div className="relative overflow-hidden cursor-pointer">
                           <div className="aspect-[4/3] w-full cursor-pointer">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -247,7 +247,7 @@ export default function DeveloperPropertiesPage() {
                         {/* Property Name with Fixed Height Container */}
                         <div className="h-12 mb-3">
                           <h3 className="font-outfit text-gray-900 text-[18px] font-semibold leading-tight line-clamp-2 tracking-[-0.01em] h-full flex items-start">
-                            <Link href={`/developer/properties/new?id=${p.id}`} className="hover:text-blue-600 transition-colors cursor-pointer">
+                            <Link href={`/developer/properties/edit/${p.id}`} className="hover:text-blue-600 transition-colors cursor-pointer">
                               {p.name || p.title || 'Untitled project'}
                             </Link>
                           </h3>

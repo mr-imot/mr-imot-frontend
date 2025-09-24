@@ -186,6 +186,11 @@ class ApiClient {
         throw new Error(errorMessage);
       }
 
+      // Handle responses with no content (like 204 No Content)
+      if (response.status === 204 || response.headers.get('content-length') === '0') {
+        return {} as T;
+      }
+      
       const data = await response.json();
       return data;
     } catch (error) {
@@ -355,7 +360,7 @@ class ApiClient {
   }
 
   // Project images
-  async uploadProjectImages(projectId: number, files: File[]): Promise<{ images: any[] }> {
+  async uploadProjectImages(projectId: string, files: File[]): Promise<{ images: any[] }> {
     const formData = new FormData();
     for (const file of files) {
       formData.append('files', file);
@@ -380,20 +385,20 @@ class ApiClient {
     return this.request(`/api/v1/projects/${projectId}/images`);
   }
 
-  async deleteProjectImage(projectId: number, imageId: string | number): Promise<{ message: string }> {
+  async deleteProjectImage(projectId: string, imageId: string | number): Promise<{ message: string }> {
     return this.request(`/api/v1/projects/${projectId}/images/${imageId}`, {
       method: 'DELETE',
     });
   }
 
-  async updateProject(id: number, projectData: any): Promise<Project> {
+  async updateProject(id: string, projectData: any): Promise<Project> {
     return this.request(`/api/v1/projects/${id}`, {
       method: 'PUT',
       body: JSON.stringify(projectData),
     });
   }
 
-  async deleteProject(id: number): Promise<{ message: string }> {
+  async deleteProject(id: string): Promise<{ message: string }> {
     return this.request(`/api/v1/projects/${id}`, {
       method: 'DELETE',
     });
@@ -541,8 +546,8 @@ export const getProjects = (params?: any) => apiClient.getProjects(params);
 export const getProject = (id: string) => apiClient.getProject(id);
 export const getProjectFormData = () => apiClient.getProjectFormData();
 export const createProject = (projectData: any) => apiClient.createProject(projectData);
-export const updateProject = (id: number, projectData: any) => apiClient.updateProject(id, projectData);
-export const deleteProject = (id: number) => apiClient.deleteProject(id);
+export const updateProject = (id: string, projectData: any) => apiClient.updateProject(id, projectData);
+export const deleteProject = (id: string) => apiClient.deleteProject(id);
 export const recordProjectView = (projectId: string) => apiClient.recordProjectView(projectId);
 export const recordProjectWebsiteClick = (projectId: string) => apiClient.recordProjectWebsiteClick(projectId);
 export const recordProjectPhoneClick = (projectId: string) => apiClient.recordProjectPhoneClick(projectId);
@@ -558,9 +563,9 @@ export const getAuthHealth = () => apiClient.getAuthHealth();
 export const testConnection = () => apiClient.testConnection(); 
 
 // Project images exports
-export const uploadProjectImages = (projectId: number, files: File[]) => apiClient.uploadProjectImages(projectId, files);
+export const uploadProjectImages = (projectId: string, files: File[]) => apiClient.uploadProjectImages(projectId, files);
 export const getProjectImages = (projectId: string) => apiClient.getProjectImages(projectId);
-export const deleteProjectImage = (projectId: number, imageId: string | number) => apiClient.deleteProjectImage(projectId, imageId);
+export const deleteProjectImage = (projectId: string, imageId: string | number) => apiClient.deleteProjectImage(projectId, imageId);
 export const attachProjectImages = (
   projectId: string | number,
   images: Array<{ url: string; fileId: string; isCover?: boolean }>

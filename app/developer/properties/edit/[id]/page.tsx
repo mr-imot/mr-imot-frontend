@@ -405,23 +405,23 @@ export default function EditProjectPage({ params }: PageProps) {
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
+    const validFiles = files.filter(file => file.type.startsWith('image/'))
+    const hasExistingImages = images.length > 0
     
-    files.forEach((file) => {
-      if (file.type.startsWith('image/')) {
-        const reader = new FileReader()
-        reader.onload = (e) => {
-          const newImage: ImageFile = {
-            id: `new-${Date.now()}-${Math.random()}`,
-            file,
-            preview: e.target?.result as string,
-            isMain: images.length === 0,
-            order: images.length,
-            existing: false
-          }
-          setImages(prev => [...prev, newImage])
+    validFiles.forEach((file, index) => {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        const newImage: ImageFile = {
+          id: `new-${Date.now()}-${Math.random()}`,
+          file,
+          preview: e.target?.result as string,
+          isMain: !hasExistingImages && index === 0, // Only first image if no existing images
+          order: images.length + index,
+          existing: false
         }
-        reader.readAsDataURL(file)
+        setImages(prev => [...prev, newImage])
       }
+      reader.readAsDataURL(file)
     })
     
     if (fileInputRef.current) {
@@ -431,9 +431,12 @@ export default function EditProjectPage({ params }: PageProps) {
 
   const handleImageDelete = async (imageToDelete: ImageFile) => {
     try {
+      // Clear any existing errors
+      setSubmitError(null)
+      
       // If it's an existing image, delete it from backend
       if (imageToDelete.existing && imageToDelete.imageId) {
-        await deleteProjectImage(parseInt(projectId), imageToDelete.imageId)
+        await deleteProjectImage(projectId, imageToDelete.imageId)
       }
       
       // Remove from local state
@@ -445,6 +448,10 @@ export default function EditProjectPage({ params }: PageProps) {
         }
         return filtered
       })
+      
+      // Show success message briefly
+      setSubmitSuccess('Image deleted successfully')
+      setTimeout(() => setSubmitSuccess(null), 2000)
     } catch (error) {
       console.error('Failed to delete image:', error)
       setSubmitError('Failed to delete image. Please try again.')
@@ -531,7 +538,7 @@ export default function EditProjectPage({ params }: PageProps) {
         feature_ids: data.feature_ids,
       }
 
-      await updateProject(parseInt(projectId), projectData)
+      await updateProject(projectId, projectData)
       
       // Handle new image uploads
       const newImages = images.filter(img => !img.existing)
@@ -677,9 +684,27 @@ export default function EditProjectPage({ params }: PageProps) {
                       name="completion_month"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-medium text-gray-700">Completion Month</FormLabel>
+                          <FormLabel className="text-sm font-medium text-gray-700">Project Completion Month <span className="text-red-500">*</span></FormLabel>
                           <FormControl>
-                            <Input placeholder="e.g., March" {...field} />
+                            <Select onValueChange={field.onChange} value={field.value}>
+                              <SelectTrigger className="h-11">
+                                <SelectValue placeholder="Choose month" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="January">January</SelectItem>
+                                <SelectItem value="February">February</SelectItem>
+                                <SelectItem value="March">March</SelectItem>
+                                <SelectItem value="April">April</SelectItem>
+                                <SelectItem value="May">May</SelectItem>
+                                <SelectItem value="June">June</SelectItem>
+                                <SelectItem value="July">July</SelectItem>
+                                <SelectItem value="August">August</SelectItem>
+                                <SelectItem value="September">September</SelectItem>
+                                <SelectItem value="October">October</SelectItem>
+                                <SelectItem value="November">November</SelectItem>
+                                <SelectItem value="December">December</SelectItem>
+                              </SelectContent>
+                            </Select>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -690,9 +715,23 @@ export default function EditProjectPage({ params }: PageProps) {
                       name="completion_year"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-medium text-gray-700">Completion Year</FormLabel>
+                          <FormLabel className="text-sm font-medium text-gray-700">Project Completion Year <span className="text-red-500">*</span></FormLabel>
                           <FormControl>
-                            <Input placeholder="e.g., 2025" {...field} />
+                            <Select onValueChange={field.onChange} value={field.value}>
+                              <SelectTrigger className="h-11">
+                                <SelectValue placeholder="Choose year" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {Array.from({ length: 10 }, (_, i) => {
+                                  const year = new Date().getFullYear() + i;
+                                  return (
+                                    <SelectItem key={year} value={year.toString()}>
+                                      {year}
+                                    </SelectItem>
+                                  );
+                                })}
+                              </SelectContent>
+                            </Select>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
