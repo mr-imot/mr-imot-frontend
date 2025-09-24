@@ -291,6 +291,8 @@ export default function NewPropertyPage() {
           fullscreenControl: false,
           scrollwheel: true,
           gestureHandling: 'greedy',
+          draggableCursor: "grab",
+          draggingCursor: "grabbing",
         })
         mapInstanceRef.current = map
 
@@ -298,6 +300,7 @@ export default function NewPropertyPage() {
           position: center,
           map,
           draggable: true,
+          cursor: "pointer"
         })
         markerRef.current = marker
 

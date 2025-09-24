@@ -353,6 +353,7 @@ export class MarkerManager {
     markerElement.setAttribute('role', 'button')
     markerElement.setAttribute('tabindex', '0')
     markerElement.setAttribute('data-property-id', property.id)
+    markerElement.style.cursor = 'pointer'
     
 
 
@@ -364,6 +365,7 @@ export class MarkerManager {
       if (map) {
         // Clone the marker element for each map
         const clonedElement = markerElement.cloneNode(true) as HTMLElement
+        clonedElement.style.cursor = 'pointer'
         allMarkerElements.push(clonedElement)
         
         const marker = new google.maps.marker.AdvancedMarkerElement({
@@ -399,6 +401,7 @@ export class MarkerManager {
       clusterElement.textContent = count.toString()
       clusterElement.setAttribute('role', 'button')
       clusterElement.setAttribute('tabindex', '0')
+      clusterElement.style.cursor = 'pointer'
       
       // Create AdvancedMarkerElement for cluster
       const marker = new google.maps.marker.AdvancedMarkerElement({
@@ -420,6 +423,7 @@ export class MarkerManager {
       clusterElement.innerHTML = clusterIcon
       clusterElement.setAttribute('role', 'button')
       clusterElement.setAttribute('tabindex', '0')
+      clusterElement.style.cursor = 'pointer'
       
       const fallbackMarker = new google.maps.marker.AdvancedMarkerElement({
         position: { lat: cluster.lat, lng: cluster.lng },

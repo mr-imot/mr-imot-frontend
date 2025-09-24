@@ -302,8 +302,29 @@ export default function ListingsPage() {
           scrollwheel: true,
           gestureHandling: 'greedy',
           mapId: 'DEMO_MAP_ID', // Required for AdvancedMarkerElement
+          draggableCursor: 'grab',
+          draggingCursor: 'grabbing',
         })
                  googleMapRef.current = map
+         
+         // Add cursor behavior to desktop map container only
+         const mapContainer = mapRef.current
+         if (mapContainer) {
+           mapContainer.style.cursor = 'grab'
+           
+           // Add mouse event listeners for cursor changes
+           mapContainer.addEventListener('mousedown', () => {
+             mapContainer.style.cursor = 'grabbing'
+           })
+           
+           mapContainer.addEventListener('mouseup', () => {
+             mapContainer.style.cursor = 'grab'
+           })
+           
+           mapContainer.addEventListener('mouseleave', () => {
+             mapContainer.style.cursor = 'grab'
+           })
+         }
          
          // Add click listener to close property card when clicking on map (Airbnb-style)
          map.addListener('click', () => {
@@ -384,6 +405,8 @@ export default function ListingsPage() {
           scrollwheel: true,
           gestureHandling: 'greedy',
           mapId: 'DEMO_MAP_ID',
+          draggableCursor: 'grab',
+          draggingCursor: 'grabbing',
         })
         mobileGoogleMapRef.current = mobileMap
         
@@ -1181,11 +1204,11 @@ export default function ListingsPage() {
               {/* Expand control */}
               <button
                 type="button"
-                className="absolute top-4 right-4 z-20 w-11 h-11 rounded-full bg-white/95 border border-gray-200 shadow-lg flex items-center justify-center hover:bg-white hover:shadow-xl transition-all duration-200"
+                className="absolute top-4 right-4 z-20 w-11 h-11 rounded-full bg-white/95 border border-gray-200 shadow-lg flex items-center justify-center hover:bg-white hover:shadow-xl transition-all duration-200 cursor-pointer"
                 onClick={() => setIsMapExpanded(!isMapExpanded)}
                 aria-label={isMapExpanded ? "Collapse map" : "Expand map"}
               >
-                {isMapExpanded ? <X className="h-5 w-5 text-gray-700" /> : <Maximize2 className="h-5 w-5 text-gray-700" />}
+                {isMapExpanded ? <X className="h-5 w-5 text-gray-700 cursor-pointer" /> : <Maximize2 className="h-5 w-5 text-gray-700 cursor-pointer" />}
               </button>
               {isMapLoading && (
                 <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center">

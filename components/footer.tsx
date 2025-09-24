@@ -109,14 +109,14 @@ export function Footer() {
                 href="https://www.prodigycorp.io/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:opacity-80 transition-all duration-200 hover:drop-shadow-[0_0_8px_rgba(139,92,246,0.4)]"
+                className="hover:opacity-80 transition-all duration-200 hover:drop-shadow-[0_0_8px_rgba(139,92,246,0.4)] cursor-pointer"
               >
                 <Image
                   src="/prodigy-corp-logo-nobg.png"
                   alt="Prodigy Corp"
                   width={96}
                   height={96}
-                  className="w-24 h-24 object-contain"
+                  className="w-24 h-24 object-contain cursor-pointer"
                 />
               </Link>
             </div>

@@ -102,12 +102,15 @@ const PropertyMap = ({ latitude, longitude, title }: { latitude: number, longitu
             mapTypeControl: false,
             streetViewControl: false,
             fullscreenControl: false,
+            draggableCursor: "grab",
+            draggingCursor: "grabbing",
           })
 
           new window.google.maps.Marker({
             position: { lat: latitude, lng: longitude },
             map,
-            title: title
+            title: title,
+            cursor: "pointer"
           })
         }
       } catch (error) {
@@ -369,20 +372,20 @@ export default function ListingPage({ params }: PageProps) {
               <div className="space-y-2">
                 <Button 
                   size="sm"
-                  className="w-full text-xs"
+                  className="w-full text-xs cursor-pointer"
                   onClick={handleContact}
                 >
-                  <Mail className="h-3 w-3 mr-1" />
+                  <Mail className="h-3 w-3 mr-1 cursor-pointer" />
                   Send Message
                 </Button>
                 
                 <Button 
                   variant="outline" 
                   size="sm"
-                  className="w-full text-xs"
+                  className="w-full text-xs cursor-pointer"
                   onClick={() => handleWebsiteClick(property.website)}
                 >
-                  <Globe className="h-3 w-3 mr-1" />
+                  <Globe className="h-3 w-3 mr-1 cursor-pointer" />
                   Visit Website
                 </Button>
               </div>

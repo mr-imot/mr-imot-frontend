@@ -248,7 +248,13 @@
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-sans);
+    user-select: text; /* Allow text selection by default */
   }
+}
+
+/* Utility class to disable text selection for UI chrome */
+.noselect {
+  user-select: none;
 }
 
 /* Custom scrollbar styles for professional look */
@@ -462,7 +468,7 @@
 /* ===== CURSOR AND CARET MANAGEMENT ===== */
 /* Disable unwanted caret animations */
 @keyframes caret-blink {
-  display: none !important;
+  0%, 100% { display: none !important; }
 }
 
 .animate-caret-blink {
@@ -512,18 +518,64 @@ a,
   cursor: pointer !important;
 }
 
-/* Default cursor for text elements (no caret) */
-h1, h2, h3, h4, h5, h6, p, span, label, div, section, article, aside, header, footer, nav {
+/* Default cursor for text elements (no caret) - REMOVED: Was causing cursor issues */
+/* h1, h2, h3, h4, h5, h6, p, span, label, div, section, article, aside, header, footer, nav {
+  cursor: default !important;
+  caret-color: transparent !important;
+  user-select: none !important;
+} */
+
+/* Images and media should never show text cursor - but allow pointer on interactive elements */
+img:not(.cursor-pointer):not([class*="cursor-"]), 
+video:not(.cursor-pointer):not([class*="cursor-"]), 
+canvas:not(.cursor-pointer):not([class*="cursor-"]), 
+svg:not(.cursor-pointer):not([class*="cursor-"]), 
+picture:not(.cursor-pointer):not([class*="cursor-"]) {
   cursor: default !important;
   caret-color: transparent !important;
   user-select: none !important;
 }
 
-/* Images and media should never show text cursor */
-img, video, canvas, svg, picture {
-  cursor: default !important;
-  caret-color: transparent !important;
+/* Allow pointer cursor on interactive media elements */
+img.cursor-pointer, 
+svg.cursor-pointer, 
+canvas.cursor-pointer, 
+video.cursor-pointer, 
+picture.cursor-pointer {
+  cursor: pointer !important;
   user-select: none !important;
+}
+
+/* Force pointer cursor on any element with cursor-pointer class */
+.cursor-pointer {
+  cursor: pointer !important;
+}
+
+/* Force pointer cursor on any element with cursor-pointer class - highest specificity */
+*[class*="cursor-pointer"] {
+  cursor: pointer !important;
+}
+
+/* Force grab cursor on any element with cursor-grab class */
+.cursor-grab {
+  cursor: grab !important;
+}
+
+/* Force grabbing cursor on any element with cursor-grabbing class */
+.cursor-grabbing {
+  cursor: grabbing !important;
+}
+
+/* Next.js Image component specific fixes */
+img[class*="cursor-pointer"],
+img.cursor-pointer {
+  cursor: pointer !important;
+}
+
+/* Ensure SVG elements with cursor-pointer work */
+svg[class*="cursor-pointer"],
+svg.cursor-pointer {
+  cursor: pointer !important;
 }
 
 /* Buttons and interactive elements */
@@ -549,6 +601,15 @@ button,
   cursor: pointer !important;
 }
 
+/* Ensure all child elements inherit pointer cursor from clickable parents */
+.cursor-pointer *,
+.clickable *,
+button *,
+[role="button"] *,
+[data-clickable="true"] * {
+  cursor: inherit !important;
+}
+
 /* Disabled elements */
 button:disabled,
 input:disabled,
@@ -558,8 +619,8 @@ textarea:disabled,
   cursor: not-allowed !important;
 }
 
-/* Override Tailwind cursor classes */
-.cursor-default,
+/* Override Tailwind cursor classes - REMOVED: Was breaking Tailwind cursor utilities */
+/* .cursor-default,
 .cursor-auto,
 .cursor-text,
 .cursor-not-allowed,
@@ -569,7 +630,7 @@ textarea:disabled,
 .cursor-grab,
 .cursor-grabbing {
   cursor: inherit !important;
-}
+} */
 /* Removed .cursor-pointer from inherit rule to allow clickable elements to work */
 
 /* Allow text selection and text cursor for actual input elements */
@@ -597,6 +658,45 @@ textarea,
   cursor: text !important;
   user-select: text !important;
   caret-color: transparent !important; /* Still no blinking cursor, but allow selection */
+}
+
+/* Google Maps specific cursor fixes */
+.gm-style * {
+  cursor: inherit !important;
+}
+
+.gm-style .gm-style-iw-c {
+  cursor: pointer !important;
+}
+
+.gm-style .gm-style-iw-d {
+  cursor: pointer !important;
+}
+
+/* Map controls should always be pointer */
+.gm-control-active,
+.gm-fullscreen-control,
+.gm-zoom-control {
+  cursor: pointer !important;
+}
+
+.gm-control-active *,
+.gm-fullscreen-control *,
+.gm-zoom-control * {
+  cursor: pointer !important;
+}
+
+/* Map markers should always be pointer */
+.map-marker-icon,
+.map-price-pill,
+.map-price-pill--cluster {
+  cursor: pointer !important;
+}
+
+.map-marker-icon *,
+.map-price-pill *,
+.map-price-pill--cluster * {
+  cursor: pointer !important;
 }
 
 /* ===== HERO SECTION: PERMANENT, DEVICE-AGNOSTIC LAYOUT ===== */

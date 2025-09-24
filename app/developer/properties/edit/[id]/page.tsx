@@ -244,13 +244,16 @@ export default function EditProjectPage({ params }: PageProps) {
             streetViewControl: false,
             fullscreenControl: false,
             scrollwheel: true, // Enable scroll wheel zoom
+            draggableCursor: "grab",
+            draggingCursor: "grabbing",
           })
 
           const marker = new google.maps.Marker({
             position: { lat, lng },
             map,
             draggable: true,
-            title: "Project Location"
+            title: "Project Location",
+            cursor: "pointer"
           })
 
           mapInstanceRef.current = map

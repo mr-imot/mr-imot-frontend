@@ -201,7 +201,7 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
             src={getImageKitUrl(images[0], isMobile ? 800 : 1200, isMobile ? 600 : 800, 90, 'main')}
             alt={`${title} - Main view`}
             fill
-            className="object-cover transition-all duration-500 group-hover:scale-110"
+            className="object-cover transition-all duration-500 group-hover:scale-110 cursor-pointer"
             sizes="100vw"
             priority
           />
@@ -209,8 +209,8 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
           
           {/* Enhanced overlay with expand icon */}
           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
-            <div className="bg-white/20 backdrop-blur-md rounded-full p-3 md:p-4 text-white transform scale-90 group-hover:scale-100 transition-transform duration-300">
-              <Maximize2 className="h-6 w-6 md:h-8 md:w-8" />
+            <div className="bg-white/20 backdrop-blur-md rounded-full p-3 md:p-4 text-white transform scale-90 group-hover:scale-100 transition-transform duration-300 cursor-pointer">
+              <Maximize2 className="h-6 w-6 md:h-8 md:w-8 cursor-pointer" />
             </div>
           </div>
           
@@ -238,13 +238,13 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
                 src={getImageKitUrl(image, 400, 300, 85, 'thumbnail')}
                 alt={`${title} - View ${index + 2}`}
                 fill
-                className="object-cover transition-all duration-300 group-hover:scale-110"
+                className="object-cover transition-all duration-300 group-hover:scale-110 cursor-pointer"
                 sizes="(max-width: 64em) 25vw, 16vw"
               />
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
               <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="bg-white/30 backdrop-blur-sm rounded-full p-1 md:p-2">
-                  <Maximize2 className="h-3 w-3 md:h-4 md:w-4 text-white" />
+                <div className="bg-white/30 backdrop-blur-sm rounded-full p-1 md:p-2 cursor-pointer">
+                  <Maximize2 className="h-3 w-3 md:h-4 md:w-4 text-white cursor-pointer" />
                 </div>
               </div>
             </div>
@@ -286,10 +286,10 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
               <Button
                 variant="ghost"
                 size="icon"
-                className="w-10 h-10 sm:w-12 sm:h-12 text-white hover:bg-white/20 transition-all duration-300 rounded-full backdrop-blur-md border border-white/20 flex-shrink-0"
+                className="w-10 h-10 sm:w-12 sm:h-12 text-white hover:bg-white/20 transition-all duration-300 rounded-full backdrop-blur-md border border-white/20 flex-shrink-0 cursor-pointer"
                 onClick={closeFullscreen}
               >
-                <X className="h-5 w-5 sm:h-6 sm:w-6" />
+                <X className="h-5 w-5 sm:h-6 sm:w-6 cursor-pointer" />
               </Button>
             </div>
           </div>
