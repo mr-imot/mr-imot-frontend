@@ -16,6 +16,8 @@ export interface FormData {
   confirmPassword: string
   website?: string
   acceptTerms: boolean
+  officeLatitude?: number
+  officeLongitude?: number
 }
 
 export const validateForm = (data: FormData): ValidationError[] => {
@@ -52,6 +54,11 @@ export const validateForm = (data: FormData): ValidationError[] => {
   // Office Address validation
   if (!data.officeAddress.trim()) {
     errors.push({ field: 'officeAddress', message: 'Office address is required' })
+  }
+
+  // Office Coordinates validation (required for developers)
+  if (!data.officeLatitude || !data.officeLongitude) {
+    errors.push({ field: 'officeAddress', message: 'Please select your office location on the map' })
   }
 
   // Password validation

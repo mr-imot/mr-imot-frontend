@@ -136,6 +136,7 @@ export default function DeveloperProfilePage() {
         setProfile(developerData)
         
         // Update form with loaded data
+        
         profileForm.reset({
           company_name: developerData.company_name || "",
           contact_person: developerData.contact_person || "",
@@ -165,10 +166,13 @@ export default function DeveloperProfilePage() {
 
       try {
         await ensureGoogleMaps()
+        
+        const mapCenter = profile?.office_latitude && profile?.office_longitude 
+          ? { lat: profile.office_latitude, lng: profile.office_longitude }
+          : defaultCenter
+        
         const map = new google.maps.Map(mapRef.current, {
-          center: profile?.office_latitude && profile?.office_longitude 
-            ? { lat: profile.office_latitude, lng: profile.office_longitude }
-            : defaultCenter,
+          center: mapCenter,
           zoom: 15,
           streetViewControl: false,
           mapTypeControl: false,
@@ -206,6 +210,22 @@ export default function DeveloperProfilePage() {
           }
         })
 
+        // Map click - move marker and update coordinates
+        map.addListener("click", (e: google.maps.MapMouseEvent) => {
+          if (!e.latLng || !markerRef.current) return
+          markerRef.current.setPosition(e.latLng)
+          profileForm.setValue("office_latitude", e.latLng.lat(), { shouldValidate: true })
+          profileForm.setValue("office_longitude", e.latLng.lng(), { shouldValidate: true })
+          reverseGeocode(e.latLng.lat(), e.latLng.lng())
+        })
+
+        // If we have an address but no coordinates, geocode it after map is ready
+        if (profile?.office_address && (!profile.office_latitude || !profile.office_longitude)) {
+          setTimeout(() => {
+            forwardGeocode(profile.office_address)
+          }, 500) // Small delay to ensure map is fully rendered
+        }
+
       } catch (error) {
         console.error('Error initializing map:', error)
         setGeocodingBlocked(true)
@@ -224,9 +244,15 @@ export default function DeveloperProfilePage() {
     const initAutocomplete = async () => {
       try {
         const google = await ensureGoogleMaps()
+        
+        if (placesBlocked) {
+          return
+        }
+        
         const autocomplete = new google.maps.places.Autocomplete(addressInputRef.current!, {
-          types: ['establishment', 'geocode'],
-          componentRestrictions: { country: 'bg' }
+          componentRestrictions: { country: "bg" }, // Restrict to Bulgaria
+          fields: ["address_components", "formatted_address", "geometry", "place_id"],
+          types: ["address"]
         })
 
         // Handle place selection
@@ -256,7 +282,7 @@ export default function DeveloperProfilePage() {
     }
 
     initAutocomplete()
-  }, [profileForm])
+  }, [mapInstanceRef.current, addressInputRef.current, placesBlocked, profileForm])
 
   // Reverse geocode function
   const reverseGeocode = async (lat: number, lng: number) => {
@@ -276,6 +302,33 @@ export default function DeveloperProfilePage() {
     }
   }
 
+  // Forward geocode function for manual address input
+  const forwardGeocode = async (address: string) => {
+    try {
+      const google = await ensureGoogleMaps()
+      const geocoder = new google.maps.Geocoder()
+      
+      geocoder.geocode({ address }, (results, status) => {
+        if (status === 'OK' && results && results[0] && mapInstanceRef.current && markerRef.current) {
+          const location = results[0].geometry.location
+          const newPosition = { lat: location.lat(), lng: location.lng() }
+          
+          // Update map and marker
+          mapInstanceRef.current.setCenter(newPosition)
+          mapInstanceRef.current.setZoom(16)
+          markerRef.current.setPosition(newPosition)
+          
+          // Update form values
+          profileForm.setValue("office_latitude", newPosition.lat, { shouldValidate: true })
+          profileForm.setValue("office_longitude", newPosition.lng, { shouldValidate: true })
+          setAddressSelected(true)
+        }
+      })
+    } catch (error) {
+      console.error('Error forward geocoding:', error)
+    }
+  }
+
   // Handle profile form submission
   const onProfileSubmit = async (data: z.infer<typeof profileSchema>) => {
     try {
@@ -289,6 +342,14 @@ export default function DeveloperProfilePage() {
       // Update local profile state
       if (profile) {
         setProfile({ ...profile, ...data })
+      }
+      
+      // Re-initialize map with new coordinates if they exist
+      if (data.office_latitude && data.office_longitude && mapInstanceRef.current && markerRef.current) {
+        const newPosition = { lat: data.office_latitude, lng: data.office_longitude }
+        mapInstanceRef.current.setCenter(newPosition)
+        mapInstanceRef.current.setZoom(16)
+        markerRef.current.setPosition(newPosition)
       }
     } catch (err) {
       console.error('Error updating profile:', err)
@@ -450,6 +511,15 @@ export default function DeveloperProfilePage() {
                                 ref={addressInputRef}
                                 className="pl-10"
                                 placeholder="Search for office address"
+                                onChange={(e) => {
+                                  field.onChange(e)
+                                  setAddressSelected(false) // Reset when user types
+                                }}
+                                onBlur={(e) => {
+                                  if (e.target.value && !addressSelected) {
+                                    forwardGeocode(e.target.value)
+                                  }
+                                }}
                               />
                             </div>
                           </FormControl>

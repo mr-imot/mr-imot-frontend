@@ -22,19 +22,26 @@ function VerifyEmailContent() {
   const [status, setStatus] = useState<'verifying' | 'success' | 'error'>('verifying')
   const [message, setMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [hasVerified, setHasVerified] = useState(false)
 
   useEffect(() => {
-    if (token) {
+    if (token && !hasVerified) {
       verifyEmail(token)
-    } else {
+    } else if (!token) {
       setStatus('error')
       setMessage('No verification token provided')
     }
-  }, [token])
+  }, [token, hasVerified])
 
   const verifyEmail = async (verificationToken: string) => {
+    if (hasVerified) {
+      console.log('DEBUG: Already verified, skipping API call')
+      return
+    }
+    
     try {
       setIsLoading(true)
+      setHasVerified(true) // Prevent duplicate calls
       const { verifyEmail: verifyEmailApi } = await import('@/lib/api')
       const data = await verifyEmailApi(verificationToken)
       
@@ -61,6 +68,7 @@ function VerifyEmailContent() {
   const handleRetry = () => {
     if (token) {
       setStatus('verifying')
+      setHasVerified(false) // Reset flag for retry
       verifyEmail(token)
     }
   }
@@ -126,7 +134,7 @@ function VerifyEmailContent() {
                 <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
                   <p className="text-sm text-amber-800 font-medium mb-2">Common solutions:</p>
                   <ul className="text-sm text-amber-700 space-y-1">
-                    <li>• Check if the link has expired (10 minutes)</li>
+                    <li>• Check if the link has expired (1 hour)</li>
                     <li>• Make sure you clicked the complete link</li>
                     <li>• Request a new verification email</li>
                   </ul>

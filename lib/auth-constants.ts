@@ -6,7 +6,7 @@ export const TOKEN_EXPIRATION = {
 } as const;
 
 export const ERROR_MESSAGES = {
-  'Verification token has expired': 'This verification link has expired (valid for 10 minutes). Please request a new one.',
+  'Verification token has expired': 'This verification link has expired (valid for 1 hour). Please request a new one.',
   'Invalid or expired reset token': 'This reset link has expired (valid for 15 minutes). Please request a new one.',
   'Too many requests': 'Too many requests. Please wait 5 minutes before requesting a new link.',
   'Invalid credentials': 'Invalid email or password. Please check your credentials and try again.',
@@ -35,13 +35,13 @@ export const SUCCESS_MESSAGES = {
   PASSWORD_RESET_SENT: 'Password reset link sent to your email!',
   PASSWORD_RESET_SUCCESS: 'Password reset successfully!',
   EMAIL_VERIFIED: 'Email verified successfully! You can now sign in.',
-  REGISTRATION_SUCCESS: 'Registration successful! Please check your email for a verification link. The link expires in 10 minutes.',
+  REGISTRATION_SUCCESS: 'Registration successful! Please check your email for a verification link. The link expires in 1 hour.',
 } as const;
 
 export const getTimingMessage = (isMobile: boolean) => ({
   emailVerification: isMobile 
-    ? "Check your email app - link expires in 10 minutes" 
-    : "Check your email - verification link expires in 10 minutes",
+    ? "Check your email app - link expires in 1 hour" 
+    : "Check your email - verification link expires in 1 hour",
   passwordReset: isMobile
     ? "Reset your password quickly - expires in 15min"
     : "Reset your password - this link expires in 15 minutes for security",

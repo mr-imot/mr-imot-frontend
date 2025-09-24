@@ -267,8 +267,8 @@ class ApiClient {
   }
 
   async getCurrentDeveloper(): Promise<Developer> {
-    // This is now handled by the unified /me endpoint
-    return this.getCurrentUser();
+    // Use the dedicated developer profile endpoint
+    return this.request('/api/v1/developers/me');
   }
 
   async getDeveloperStats(): Promise<DeveloperStats> {
@@ -432,6 +432,8 @@ class ApiClient {
     password: string;
     accept_terms: boolean;
     website?: string;
+    office_latitude?: number;
+    office_longitude?: number;
   }): Promise<{ message: string; developer_id?: string; email?: string; status?: string }> {
     return this.request(`/api/v1/auth/developers/register`, {
       method: 'POST',
@@ -467,7 +469,7 @@ class ApiClient {
     office_latitude?: number;
     office_longitude?: number;
   }): Promise<{ message: string; developer: any }> {
-    return this.request('/api/v1/developer/profile', {
+    return this.request('/api/v1/developers/profile', {
       method: 'PUT',
       body: JSON.stringify(profileData),
       headers: {

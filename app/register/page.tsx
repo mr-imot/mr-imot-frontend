@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useMemo, useEffect as useEffectHook } from "react"
 import { Input } from "@/components/ui/input"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { PasswordStrength } from "@/components/ui/password-strength"
@@ -19,13 +19,21 @@ import { cn } from "@/lib/utils"
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from "@/lib/auth-constants"
 import { createAuthError, getErrorDisplayMessage } from "@/lib/auth-errors"
 import { useAuth } from "@/lib/auth-context"
+import { ensureGoogleMaps } from "@/lib/google-maps"
 import Link from "next/link"
 import { Suspense, useEffect } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
-import { Eye, EyeOff, CheckCircle, AlertCircle, Shield, Sparkles, UserPlus, ArrowLeft, Building2, Check, Clock, BarChart3, LayoutDashboard, Mail, PhoneCall, UserCheck, Loader2 } from "lucide-react"
+import { Eye, EyeOff, CheckCircle, AlertCircle, Shield, Sparkles, UserPlus, ArrowLeft, Building2, Check, Clock, BarChart3, LayoutDashboard, Mail, PhoneCall, UserCheck, Loader2, MapPin } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
+
+// Extend Window interface for Google Maps
+declare global {
+  interface Window {
+    google: typeof google
+  }
+}
 
 function RegisterFormContent() {
   const searchParams = useSearchParams()
@@ -40,6 +48,19 @@ function RegisterFormContent() {
     }
   }, [isAuthenticated, authLoading, router, getDashboardUrl])
 
+  // Google Maps refs and state
+  const mapRef = useRef<HTMLDivElement | null>(null)
+  const markerRef = useRef<google.maps.Marker | null>(null)
+  const mapInstanceRef = useRef<google.maps.Map | null>(null)
+  const addressInputRef = useRef<HTMLInputElement | null>(null)
+  
+  const [addressSelected, setAddressSelected] = useState(false)
+  const [geocodingBlocked, setGeocodingBlocked] = useState(false)
+  const [placesBlocked, setPlacesBlocked] = useState(false)
+  
+  // Default center for Sofia
+  const defaultCenter = useMemo(() => ({ lat: 42.6977, lng: 23.3219 }), [])
+
   const [formData, setFormData] = useState<FormData>({
     companyName: "",
     contactPerson: "",
@@ -49,7 +70,9 @@ function RegisterFormContent() {
     password: "",
     confirmPassword: "",
     website: "",
-    acceptTerms: false
+    acceptTerms: false,
+    officeLatitude: undefined,
+    officeLongitude: undefined
   })
 
   const [errors, setErrors] = useState<ValidationError[]>([])
@@ -66,6 +89,174 @@ function RegisterFormContent() {
   const description = isDeveloper
       ? "Create your developer account to list projects."
       : "Create your buyer account to find projects."
+
+  // Google Maps initialization
+  useEffectHook(() => {
+    if (!isDeveloper || !mapRef.current) return
+
+    const initMap = async () => {
+      try {
+        await ensureGoogleMaps()
+        const map = new google.maps.Map(mapRef.current!, {
+          center: defaultCenter,
+          zoom: 15,
+          mapTypeControl: false,
+          streetViewControl: false,
+          fullscreenControl: false,
+          scrollwheel: true,
+          draggableCursor: "grab",
+          draggingCursor: "grabbing",
+        })
+
+        const marker = new google.maps.Marker({
+          position: defaultCenter,
+          map,
+          draggable: true,
+          title: "Office Location",
+        })
+
+        mapInstanceRef.current = map
+        markerRef.current = marker
+
+        // Handle marker drag
+        marker.addListener('dragend', () => {
+          const position = marker.getPosition()
+          if (position) {
+            const lat = position.lat()
+            const lng = position.lng()
+            
+            setFormData(prev => ({
+              ...prev,
+              officeLatitude: lat,
+              officeLongitude: lng
+            }))
+            
+            // Reverse geocode to get address
+            reverseGeocode(lat, lng)
+          }
+        })
+
+        // Map click - move marker and update coordinates
+        map.addListener("click", (e: google.maps.MapMouseEvent) => {
+          if (!e.latLng || !markerRef.current) return
+          markerRef.current.setPosition(e.latLng)
+          setFormData(prev => ({
+            ...prev,
+            officeLatitude: e.latLng!.lat(),
+            officeLongitude: e.latLng!.lng()
+          }))
+          reverseGeocode(e.latLng.lat(), e.latLng.lng())
+        })
+
+      } catch (error) {
+        console.error('Failed to initialize Google Maps:', error)
+        setGeocodingBlocked(true)
+      }
+    }
+
+    initMap()
+  }, [isDeveloper, defaultCenter])
+
+  // Places Autocomplete setup
+  useEffectHook(() => {
+    if (!isDeveloper || !mapInstanceRef.current || !addressInputRef.current) return
+    
+    const initAutocomplete = async () => {
+      try {
+        const google = await ensureGoogleMaps()
+        
+        if (placesBlocked) {
+          return
+        }
+        
+        const autocomplete = new google.maps.places.Autocomplete(addressInputRef.current!, {
+          componentRestrictions: { country: "bg" },
+          fields: ["address_components", "formatted_address", "geometry", "place_id"],
+          types: ["address"]
+        })
+
+        // Handle place selection
+        autocomplete.addListener('place_changed', () => {
+          const place = autocomplete.getPlace()
+          
+          if (place.geometry && place.geometry.location && mapInstanceRef.current && markerRef.current) {
+            const location = place.geometry.location
+            const newCenter = { lat: location.lat(), lng: location.lng() }
+            
+            // Update map and marker
+            mapInstanceRef.current.setCenter(newCenter)
+            mapInstanceRef.current.setZoom(16)
+            markerRef.current.setPosition(newCenter)
+            
+            // Update form values
+            setFormData(prev => ({
+              ...prev,
+              officeLatitude: newCenter.lat,
+              officeLongitude: newCenter.lng,
+              officeAddress: place.formatted_address || (addressInputRef.current?.value || '')
+            }))
+            setAddressSelected(true)
+          }
+        })
+      } catch (error) {
+        console.error('Failed to initialize Places Autocomplete:', error)
+        setPlacesBlocked(true)
+      }
+    }
+
+    initAutocomplete()
+  }, [isDeveloper, mapInstanceRef.current, addressInputRef.current, placesBlocked])
+
+  // Reverse geocode function
+  const reverseGeocode = async (lat: number, lng: number) => {
+    try {
+      const google = await ensureGoogleMaps()
+      const geocoder = new google.maps.Geocoder()
+      
+      geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+        if (status === 'OK' && results && results[0]) {
+          const address = results[0].formatted_address
+          setFormData(prev => ({
+            ...prev,
+            officeAddress: address
+          }))
+          setAddressSelected(true)
+        }
+      })
+    } catch (error) {
+      console.error('Error reverse geocoding:', error)
+    }
+  }
+
+  // Forward geocode function for manual address input
+  const forwardGeocode = async (address: string) => {
+    try {
+      const google = await ensureGoogleMaps()
+      const geocoder = new google.maps.Geocoder()
+      
+      geocoder.geocode({ address }, (results, status) => {
+        if (status === 'OK' && results && results[0] && mapInstanceRef.current && markerRef.current) {
+          const location = results[0].geometry.location
+          const newPosition = { lat: location.lat(), lng: location.lng() }
+          
+          // Update map and marker
+          mapInstanceRef.current.setCenter(newPosition)
+          mapInstanceRef.current.setZoom(16)
+          markerRef.current.setPosition(newPosition)
+          
+          // Update form values
+          setFormData(prev => ({
+            ...prev,
+            officeLatitude: newPosition.lat,
+            officeLongitude: newPosition.lng
+          }))
+          setAddressSelected(true)
+        }
+      })
+    } catch (error) {
+      console.error('Error forward geocoding:', error)
+    }
+  }
 
   const handleInputChange = (field: keyof FormData, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }))
@@ -103,7 +294,9 @@ function RegisterFormContent() {
         office_address: formData.officeAddress.trim(),
         password: formData.password,
         accept_terms: formData.acceptTerms,
-        website: formData.website?.trim() || undefined
+        website: formData.website?.trim() || undefined,
+        office_latitude: formData.officeLatitude,
+        office_longitude: formData.officeLongitude
       })
 
       setSubmitStatus({
@@ -300,11 +493,57 @@ function RegisterFormContent() {
                   />
                 </div>
 
-                {/* Address */}
-                <div className="space-y-2">
-                  <Label htmlFor="officeAddress">Office Address <span className="text-destructive">*</span></Label>
-                  <Input id="officeAddress" value={formData.officeAddress} onChange={(e) => handleInputChange("officeAddress", e.target.value)} autoComplete="street-address" disabled={isLoading} required />
-                  {getFieldError(errors, "officeAddress") && (<p className="text-sm text-destructive">{getFieldError(errors, "officeAddress")}</p>)}
+                {/* Address with Google Maps */}
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="officeAddress">Office Address <span className="text-destructive">*</span></Label>
+                    <div className="relative">
+                      <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Input 
+                        id="officeAddress" 
+                        ref={addressInputRef}
+                        value={formData.officeAddress} 
+                        onChange={(e) => {
+                          handleInputChange("officeAddress", e.target.value)
+                          setAddressSelected(false) // Reset when user types
+                        }}
+                        onBlur={(e) => {
+                          if (e.target.value && !addressSelected) {
+                            forwardGeocode(e.target.value)
+                          }
+                        }}
+                        className="pl-10"
+                        placeholder="Search for office address" 
+                        autoComplete="street-address" 
+                        disabled={isLoading} 
+                        required 
+                      />
+                    </div>
+                    {getFieldError(errors, "officeAddress") && (<p className="text-sm text-destructive">{getFieldError(errors, "officeAddress")}</p>)}
+                    {placesBlocked && (
+                      <p className="text-sm text-amber-600">
+                        Address search is not available. You can still enter the address manually.
+                      </p>
+                    )}
+                  </div>
+                  
+                  {/* Map Display */}
+                  <div className="space-y-2">
+                    <Label>Office Location</Label>
+                    <div className="relative">
+                      <div 
+                        ref={mapRef}
+                        className="w-full h-64 rounded-lg border border-gray-200"
+                        style={{ minHeight: '256px' }}
+                      />
+                      <div className="absolute top-2 left-2 bg-white/90 backdrop-blur-sm rounded-md px-2 py-1 text-xs text-gray-600">
+                        {addressSelected 
+                          ? "Drag the marker or search for a new address to update your office location."
+                          : "Search for your office address to set the location on the map."
+                        }
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Website */}
