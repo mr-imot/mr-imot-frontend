@@ -1,5 +1,5 @@
-// Admin Authentication system for secure JWT-based authentication
-// Designed for production-level security with proper token management
+// Admin Authentication system using cookie-based authentication
+// Designed for production-level security with HttpOnly cookies
 
 import { createContext, useContext, useCallback, useEffect, useState } from 'react';
 
@@ -9,8 +9,7 @@ export interface AdminUser {
   email: string;
   first_name: string;
   last_name: string;
-  role: string;
-  is_active: boolean;
+  user_type: string;
   created_at: string;
 }
 
@@ -20,82 +19,24 @@ export interface AdminAuthContextType {
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
-  refreshToken: () => Promise<boolean>;
+  checkAuth: () => Promise<boolean>;
 }
 
 export interface AdminLoginResponse {
-  access_token: string;
-  token_type: string;
-  expires_in: number;
+  message: string;
   user_type: string;
+  expires_in: number;
 }
 
-// Constants for security
-const TOKEN_KEY = 'admin_token';
-const TOKEN_EXPIRY_KEY = 'admin_token_expiry';
-const REFRESH_THRESHOLD = 300; // 5 minutes before expiry
-
-// Secure token storage using sessionStorage
-class SecureTokenStorage {
-  static setToken(token: string, expiresIn: number): void {
-    const expiryTime = Date.now() + (expiresIn * 1000);
-    
-    if (typeof window !== 'undefined') {
-      // Use sessionStorage for better security than localStorage
-      sessionStorage.setItem(TOKEN_KEY, token);
-      sessionStorage.setItem(TOKEN_EXPIRY_KEY, expiryTime.toString());
-    }
-  }
-
-  static getToken(): string | null {
-    if (typeof window === 'undefined') return null;
-    
-    const token = sessionStorage.getItem(TOKEN_KEY);
-    const expiry = sessionStorage.getItem(TOKEN_EXPIRY_KEY);
-    
-    if (!token || !expiry) return null;
-    
-    // Check if token is expired
-    if (Date.now() > parseInt(expiry)) {
-      this.clearToken();
-      return null;
-    }
-    
-    return token;
-  }
-
-  static clearToken(): void {
-    if (typeof window !== 'undefined') {
-      sessionStorage.removeItem(TOKEN_KEY);
-      sessionStorage.removeItem(TOKEN_EXPIRY_KEY);
-    }
-  }
-
-  static isTokenExpiringSoon(): boolean {
-    if (typeof window === 'undefined') return false;
-    
-    const expiry = sessionStorage.getItem(TOKEN_EXPIRY_KEY);
-    if (!expiry) return false;
-    
-    return Date.now() > (parseInt(expiry) - (REFRESH_THRESHOLD * 1000));
-  }
-
-  static getTokenExpiry(): number | null {
-    if (typeof window === 'undefined') return null;
-    
-    const expiry = sessionStorage.getItem(TOKEN_EXPIRY_KEY);
-    return expiry ? parseInt(expiry) : null;
-  }
-}
-
-// Admin API client for authentication
+// Admin API client for cookie-based authentication
 class AdminAuthAPI {
   static async login(email: string, password: string): Promise<AdminLoginResponse> {
-    const response = await fetch(`/api/v1/auth/token`, {
+    const response = await fetch(`/api/v1/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
+      credentials: 'include', // Include cookies
       body: new URLSearchParams({
         username: email,
         password: password,
@@ -118,23 +59,14 @@ class AdminAuthAPI {
   }
 
   static async getCurrentAdmin(): Promise<AdminUser> {
-    const token = SecureTokenStorage.getToken();
-    
-    if (!token) {
-      throw new Error('No authentication token available');
-    }
-
-    const response = await fetch(`/api/v1/admin/me`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
+    const response = await fetch(`/api/v1/auth/me`, {
+      method: 'GET',
+      credentials: 'include', // Include cookies
     });
 
     if (!response.ok) {
       if (response.status === 401) {
-        SecureTokenStorage.clearToken();
-        throw new Error('Authentication expired');
+        throw new Error('Authentication required');
       }
       throw new Error('Failed to fetch admin profile');
     }
@@ -142,15 +74,11 @@ class AdminAuthAPI {
     return response.json();
   }
 
-  static async refreshSession(): Promise<boolean> {
-    // For now, we'll just validate the current token
-    // In a full implementation, you might have a refresh token endpoint
-    try {
-      await this.getCurrentAdmin();
-      return true;
-    } catch {
-      return false;
-    }
+  static async logout(): Promise<void> {
+    await fetch(`/api/v1/auth/logout`, {
+      method: 'POST',
+      credentials: 'include', // Include cookies
+    });
   }
 }
 
@@ -170,50 +98,23 @@ export const useAdminAuth = () => {
 export const useAdminAuthProvider = (): AdminAuthContextType => {
   const [user, setUser] = useState<AdminUser | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  const isAuthenticated = !!user && !!SecureTokenStorage.getToken();
+  const isAuthenticated = !!user;
 
   // Login function
   const login = useCallback(async (email: string, password: string) => {
     try {
       setLoading(true);
-      setError(null);
 
-      const response = await fetch(`/api/v1/auth/token`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({
-          username: email,
-          password: password,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.detail || 'Login failed');
-      }
-
-      const authResponse = await response.json();
-      
-      // Store token securely
-      SecureTokenStorage.setToken(authResponse.access_token, authResponse.expires_in);
+      // Login and get response
+      await AdminAuthAPI.login(email, password);
       
       // Get admin profile
       const adminUser = await AdminAuthAPI.getCurrentAdmin();
       setUser(adminUser);
       
-      // Store the actual user email in sessionStorage for unified auth
-      if (typeof window !== 'undefined') {
-        sessionStorage.setItem('admin_email', adminUser.email);
-      }
-      
     } catch (error) {
-      SecureTokenStorage.clearToken();
       setUser(null);
-      setError('Login failed. Please check your credentials.');
       throw error;
     } finally {
       setLoading(false);
@@ -221,14 +122,16 @@ export const useAdminAuthProvider = (): AdminAuthContextType => {
   }, []);
 
   // Logout function
-  const logout = useCallback(() => {
-    SecureTokenStorage.clearToken();
-    setUser(null);
-    
-    // Clear admin email from sessionStorage
-    if (typeof window !== 'undefined') {
-      sessionStorage.removeItem('admin_email');
+  const logout = useCallback(async () => {
+    try {
+      await AdminAuthAPI.logout();
+    } catch (error) {
+      console.error('Logout request failed:', error);
+      // Continue with local logout even if backend call fails
     }
+    
+    // Clear local state
+    setUser(null);
     
     // Redirect to login page
     if (typeof window !== 'undefined') {
@@ -236,36 +139,25 @@ export const useAdminAuthProvider = (): AdminAuthContextType => {
     }
   }, []);
 
-  // Refresh token function
-  const refreshToken = useCallback(async (): Promise<boolean> => {
+  // Check authentication status
+  const checkAuth = useCallback(async (): Promise<boolean> => {
     try {
-      const success = await AdminAuthAPI.refreshSession();
-      if (!success) {
-        logout();
-        return false;
-      }
+      const adminUser = await AdminAuthAPI.getCurrentAdmin();
+      setUser(adminUser);
       return true;
-    } catch {
-      logout();
+    } catch (error) {
+      setUser(null);
       return false;
     }
-  }, [logout]);
+  }, []);
 
   // Initialize auth state
   useEffect(() => {
     const initializeAuth = async () => {
-      const token = SecureTokenStorage.getToken();
-      
-      if (!token) {
-        setLoading(false);
-        return;
-      }
-
       try {
-        const adminUser = await AdminAuthAPI.getCurrentAdmin();
-        setUser(adminUser);
-      } catch {
-        SecureTokenStorage.clearToken();
+        await checkAuth();
+      } catch (error) {
+        console.error('Auth initialization failed:', error);
         setUser(null);
       } finally {
         setLoading(false);
@@ -273,41 +165,7 @@ export const useAdminAuthProvider = (): AdminAuthContextType => {
     };
 
     initializeAuth();
-  }, []);
-
-  // Auto-refresh token when it's about to expire
-  useEffect(() => {
-    if (!isAuthenticated) return;
-
-    const checkTokenExpiry = () => {
-      if (SecureTokenStorage.isTokenExpiringSoon()) {
-        refreshToken();
-      }
-    };
-
-    // Check every minute
-    const interval = setInterval(checkTokenExpiry, 60000);
-    
-    return () => clearInterval(interval);
-  }, [isAuthenticated, refreshToken]);
-
-  // Handle page visibility change to check auth status
-  useEffect(() => {
-    if (!isAuthenticated) return;
-
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        // Validate auth when page becomes visible
-        refreshToken();
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, [isAuthenticated, refreshToken]);
+  }, [checkAuth]);
 
   return {
     user,
@@ -315,24 +173,15 @@ export const useAdminAuthProvider = (): AdminAuthContextType => {
     isAuthenticated,
     login,
     logout,
-    refreshToken,
+    checkAuth,
   };
 };
 
-// Utility function to get auth headers for API requests
+// Utility function to get auth headers for API requests (now uses cookies)
 export const getAdminAuthHeaders = (): HeadersInit => {
-  const token = SecureTokenStorage.getToken();
-  
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
   };
 
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
-  }
-
   return headers;
-};
-
-// Export token storage for direct access if needed
-export { SecureTokenStorage }; 
+}; 

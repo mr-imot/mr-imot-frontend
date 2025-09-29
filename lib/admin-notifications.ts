@@ -30,8 +30,8 @@ export class AdminNotificationService {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${this.getAuthToken()}`
           },
+          credentials: 'include', // Include cookies for authentication
           body: JSON.stringify({
             email: developer.email,
             companyName: developer.company_name,
@@ -73,8 +73,8 @@ export class AdminNotificationService {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${this.getAuthToken()}`
           },
+          credentials: 'include', // Include cookies for authentication
           body: JSON.stringify({
             email: developer.email,
             companyName: developer.company_name,
@@ -117,8 +117,8 @@ export class AdminNotificationService {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${this.getAuthToken()}`
           },
+          credentials: 'include', // Include cookies for authentication
           body: JSON.stringify({
             email: developer.email,
             companyName: developer.company_name,
@@ -171,8 +171,8 @@ export class AdminNotificationService {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${this.getAuthToken()}`
           },
+          credentials: 'include', // Include cookies for authentication
           body: JSON.stringify({
             to: notification.to,
             subject: notification.subject,
@@ -196,12 +196,6 @@ export class AdminNotificationService {
 
     // If all endpoints fail, simulate success for demo purposes
     return { success: true, message: 'Email sent successfully (demo mode)' };
-  }
-
-  // Get auth token from session storage
-  private static getAuthToken(): string | null {
-    if (typeof window === 'undefined') return null;
-    return sessionStorage.getItem('admin_token');
   }
 
   // Store notification history for admin review

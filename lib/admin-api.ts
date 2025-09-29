@@ -1,7 +1,7 @@
 // Admin API client for secure backend communication
 // Handles all admin-specific API operations with JWT authentication
 
-import { getAdminAuthHeaders, SecureTokenStorage } from './admin-auth';
+import { getAdminAuthHeaders } from './admin-auth';
 
 // Always use relative URLs - Next.js proxy handles the routing
 
@@ -152,6 +152,7 @@ class AdminApiClient {
         ...headers,
         ...options.headers,
       },
+      credentials: 'include', // Include cookies for authentication
     };
 
     try {
@@ -159,7 +160,6 @@ class AdminApiClient {
 
       // Handle authentication errors
       if (response.status === 401) {
-        SecureTokenStorage.clearToken();
         if (typeof window !== 'undefined') {
           window.location.href = '/admin/login';
         }
