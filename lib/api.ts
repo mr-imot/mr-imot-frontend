@@ -74,6 +74,8 @@ export interface Project {
     contact_person: string;
     phone: string;
     office_address: string;
+    office_latitude?: number;
+    office_longitude?: number;
     website: string;
     verification_status: string;
     is_active: boolean;

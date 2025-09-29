@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
 import {
   MapPin,
   Star,
@@ -16,7 +15,6 @@ import {
   Calendar,
   Users,
   Phone,
-  Mail,
   ArrowLeft,
   Heart,
   Share2,
@@ -39,6 +37,7 @@ import Image from "next/image"
 import { PropertyGallery } from "@/components/PropertyGallery"
 import { FeaturesDisplay } from "@/components/FeaturesDisplay"
 import { ensureGoogleMaps } from "@/lib/google-maps"
+import { useIsMobile } from "@/hooks/use-mobile"
 
 interface PageProps {
   params: Promise<{
@@ -104,6 +103,51 @@ const PropertyMap = ({ latitude, longitude, title }: { latitude: number, longitu
             fullscreenControl: false,
             draggableCursor: "grab",
             draggingCursor: "grabbing",
+            scrollwheel: true,
+            gestureHandling: "greedy",
+          })
+
+          new window.google.maps.Marker({
+            position: { lat: latitude, lng: longitude },
+            map,
+            title: title,
+            cursor: "pointer"
+          })
+        }
+      } catch (error) {
+        console.error('Failed to load Google Maps:', error)
+      }
+    }
+
+    initMap()
+  }, [latitude, longitude, title])
+
+  return (
+    <div className="mt-4 h-64 bg-gray-100 rounded-lg overflow-hidden">
+      <div ref={mapRef} className="w-full h-full" />
+    </div>
+  )
+}
+
+// Office Map Component
+const OfficeMap = ({ latitude, longitude, title }: { latitude: number, longitude: number, title: string }) => {
+  const mapRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const initMap = async () => {
+      try {
+        await ensureGoogleMaps()
+        if (mapRef.current && window.google) {
+          const map = new window.google.maps.Map(mapRef.current, {
+            center: { lat: latitude, lng: longitude },
+            zoom: 15,
+            mapTypeControl: false,
+            streetViewControl: false,
+            fullscreenControl: false,
+            draggableCursor: "grab",
+            draggingCursor: "grabbing",
+            scrollwheel: true,
+            gestureHandling: "greedy",
           })
 
           new window.google.maps.Marker({
@@ -158,8 +202,7 @@ export default function ListingPage({ params }: PageProps) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isSaved, setIsSaved] = useState(false)
-  const [showContactForm, setShowContactForm] = useState(false)
-  const [contactMessage, setContactMessage] = useState("")
+  const isMobile = useIsMobile()
 
   useEffect(() => {
     const loadProperty = async () => {
@@ -229,9 +272,38 @@ export default function ListingPage({ params }: PageProps) {
     }
   }
 
-  const handlePhoneClick = async (phone: any) => {
+  const handlePhoneClick = async (phone: string) => {
     try {
       await recordProjectPhoneClick(projectId)
+      
+      // Initiate phone call if phone number is available
+      if (phone && phone.trim()) {
+        // Clean phone number (remove spaces, dashes, etc.)
+        const cleanPhone = phone.replace(/[\s\-\(\)]/g, '')
+        window.location.href = `tel:${cleanPhone}`
+      }
+    } catch (err) {
+      console.warn("Failed to record phone click:", err)
+    }
+  }
+
+  const handlePhoneNumberClick = async (phone: string) => {
+    try {
+      await recordProjectPhoneClick(projectId)
+      
+      // For desktop, only copy to clipboard (no tel: protocol)
+      if (phone && phone.trim()) {
+        const cleanPhone = phone.replace(/[\s\-\(\)]/g, '')
+        
+        // Copy to clipboard
+        try {
+          await navigator.clipboard.writeText(cleanPhone)
+          // You could add a toast notification here if you have one
+          console.log('Phone number copied to clipboard:', cleanPhone)
+        } catch (clipboardErr) {
+          console.warn("Failed to copy to clipboard:", clipboardErr)
+        }
+      }
     } catch (err) {
       console.warn("Failed to record phone click:", err)
     }
@@ -240,14 +312,21 @@ export default function ListingPage({ params }: PageProps) {
   const handleWebsiteClick = async (website: any) => {
     try {
       await recordProjectWebsiteClick(projectId)
+      
+      // Open website in new tab if URL is provided
+      if (website && website.trim()) {
+        // Ensure URL has protocol
+        let url = website.trim()
+        if (!url.startsWith('http://') && !url.startsWith('https://')) {
+          url = `https://${url}`
+        }
+        window.open(url, '_blank', 'noopener,noreferrer')
+      }
     } catch (err) {
       console.warn("Failed to record website click:", err)
     }
   }
 
-  const handleContact = () => {
-    setShowContactForm(!showContactForm)
-  }
 
   // Parse completion date for timeline
   const parseCompletionNote = (completionNote: any) => {
@@ -363,61 +442,50 @@ export default function ListingPage({ params }: PageProps) {
             </CardHeader>
             <CardContent className="space-y-3">
               <div>
-                <h4 className="font-medium text-sm">Unknown Developer</h4>
+                <h4 className="font-medium text-sm">{property.developer?.company_name || 'Unknown Developer'}</h4>
                 <p className="text-xs text-gray-600">Property Developer</p>
-                <p className="text-xs text-gray-500 mt-1">Office: Contact for location</p>
-                <p className="text-xs text-gray-500">Phone: Contact for details</p>
+                <p className="text-xs text-gray-500 mt-1">Office: {property.developer?.office_address || 'Contact for location'}</p>
+                {isMobile ? (
+                  <p className="text-xs text-gray-500">Phone: {property.developer?.phone || 'Contact for details'}</p>
+                ) : (
+                  <div className="flex items-center gap-2 mt-1">
+                    <Phone className="h-3 w-3 text-gray-500" />
+                    <span
+                      onClick={() => handlePhoneNumberClick(property.developer?.phone)}
+                      className="text-xs text-gray-500 font-mono"
+                    >
+                      {property.developer?.phone || 'Contact for details'}
+                    </span>
+                  </div>
+                )}
               </div>
               
               <div className="space-y-2">
-                <Button 
-                  size="sm"
-                  className="w-full text-xs cursor-pointer"
-                  onClick={handleContact}
-                >
-                  <Mail className="h-3 w-3 mr-1 cursor-pointer" />
-                  Send Message
-                </Button>
+                {isMobile && (
+                  // Mobile: Show Call Now button
+                  <Button 
+                    size="sm"
+                    className="w-full text-xs cursor-pointer"
+                    onClick={() => handlePhoneClick(property.developer?.phone)}
+                    disabled={!property.developer?.phone}
+                  >
+                    <Phone className="h-3 w-3 mr-1 cursor-pointer" />
+                    Call Now
+                  </Button>
+                )}
                 
                 <Button 
                   variant="outline" 
                   size="sm"
                   className="w-full text-xs cursor-pointer"
-                  onClick={() => handleWebsiteClick(property.website)}
+                  onClick={() => handleWebsiteClick(property.developer?.website || property.website)}
+                  disabled={!property.developer?.website && !property.website}
                 >
                   <Globe className="h-3 w-3 mr-1 cursor-pointer" />
                   Visit Website
                 </Button>
               </div>
 
-              {/* Contact Form - Compact */}
-              {showContactForm && (
-                <div className="space-y-3 pt-3 border-t">
-                  <div>
-                    <label className="text-xs font-medium">Your Message</label>
-                    <Textarea
-                      placeholder="I'm interested in this property..."
-                      value={contactMessage}
-                      onChange={(e) => setContactMessage(e.target.value)}
-                      className="mt-1 text-xs"
-                      rows={3}
-                    />
-                  </div>
-                  <div className="flex gap-1">
-                    <Button size="sm" className="flex-1 text-xs">
-                      Send
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      onClick={() => setShowContactForm(false)}
-                      className="text-xs"
-                    >
-                      Cancel
-                    </Button>
-                  </div>
-                </div>
-              )}
             </CardContent>
           </Card>
         </div>
@@ -523,7 +591,7 @@ export default function ListingPage({ params }: PageProps) {
           <CardContent>
             <div className="mb-6">
               <h4 className="font-medium mb-2">Address</h4>
-              <p className="text-gray-600">{property.location || property.city}</p>
+              <p className="text-gray-600">{property.formatted_address || property.location || property.city}</p>
             </div>
             
             {/* Google Maps */}
@@ -541,6 +609,41 @@ export default function ListingPage({ params }: PageProps) {
           </CardContent>
         </Card>
       </div>
+
+      {/* Office Location Section */}
+      {property.developer && (
+        <div className="mt-8">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Building className="h-5 w-5" />
+                Office Location
+              </CardTitle>
+              <p className="text-gray-600 mt-2">
+                Visit our office to discuss your investment and get personalized assistance.
+              </p>
+            </CardHeader>
+            <CardContent>
+              <div className="mb-6">
+                <h4 className="font-medium mb-2">Office Address</h4>
+                <p className="text-gray-600">{property.developer.office_address || 'Address not available'}</p>
+              </div>
+              
+              {property.developer.office_latitude && property.developer.office_longitude ? (
+                <OfficeMap 
+                  latitude={property.developer.office_latitude} 
+                  longitude={property.developer.office_longitude} 
+                  title={property.developer.company_name}
+                />
+              ) : (
+                <div className="mt-4 h-64 bg-gray-100 rounded-lg flex items-center justify-center">
+                  <p className="text-gray-500">Office location not available</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
     </div>
   )
