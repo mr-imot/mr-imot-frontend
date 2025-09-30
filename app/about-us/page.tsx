@@ -227,13 +227,13 @@ export default function AboutUsPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-br from-[#111827] via-[#1f2937] to-[#111827] text-white relative overflow-hidden">
-        <div className="absolute inset-0 opacity-5">
+      <section className="py-20 bg-gradient-to-br from-[#111827] via-[#1f2937] to-[#374151] text-white relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 left-0 w-full h-full">
             <svg className="w-full h-full" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
               <defs>
                 <pattern id="cta-grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                  <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#ffffff" strokeWidth="0.5" opacity="0.3" />
+                  <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#ffffff" strokeWidth="0.5" opacity="0.6" />
                 </pattern>
               </defs>
               <rect width="100%" height="100%" fill="url(#cta-grid)" />
