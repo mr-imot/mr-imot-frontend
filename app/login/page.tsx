@@ -215,10 +215,9 @@ function LoginFormContent() {
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
-              <p className="text-xs text-muted-foreground">We never store your password in plain text.</p>
               
-              {/* Forgot Password - Centered */}
-              <div className="flex items-center justify-center pt-1">
+              {/* Forgot Password - Right aligned */}
+              <div className="flex items-center justify-end">
                 <Link 
                   href="/forgot-password"
                   className="text-sm font-medium hover:underline"
@@ -228,6 +227,7 @@ function LoginFormContent() {
                 </Link>
               </div>
             </div>
+
 
             {/* Sign In Button */}
             <Button type="submit" className="w-full" disabled={isLoading}>{isLoading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Signing you in...</>) : 'Sign In'}</Button>
