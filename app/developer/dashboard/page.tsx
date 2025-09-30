@@ -6,7 +6,6 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import { useDeveloperDashboard } from "@/hooks/use-developer-dashboard"
 import { ProtectedRoute } from "@/components/protected-route"
 import { useAuth } from "@/lib/auth-context"
-import { PendingApprovalMessage } from "@/components/pending-approval-message"
 import { DeveloperSidebar } from "@/components/developer-sidebar"
 
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
@@ -175,10 +174,6 @@ function DashboardContent() {
   const { stats, analytics, projects, loading, error } = useDeveloperDashboard(selectedPeriod)
   const { canCreateProjects, user } = useAuth()
   
-  // Debug: Log verification status
-  console.log('Dashboard - User verification status:', user?.verification_status)
-  console.log('Dashboard - Can create projects:', canCreateProjects)
-  
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -289,19 +284,7 @@ function DashboardContent() {
         </div>
       </header>
 
-      {/* Debug Banner - Temporary */}
-      {user && (
-        <div className="px-8 py-2">
-          <Alert className="border-blue-200 bg-blue-50">
-            <AlertCircle className="h-4 w-4 text-blue-600" />
-            <AlertDescription className="text-blue-800">
-              Debug: Verification Status = "{user.verification_status}" | Can Create Projects = {canCreateProjects ? 'true' : 'false'}
-            </AlertDescription>
-          </Alert>
-        </div>
-      )}
-
-      {/* Verification Status Banner */}
+      {/* Verification Status Banner - Only show for unverified accounts */}
       {(user?.verification_status === 'pending_email_verification' || 
         user?.verification_status === 'pending_manual_approval' || 
         (user?.verification_status && user.verification_status !== 'verified')) && (
@@ -320,7 +303,12 @@ function DashboardContent() {
                   <Button variant="outline" size="sm" className="text-amber-700 border-amber-300 hover:bg-amber-100 dark:text-amber-300 dark:border-amber-700 dark:hover:bg-amber-900">
                     Learn More
                   </Button>
-                  <Button variant="outline" size="sm" className="text-amber-700 border-amber-300 hover:bg-amber-100 dark:text-amber-300 dark:border-amber-700 dark:hover:bg-amber-900">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="text-amber-700 border-amber-300 hover:bg-amber-100 dark:text-amber-300 dark:border-amber-700 dark:hover:bg-amber-900"
+                    onClick={() => router.push('/contact')}
+                  >
                     Contact Support
                   </Button>
                 </div>
@@ -333,9 +321,6 @@ function DashboardContent() {
       {/* Main Content */}
       <main className="px-8 py-8 max-w-7xl mx-auto space-y-8">
         
-        {/* Pending Approval Message */}
-        <PendingApprovalMessage />
-
         {/* Key Metrics */}
         <section>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
