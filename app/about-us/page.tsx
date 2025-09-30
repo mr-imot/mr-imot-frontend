@@ -27,12 +27,6 @@ export default function AboutUsPage() {
     },
   ]
 
-  const stats = [
-    { number: "500+", label: "Verified Developers" },
-    { number: "2,000+", label: "Active Listings" },
-    { number: "10,000+", label: "Happy Customers" },
-    { number: "50+", label: "Cities Covered" },
-  ]
 
   const benefits = [
     "Direct access to developers, no brokers involved",
@@ -130,7 +124,11 @@ export default function AboutUsPage() {
             </ScrollAnimationWrapper>
             <ScrollAnimationWrapper delay={0.2}>
               <div className="order-1 lg:order-2">
-                <div className="inline-flex items-center gap-2 bg-muted text-foreground px-3 py-1 rounded-full text-sm font-medium mb-4">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium mb-4 border" style={{
+                  backgroundColor: 'var(--brand-badge-bg)',
+                  color: 'var(--brand-badge-text)',
+                  borderColor: 'var(--brand-badge-border)'
+                }}>
                   Vision
                 </div>
                 <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
@@ -151,35 +149,17 @@ export default function AboutUsPage() {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-20 bg-gradient-to-r from-primary to-accent text-primary-foreground relative overflow-hidden">
-        <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
-        <div className="container relative">
-          <ScrollAnimationWrapper>
-            <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">Trusted by Thousands</h2>
-              <p className="text-xl opacity-90">Our numbers speak for our commitment to excellence</p>
-            </div>
-          </ScrollAnimationWrapper>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <ScrollAnimationWrapper key={index} delay={index * 0.1}>
-                <div className="text-center">
-                  <div className="text-4xl md:text-5xl font-bold mb-2">{stat.number}</div>
-                  <div className="text-lg opacity-90">{stat.label}</div>
-                </div>
-              </ScrollAnimationWrapper>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* Values Section */}
       <section className="py-20 bg-muted">
         <div className="container">
           <ScrollAnimationWrapper>
             <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 bg-muted text-foreground px-4 py-2 rounded-full text-sm font-medium mb-6">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-6 border" style={{
+                backgroundColor: 'var(--brand-badge-bg)',
+                color: 'var(--brand-badge-text)',
+                borderColor: 'var(--brand-badge-border)'
+              }}>
                 Our Values
               </div>
               <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">What Drives Us Forward</h2>
@@ -191,12 +171,12 @@ export default function AboutUsPage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {values.map((value, index) => (
               <ScrollAnimationWrapper key={index} delay={index * 0.1}>
-                <div className="bg-card rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 group">
-                  <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                <div className="bg-card rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 group h-full flex flex-col">
+                  <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
                     <value.icon className="w-8 h-8 text-white" />
                   </div>
                   <h3 className="text-xl font-bold text-foreground mb-4">{value.title}</h3>
-                  <p className="text-muted-foreground leading-relaxed">{value.description}</p>
+                  <p className="text-muted-foreground leading-relaxed flex-grow">{value.description}</p>
                 </div>
               </ScrollAnimationWrapper>
             ))}
@@ -210,7 +190,11 @@ export default function AboutUsPage() {
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <ScrollAnimationWrapper>
               <div>
-                <div className="inline-flex items-center gap-2 bg-muted text-foreground px-4 py-2 rounded-full text-sm font-medium mb-6">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-6 border" style={{
+                  backgroundColor: 'var(--brand-badge-bg)',
+                  color: 'var(--brand-badge-text)',
+                  borderColor: 'var(--brand-badge-border)'
+                }}>
                   Why Choose Mr imot?
                 </div>
                 <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
@@ -259,19 +243,19 @@ export default function AboutUsPage() {
                 Join thousands of satisfied customers who found their perfect home through Mr imot
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <button className="px-8 py-4 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl" style={{
+                <a href="/listings" className="px-8 py-4 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl" style={{
                   backgroundColor: 'var(--brand-btn-primary-bg)',
                   color: 'var(--brand-btn-primary-text)'
                 }}>
                   Browse Properties
-                </button>
-                <button className="border-2 px-8 py-4 rounded-xl font-semibold transition-all duration-300" style={{
+                </a>
+                <a href="/contact" className="border-2 px-8 py-4 rounded-xl font-semibold transition-all duration-300" style={{
                   borderColor: '#ffffff',
                   color: '#ffffff',
                   backgroundColor: 'transparent'
                 }}>
                   Contact Us
-                </button>
+                </a>
               </div>
             </div>
           </ScrollAnimationWrapper>
