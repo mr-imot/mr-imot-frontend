@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { 
@@ -168,6 +168,11 @@ export function DeveloperSidebar({ children }: DeveloperSidebarProps) {
           {user && (
             <div className="flex items-center gap-3 rounded-xl border border-border/50 bg-background/50 p-3 shadow-sm">
               <Avatar className="h-10 w-10 ring-2 ring-primary/10">
+                <AvatarImage 
+                  src={user.profile_image_url} 
+                  alt={`${getDisplayName()} profile`}
+                  className="object-cover"
+                />
                 <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/30 text-primary font-bold text-sm">
                   {getUserInitials()}
                 </AvatarFallback>

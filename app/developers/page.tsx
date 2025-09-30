@@ -66,23 +66,24 @@ export default function DevelopersPage() {
                     <Card className="group hover:shadow-xl transition-all duration-300 h-full">
                       <CardContent className="p-0">
                         {/* Cover Image */}
-                        <div className="relative h-48 bg-gradient-to-br from-primary to-primary/80 rounded-t-lg">
-                          <div className="absolute inset-0 bg-black/20 rounded-t-lg"></div>
-                          
-                          {/* Profile Image */}
-                          <div className="absolute bottom-4 left-4">
-                            <Avatar className="h-16 w-16 border-4 border-white shadow-lg">
-                              <AvatarImage 
-                                src={developer.profile_image_url} 
+                        <div className="relative h-48 bg-gradient-to-br from-primary to-primary/80 rounded-t-lg overflow-hidden">
+                          {/* Profile Image as Cover */}
+                          {developer.profile_image_url ? (
+                            <>
+                              <Image
+                                src={developer.profile_image_url}
                                 alt={`${developer.company_name} profile`}
+                                fill
                                 className="object-cover"
+                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                               />
-                              <AvatarFallback className="text-lg font-semibold bg-white text-primary">
-                                {developer.company_name?.charAt(0) || 'C'}
-                              </AvatarFallback>
-                            </Avatar>
-                          </div>
+                              <div className="absolute inset-0 bg-black/20"></div>
+                            </>
+                          ) : (
+                            <div className="absolute inset-0 bg-gradient-to-br from-primary to-primary/80"></div>
+                          )}
                           
+                          {/* Verification Badge */}
                           <div className="absolute top-4 left-4 flex gap-2">
                             {developer.is_verified && (
                               <Badge className="bg-green-500 text-white">
@@ -91,6 +92,15 @@ export default function DevelopersPage() {
                               </Badge>
                             )}
                           </div>
+                          
+                          {/* Company Initials Fallback */}
+                          {!developer.profile_image_url && (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <div className="text-6xl font-bold text-white/80">
+                                {developer.company_name?.charAt(0) || 'C'}
+                              </div>
+                            </div>
+                          )}
                         </div>
 
                         {/* Developer Info */}

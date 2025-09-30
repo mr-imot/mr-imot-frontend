@@ -6,6 +6,7 @@ import { getProject } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
 import {
   MapPin,
@@ -462,7 +463,19 @@ export default function ListingPage({ params }: PageProps) {
               {/* Company Information */}
               <div className="space-y-1">
                 <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">Company</p>
-                <h4 className="font-semibold text-base text-gray-900">{property.developer?.company_name || 'Unknown Developer'}</h4>
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-10 w-10 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => window.open(`/developers/${property.developer?.id}`, '_blank')}>
+                    <AvatarImage 
+                      src={property.developer?.profile_image_url} 
+                      alt={`${property.developer?.company_name} profile`}
+                      className="object-cover"
+                    />
+                    <AvatarFallback className="text-sm font-semibold bg-primary text-primary-foreground">
+                      {property.developer?.company_name?.charAt(0) || 'C'}
+                    </AvatarFallback>
+                  </Avatar>
+                  <h4 className="font-semibold text-base text-gray-900">{property.developer?.company_name || 'Unknown Developer'}</h4>
+                </div>
               </div>
               
               {/* Contact Person Information */}
