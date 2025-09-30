@@ -133,6 +133,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       }
 
       const userData = await response.json();
+      console.log('Auth check - User data received:', userData);
+      console.log('Auth check - User type:', userData.user_type);
       setUser(userData);
       return true;
     } catch (error) {
