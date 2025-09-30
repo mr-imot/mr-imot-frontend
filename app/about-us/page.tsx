@@ -245,14 +245,23 @@ export default function AboutUsPage() {
             <div className="text-center max-w-3xl mx-auto">
               <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to Find Your Perfect Property?</h2>
               <p className="text-xl text-white/90 mb-8">
-                Join thousands of satisfied customers who found their perfect home through Mr imot
+                Don't wait! Start exploring verified projects and connect directly with developers today.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button asChild size="lg" className="bg-white text-[#111827] hover:bg-gray-100 font-semibold">
+                <Button
+                  asChild
+                  size="lg"
+                  className="bg-white text-[#111827] hover:bg-[#f3f4f6] px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                >
                   <a href="/listings">Browse Properties</a>
                 </Button>
-                <Button asChild variant="outline" size="lg" className="border-2 border-white text-white hover:bg-white hover:text-[#111827] font-semibold">
-                  <a href="/contact">Contact Us</a>
+                <Button
+                  asChild
+                  variant="outline"
+                  size="lg"
+                  className="border-2 border-white text-white hover:bg-white hover:text-[#111827] px-8 py-4 text-lg font-semibold rounded-xl transition-all duration-300 bg-transparent"
+                >
+                  <a href="/developers">Meet Developers</a>
                 </Button>
               </div>
             </div>
