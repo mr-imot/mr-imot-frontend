@@ -63,8 +63,8 @@ export default function DevelopersPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {developers.map((developer, index) => (
                   <ScrollAnimationWrapper key={developer.id} delay={index * 100}>
-                    <Card className="group hover:shadow-xl transition-all duration-300 h-full">
-                      <CardContent className="p-0">
+                    <Card className="group hover:shadow-xl transition-all duration-300 h-full flex flex-col">
+                      <CardContent className="p-0 flex flex-col h-full">
                         {/* Cover Image */}
                         <div className="relative h-48 bg-gradient-to-br from-primary to-primary/80 rounded-t-lg overflow-hidden">
                           {/* Profile Image as Cover */}
@@ -104,9 +104,9 @@ export default function DevelopersPage() {
                         </div>
 
                         {/* Developer Info */}
-                        <div className="p-6">
+                        <div className="p-6 flex flex-col flex-grow">
                           <div className="flex items-start justify-between mb-4">
-                            <div>
+                            <div className="flex-grow">
                               <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
                                 {developer.company_name}
                               </h3>
@@ -116,8 +116,8 @@ export default function DevelopersPage() {
                                 </p>
                               )}
                               <div className="flex items-center text-sm text-muted-foreground mb-2">
-                                <MapPin className="w-4 h-4 mr-1" />
-                                {developer.office_address}
+                                <MapPin className="w-4 h-4 mr-1 flex-shrink-0" />
+                                <span className="break-words">{developer.office_address}</span>
                               </div>
                             </div>
                           </div>
@@ -125,22 +125,22 @@ export default function DevelopersPage() {
                           {/* Stats */}
                           <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
                             <div className="flex items-center">
-                              <Building className="w-4 h-4 mr-1" />
+                              <Building className="w-4 h-4 mr-1 flex-shrink-0" />
                               <span>{developer.project_count || 0} Active Projects</span>
                             </div>
                           </div>
 
                           {/* Contact Info */}
-                          <div className="space-y-2 mb-4">
+                          <div className="space-y-2 mb-4 flex-grow">
                             {developer.phone && (
                               <div className="flex items-center text-sm text-muted-foreground">
-                                <Phone className="w-4 h-4 mr-2" />
+                                <Phone className="w-4 h-4 mr-2 flex-shrink-0" />
                                 <span>{developer.phone}</span>
                               </div>
                             )}
-                            {developer.website && (
+                            {developer.website ? (
                               <div className="flex items-center text-sm text-muted-foreground">
-                                <Globe className="w-4 h-4 mr-2" />
+                                <Globe className="w-4 h-4 mr-2 flex-shrink-0" />
                                 <a 
                                   href={developer.website} 
                                   target="_blank" 
@@ -150,11 +150,16 @@ export default function DevelopersPage() {
                                   Website
                                 </a>
                               </div>
+                            ) : (
+                              <div className="flex items-center text-sm text-muted-foreground opacity-0">
+                                <Globe className="w-4 h-4 mr-2 flex-shrink-0" />
+                                <span>Website</span>
+                              </div>
                             )}
                           </div>
 
                           {/* Action Button */}
-                          <Button asChild className="w-full">
+                          <Button asChild className="w-full mt-auto">
                             <Link href={`/developers/${developer.id}`}>
                               View Profile
                               <ExternalLink className="w-4 h-4 ml-2" />
