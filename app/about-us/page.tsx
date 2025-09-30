@@ -58,7 +58,7 @@ export default function AboutUsPage() {
         <div className="container relative py-20 md:py-32">
           <ScrollAnimationWrapper>
             <div className="text-center max-w-4xl mx-auto">
-              <div className="inline-flex items-center gap-2 bg-[#f3f4f6] text-[#111827] px-4 py-2 rounded-full text-sm font-medium mb-6">
+              <div className="inline-flex items-center gap-2 bg-white text-[#111827] px-4 py-2 rounded-full text-sm font-semibold mb-6 shadow-md border border-[#e5e7eb]">
                 <Target className="w-4 h-4" />
                 Our Story
               </div>
@@ -80,7 +80,7 @@ export default function AboutUsPage() {
           <div className="grid lg:grid-cols-2 gap-16 items-center mb-20">
             <ScrollAnimationWrapper>
               <div>
-                <div className="inline-flex items-center gap-2 bg-[#f3f4f6] text-[#111827] px-3 py-1 rounded-full text-sm font-medium mb-4">
+                <div className="inline-flex items-center gap-2 bg-white text-[#111827] px-3 py-1 rounded-full text-sm font-semibold mb-4 shadow-md border border-[#e5e7eb]">
                   Mission
                 </div>
                 <h2 className="text-3xl md:text-4xl font-bold text-[#111827] mb-6">
@@ -130,7 +130,7 @@ export default function AboutUsPage() {
             </ScrollAnimationWrapper>
             <ScrollAnimationWrapper delay={0.2}>
               <div className="order-1 lg:order-2">
-                <div className="inline-flex items-center gap-2 bg-[#f3f4f6] text-[#111827] px-3 py-1 rounded-full text-sm font-medium mb-4">
+                <div className="inline-flex items-center gap-2 bg-white text-[#111827] px-3 py-1 rounded-full text-sm font-semibold mb-4 shadow-md border border-[#e5e7eb]">
                   Vision
                 </div>
                 <h2 className="text-3xl md:text-4xl font-bold text-[#111827] mb-6">
@@ -157,7 +157,7 @@ export default function AboutUsPage() {
         <div className="container">
           <ScrollAnimationWrapper>
             <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 bg-[#f3f4f6] text-[#111827] px-4 py-2 rounded-full text-sm font-medium mb-6">
+              <div className="inline-flex items-center gap-2 bg-white text-[#111827] px-4 py-2 rounded-full text-sm font-semibold mb-6 shadow-md border border-[#e5e7eb]">
                 Our Values
               </div>
               <h2 className="text-3xl md:text-4xl font-bold text-[#111827] mb-4">What Drives Us Forward</h2>
@@ -188,7 +188,7 @@ export default function AboutUsPage() {
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <ScrollAnimationWrapper>
               <div>
-                <div className="inline-flex items-center gap-2 bg-[#f3f4f6] text-[#111827] px-4 py-2 rounded-full text-sm font-medium mb-6">
+                <div className="inline-flex items-center gap-2 bg-white text-[#111827] px-4 py-2 rounded-full text-sm font-semibold mb-6 shadow-md border border-[#e5e7eb]">
                   Why Choose Mr imot?
                 </div>
                 <h2 className="text-3xl md:text-4xl font-bold text-[#111827] mb-6">
