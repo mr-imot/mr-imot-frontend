@@ -453,31 +453,42 @@ export default function ListingPage({ params }: PageProps) {
             </CardContent>
           </Card>
 
-          {/* Contact Developer - Made smaller */}
+          {/* Contact Developer - Enhanced Structure */}
           <Card>
             <CardHeader className="pb-4">
               <CardTitle className="text-lg">Contact Developer</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <div>
-                <h4 className="font-medium text-sm">{property.developer?.company_name || 'Unknown Developer'}</h4>
-                <p className="text-xs text-gray-600">{property.developer?.contact_person || 'Contact Person'}</p>
-                {isMobile ? (
-                  <p className="text-xs text-gray-500">Phone: {property.developer?.phone || 'Contact for details'}</p>
-                ) : (
-                  <div className="flex items-center gap-2 mt-1">
-                    <Phone className="h-3 w-3 text-gray-500" />
+            <CardContent className="space-y-4">
+              {/* Company Information */}
+              <div className="space-y-1">
+                <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">Company</p>
+                <h4 className="font-semibold text-base text-gray-900">{property.developer?.company_name || 'Unknown Developer'}</h4>
+              </div>
+              
+              {/* Contact Person Information */}
+              <div className="space-y-1">
+                <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">Contact Person</p>
+                <p className="text-sm text-gray-700">{property.developer?.contact_person || 'Contact Person'}</p>
+              </div>
+              
+              {/* Phone Information - Desktop Only */}
+              {!isMobile && (
+                <div className="space-y-1">
+                  <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">Phone</p>
+                  <div className="flex items-center gap-2">
+                    <Phone className="h-4 w-4 text-gray-500" />
                     <span
                       onClick={() => handlePhoneNumberClick(property.developer?.phone)}
-                      className="text-xs text-gray-500 font-mono"
+                      className="text-sm text-gray-700 font-mono cursor-pointer hover:text-gray-900 transition-colors"
                     >
                       {property.developer?.phone || 'Contact for details'}
                     </span>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
               
-              <div className="space-y-2">
+              {/* Action Buttons */}
+              <div className="space-y-2 pt-2">
                 {isMobile && (
                   // Mobile: Show Call Now button
                   <Button 
