@@ -56,8 +56,7 @@ export default function ContactPage() {
                 We're Here to <span className="text-[#111827]">Help</span>
               </h1>
               <p className="text-xl text-[#374151] leading-relaxed max-w-3xl mx-auto">
-                Have questions about a property? Need help finding the perfect developer? Our team is ready to assist
-                you every step of the way.
+                Have questions about our platform? Want to register as a developer? Need technical support? Our team is here to help you succeed.
               </p>
             </div>
           </ScrollAnimationWrapper>
@@ -72,7 +71,7 @@ export default function ContactPage() {
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-bold text-[#111827] mb-4">Get in Touch</h2>
               <p className="text-lg text-[#374151] max-w-2xl mx-auto">
-                Choose the method that works best for you. We're committed to responding quickly and helpfully.
+                Choose the method that works best for you. We're committed to responding quickly and helping you get the most out of our platform.
               </p>
             </div>
           </ScrollAnimationWrapper>
