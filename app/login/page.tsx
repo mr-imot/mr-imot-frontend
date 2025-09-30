@@ -4,9 +4,6 @@ import { useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
-import { RememberMeCheckbox } from "@/components/ui/remember-me-checkbox"
 import { AuthError } from "@/components/ui/auth-error"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
@@ -35,7 +32,6 @@ function LoginFormContent() {
     password: ''
   })
   const [showPassword, setShowPassword] = useState(false)
-  const [rememberMe, setRememberMe] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [verificationRequired, setVerificationRequired] = useState<{
@@ -221,13 +217,8 @@ function LoginFormContent() {
               <p className="text-xs text-muted-foreground">We never store your password in plain text.</p>
             </div>
 
-            {/* Remember Me & Forgot Password */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Checkbox id="rememberMe" checked={rememberMe} onCheckedChange={(v) => setRememberMe(v === true)} disabled={isLoading} />
-                <Label htmlFor="rememberMe" className="text-sm text-muted-foreground">Remember me for 30 days</Label>
-              </div>
-              
+            {/* Forgot Password */}
+            <div className="flex items-center justify-end">
               <Link 
                 href="/forgot-password"
                 className="text-sm font-medium hover:underline"
