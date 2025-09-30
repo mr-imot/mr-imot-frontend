@@ -5,6 +5,7 @@ import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ScrollAnimationWrapper } from "@/components/scroll-animation-wrapper"
 import { MapPin, Building, Star, Award, CheckCircle, Phone, Mail, ExternalLink, Globe } from "lucide-react"
 import { useDevelopers } from "@/hooks/use-developers"
@@ -67,6 +68,21 @@ export default function DevelopersPage() {
                         {/* Cover Image */}
                         <div className="relative h-48 bg-gradient-to-br from-primary to-primary/80 rounded-t-lg">
                           <div className="absolute inset-0 bg-black/20 rounded-t-lg"></div>
+                          
+                          {/* Profile Image */}
+                          <div className="absolute bottom-4 left-4">
+                            <Avatar className="h-16 w-16 border-4 border-white shadow-lg">
+                              <AvatarImage 
+                                src={developer.profile_image_url} 
+                                alt={`${developer.company_name} profile`}
+                                className="object-cover"
+                              />
+                              <AvatarFallback className="text-lg font-semibold bg-white text-primary">
+                                {developer.company_name?.charAt(0) || 'C'}
+                              </AvatarFallback>
+                            </Avatar>
+                          </div>
+                          
                           <div className="absolute top-4 left-4 flex gap-2">
                             {developer.is_verified && (
                               <Badge className="bg-green-500 text-white">

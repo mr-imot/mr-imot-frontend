@@ -6,6 +6,7 @@ import { useDeveloper } from "@/hooks/use-developer"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { MapPin, Building, Phone, Globe, Navigation } from "lucide-react"
 import { ListingCard, Listing } from "@/components/ListingCard"
 import { ensureGoogleMaps } from "@/lib/google-maps"
@@ -158,14 +159,28 @@ export default function DeveloperPage({ params }: PageProps) {
         <div className="max-w-6xl mx-auto">
           {/* Developer Header */}
           <div className="mb-8">
-            <div className="flex items-center gap-4 mb-4">
-              <h1 className="text-3xl font-bold text-foreground">{developer.company_name}</h1>
-              {developer.is_verified && (
-                <Badge className="bg-green-500 text-white">
-                  <Building className="w-3 h-3 mr-1" />
-                  Verified Developer
-                </Badge>
-              )}
+            <div className="flex items-center gap-6 mb-4">
+              {/* Profile Image */}
+              <Avatar className="h-20 w-20">
+                <AvatarImage 
+                  src={developer.profile_image_url} 
+                  alt={`${developer.company_name} profile`}
+                  className="object-cover"
+                />
+                <AvatarFallback className="text-2xl font-semibold bg-primary text-primary-foreground">
+                  {developer.company_name?.charAt(0) || 'C'}
+                </AvatarFallback>
+              </Avatar>
+              
+              <div className="flex-1">
+                <h1 className="text-3xl font-bold text-foreground">{developer.company_name}</h1>
+                {developer.is_verified && (
+                  <Badge className="bg-green-500 text-white mt-2">
+                    <Building className="w-3 h-3 mr-1" />
+                    Verified Developer
+                  </Badge>
+                )}
+              </div>
             </div>
             
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

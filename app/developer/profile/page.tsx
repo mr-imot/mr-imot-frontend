@@ -11,12 +11,14 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ensureGoogleMaps } from "@/lib/google-maps"
 import { useAuth } from "@/lib/auth-context"
 import { getCurrentDeveloper, updateDeveloperProfile, changeDeveloperPassword } from "@/lib/api"
-import { Loader, MapPin, Building, User, Phone, Mail, Globe, Lock, Save, Eye, EyeOff } from "lucide-react"
+import { Loader, MapPin, Building, User, Phone, Mail, Globe, Lock, Save, Eye, EyeOff, Upload, Camera, X } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { upload } from "@imagekit/next"
 
 // Extend Window interface for Google Maps
 declare global {
@@ -54,6 +56,7 @@ interface DeveloperProfile {
   office_latitude?: number
   office_longitude?: number
   website: string
+  profile_image_url?: string
   verification_status: string
   created_at: string
 }
@@ -85,6 +88,12 @@ export default function DeveloperProfilePage() {
   const [addressSelected, setAddressSelected] = useState(false)
   const [geocodingBlocked, setGeocodingBlocked] = useState(false)
   const [placesBlocked, setPlacesBlocked] = useState(false)
+  
+  // Image upload state
+  const [imageUploading, setImageUploading] = useState(false)
+  const [imageError, setImageError] = useState<string | null>(null)
+  const [imageSuccess, setImageSuccess] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
 
   // Default center for Sofia
   const defaultCenter = useMemo(() => ({ lat: 42.6977, lng: 23.3219 }), [])
@@ -387,6 +396,98 @@ export default function DeveloperProfilePage() {
     setShowPasswords(prev => ({ ...prev, [field]: !prev[field] }))
   }
 
+  // Handle profile image upload
+  const handleImageUpload = async (file: File) => {
+    try {
+      setImageUploading(true)
+      setImageError(null)
+      setImageSuccess(null)
+
+      // Get auth params for ImageKit upload
+      const authRes = await fetch("/api/upload-auth")
+      if (!authRes.ok) throw new Error("Failed to get upload auth params")
+      const { token, expire, signature, publicKey } = await authRes.json()
+
+      // Upload to ImageKit
+      const uploadResponse = await upload({
+        file,
+        fileName: `developer_profile_${profile?.id}_${Date.now()}_${file.name}`,
+        token,
+        expire,
+        signature,
+        publicKey,
+      })
+
+      if (!uploadResponse.url || !uploadResponse.fileId) {
+        throw new Error('ImageKit upload failed - missing url or fileId')
+      }
+
+      // Update developer profile with new image URL
+      await updateDeveloperProfile({
+        profile_image_url: uploadResponse.url
+      })
+
+      // Update local state
+      setProfile(prev => prev ? { ...prev, profile_image_url: uploadResponse.url } : null)
+      setImageSuccess('Profile image updated successfully!')
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => setImageSuccess(null), 3000)
+
+    } catch (error) {
+      console.error('Failed to upload image:', error)
+      setImageError(error instanceof Error ? error.message : 'Failed to upload image')
+    } finally {
+      setImageUploading(false)
+    }
+  }
+
+  // Handle file input change
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        setImageError('Please select an image file')
+        return
+      }
+      
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setImageError('Image size must be less than 5MB')
+        return
+      }
+      
+      handleImageUpload(file)
+    }
+  }
+
+  // Remove profile image
+  const handleRemoveImage = async () => {
+    try {
+      setImageUploading(true)
+      setImageError(null)
+      setImageSuccess(null)
+
+      await updateDeveloperProfile({
+        profile_image_url: null
+      })
+
+      // Update local state
+      setProfile(prev => prev ? { ...prev, profile_image_url: undefined } : null)
+      setImageSuccess('Profile image removed successfully!')
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => setImageSuccess(null), 3000)
+
+    } catch (error) {
+      console.error('Failed to remove image:', error)
+      setImageError(error instanceof Error ? error.message : 'Failed to remove image')
+    } finally {
+      setImageUploading(false)
+    }
+  }
+
   // Show loading while checking auth
   if (isLoading) {
     return (
@@ -427,6 +528,98 @@ export default function DeveloperProfilePage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Profile Information */}
           <div className="space-y-6">
+            {/* Profile Image */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Camera className="h-5 w-5" />
+                  Profile Image
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center space-x-6">
+                  {/* Avatar Display */}
+                  <div className="relative">
+                    <Avatar className="h-24 w-24">
+                      <AvatarImage 
+                        src={profile?.profile_image_url} 
+                        alt={`${profile?.company_name} profile`}
+                        className="object-cover"
+                      />
+                      <AvatarFallback className="text-lg font-semibold bg-primary text-primary-foreground">
+                        {profile?.company_name?.charAt(0) || 'C'}
+                      </AvatarFallback>
+                    </Avatar>
+                    {imageUploading && (
+                      <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center">
+                        <Loader className="h-6 w-6 animate-spin text-white" />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Upload Controls */}
+                  <div className="flex-1 space-y-3">
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={imageUploading}
+                        className="flex items-center gap-2"
+                      >
+                        <Upload className="h-4 w-4" />
+                        {profile?.profile_image_url ? 'Change Image' : 'Upload Image'}
+                      </Button>
+                      
+                      {profile?.profile_image_url && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={handleRemoveImage}
+                          disabled={imageUploading}
+                          className="flex items-center gap-2 text-red-600 hover:text-red-700"
+                        >
+                          <X className="h-4 w-4" />
+                          Remove
+                        </Button>
+                      )}
+                    </div>
+
+                    <p className="text-sm text-muted-foreground">
+                      Upload a professional photo for your developer profile. 
+                      Max size: 5MB. Supported formats: JPG, PNG, WebP.
+                    </p>
+
+                    {/* Hidden file input */}
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
+
+                    {/* Image upload messages */}
+                    {imageError && (
+                      <Alert variant="destructive">
+                        <AlertDescription>{imageError}</AlertDescription>
+                      </Alert>
+                    )}
+                    
+                    {imageSuccess && (
+                      <Alert className="border-green-200 bg-green-50">
+                        <AlertDescription className="text-green-800">
+                          {imageSuccess}
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
