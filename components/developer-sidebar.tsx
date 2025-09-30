@@ -10,6 +10,7 @@ import {
   Home, 
   Building2, 
   BarChart3, 
+  CreditCard,
   LogOut,
   Menu,
   X,
@@ -41,6 +42,12 @@ const navigationItems = [
     label: "Analytics", 
     href: "/developer/analytics",
     description: "Performance metrics"
+  },
+  { 
+    icon: CreditCard, 
+    label: "Billing", 
+    href: "/developer/billing",
+    description: "Subscription & plans"
   },
   { 
     icon: User, 
