@@ -4,7 +4,7 @@
 // Provides the main layout structure for all admin pages
 
 import React, { useState } from 'react';
-import { useAuth } from '@/lib/auth-context';
+import { useAdminAuth } from '@/lib/admin-auth';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
@@ -70,7 +70,7 @@ const navigation: NavItem[] = [
 ];
 
 export function AdminLayout({ children }: AdminLayoutProps) {
-  const { user, logout } = useAuth();
+  const { user, logout } = useAdminAuth();
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -83,8 +83,8 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       {/* Header */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
         <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-          {/* Left side - Mobile menu only */}
-          <div className="flex items-center">
+          {/* Left side - Logo and Mobile menu */}
+          <div className="flex items-center space-x-4">
             {/* Mobile menu button */}
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
@@ -104,11 +104,50 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                 />
               </SheetContent>
             </Sheet>
+
+            {/* Logo */}
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                <Shield className="h-5 w-5 text-white" />
+              </div>
+              <div className="hidden sm:block">
+                <h1 className="text-lg font-semibold text-gray-900">Mr imot Admin</h1>
+              </div>
+            </div>
           </div>
 
-          {/* Right side - Empty (removed notifications and user menu) */}
+          {/* Right side - User menu */}
           <div className="flex items-center space-x-4">
-            {/* Empty - user profile moved to main header */}
+            {user && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                    <Avatar className="h-8 w-8">
+                      <AvatarFallback className="bg-blue-600 text-white text-sm">
+                        {userInitials}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">
+                        {user.first_name} {user.last_name}
+                      </p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        {user.email}
+                      </p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={logout} className="text-red-600">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         </div>
       </header>
@@ -169,6 +208,8 @@ function MobileSidebar({
   pathname: string;
   onClose: () => void;
 }) {
+  const { user, logout } = useAdminAuth();
+
   return (
     <div className="flex flex-col h-full bg-white">
       <div className="p-6 border-b border-gray-200">
@@ -216,6 +257,37 @@ function MobileSidebar({
           ))}
         </ul>
       </nav>
+
+      {/* User info and logout */}
+      {user && (
+        <div className="p-6 border-t border-gray-200">
+          <div className="flex items-center space-x-3 mb-4">
+            <Avatar className="h-8 w-8">
+              <AvatarFallback className="bg-blue-600 text-white text-sm">
+                {user.email.substring(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <p className="text-sm font-medium text-gray-900">
+                {user.first_name} {user.last_name}
+              </p>
+              <p className="text-xs text-gray-500">{user.email}</p>
+            </div>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              logout();
+              onClose();
+            }}
+            className="w-full text-red-600 border-red-200 hover:bg-red-50"
+          >
+            <LogOut className="mr-2 h-4 w-4" />
+            Log out
+          </Button>
+        </div>
+      )}
     </div>
   );
 } 
