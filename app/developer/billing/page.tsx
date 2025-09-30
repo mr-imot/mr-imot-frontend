@@ -3,268 +3,308 @@
 import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { CheckCircle, CreditCard, Zap, Crown, Star, Bell, Rocket } from "lucide-react"
+import { CheckCircle, CreditCard, Crown, Star, Bell, Rocket, TrendingUp } from "lucide-react"
+import { ProtectedRoute } from "@/components/protected-route"
+import { DeveloperSidebar } from "@/components/developer-sidebar"
 
-export default function BillingPage() {
+function BillingContent() {
   const [isAnnual, setIsAnnual] = useState(false)
+  const [willingPrice, setWillingPrice] = useState<number | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const handlePriceSubmission = async () => {
+    // Price input is now optional - no validation needed
+    setIsSubmitting(true)
+    try {
+      // TODO: Implement API call to save developer's willingness to pay
+      // This will send you an email with the developer's price point
+      console.log('Developer joined waitlist. Willing to pay:', willingPrice || 'Not specified', 'BGN per listing per month')
+      
+      // For now, just show success message
+      alert(`🎉 Welcome to the waitlist! You'll receive exclusive early-bird pricing and priority access when we launch.`)
+      
+      // Reset form
+      setWillingPrice(null)
+    } catch (error) {
+      console.error('Error submitting waitlist signup:', error)
+      alert('There was an error joining the waitlist. Please try again.')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   return (
-    <div className="space-y-8">
-      {/* Development Period Banner */}
-      <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl p-6 shadow-lg">
-        <div className="flex items-center gap-3 mb-3">
-          <Rocket className="h-6 w-6" />
-          <h2 className="text-xl font-bold">Platform is FREE during development period</h2>
-        </div>
-        <p className="text-blue-100 mb-4">
-          Use the platform extensively while it's completely free! Pricing plans are coming soon with premium features.
-        </p>
-        <div className="flex items-center gap-2 text-sm">
-          <Bell className="h-4 w-4" />
-          <span>Early users will get special discounts when pricing launches</span>
-        </div>
-      </div>
-
-      {/* Pricing Plans Header */}
-      <div className="text-center space-y-4">
-        <h1 className="text-3xl font-bold text-foreground">Pricing Plans Coming Soon</h1>
-        <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-          Get ready for premium features and enhanced capabilities. 
-          Pricing plans will launch soon with special early-bird discounts.
-        </p>
-        
-        {/* Billing Toggle */}
-        <div className="flex items-center justify-center gap-4 mt-6">
-          <span className={`text-sm font-medium ${!isAnnual ? 'text-foreground' : 'text-muted-foreground'}`}>
-            Monthly
-          </span>
-          <button
-            onClick={() => setIsAnnual(!isAnnual)}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-              isAnnual ? 'bg-primary' : 'bg-gray-200'
-            }`}
-          >
-            <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                isAnnual ? 'translate-x-6' : 'translate-x-1'
-              }`}
-            />
-          </button>
-          <span className={`text-sm font-medium ${isAnnual ? 'text-foreground' : 'text-muted-foreground'}`}>
-            Annual
-          </span>
-          {isAnnual && (
-            <Badge variant="secondary" className="ml-2">
-              Save 20%
-            </Badge>
-          )}
-        </div>
-      </div>
-
-      {/* Pricing Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-        {/* Basic Plan */}
-        <Card className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-green-100 opacity-50"></div>
-          <CardHeader className="relative">
-            <div className="flex items-center justify-between mb-2">
-              <CardTitle className="text-green-600 font-bold text-lg">BASIC</CardTitle>
-              <Badge className="bg-green-100 text-green-700 border-green-200">FOR INDIVIDUALS</Badge>
+    <div className="flex-1 bg-gradient-to-br from-background via-background to-muted/20 overflow-auto">
+      {/* Billing Header */}
+      <header className="bg-card/95 backdrop-blur-sm border-b border-border/50 sticky top-0 z-30 shadow-sm">
+        <div className="px-8 py-6">
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <h1 className="text-3xl font-bold text-foreground tracking-tight">Billing & Subscription</h1>
+              <p className="text-muted-foreground text-lg">Manage your subscription and view upcoming pricing plans</p>
             </div>
-            <div className="space-y-2">
-              <div className="text-3xl font-bold text-foreground blur-sm">
-                {isAnnual ? '$24' : '$29'}/mo
-              </div>
-              <div className="text-sm text-muted-foreground blur-sm">
-                {isAnnual ? 'Billed annually ($288/year)' : 'Billed monthly'}
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="relative space-y-4">
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <CheckCircle className="h-5 w-5 text-green-500" />
-                <span className="blur-sm">Up to 5 property listings</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <CheckCircle className="h-5 w-5 text-green-500" />
-                <span className="blur-sm">Basic analytics dashboard</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <CheckCircle className="h-5 w-5 text-green-500" />
-                <span className="blur-sm">Email support</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <CheckCircle className="h-5 w-5 text-green-500" />
-                <span className="blur-sm">Standard property photos</span>
-              </div>
-            </div>
-            <Button className="w-full bg-green-600 hover:bg-green-700" disabled>
-              <CreditCard className="h-4 w-4 mr-2" />
-              Coming Soon
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Professional Plan - Most Popular */}
-        <Card className="relative overflow-hidden border-2 border-blue-500 shadow-lg scale-105">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-blue-100 opacity-50"></div>
-          <div className="absolute top-4 right-4">
-            <Badge className="bg-blue-500 text-white">MOST POPULAR</Badge>
-          </div>
-          <CardHeader className="relative">
-            <div className="flex items-center justify-between mb-2">
-              <CardTitle className="text-blue-600 font-bold text-lg">PROFESSIONAL</CardTitle>
-              <Badge className="bg-blue-100 text-blue-700 border-blue-200">FOR AGENCIES</Badge>
-            </div>
-            <div className="space-y-2">
-              <div className="text-3xl font-bold text-foreground blur-sm">
-                {isAnnual ? '$79' : '$99'}/mo
-              </div>
-              <div className="text-sm text-muted-foreground blur-sm">
-                {isAnnual ? 'Billed annually ($948/year)' : 'Billed monthly'}
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="relative space-y-4">
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <CheckCircle className="h-5 w-5 text-blue-500" />
-                <span className="blur-sm">Unlimited property listings</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <CheckCircle className="h-5 w-5 text-blue-500" />
-                <span className="blur-sm">Advanced analytics & insights</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <CheckCircle className="h-5 w-5 text-blue-500" />
-                <span className="blur-sm">Priority support</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <CheckCircle className="h-5 w-5 text-blue-500" />
-                <span className="blur-sm">High-quality photo uploads</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <CheckCircle className="h-5 w-5 text-blue-500" />
-                <span className="blur-sm">Custom branding options</span>
-              </div>
-            </div>
-            <Button className="w-full bg-blue-600 hover:bg-blue-700" disabled>
-              <Star className="h-4 w-4 mr-2" />
-              Coming Soon
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Enterprise Plan */}
-        <Card className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-50 to-purple-100 opacity-50"></div>
-          <CardHeader className="relative">
-            <div className="flex items-center justify-between mb-2">
-              <CardTitle className="text-purple-600 font-bold text-lg">ENTERPRISE</CardTitle>
-              <Badge className="bg-purple-100 text-purple-700 border-purple-200">FOR POWER SELLERS</Badge>
-            </div>
-            <div className="space-y-2">
-              <div className="text-3xl font-bold text-foreground blur-sm">
-                {isAnnual ? '$119' : '$149'}/mo
-              </div>
-              <div className="text-sm text-muted-foreground blur-sm">
-                {isAnnual ? 'Billed annually ($1428/year)' : 'Billed monthly'}
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="relative space-y-4">
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <CheckCircle className="h-5 w-5 text-purple-500" />
-                <span className="blur-sm">Everything in Professional</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <CheckCircle className="h-5 w-5 text-purple-500" />
-                <span className="blur-sm">API access & integrations</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <CheckCircle className="h-5 w-5 text-purple-500" />
-                <span className="blur-sm">Dedicated account manager</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <CheckCircle className="h-5 w-5 text-purple-500" />
-                <span className="blur-sm">Custom reporting & analytics</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <CheckCircle className="h-5 w-5 text-purple-500" />
-                <span className="blur-sm">White-label solutions</span>
-              </div>
-            </div>
-            <Button className="w-full bg-purple-600 hover:bg-purple-700" disabled>
-              <Crown className="h-4 w-4 mr-2" />
-              Coming Soon
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Notify Me Section */}
-      <div className="text-center space-y-6 max-w-2xl mx-auto">
-        <div className="bg-muted/50 rounded-xl p-8">
-          <Bell className="h-12 w-12 text-primary mx-auto mb-4" />
-          <h3 className="text-xl font-semibold mb-2">Get Notified When Pricing Launches</h3>
-          <p className="text-muted-foreground mb-6">
-            Be the first to know when our pricing plans go live. Early users will receive special discounts and exclusive features.
-          </p>
-          <div className="flex gap-4 max-w-md mx-auto">
-            <input
-              type="email"
-              placeholder="Enter your email"
-              className="flex-1 px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-            <Button className="px-6">
-              <Bell className="h-4 w-4 mr-2" />
-              Notify Me
-            </Button>
           </div>
         </div>
-      </div>
+      </header>
 
-      {/* FAQ Section */}
-      <div className="max-w-4xl mx-auto">
-        <h3 className="text-2xl font-bold text-center mb-8">Frequently Asked Questions</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card>
-            <CardContent className="p-6">
-              <h4 className="font-semibold mb-2">When will pricing be available?</h4>
-              <p className="text-muted-foreground text-sm">
-                Pricing plans will launch in the coming months. We'll notify all users well in advance.
-              </p>
+      {/* Main Content */}
+      <main className="p-8 space-y-8">
+
+        {/* Top Row - Hero Banner & Price CTA (50/50) */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Hero Section - Left */}
+          <Card className="bg-gradient-to-br from-primary to-primary/80 border-0 text-white">
+            <CardContent className="p-6 h-full flex flex-col justify-center">
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <Rocket className="h-8 w-8" />
+                  <h2 className="text-2xl font-bold">Platform is FREE during development period</h2>
+                </div>
+                <p className="text-white/90 text-base">
+                  Use the platform extensively while it's completely free! Build your property portfolio, connect with qualified buyers, and grow your business at no cost.
+                </p>
+                <div className="bg-white/10 rounded-lg p-3 inline-block">
+                  <p className="text-sm font-medium">🏠 Join developers who are already growing their business</p>
+                </div>
+              </div>
             </CardContent>
           </Card>
-          <Card>
-            <CardContent className="p-6">
-              <h4 className="font-semibold mb-2">Will early users get discounts?</h4>
-              <p className="text-muted-foreground text-sm">
-                Yes! Early adopters will receive special pricing and exclusive features when we launch.
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <h4 className="font-semibold mb-2">What happens to my current listings?</h4>
-              <p className="text-muted-foreground text-sm">
-                All your current listings and data will be preserved when we transition to paid plans.
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <h4 className="font-semibold mb-2">Can I cancel anytime?</h4>
-              <p className="text-muted-foreground text-sm">
-                Yes, you can cancel your subscription at any time. No long-term commitments required.
-              </p>
+
+          {/* Price Willingness Capture - Right */}
+          <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10 relative overflow-hidden">
+            {/* Early Bird Badge */}
+            <div className="absolute top-4 right-4">
+              <div className="bg-gradient-to-r from-green-500 to-green-600 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg">
+                🎁 Early Bird Special
+              </div>
+            </div>
+            
+            <CardContent className="p-6 h-full flex flex-col justify-center relative">
+              <div className="space-y-4">
+                <div className="text-center">
+                  <div className="relative inline-block">
+                    <Bell className="h-10 w-10 text-primary mx-auto mb-3 animate-pulse" />
+                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-ping"></div>
+                  </div>
+                  <h3 className="text-xl font-bold mb-2">Get Early Access & Save</h3>
+                  <p className="text-muted-foreground text-sm">
+                    Be among the first 50 developers to join our exclusive waitlist for special pricing.
+                  </p>
+                </div>
+                
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-2">
+                      Help us price fairly (optional)
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="number"
+                        placeholder="50"
+                        min="0"
+                        step="5"
+                        value={willingPrice || ''}
+                        onChange={(e) => setWillingPrice(e.target.value ? Number(e.target.value) : null)}
+                        className="flex-1 px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
+                      />
+                      <span className="text-muted-foreground font-medium">BGN</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Your input helps us create fair pricing for everyone
+                    </p>
+                  </div>
+                  
+                  <Button 
+                    className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold py-3 text-base shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                    onClick={handlePriceSubmission}
+                    disabled={isSubmitting}
+                    size="lg"
+                  >
+                    <Bell className="h-5 w-5 mr-2" />
+                    {isSubmitting ? 'Joining Waitlist...' : 'Join Waitlist & Save'}
+                  </Button>
+                </div>
+                
+                <div className="bg-white/60 rounded-lg p-3 space-y-2">
+                  <div className="flex items-center gap-2 text-xs text-green-700 font-medium">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span>Up to 30% early-bird discount</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-green-700 font-medium">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span>Priority feature access</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-green-700 font-medium">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span>Limited spots available</span>
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
-      </div>
+
+        {/* Bottom Row - Value Proposition & Pricing Model (50/50) */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Value Proposition - Left */}
+          <Card>
+            <CardContent className="p-6">
+              <div className="space-y-6">
+                <div className="text-center">
+                  <h2 className="text-xl font-bold mb-2">Why Our Platform is Different</h2>
+                  <p className="text-muted-foreground text-sm">Built specifically for Bulgarian real estate developers</p>
+                </div>
+                
+                <div className="space-y-4">
+                  <div className="flex items-start gap-3">
+                    <div className="bg-primary/10 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0">
+                      <TrendingUp className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-sm mb-1">Qualified Lead Generation</h3>
+                      <p className="text-muted-foreground text-xs">Get leads from buyers specifically looking for your properties. No wasted time on unqualified inquiries.</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-3">
+                    <div className="bg-primary/10 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0">
+                      <Star className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-sm mb-1">Exclusive Listings</h3>
+                      <p className="text-muted-foreground text-xs">Your listings are exclusively yours. No duplicate listings or stolen content like other platforms.</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-3">
+                    <div className="bg-primary/10 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0">
+                      <Crown className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-sm mb-1">No Brokers Needed</h3>
+                      <p className="text-muted-foreground text-xs">Connect directly with buyers. Cut out the middleman and maximize your profits.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Simple Pricing Model - Right */}
+          <Card>
+            <CardContent className="p-6">
+              <div className="space-y-6">
+                <div className="text-center">
+                  <h2 className="text-xl font-bold mb-2">Simple Per-Listing Pricing</h2>
+                  <p className="text-muted-foreground text-sm">
+                    Pay only for what you use. Rotate your listings as needed - when one sells, activate another.
+                  </p>
+                </div>
+                
+                <div className="bg-muted/50 rounded-lg p-4">
+                  <h3 className="font-semibold mb-3 text-sm">How It Works</h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="bg-primary w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md">1</div>
+                      <p className="text-xs">Choose how many active project listings you want</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="bg-primary w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md">2</div>
+                      <p className="text-xs">Pay monthly for your active project listings</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="bg-primary w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md">3</div>
+                      <p className="text-xs">Rotate listings as projects sell out</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg p-4 text-center">
+                  <p className="text-sm font-semibold text-primary mb-1">Pricing will be competitive and transparent</p>
+                  <p className="text-xs text-muted-foreground">No hidden fees, no long-term contracts</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* FAQ Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl font-bold">Frequently Asked Questions</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {/* Highlighted Early Supporter Benefits */}
+            <div className="bg-gradient-to-r from-green-50 to-green-100 border border-green-200 rounded-lg p-4 mb-6">
+              <div className="flex items-start gap-3">
+                <div className="bg-green-500 w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Star className="h-4 w-4 text-white" />
+                </div>
+                <div>
+                  <h4 className="font-semibold text-green-800 mb-1">Early Supporter Benefits</h4>
+                  <p className="text-green-700 text-sm">
+                    Developers who join our waitlist get <strong>up to 30% early-bird discount</strong> and 
+                    <strong> priority support</strong> when pricing launches.
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-medium mb-2 text-sm">When will pricing be available?</h4>
+                  <p className="text-muted-foreground text-xs">
+                    We're gathering feedback from developers like you to set fair pricing. Launch expected in the coming months.
+                  </p>
+                </div>
+                <div>
+                  <h4 className="font-medium mb-2 text-sm">How does the per-listing model work?</h4>
+                  <p className="text-muted-foreground text-xs">
+                    You pay monthly for each active project listing. When a project sells out, you can deactivate it and activate another one.
+                  </p>
+                </div>
+                <div>
+                  <h4 className="font-medium mb-2 text-sm">What happens to my current listings?</h4>
+                  <p className="text-muted-foreground text-xs">
+                    All your current listings and data will be preserved for paying users when we transition to paid plans.
+                  </p>
+                </div>
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-medium mb-2 text-sm">Can I change my active listings?</h4>
+                  <p className="text-muted-foreground text-xs">
+                    Absolutely! You can rotate project listings as needed - deactivate sold-out projects and activate new ones.
+                  </p>
+                </div>
+                <div>
+                  <h4 className="font-medium mb-2 text-sm">Is there a contract?</h4>
+                  <p className="text-muted-foreground text-xs">
+                    No long-term contracts. Pay monthly and cancel anytime. We believe in earning your business every month.
+                  </p>
+                </div>
+                <div>
+                  <h4 className="font-medium mb-2 text-sm">What happens if I don't subscribe?</h4>
+                  <p className="text-muted-foreground text-xs">
+                    Your listings will be frozen and hidden from public view until you subscribe to keep them active.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </main>
     </div>
+  )
+}
+
+export default function BillingPage() {
+  return (
+    <ProtectedRoute requiredRole="developer">
+      <DeveloperSidebar>
+        <BillingContent />
+      </DeveloperSidebar>
+    </ProtectedRoute>
   )
 }
