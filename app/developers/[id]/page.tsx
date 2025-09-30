@@ -107,6 +107,22 @@ export default function DeveloperPage({ params }: PageProps) {
     // Open in new tab
     window.open(directionsUrl, '_blank', 'noopener,noreferrer')
   }
+
+  const handleWebsiteClick = (website: string) => {
+    // Open website immediately (synchronous) to prevent mobile popup blocking
+    if (website && website.trim()) {
+      // Ensure URL has protocol
+      let url = website.trim()
+      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        url = `https://${url}`
+      }
+      window.open(url, '_blank', 'noopener,noreferrer')
+    }
+    
+    // TODO: Add developer website click analytics tracking
+    // For now, we'll track this as a general website click
+    console.log('Developer website clicked:', website)
+  }
   
   if (loading) {
     return (
@@ -188,16 +204,16 @@ export default function DeveloperPage({ params }: PageProps) {
                           {developer.website && (
                             <div>
                               <p className="text-sm text-muted-foreground uppercase tracking-wide font-medium">Website</p>
-                              <div className="flex items-center gap-2 mt-1">
-                                <Globe className="h-4 w-4 text-muted-foreground" />
-                                <a 
-                                  href={developer.website} 
-                                  target="_blank" 
-                                  rel="noopener noreferrer"
-                                  className="text-primary hover:text-primary/80 hover:underline text-sm"
+                              <div className="mt-1">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="w-full text-xs cursor-pointer"
+                                  onClick={() => handleWebsiteClick(developer.website)}
                                 >
+                                  <Globe className="h-3 w-3 mr-1 cursor-pointer" />
                                   Visit Website
-                                </a>
+                                </Button>
                               </div>
                             </div>
                           )}
