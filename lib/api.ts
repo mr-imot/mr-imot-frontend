@@ -100,6 +100,7 @@ export interface Project {
     office_latitude?: number;
     office_longitude?: number;
     website: string;
+    profile_image_url?: string;
     verification_status: string;
     is_active: boolean;
   };
