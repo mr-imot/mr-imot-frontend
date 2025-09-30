@@ -216,17 +216,17 @@ function LoginFormContent() {
                 </button>
               </div>
               <p className="text-xs text-muted-foreground">We never store your password in plain text.</p>
-            </div>
-
-            {/* Forgot Password */}
-            <div className="flex items-center justify-end">
-              <Link 
-                href="/forgot-password"
-                className="text-sm font-medium hover:underline"
-                style={{color: 'var(--brand-btn-primary-bg)'}}
-              >
-                Forgot password?
-              </Link>
+              
+              {/* Forgot Password - Centered */}
+              <div className="flex items-center justify-center pt-1">
+                <Link 
+                  href="/forgot-password"
+                  className="text-sm font-medium hover:underline"
+                  style={{color: 'var(--brand-btn-primary-bg)'}}
+                >
+                  Forgot password?
+                </Link>
+              </div>
             </div>
 
             {/* Sign In Button */}
