@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ScrollAnimationWrapper } from "@/components/scroll-animation-wrapper"
 import { AngledSeparator } from "@/components/angled-separator"
-import { Mail, Phone, MapPin, Clock, MessageCircle, Send, CheckCircle } from "lucide-react"
+import { Mail, Phone, MessageCircle, Send, CheckCircle } from "lucide-react"
 
 export default function ContactPage() {
   const contactMethods = [
@@ -22,46 +22,22 @@ export default function ContactPage() {
       icon: Mail,
       title: "Email Us",
       description: "Get a response within 24 hours",
-      value: "info@Mr imot.com",
-      action: "mailto:info@Mr imot.com",
+      value: "support@mrimot.com",
+      action: "mailto:support@mrimot.com",
       available: "24/7 Support",
-    },
-    {
-      icon: MapPin,
-      title: "Visit Us",
-      description: "Meet us at our office",
-      value: "123 Mr imot Street, Sofia",
-      action: "#",
-      available: "By Appointment",
-    },
-  ]
-
-  const faqs = [
-    {
-      question: "How do I contact developers directly?",
-      answer:
-        "Each property listing includes direct contact information for the developer, including phone numbers and email addresses.",
-    },
-    {
-      question: "Are all listings verified?",
-      answer: "Yes, every project on Mr imot is personally verified by our team to ensure authenticity and accuracy.",
-    },
-    {
-      question: "Do I pay any fees to use Mr imot?",
-      answer: "No, Mr imot is completely free for buyers. We don't charge any commissions or hidden fees.",
     },
   ]
 
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-muted via-background to-muted">
+      <section className="relative overflow-hidden bg-gradient-to-br from-[#e8edf0] via-[#f0f4f6] to-[#eaf0f2]">
         <div className="absolute inset-0 opacity-5">
           <div className="absolute top-0 left-0 w-full h-full">
             <svg className="w-full h-full" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
               <defs>
                 <pattern id="contact-grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                  <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#1e40af" strokeWidth="0.5" opacity="0.3" />
+                  <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#111827" strokeWidth="0.5" opacity="0.3" />
                 </pattern>
               </defs>
               <rect width="100%" height="100%" fill="url(#contact-grid)" />
@@ -72,14 +48,14 @@ export default function ContactPage() {
         <div className="container relative py-20 md:py-32">
           <ScrollAnimationWrapper>
             <div className="text-center max-w-4xl mx-auto">
-              <div className="inline-flex items-center gap-2 bg-muted text-foreground px-4 py-2 rounded-full text-sm font-medium mb-6">
+              <div className="inline-flex items-center gap-2 bg-[#f3f4f6] text-[#111827] px-4 py-2 rounded-full text-sm font-medium mb-6">
                 <MessageCircle className="w-4 h-4" />
                 Get in Touch
               </div>
-              <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
-                We're Here to <span className="text-primary">Help</span>
+              <h1 className="text-4xl md:text-6xl font-bold text-[#111827] mb-6 leading-tight">
+                We're Here to <span className="text-[#111827]">Help</span>
               </h1>
-              <p className="text-xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
+              <p className="text-xl text-[#374151] leading-relaxed max-w-3xl mx-auto">
                 Have questions about a property? Need help finding the perfect developer? Our team is ready to assist
                 you every step of the way.
               </p>
@@ -90,36 +66,35 @@ export default function ContactPage() {
       </section>
 
       {/* Contact Methods */}
-      <section className="py-20 bg-background">
+      <section className="py-20 bg-white">
         <div className="container">
           <ScrollAnimationWrapper>
             <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Multiple Ways to Reach Us</h2>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              <h2 className="text-3xl md:text-4xl font-bold text-[#111827] mb-4">Get in Touch</h2>
+              <p className="text-lg text-[#374151] max-w-2xl mx-auto">
                 Choose the method that works best for you. We're committed to responding quickly and helpfully.
               </p>
             </div>
           </ScrollAnimationWrapper>
 
-          <div className="grid md:grid-cols-3 gap-8 mb-20">
+          <div className="grid md:grid-cols-2 gap-8 mb-20 max-w-4xl mx-auto">
             {contactMethods.map((method, index) => (
               <ScrollAnimationWrapper key={index} delay={index * 0.1}>
-                <Card className="group bg-card shadow-lg hover:shadow-2xl border transition-all duration-300 hover:-translate-y-2 h-full">
+                <Card className="group bg-white shadow-lg hover:shadow-2xl border border-[#e5e7eb] transition-all duration-300 hover:-translate-y-2 h-full">
                   <CardContent className="p-8 text-center h-full flex flex-col">
-                    <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <div className="w-16 h-16 bg-[#111827] rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
                       <method.icon className="w-8 h-8 text-white" />
                     </div>
-                    <h3 className="text-xl font-bold text-foreground mb-3">{method.title}</h3>
-                    <p className="text-muted-foreground mb-4 flex-grow">{method.description}</p>
+                    <h3 className="text-xl font-bold text-[#111827] mb-3">{method.title}</h3>
+                    <p className="text-[#374151] mb-4 flex-grow">{method.description}</p>
                     <div className="space-y-2 mb-6">
-                      <p className="text-lg font-semibold text-primary">{method.value}</p>
-                      <div className="flex items-center justify-center text-sm text-muted-foreground">
-                        <Clock className="w-4 h-4 mr-1" />
+                      <p className="text-lg font-semibold text-[#111827]">{method.value}</p>
+                      <div className="flex items-center justify-center text-sm text-[#6b7280]">
                         {method.available}
                       </div>
                     </div>
                     <Button
-                      className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-300"
+                      className="w-full bg-[#111827] hover:bg-[#1f2937] text-white font-semibold py-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-300"
                       onClick={() => {
                         if (method.action.startsWith("tel:") || method.action.startsWith("mailto:")) {
                           window.open(method.action)
@@ -136,14 +111,13 @@ export default function ContactPage() {
         </div>
       </section>
 
-      {/* Contact Form & Info */}
-      <section className="py-20 bg-muted">
+      {/* Contact Form */}
+      <section className="py-20 bg-gradient-to-br from-[#f0f4f6] to-[#e8edf0]">
         <div className="container">
-          <div className="grid lg:grid-cols-2 gap-16">
-            {/* Contact Form */}
+          <div className="max-w-2xl mx-auto">
             <ScrollAnimationWrapper>
-              <Card className="bg-card shadow-xl border rounded-2xl overflow-hidden">
-                <CardHeader className="bg-gradient-to-r from-primary to-accent text-primary-foreground p-8">
+              <Card className="bg-white shadow-xl border border-[#e5e7eb] rounded-2xl overflow-hidden">
+                <CardHeader className="bg-gradient-to-r from-[#111827] to-[#1f2937] text-white p-8">
                   <CardTitle className="text-2xl font-bold flex items-center">
                     <Send className="w-6 h-6 mr-3" />
                     Send Us a Message
@@ -156,7 +130,7 @@ export default function ContactPage() {
                   <form className="space-y-6">
                     <div className="grid md:grid-cols-2 gap-6">
                       <div>
-                        <label htmlFor="firstName" className="block text-sm font-semibold text-foreground mb-2">
+                        <label htmlFor="firstName" className="block text-sm font-semibold text-[#111827] mb-2">
                           First Name *
                         </label>
                         <Input
@@ -164,11 +138,11 @@ export default function ContactPage() {
                           type="text"
                           placeholder="John"
                           required
-                          className="w-full rounded-lg"
+                          className="w-full rounded-lg border-[#e5e7eb] focus:border-[#111827]"
                         />
                       </div>
                       <div>
-                        <label htmlFor="lastName" className="block text-sm font-semibold text-foreground mb-2">
+                        <label htmlFor="lastName" className="block text-sm font-semibold text-[#111827] mb-2">
                           Last Name *
                         </label>
                         <Input
@@ -176,12 +150,12 @@ export default function ContactPage() {
                           type="text"
                           placeholder="Doe"
                           required
-                          className="w-full rounded-lg"
+                          className="w-full rounded-lg border-[#e5e7eb] focus:border-[#111827]"
                         />
                       </div>
                     </div>
                     <div>
-                      <label htmlFor="email" className="block text-sm font-semibold text-foreground mb-2">
+                      <label htmlFor="email" className="block text-sm font-semibold text-[#111827] mb-2">
                         Email Address *
                       </label>
                       <Input
@@ -189,22 +163,22 @@ export default function ContactPage() {
                         type="email"
                         placeholder="your@example.com"
                         required
-                        className="w-full rounded-lg"
+                        className="w-full rounded-lg border-[#e5e7eb] focus:border-[#111827]"
                       />
                     </div>
                     <div>
-                      <label htmlFor="phone" className="block text-sm font-semibold text-foreground mb-2">
+                      <label htmlFor="phone" className="block text-sm font-semibold text-[#111827] mb-2">
                         Phone Number
                       </label>
                       <Input
                         id="phone"
                         type="tel"
                         placeholder="+359 ..."
-                        className="w-full rounded-lg"
+                        className="w-full rounded-lg border-[#e5e7eb] focus:border-[#111827]"
                       />
                     </div>
                     <div>
-                      <label htmlFor="subject" className="block text-sm font-semibold text-foreground mb-2">
+                      <label htmlFor="subject" className="block text-sm font-semibold text-[#111827] mb-2">
                         Subject *
                       </label>
                       <Input
@@ -212,11 +186,11 @@ export default function ContactPage() {
                         type="text"
                         placeholder="How can we help you?"
                         required
-                        className="w-full rounded-lg"
+                        className="w-full rounded-lg border-[#e5e7eb] focus:border-[#111827]"
                       />
                     </div>
                     <div>
-                      <label htmlFor="message" className="block text-sm font-semibold text-foreground mb-2">
+                      <label htmlFor="message" className="block text-sm font-semibold text-[#111827] mb-2">
                         Message *
                       </label>
                       <Textarea
@@ -224,12 +198,12 @@ export default function ContactPage() {
                         placeholder="Tell us more about your inquiry..."
                         rows={5}
                         required
-                        className="w-full rounded-lg resize-none"
+                        className="w-full rounded-lg resize-none border-[#e5e7eb] focus:border-[#111827]"
                       />
                     </div>
                     <Button
                       type="submit"
-                      className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-4 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]"
+                      className="w-full bg-[#111827] hover:bg-[#1f2937] text-white font-semibold py-4 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]"
                     >
                       <Send className="w-5 h-5 mr-2" />
                       Send Message
@@ -239,98 +213,31 @@ export default function ContactPage() {
               </Card>
             </ScrollAnimationWrapper>
 
-            {/* Contact Information & FAQ */}
-            <div className="space-y-8">
-              {/* Office Information */}
-              <ScrollAnimationWrapper delay={0.2}>
-                <Card className="bg-card shadow-lg border rounded-2xl">
-                  <CardHeader>
-                    <CardTitle className="text-xl font-bold text-foreground flex items-center">
-                      <MapPin className="w-5 h-5 mr-2 text-primary" />
-                      Office Information
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    <div className="space-y-4">
-                      <div className="flex items-start space-x-4">
-                        <div className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center flex-shrink-0">
-                          <MapPin className="w-5 h-5 text-primary" />
-                        </div>
-                        <div>
-                          <h4 className="font-semibold text-foreground">Address</h4>
-                          <p className="text-muted-foreground">
-                            123 Mr imot Street
-                            <br />
-                            Sofia 1000, Bulgaria
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-start space-x-4">
-                        <div className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center flex-shrink-0">
-                          <Clock className="w-5 h-5 text-primary" />
-                        </div>
-                        <div>
-                          <h4 className="font-semibold text-foreground">Business Hours</h4>
-                          <p className="text-muted-foreground">
-                            Monday - Friday: 9:00 AM - 6:00 PM
-                            <br />
-                            Saturday: 10:00 AM - 4:00 PM
-                            <br />
-                            Sunday: Closed
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </ScrollAnimationWrapper>
-
-              {/* FAQ */}
-              <ScrollAnimationWrapper delay={0.3}>
-                <Card className="bg-card shadow-lg border rounded-2xl">
-                  <CardHeader>
-                    <CardTitle className="text-xl font-bold text-foreground">Frequently Asked Questions</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    {faqs.map((faq, index) => (
-                      <div key={index} className="border-b last:border-b-0 pb-4 last:pb-0">
-                        <h4 className="font-semibold text-foreground mb-2 flex items-start">
-                          <CheckCircle className="w-5 h-5 text-primary mr-2 flex-shrink-0 mt-0.5" />
-                          {faq.question}
-                        </h4>
-                        <p className="text-muted-foreground ml-7">{faq.answer}</p>
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
-              </ScrollAnimationWrapper>
-
-              {/* Response Time Promise */}
-              <ScrollAnimationWrapper delay={0.4}>
-                <div className="bg-gradient-to-r from-accent to-primary rounded-2xl p-6 text-primary-foreground">
-                  <div className="flex items-center mb-3">
-                    <CheckCircle className="w-6 h-6 mr-2" />
-                    <h3 className="text-lg font-bold">Our Promise</h3>
-                  </div>
-                  <p className="opacity-90">
-                    We guarantee a response within 24 hours during business days. For urgent inquiries, call us directly
-                    for immediate assistance.
-                  </p>
+            {/* Response Time Promise */}
+            <ScrollAnimationWrapper delay={0.2}>
+              <div className="mt-8 bg-gradient-to-r from-[#111827] to-[#1f2937] rounded-2xl p-6 text-white text-center">
+                <div className="flex items-center justify-center mb-3">
+                  <CheckCircle className="w-6 h-6 mr-2" />
+                  <h3 className="text-lg font-bold">Our Promise</h3>
                 </div>
-              </ScrollAnimationWrapper>
-            </div>
+                <p className="opacity-90">
+                  We guarantee a response within 24 hours during business days. For urgent inquiries, call us directly
+                  for immediate assistance.
+                </p>
+              </div>
+            </ScrollAnimationWrapper>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-br from-primary via-primary to-accent text-primary-foreground relative overflow-hidden">
+      <section className="py-20 bg-gradient-to-br from-[#111827] via-[#1f2937] to-[#374151] text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 left-0 w-full h-full">
             <svg className="w-full h-full" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
               <defs>
                 <pattern id="cta-grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                  <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#60a5fa" strokeWidth="0.5" opacity="0.6" />
+                  <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#ffffff" strokeWidth="0.5" opacity="0.6" />
                 </pattern>
               </defs>
               <rect width="100%" height="100%" fill="url(#cta-grid)" />
@@ -349,7 +256,7 @@ export default function ContactPage() {
                 <Button
                   asChild
                   size="lg"
-                  className="bg-card text-primary hover:bg-muted px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                  className="bg-white text-[#111827] hover:bg-[#f3f4f6] px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
                 >
                   <a href="/listings">Browse Properties</a>
                 </Button>
@@ -357,7 +264,7 @@ export default function ContactPage() {
                   asChild
                   variant="outline"
                   size="lg"
-                  className="border-2 border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary px-8 py-4 text-lg font-semibold rounded-xl transition-all duration-300 bg-transparent"
+                  className="border-2 border-white text-white hover:bg-white hover:text-[#111827] px-8 py-4 text-lg font-semibold rounded-xl transition-all duration-300 bg-transparent"
                 >
                   <a href="/developers">Meet Developers</a>
                 </Button>
