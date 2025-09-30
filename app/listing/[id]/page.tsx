@@ -464,13 +464,21 @@ export default function ListingPage({ params }: PageProps) {
               <div className="space-y-1">
                 <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">Company</p>
                 <div className="flex items-center gap-3">
-                  <Avatar className="h-10 w-10 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => window.open(`/developers/${property.developer?.id}`, '_blank')}>
+                  <Avatar 
+                    className="h-10 w-10 cursor-pointer hover:opacity-80 transition-opacity" 
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => window.open(`/developers/${property.developer?.id}`, '_blank')}
+                  >
                     <AvatarImage 
                       src={property.developer?.profile_image_url} 
                       alt={`${property.developer?.company_name} profile`}
-                      className="object-cover"
+                      className="object-cover cursor-pointer"
+                      style={{ cursor: 'pointer' }}
                     />
-                    <AvatarFallback className="text-sm font-semibold bg-primary text-primary-foreground">
+                    <AvatarFallback 
+                      className="text-sm font-semibold bg-primary text-primary-foreground cursor-pointer"
+                      style={{ cursor: 'pointer' }}
+                    >
                       {property.developer?.company_name?.charAt(0) || 'C'}
                     </AvatarFallback>
                   </Avatar>
