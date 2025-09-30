@@ -31,6 +31,7 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
+  Navigation,
 } from "lucide-react"
 import { recordProjectView, recordProjectPhoneClick, recordProjectWebsiteClick } from "@/lib/api"
 import Image from "next/image"
@@ -309,22 +310,39 @@ export default function ListingPage({ params }: PageProps) {
     }
   }
 
-  const handleWebsiteClick = async (website: any) => {
-    try {
-      await recordProjectWebsiteClick(projectId)
-      
-      // Open website in new tab if URL is provided
-      if (website && website.trim()) {
-        // Ensure URL has protocol
-        let url = website.trim()
-        if (!url.startsWith('http://') && !url.startsWith('https://')) {
-          url = `https://${url}`
-        }
-        window.open(url, '_blank', 'noopener,noreferrer')
+  const handleWebsiteClick = (website: any) => {
+    // Open website immediately (synchronous) to prevent mobile popup blocking
+    if (website && website.trim()) {
+      // Ensure URL has protocol
+      let url = website.trim()
+      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        url = `https://${url}`
       }
-    } catch (err) {
-      console.warn("Failed to record website click:", err)
+      window.open(url, '_blank', 'noopener,noreferrer')
     }
+    
+    // Record click after opening (async, won't block popup)
+    recordProjectWebsiteClick(projectId).catch(err => 
+      console.warn("Failed to record website click:", err)
+    )
+  }
+
+  const handleOfficeAddressClick = () => {
+    const officeSection = document.getElementById('office-location-section')
+    if (officeSection) {
+      officeSection.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      })
+    }
+  }
+
+  const handleGetDirections = (latitude: number, longitude: number, title: string) => {
+    // Create Google Maps directions URL
+    const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`
+    
+    // Open in new tab
+    window.open(directionsUrl, '_blank', 'noopener,noreferrer')
   }
 
 
@@ -443,8 +461,7 @@ export default function ListingPage({ params }: PageProps) {
             <CardContent className="space-y-3">
               <div>
                 <h4 className="font-medium text-sm">{property.developer?.company_name || 'Unknown Developer'}</h4>
-                <p className="text-xs text-gray-600">Property Developer</p>
-                <p className="text-xs text-gray-500 mt-1">Office: {property.developer?.office_address || 'Contact for location'}</p>
+                <p className="text-xs text-gray-600">{property.developer?.contact_person || 'Contact Person'}</p>
                 {isMobile ? (
                   <p className="text-xs text-gray-500">Phone: {property.developer?.phone || 'Contact for details'}</p>
                 ) : (
@@ -473,6 +490,16 @@ export default function ListingPage({ params }: PageProps) {
                     Call Now
                   </Button>
                 )}
+                
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="w-full text-xs cursor-pointer"
+                  onClick={handleOfficeAddressClick}
+                >
+                  <MapPin className="h-3 w-3 mr-1 cursor-pointer" />
+                  Office Address
+                </Button>
                 
                 <Button 
                   variant="outline" 
@@ -596,11 +623,23 @@ export default function ListingPage({ params }: PageProps) {
             
             {/* Google Maps */}
             {property.latitude && property.longitude ? (
-              <PropertyMap 
-                latitude={property.latitude} 
-                longitude={property.longitude} 
-                title={property.title}
-              />
+              <>
+                <PropertyMap 
+                  latitude={property.latitude} 
+                  longitude={property.longitude} 
+                  title={property.title}
+                />
+                <div className="mt-4">
+                  <Button 
+                    size="sm"
+                    className="w-full text-xs cursor-pointer"
+                    onClick={() => handleGetDirections(property.latitude, property.longitude, property.title)}
+                  >
+                    <Navigation className="h-3 w-3 mr-1 cursor-pointer" />
+                    Get Directions
+                  </Button>
+                </div>
+              </>
             ) : (
               <div className="mt-4 h-64 bg-gray-100 rounded-lg flex items-center justify-center">
                 <p className="text-gray-500">Location coordinates not available</p>
@@ -612,7 +651,7 @@ export default function ListingPage({ params }: PageProps) {
 
       {/* Office Location Section */}
       {property.developer && (
-        <div className="mt-8">
+        <div className="mt-8" id="office-location-section">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -630,11 +669,23 @@ export default function ListingPage({ params }: PageProps) {
               </div>
               
               {property.developer.office_latitude && property.developer.office_longitude ? (
-                <OfficeMap 
-                  latitude={property.developer.office_latitude} 
-                  longitude={property.developer.office_longitude} 
-                  title={property.developer.company_name}
-                />
+                <>
+                  <OfficeMap 
+                    latitude={property.developer.office_latitude} 
+                    longitude={property.developer.office_longitude} 
+                    title={property.developer.company_name}
+                  />
+                  <div className="mt-4">
+                    <Button 
+                      size="sm"
+                      className="w-full text-xs cursor-pointer"
+                      onClick={() => handleGetDirections(property.developer.office_latitude, property.developer.office_longitude, property.developer.company_name)}
+                    >
+                      <Navigation className="h-3 w-3 mr-1 cursor-pointer" />
+                      Get Directions to Office
+                    </Button>
+                  </div>
+                </>
               ) : (
                 <div className="mt-4 h-64 bg-gray-100 rounded-lg flex items-center justify-center">
                   <p className="text-gray-500">Office location not available</p>
