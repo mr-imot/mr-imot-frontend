@@ -39,6 +39,20 @@ export interface DevelopersListResponse {
   total_pages: number;
 }
 
+// Waitlist types
+export interface WaitlistJoinRequest {
+  willingness_to_pay: number;
+}
+
+export interface WaitlistJoinResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface WaitlistStatusResponse {
+  on_waitlist: boolean;
+}
+
 export interface Feature {
   id: string;
   name: string;
@@ -662,6 +676,21 @@ class ApiClient {
       return { status: 'error', message: `Connection failed: ${error}` };
     }
   }
+
+  // Waitlist endpoints
+  async joinWaitlist(willingnessToPay: number): Promise<WaitlistJoinResponse> {
+    return this.request('/api/v1/developers/waitlist', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ willingness_to_pay: willingnessToPay }),
+    });
+  }
+
+  async getWaitlistStatus(): Promise<WaitlistStatusResponse> {
+    return this.request('/api/v1/developers/waitlist-status');
+  }
 }
 
 // Export singleton instance
@@ -673,6 +702,8 @@ export const logout = () => apiClient.logout();
 export const getCurrentUser = () => apiClient.getCurrentUser();
 export const getDevelopers = (params?: { page?: number; per_page?: number; search?: string }) => apiClient.getDevelopers(params);
 export const getDeveloper = (developerId: string, params?: { page?: number; per_page?: number }) => apiClient.getDeveloper(developerId, params);
+export const joinWaitlist = (willingnessToPay: number) => apiClient.joinWaitlist(willingnessToPay);
+export const getWaitlistStatus = () => apiClient.getWaitlistStatus();
 export const getCurrentDeveloper = () => apiClient.getCurrentDeveloper();
 export const getDeveloperStats = () => apiClient.getDeveloperStats();
 export const getDeveloperAnalytics = (period?: string) => apiClient.getDeveloperAnalytics(period);

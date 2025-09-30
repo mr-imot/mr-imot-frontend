@@ -59,8 +59,8 @@ export default function ForgotPasswordPage() {
       setIsSubmitting(true);
       setError(null);
 
-      // TODO: Replace with actual API call
-      const response = await fetch('/api/forgot-password', {
+      // Call the backend API directly
+      const response = await fetch('/api/v1/auth/developers/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email.trim() })

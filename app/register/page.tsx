@@ -20,6 +20,7 @@ import { ERROR_MESSAGES, SUCCESS_MESSAGES } from "@/lib/auth-constants"
 import { createAuthError, getErrorDisplayMessage } from "@/lib/auth-errors"
 import { useAuth } from "@/lib/auth-context"
 import { ensureGoogleMaps } from "@/lib/google-maps"
+import { preventEnterSubmit } from "@/lib/form-utils"
 import Link from "next/link"
 import { Suspense, useEffect } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
@@ -464,12 +465,28 @@ function RegisterFormContent() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="companyName">Company Name <span className="text-destructive">*</span></Label>
-                    <Input id="companyName" value={formData.companyName} onChange={(e) => handleInputChange("companyName", e.target.value)} autoComplete="organization" disabled={isLoading} required />
+                    <Input 
+                      id="companyName" 
+                      value={formData.companyName} 
+                      onChange={(e) => handleInputChange("companyName", e.target.value)} 
+                      onKeyDown={preventEnterSubmit}
+                      autoComplete="organization" 
+                      disabled={isLoading} 
+                      required 
+                    />
                     {getFieldError(errors, "companyName") && (<p className="text-sm text-destructive">{getFieldError(errors, "companyName")}</p>)}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="contactPerson">Contact Person <span className="text-destructive">*</span></Label>
-                    <Input id="contactPerson" value={formData.contactPerson} onChange={(e) => handleInputChange("contactPerson", e.target.value)} autoComplete="name" disabled={isLoading} required />
+                    <Input 
+                      id="contactPerson" 
+                      value={formData.contactPerson} 
+                      onChange={(e) => handleInputChange("contactPerson", e.target.value)} 
+                      onKeyDown={preventEnterSubmit}
+                      autoComplete="name" 
+                      disabled={isLoading} 
+                      required 
+                    />
                     {getFieldError(errors, "contactPerson") && (<p className="text-sm text-destructive">{getFieldError(errors, "contactPerson")}</p>)}
                   </div>
                 </div>
@@ -478,7 +495,16 @@ function RegisterFormContent() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="email">Email Address <span className="text-destructive">*</span></Label>
-                    <Input id="email" type="email" value={formData.email} onChange={(e) => handleInputChange("email", e.target.value)} autoComplete="email" disabled={isLoading} required />
+                    <Input 
+                      id="email" 
+                      type="email" 
+                      value={formData.email} 
+                      onChange={(e) => handleInputChange("email", e.target.value)} 
+                      onKeyDown={preventEnterSubmit}
+                      autoComplete="email" 
+                      disabled={isLoading} 
+                      required 
+                    />
                     {getFieldError(errors, "email") && (<p className="text-sm text-destructive">{getFieldError(errors, "email")}</p>)}
                   </div>
                   <InternationalPhoneInput
@@ -507,6 +533,7 @@ function RegisterFormContent() {
                           handleInputChange("officeAddress", e.target.value)
                           setAddressSelected(false) // Reset when user types
                         }}
+                        onKeyDown={preventEnterSubmit}
                         onBlur={(e) => {
                           if (e.target.value && !addressSelected) {
                             forwardGeocode(e.target.value)
@@ -557,13 +584,33 @@ function RegisterFormContent() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                   <Label htmlFor="password">Password <span className="text-destructive">*</span></Label>
-                    <Input id="password" type="password" value={formData.password} onChange={(e) => handleInputChange("password", e.target.value)} autoComplete="new-password" disabled={isLoading} required />
+                    <Input 
+                      id="password" 
+                      type="password" 
+                      value={formData.password} 
+                      onChange={(e) => handleInputChange("password", e.target.value)} 
+                      onKeyDown={preventEnterSubmit}
+                      autoComplete="new-password" 
+                      disabled={isLoading} 
+                      required 
+                      maxLength={72}
+                    />
                     <PasswordStrength password={formData.password} />
                     {getFieldError(errors, "password") && (<p className="text-sm text-destructive">{getFieldError(errors, "password")}</p>)}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="confirmPassword">Confirm Password <span className="text-destructive">*</span></Label>
-                    <Input id="confirmPassword" type="password" value={formData.confirmPassword} onChange={(e) => handleInputChange("confirmPassword", e.target.value)} autoComplete="new-password" disabled={isLoading} required />
+                    <Input 
+                      id="confirmPassword" 
+                      type="password" 
+                      value={formData.confirmPassword} 
+                      onChange={(e) => handleInputChange("confirmPassword", e.target.value)} 
+                      onKeyDown={preventEnterSubmit}
+                      autoComplete="new-password" 
+                      disabled={isLoading} 
+                      required 
+                      maxLength={72}
+                    />
                     {getFieldError(errors, "confirmPassword") && (<p className="text-sm text-destructive">{getFieldError(errors, "confirmPassword")}</p>)}
                   </div>
                 </div>
@@ -736,16 +783,17 @@ function RegisterFormContent() {
 
             {/* Password */}
             <div className="space-y-4">
-              <FloatingInput
-                label="Password"
-                type="password"
-                value={formData.password}
-                onChange={(e) => handleInputChange("password", e.target.value)}
-                showPasswordToggle={true}
-                error={getFieldError(errors, "password")}
-                disabled={isLoading}
-                required
-              />
+            <FloatingInput
+              label="Password"
+              type="password"
+              value={formData.password}
+              onChange={(e) => handleInputChange("password", e.target.value)}
+              showPasswordToggle={true}
+              error={getFieldError(errors, "password")}
+              disabled={isLoading}
+              required
+              maxLength={72}
+            />
               <PasswordStrength password={formData.password} />
             </div>
 
@@ -759,6 +807,7 @@ function RegisterFormContent() {
               error={getFieldError(errors, "confirmPassword")}
               disabled={isLoading}
               required
+              maxLength={72}
             />
 
             {/* Terms Checkbox */}

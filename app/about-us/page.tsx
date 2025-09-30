@@ -102,7 +102,7 @@ export default function AboutUsPage() {
                  <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl transform rotate-3"></div>
                 <div className="relative bg-white p-2 rounded-2xl shadow-xl">
                   <Image
-                    src="/placeholder.svg?height=400&width=600"
+                    src="https://ik.imagekit.io/ts59gf2ul/about-us/revolutionizing-real-estate-mr-imot.png?updatedAt=1759254011823"
                     alt="Our Mission - Modern Construction"
                     width={600}
                     height={400}
@@ -119,7 +119,7 @@ export default function AboutUsPage() {
                 <div className="absolute inset-0 bg-gradient-to-br from-ds-accent-200 to-ds-primary-200 rounded-2xl transform -rotate-3"></div>
                 <div className="relative bg-white p-2 rounded-2xl shadow-xl">
                   <Image
-                    src="/placeholder.svg?height=400&width=600"
+                    src="https://ik.imagekit.io/ts59gf2ul/about-us/building-tomorrows-marketplace-mr-imot.png?updatedAt=1759254011857"
                     alt="Our Vision - Future of Real Estate"
                     width={600}
                     height={400}
@@ -235,7 +235,7 @@ export default function AboutUsPage() {
                  <div className="absolute inset-0 bg-gradient-to-br from-accent/20 to-primary/20 rounded-3xl transform rotate-2"></div>
                 <div className="relative bg-white p-3 rounded-3xl shadow-2xl">
                   <Image
-                    src="/placeholder.svg?height=500&width=600"
+                    src="https://ik.imagekit.io/ts59gf2ul/about-us/couple-mr-imot-success.png?updatedAt=1759254011838"
                     alt="Happy customers with their new home"
                     width={600}
                     height={500}

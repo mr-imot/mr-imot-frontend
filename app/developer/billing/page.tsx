@@ -1,32 +1,50 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { CheckCircle, CreditCard, Crown, Star, Bell, Rocket, TrendingUp } from "lucide-react"
+import { CheckCircle, CreditCard, Crown, Star, Bell, Rocket, TrendingUp, Check } from "lucide-react"
 import { ProtectedRoute } from "@/components/protected-route"
 import { DeveloperSidebar } from "@/components/developer-sidebar"
+import { joinWaitlist, getWaitlistStatus } from "@/lib/api"
 
 function BillingContent() {
   const [isAnnual, setIsAnnual] = useState(false)
   const [willingPrice, setWillingPrice] = useState<number | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isOnWaitlist, setIsOnWaitlist] = useState(false)
+  const [isLoadingStatus, setIsLoadingStatus] = useState(true)
+
+  // Check waitlist status on component mount
+  useEffect(() => {
+    const checkWaitlistStatus = async () => {
+      try {
+        const status = await getWaitlistStatus()
+        setIsOnWaitlist(status.on_waitlist)
+      } catch (error) {
+        console.error('Error checking waitlist status:', error)
+      } finally {
+        setIsLoadingStatus(false)
+      }
+    }
+
+    checkWaitlistStatus()
+  }, [])
 
   const handlePriceSubmission = async () => {
-    // Price input is now optional - no validation needed
+    // Validate price input - must be between 1-5000 BGN
+    if (!willingPrice || willingPrice < 1 || willingPrice > 5000) {
+      alert('Please enter a valid amount between 1-5000 BGN to join the waitlist.')
+      return
+    }
+
     setIsSubmitting(true)
     try {
-      // TODO: Implement API call to save developer's willingness to pay
-      // This will send you an email with the developer's price point
-      console.log('Developer joined waitlist. Willing to pay:', willingPrice || 'Not specified', 'BGN per listing per month')
-      
-      // For now, just show success message
-      alert(`🎉 Welcome to the waitlist! You'll receive exclusive early-bird pricing and priority access when we launch.`)
-      
-      // Reset form
+      await joinWaitlist(willingPrice)
+      setIsOnWaitlist(true)
       setWillingPrice(null)
     } catch (error) {
-      console.error('Error submitting waitlist signup:', error)
+      console.error('Error joining waitlist:', error)
       alert('There was an error joining the waitlist. Please try again.')
     } finally {
       setIsSubmitting(false)
@@ -72,75 +90,116 @@ function BillingContent() {
 
           {/* Price Willingness Capture - Right */}
           <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10 relative overflow-hidden">
-            {/* Early Bird Badge */}
-            <div className="absolute top-4 right-4">
-              <div className="bg-gradient-to-r from-green-500 to-green-600 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg">
-                🎁 Early Bird Special
-              </div>
-            </div>
-            
-            <CardContent className="p-6 h-full flex flex-col justify-center relative">
-              <div className="space-y-4">
-                <div className="text-center">
-                  <div className="relative inline-block">
-                    <Bell className="h-10 w-10 text-primary mx-auto mb-3 animate-pulse" />
-                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-ping"></div>
-                  </div>
-                  <h3 className="text-xl font-bold mb-2">Get Early Access & Save</h3>
-                  <p className="text-muted-foreground text-sm">
-                    Be among the first 50 developers to join our exclusive waitlist for special pricing.
-                  </p>
-                </div>
-                
-                <div className="space-y-3">
-                  <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">
-                      Help us price fairly (optional)
-                    </label>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="number"
-                        placeholder="50"
-                        min="0"
-                        step="5"
-                        value={willingPrice || ''}
-                        onChange={(e) => setWillingPrice(e.target.value ? Number(e.target.value) : null)}
-                        className="flex-1 px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
-                      />
-                      <span className="text-muted-foreground font-medium">BGN</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Your input helps us create fair pricing for everyone
-                    </p>
+            {isOnWaitlist ? (
+              // Congratulations Message
+              <CardContent className="p-6 h-full flex flex-col justify-center relative">
+                <div className="text-center space-y-4">
+                  <div className="flex items-center justify-center gap-2">
+                    <Check className="h-8 w-8 text-green-500" />
+                    <h3 className="text-xl font-bold text-green-700">🎉 Congratulations! You've guaranteed your spot!</h3>
                   </div>
                   
-                  <Button 
-                    className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold py-3 text-base shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
-                    onClick={handlePriceSubmission}
-                    disabled={isSubmitting}
-                    size="lg"
-                  >
-                    <Bell className="h-5 w-5 mr-2" />
-                    {isSubmitting ? 'Joining Waitlist...' : 'Join Waitlist & Save'}
-                  </Button>
+                  <div className="space-y-3 text-left">
+                    <p className="text-muted-foreground text-sm">
+                      You're now among the first 50 developers to get:
+                    </p>
+                    
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle className="h-4 w-4 text-green-500" />
+                        <span>Up to 30% early-bird discount</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle className="h-4 w-4 text-green-500" />
+                        <span>Priority support when we launch</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle className="h-4 w-4 text-green-500" />
+                        <span>Personal call from our team</span>
+                      </div>
+                    </div>
+                    
+                    <p className="text-muted-foreground text-sm mt-4">
+                      We'll contact you directly when pricing goes live with your exclusive offer.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            ) : (
+              // Join Waitlist Form
+              <>
+                {/* Early Bird Badge */}
+                <div className="absolute top-4 right-4">
+                  <div className="bg-gradient-to-r from-green-500 to-green-600 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg">
+                    🎁 Early Bird Special
+                  </div>
                 </div>
                 
-                <div className="bg-white/60 rounded-lg p-3 space-y-2">
-                  <div className="flex items-center gap-2 text-xs text-green-700 font-medium">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span>Up to 30% early-bird discount</span>
+                <CardContent className="p-6 h-full flex flex-col justify-center relative">
+                  <div className="space-y-4">
+                    <div className="text-center">
+                      <div className="relative inline-block">
+                        <Bell className="h-10 w-10 text-primary mx-auto mb-3 animate-pulse" />
+                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-ping"></div>
+                      </div>
+                      <h3 className="text-xl font-bold mb-2">Get Early Access & Save</h3>
+                      <p className="text-muted-foreground text-sm">
+                        Be among the first 50 developers to join our exclusive waitlist for special pricing.
+                      </p>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-sm font-medium text-foreground mb-2">
+                          How much would you pay per listing per month? <span className="text-red-500">*</span>
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="number"
+                            placeholder="50"
+                            min="1"
+                            max="5000"
+                            step="5"
+                            value={willingPrice || ''}
+                            onChange={(e) => setWillingPrice(e.target.value ? Number(e.target.value) : null)}
+                            className="flex-1 px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
+                          />
+                          <span className="text-muted-foreground font-medium">BGN</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Required to join waitlist. Helps us create fair pricing for everyone.
+                        </p>
+                      </div>
+                      
+                      <Button 
+                        className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold py-3 text-base shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                        onClick={handlePriceSubmission}
+                        disabled={isSubmitting || !willingPrice || willingPrice < 1 || willingPrice > 5000}
+                        size="lg"
+                      >
+                        <Bell className="h-5 w-5 mr-2" />
+                        {isSubmitting ? 'Joining Waitlist...' : 'Join Waitlist & Save'}
+                      </Button>
+                    </div>
+                    
+                    <div className="bg-white/60 rounded-lg p-3 space-y-2">
+                      <div className="flex items-center gap-2 text-xs text-green-700 font-medium">
+                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <span>Up to 30% early-bird discount</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-green-700 font-medium">
+                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <span>Priority feature access</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-green-700 font-medium">
+                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <span>Limited spots available</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 text-xs text-green-700 font-medium">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span>Priority feature access</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs text-green-700 font-medium">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span>Limited spots available</span>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
+                </CardContent>
+              </>
+            )}
           </Card>
         </div>
 

@@ -17,6 +17,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { createProject, attachProjectImages } from "@/lib/api"
 import { upload } from "@imagekit/next";
 import { ensureGoogleMaps } from "@/lib/google-maps"
+import { preventEnterSubmit } from "@/lib/form-utils"
 import { Info, Loader, Upload, X, Move, Star, Image as ImageIcon, Plus } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
 import { getCurrentDeveloper } from "@/lib/api"
@@ -665,7 +666,12 @@ export default function NewPropertyPage() {
                       <FormItem>
                         <FormLabel className="text-sm font-medium text-gray-700">Project Name <span className="text-red-500">*</span></FormLabel>
                         <FormControl>
-                          <Input placeholder="e.g., Sunrise Residences" className="h-11" {...field} />
+                          <Input 
+                            placeholder="e.g., Sunrise Residences" 
+                            className="h-11" 
+                            onKeyDown={preventEnterSubmit}
+                            {...field} 
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -793,6 +799,7 @@ export default function NewPropertyPage() {
                              type="url" 
                              placeholder="https://example.com" 
                              className="h-11"
+                             onKeyDown={preventEnterSubmit}
                              {...field} 
                            />
                          </FormControl>
@@ -830,6 +837,7 @@ export default function NewPropertyPage() {
                                 placeholder="e.g., 1200"
                                 className="h-11"
                                 value={field.value ?? ""}
+                                onKeyDown={preventEnterSubmit}
                                 onChange={(e) => field.onChange(e.target.value === "" ? Number.NaN : Number(e.target.value))}
                               />
                             </FormControl>
@@ -1060,9 +1068,7 @@ export default function NewPropertyPage() {
                                     field.onChange(e.target.value)
                                     setAddressSelected(false)
                                   }}
-                                  onKeyDown={() => {
-                                    // allow free typing; Places library will hook into key events itself
-                                  }}
+                                  onKeyDown={preventEnterSubmit}
                                   autoComplete="off"
                                 />
                               </FormControl>

@@ -52,15 +52,6 @@ export const PasswordResetForm: React.FC<PasswordResetFormProps> = ({
     }
   }, [token, router]);
 
-  // Clear token from URL after successful reset
-  useEffect(() => {
-    return () => {
-      if (window.location.pathname.includes('reset-password')) {
-        window.history.replaceState({}, '', '/login');
-      }
-    };
-  }, []);
-
   const validateForm = () => {
     const errors: Record<string, string> = {};
 
@@ -94,6 +85,8 @@ export const PasswordResetForm: React.FC<PasswordResetFormProps> = ({
       
       // Success - redirect to login with success message
       setTimeout(() => {
+        // Clear token from URL before redirecting
+        window.history.replaceState({}, '', '/login?message=password-reset-success');
         router.push('/login?message=password-reset-success');
       }, 2000);
     } catch (err) {
