@@ -208,6 +208,7 @@ class ApiClient {
         // Handle 500 errors gracefully
         if (response.status === 500) {
           console.error(`Server Error (${response.status}): ${errorText}`);
+          console.error(`Registration error details:`, { url, status: response.status, errorText });
           const serverError = new Error('Server error occurred. Please try again later.');
           (serverError as any).statusCode = 500;
           (serverError as any).isServerError = true;
@@ -312,6 +313,7 @@ class ApiClient {
         // Handle 500 errors gracefully
         if (response.status === 500) {
           console.error(`Server Error (${response.status}): ${errorText}`);
+          console.error(`Registration error details:`, { url, status: response.status, errorText });
           const serverError = new Error('Server error occurred. Please try again later.');
           (serverError as any).statusCode = 500;
           (serverError as any).isServerError = true;
@@ -582,9 +584,20 @@ class ApiClient {
     office_latitude?: number;
     office_longitude?: number;
   }): Promise<{ message: string; developer_id?: string; email?: string; status?: string }> {
+    // Temporary workaround: truncate password to 72 characters to avoid bcrypt error
+    // This should be removed once the backend bcrypt configuration is deployed
+    const truncatedPassword = developerData.password.length > 72 
+      ? developerData.password.substring(0, 72) 
+      : developerData.password;
+    
+    const dataToSend = {
+      ...developerData,
+      password: truncatedPassword
+    };
+    
     return this.request(`/api/v1/auth/developers/register`, {
       method: 'POST',
-      body: JSON.stringify(developerData),
+      body: JSON.stringify(dataToSend),
       headers: {
         'Content-Type': 'application/json',
       },
