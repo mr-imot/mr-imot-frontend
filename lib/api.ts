@@ -5,15 +5,38 @@ import { withRetry, isNetworkError, getConnectionErrorMessage, AUTH_RETRY_OPTION
 
 // Types for API responses
 export interface Developer {
-  id: number;
-  email: string;
+  id: string;
+  email?: string;
   company_name: string;
   contact_person: string;
   phone: string;
-  address: string;
-  website: string;
+  office_address: string;
+  office_latitude?: number;
+  office_longitude?: number;
+  website?: string;
   verification_status: string;
   created_at: string;
+  project_count?: number;
+  is_verified?: boolean;
+}
+
+export interface DeveloperProfile extends Developer {
+  total_projects: number;
+  projects: Project[];
+  projects_pagination: {
+    total: number;
+    page: number;
+    per_page: number;
+    total_pages: number;
+  };
+}
+
+export interface DevelopersListResponse {
+  developers: Developer[];
+  total: number;
+  page: number;
+  per_page: number;
+  total_pages: number;
 }
 
 export interface Feature {
@@ -231,6 +254,82 @@ class ApiClient {
     }
   }
 
+  // Public request method that doesn't redirect on 401 (for public endpoints)
+  private async publicRequest<T>(
+    endpoint: string,
+    options: RequestInit = {}
+  ): Promise<T> {
+    const url = `${this.baseURL}${endpoint}`;
+
+    // Build headers - no manual token handling needed
+    const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
+    const mergedHeaders: HeadersInit = {
+      ...options.headers,
+    } as HeadersInit;
+    
+    // Set default Content-Type to application/json if not specified and not FormData
+    if (!isFormData && !('Content-Type' in mergedHeaders)) {
+      (mergedHeaders as Record<string, string>)['Content-Type'] = 'application/json';
+    }
+    
+    if (isFormData && 'Content-Type' in (mergedHeaders as Record<string, any>)) {
+      // Let the browser set the correct multipart boundary
+      delete (mergedHeaders as Record<string, any>)["Content-Type"];
+    }
+
+    const config: RequestInit = {
+      ...options,
+      headers: mergedHeaders,
+      credentials: 'include', // Include cookies but don't redirect on 401
+    };
+
+    try {
+      const response = await fetch(url, config);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        
+        // Handle 404 Not Found
+        if (response.status === 404) {
+          throw new Error('Resource not found');
+        }
+        
+        // Handle 500 errors gracefully
+        if (response.status === 500) {
+          console.error(`Server Error (${response.status}): ${errorText}`);
+          const serverError = new Error('Server error occurred. Please try again later.');
+          (serverError as any).statusCode = 500;
+          (serverError as any).isServerError = true;
+          throw serverError;
+        }
+        
+        // Try to parse error message
+        let errorMessage = `HTTP error! status: ${response.status}`;
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMessage = errorData.detail || errorData.message || errorMessage;
+        } catch {
+          errorMessage = errorText || errorMessage;
+        }
+        
+        throw new Error(errorMessage);
+      }
+
+      // Handle responses with no content (like 204 No Content)
+      if (response.status === 204 || response.headers.get('content-length') === '0') {
+        return {} as T;
+      }
+      
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      if (isNetworkError(error)) {
+        throw new Error(getConnectionErrorMessage());
+      }
+      throw error;
+    }
+  }
+
   // Authentication endpoints
   async login(email: string, password: string): Promise<{
     message: string;
@@ -264,8 +363,39 @@ class ApiClient {
   }
 
   // Developer endpoints
-  async getDevelopers(): Promise<any> {
-    return this.request('/api/v1/developers/');
+  async getDevelopers(params: {
+    page?: number;
+    per_page?: number;
+    search?: string;
+  } = {}): Promise<DevelopersListResponse> {
+    const searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined) {
+        searchParams.append(key, value.toString());
+      }
+    });
+
+    const queryString = searchParams.toString();
+    const endpoint = `/api/v1/developers/${queryString ? `?${queryString}` : ''}`;
+    
+    return this.publicRequest(endpoint);
+  }
+
+  async getDeveloper(developerId: string, params: {
+    page?: number;
+    per_page?: number;
+  } = {}): Promise<DeveloperProfile> {
+    const searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined) {
+        searchParams.append(key, value.toString());
+      }
+    });
+
+    const queryString = searchParams.toString();
+    const endpoint = `/api/v1/developers/${developerId}${queryString ? `?${queryString}` : ''}`;
+    
+    return this.publicRequest(endpoint);
   }
 
   async getCurrentDeveloper(): Promise<Developer> {
@@ -540,7 +670,8 @@ export const apiClient = new ApiClient(process.env.NEXT_PUBLIC_API_URL || "");
 export const login = (email: string, password: string) => apiClient.login(email, password);
 export const logout = () => apiClient.logout();
 export const getCurrentUser = () => apiClient.getCurrentUser();
-export const getDevelopers = () => apiClient.getDevelopers();
+export const getDevelopers = (params?: { page?: number; per_page?: number; search?: string }) => apiClient.getDevelopers(params);
+export const getDeveloper = (developerId: string, params?: { page?: number; per_page?: number }) => apiClient.getDeveloper(developerId, params);
 export const getCurrentDeveloper = () => apiClient.getCurrentDeveloper();
 export const getDeveloperStats = () => apiClient.getDeveloperStats();
 export const getDeveloperAnalytics = (period?: string) => apiClient.getDeveloperAnalytics(period);
