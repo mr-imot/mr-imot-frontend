@@ -172,7 +172,7 @@ function DashboardContent() {
   const [selectedPeriod, setSelectedPeriod] = useState('week')
   const [seriesEnabled, setSeriesEnabled] = useState({ views: true, website: true, phone: true })
   const { stats, analytics, projects, loading, error } = useDeveloperDashboard(selectedPeriod)
-  const { canCreateProjects } = useAuth()
+  const { canCreateProjects, user } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -271,6 +271,33 @@ function DashboardContent() {
           </div>
         </div>
       </header>
+
+      {/* Verification Status Banner */}
+      {user?.verification_status && user.verification_status !== 'verified' && (
+        <div className="px-8 py-4">
+          <Alert className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950">
+            <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+            <AlertDescription className="text-amber-800 dark:text-amber-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <strong>Account Pending Verification</strong>
+                  <p className="text-sm mt-1">
+                    Your account is under review. You have limited access until verification is complete.
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" className="text-amber-700 border-amber-300 hover:bg-amber-100 dark:text-amber-300 dark:border-amber-700 dark:hover:bg-amber-900">
+                    Learn More
+                  </Button>
+                  <Button variant="outline" size="sm" className="text-amber-700 border-amber-300 hover:bg-amber-100 dark:text-amber-300 dark:border-amber-700 dark:hover:bg-amber-900">
+                    Contact Support
+                  </Button>
+                </div>
+              </div>
+            </AlertDescription>
+          </Alert>
+        </div>
+      )}
 
       {/* Main Content */}
       <main className="px-8 py-8 max-w-7xl mx-auto space-y-8">

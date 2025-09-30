@@ -16,6 +16,7 @@ import { useAuth } from "@/lib/auth-context"
 import { getCurrentDeveloper, updateDeveloperProfile, changeDeveloperPassword } from "@/lib/api"
 import { Loader, MapPin, Building, User, Phone, Mail, Globe, Lock, Save, Eye, EyeOff } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 // Extend Window interface for Google Maps
 declare global {
@@ -757,12 +758,26 @@ export default function DeveloperProfilePage() {
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <Badge 
-                    variant={profile?.verification_status === 'verified' ? 'default' : 'secondary'}
-                    className="w-fit"
-                  >
-                    {profile?.verification_status === 'verified' ? 'Verified' : 'Pending Verification'}
-                  </Badge>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Badge 
+                          variant={profile?.verification_status === 'verified' ? 'default' : 'secondary'}
+                          className="w-fit cursor-help"
+                        >
+                          {profile?.verification_status === 'verified' ? 'Verified' : 'Limited Access'}
+                        </Badge>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>
+                          {profile?.verification_status === 'verified' 
+                            ? 'Your account is fully verified and you can create projects' 
+                            : 'Manual verification required for full access to create projects'
+                          }
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
 
                 <div className="flex items-center gap-3">
