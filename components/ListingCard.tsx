@@ -159,15 +159,17 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover }: Lis
         onMouseLeave={handleMouseLeave}
       >
       {/* Image Container - Airbnb approach: container clips image with rounded corners */}
-      <div className="relative overflow-hidden h-[240px] w-full" style={{ 
+      <div className="relative overflow-hidden h-[240px] w-full cursor-pointer" style={{ 
         borderRadius: '20px',
         WebkitBorderRadius: '20px',
         transform: 'translateZ(0)',
         WebkitTransform: 'translateZ(0)',
-        isolation: 'isolate'
+        isolation: 'isolate',
+        cursor: 'pointer'
       }}>
         <div 
-          className="relative w-full h-full"
+          className="relative w-full h-full cursor-pointer"
+          style={{ cursor: 'pointer' }}
           onTouchStart={onTouchStart}
           onTouchMove={onTouchMove}
           onTouchEnd={onTouchEnd}
@@ -177,7 +179,8 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover }: Lis
             src={listing.images[currentImageIndex] || '/placeholder.svg'}
             alt={listing.title}
             fill
-            className="object-cover"
+            className="object-cover cursor-pointer"
+            style={{ cursor: 'pointer' }}
             sizes="(max-width: 40em) 100vw, (max-width: 64em) 50vw, 33vw"
             loading="lazy"
           />
