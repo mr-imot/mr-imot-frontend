@@ -1,12 +1,10 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { ScrollAnimationWrapper } from "@/components/scroll-animation-wrapper"
 import { AngledSeparator } from "@/components/angled-separator"
-import { Mail, Phone, MessageCircle, Send, CheckCircle } from "lucide-react"
+import { Mail, Phone, MessageCircle } from "lucide-react"
 
 export default function ContactPage() {
   const contactMethods = [
@@ -106,125 +104,6 @@ export default function ContactPage() {
                 </Card>
               </ScrollAnimationWrapper>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Contact Form */}
-      <section className="py-20 bg-gradient-to-br from-[#f0f4f6] to-[#e8edf0]">
-        <div className="container">
-          <div className="max-w-2xl mx-auto">
-            <ScrollAnimationWrapper>
-              <Card className="bg-white shadow-xl border border-[#e5e7eb] rounded-2xl overflow-hidden">
-                <CardHeader className="bg-gradient-to-r from-[#111827] to-[#1f2937] text-white p-8">
-                  <CardTitle className="text-2xl font-bold flex items-center">
-                    <Send className="w-6 h-6 mr-3" />
-                    Send Us a Message
-                  </CardTitle>
-                  <p className="mt-2 opacity-90">
-                    Fill out the form below and we'll get back to you within 24 hours.
-                  </p>
-                </CardHeader>
-                <CardContent className="p-8">
-                  <form className="space-y-6">
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div>
-                        <label htmlFor="firstName" className="block text-sm font-semibold text-[#111827] mb-2">
-                          First Name *
-                        </label>
-                        <Input
-                          id="firstName"
-                          type="text"
-                          placeholder="John"
-                          required
-                          className="w-full rounded-lg border-[#e5e7eb] focus:border-[#111827]"
-                        />
-                      </div>
-                      <div>
-                        <label htmlFor="lastName" className="block text-sm font-semibold text-[#111827] mb-2">
-                          Last Name *
-                        </label>
-                        <Input
-                          id="lastName"
-                          type="text"
-                          placeholder="Doe"
-                          required
-                          className="w-full rounded-lg border-[#e5e7eb] focus:border-[#111827]"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label htmlFor="email" className="block text-sm font-semibold text-[#111827] mb-2">
-                        Email Address *
-                      </label>
-                      <Input
-                        id="email"
-                        type="email"
-                        placeholder="your@example.com"
-                        required
-                        className="w-full rounded-lg border-[#e5e7eb] focus:border-[#111827]"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="phone" className="block text-sm font-semibold text-[#111827] mb-2">
-                        Phone Number
-                      </label>
-                      <Input
-                        id="phone"
-                        type="tel"
-                        placeholder="+359 ..."
-                        className="w-full rounded-lg border-[#e5e7eb] focus:border-[#111827]"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="subject" className="block text-sm font-semibold text-[#111827] mb-2">
-                        Subject *
-                      </label>
-                      <Input
-                        id="subject"
-                        type="text"
-                        placeholder="How can we help you?"
-                        required
-                        className="w-full rounded-lg border-[#e5e7eb] focus:border-[#111827]"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="message" className="block text-sm font-semibold text-[#111827] mb-2">
-                        Message *
-                      </label>
-                      <Textarea
-                        id="message"
-                        placeholder="Tell us more about your inquiry..."
-                        rows={5}
-                        required
-                        className="w-full rounded-lg resize-none border-[#e5e7eb] focus:border-[#111827]"
-                      />
-                    </div>
-                    <Button
-                      type="submit"
-                      className="w-full bg-[#111827] hover:bg-[#1f2937] text-white font-semibold py-4 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]"
-                    >
-                      <Send className="w-5 h-5 mr-2" />
-                      Send Message
-                    </Button>
-                  </form>
-                </CardContent>
-              </Card>
-            </ScrollAnimationWrapper>
-
-            {/* Response Time Promise */}
-            <ScrollAnimationWrapper delay={0.2}>
-              <div className="mt-8 bg-gradient-to-r from-[#111827] to-[#1f2937] rounded-2xl p-6 text-white text-center">
-                <div className="flex items-center justify-center mb-3">
-                  <CheckCircle className="w-6 h-6 mr-2" />
-                  <h3 className="text-lg font-bold">Our Promise</h3>
-                </div>
-                <p className="opacity-90">
-                  We guarantee a response within 24 hours during business days. For urgent inquiries, call us directly
-                  for immediate assistance.
-                </p>
-              </div>
-            </ScrollAnimationWrapper>
           </div>
         </div>
       </section>
