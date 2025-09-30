@@ -474,7 +474,12 @@ export default function ListingPage({ params }: PageProps) {
                       {property.developer?.company_name?.charAt(0) || 'C'}
                     </AvatarFallback>
                   </Avatar>
-                  <h4 className="font-semibold text-base text-gray-900">{property.developer?.company_name || 'Unknown Developer'}</h4>
+                  <h4 
+                    className="font-semibold text-base text-gray-900 cursor-pointer hover:text-primary transition-colors"
+                    onClick={() => window.open(`/developers/${property.developer?.id}`, '_blank')}
+                  >
+                    {property.developer?.company_name || 'Unknown Developer'}
+                  </h4>
                 </div>
               </div>
               
