@@ -78,6 +78,7 @@ import {
   ArrowUpDown,
   Box,
   Sparkles,
+  Lock,
 } from "lucide-react"
 
 interface DeveloperProfile {
@@ -173,6 +174,11 @@ function DashboardContent() {
   const [seriesEnabled, setSeriesEnabled] = useState({ views: true, website: true, phone: true })
   const { stats, analytics, projects, loading, error } = useDeveloperDashboard(selectedPeriod)
   const { canCreateProjects, user } = useAuth()
+  
+  // Debug: Log verification status
+  console.log('Dashboard - User verification status:', user?.verification_status)
+  console.log('Dashboard - Can create projects:', canCreateProjects)
+  
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -244,25 +250,36 @@ function DashboardContent() {
               <p className="text-muted-foreground text-lg">Welcome back! Here's what's happening with your properties.</p>
             </div>
             <div className="flex items-center gap-4">
-              <TooltipProvider>
+              <TooltipProvider delayDuration={0}>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button 
                       onClick={canCreateProjects ? handleAddListing : undefined}
                       disabled={!canCreateProjects}
-                      className="h-11 px-6 shadow-md hover:shadow-lg transition-all duration-200"
+                      className={`h-11 px-6 shadow-md transition-all duration-200 ${
+                        canCreateProjects 
+                          ? 'hover:shadow-lg hover:-translate-y-0.5' 
+                          : 'opacity-60 cursor-not-allowed'
+                      }`}
                       style={{
                         backgroundColor: canCreateProjects ? 'var(--brand-btn-primary-bg)' : 'var(--muted)',
                         color: canCreateProjects ? 'var(--brand-btn-primary-text)' : 'var(--muted-foreground)'
                       }}
                     >
-                      <Plus className="h-4 w-4 mr-2" />
+                      {canCreateProjects ? (
+                        <Plus className="h-4 w-4 mr-2" />
+                      ) : (
+                        <Lock className="h-4 w-4 mr-2" />
+                      )}
                       Add Property
                     </Button>
                   </TooltipTrigger>
                   {!canCreateProjects && (
-                    <TooltipContent>
-                      <p>Available after account approval</p>
+                    <TooltipContent side="bottom" align="end" className="max-w-xs">
+                      <div className="space-y-1">
+                        <p className="font-medium">Account Verification Required</p>
+                        <p className="text-sm">Complete verification to create and manage property listings</p>
+                      </div>
                     </TooltipContent>
                   )}
                 </Tooltip>
@@ -272,8 +289,22 @@ function DashboardContent() {
         </div>
       </header>
 
+      {/* Debug Banner - Temporary */}
+      {user && (
+        <div className="px-8 py-2">
+          <Alert className="border-blue-200 bg-blue-50">
+            <AlertCircle className="h-4 w-4 text-blue-600" />
+            <AlertDescription className="text-blue-800">
+              Debug: Verification Status = "{user.verification_status}" | Can Create Projects = {canCreateProjects ? 'true' : 'false'}
+            </AlertDescription>
+          </Alert>
+        </div>
+      )}
+
       {/* Verification Status Banner */}
-      {user?.verification_status && user.verification_status !== 'verified' && (
+      {(user?.verification_status === 'pending_email_verification' || 
+        user?.verification_status === 'pending_manual_approval' || 
+        (user?.verification_status && user.verification_status !== 'verified')) && (
         <div className="px-8 py-4">
           <Alert className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950">
             <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />

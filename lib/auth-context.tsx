@@ -118,7 +118,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   // Check authentication status by calling /me endpoint
   const checkAuth = async (): Promise<boolean> => {
     try {
-      const response = await fetch('/api/v1/auth/me', {
+      const response = await fetch('/api/v1/developers/me', {
         method: 'GET',
         credentials: 'include', // Include cookies
       });
@@ -175,8 +175,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, []);
 
   // Simple verification helper - only for creating projects
-  // For now, check if user exists and is developer type until we fix the verification_status field
-  const canCreateProjects = user?.user_type === 'developer';
+  // Check if user exists, is developer type, and is verified
+  const canCreateProjects = user?.user_type === 'developer' && user?.verification_status === 'verified';
 
   const value: AuthContextType = {
     user,

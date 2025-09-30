@@ -758,7 +758,7 @@ export default function DeveloperProfilePage() {
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <TooltipProvider>
+                  <TooltipProvider delayDuration={0}>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Badge 
@@ -768,8 +768,12 @@ export default function DeveloperProfilePage() {
                           {profile?.verification_status === 'verified' ? 'Verified' : 'Limited Access'}
                         </Badge>
                       </TooltipTrigger>
-                      <TooltipContent>
-                        <p>
+                      <TooltipContent 
+                        side="top" 
+                        align="center"
+                        className="max-w-xs p-3"
+                      >
+                        <p className="text-sm">
                           {profile?.verification_status === 'verified' 
                             ? 'Your account is fully verified and you can create projects' 
                             : 'Manual verification required for full access to create projects'
