@@ -14,8 +14,8 @@ export default function ContactPage() {
       icon: Phone,
       title: "Call Us",
       description: "Speak directly with our team",
-      value: "+359 2 123 4567",
-      action: "tel:+35921234567",
+      value: "+359 899520856",
+      action: "tel:+359899520856",
       available: "Mon-Fri 9AM-6PM",
     },
     {
