@@ -1,9 +1,9 @@
 // Shared Google Maps loader to prevent multiple initializations across pages
 // Uses a singleton Loader instance and exposes a helper to ensure Maps is loaded
 
-import { Loader } from "@googlemaps/js-api-loader"
+import { setOptions, importLibrary } from "@googlemaps/js-api-loader"
 
-let loaderSingleton: Loader | null = null
+let isInitialized = false
 let loadPromise: Promise<typeof google> | null = null
 
 export async function ensureGoogleMaps(): Promise<typeof google> {
@@ -16,18 +16,23 @@ export async function ensureGoogleMaps(): Promise<typeof google> {
     throw new Error("Missing NEXT_PUBLIC_GOOGLE_MAPS_API_KEY")
   }
 
-  if (!loaderSingleton) {
-    loaderSingleton = new Loader({
-      apiKey,
-      version: "weekly",
+  if (!isInitialized) {
+    setOptions({
+      key: apiKey,
+      v: "weekly",
       libraries: ["places", "marker"], // Load Places API and Marker library for AdvancedMarkerElement
       language: "bg",
       region: "BG",
     })
+    isInitialized = true
   }
 
   if (!loadPromise) {
-    loadPromise = loaderSingleton.load()
+    // Load both maps and marker libraries since we use AdvancedMarkerElement
+    loadPromise = Promise.all([
+      importLibrary("maps"),
+      importLibrary("marker")
+    ]).then(() => window.google)
   }
 
   try {

@@ -52,12 +52,8 @@ const CITY_BOUNDS: Record<CityType, { sw_lat: number; sw_lng: number; ne_lat: nu
   Varna: { sw_lat: 43.1141, sw_lng: 27.8147, ne_lat: 43.3141, ne_lng: 28.0147 }
 }
 
-// Add city mapping for Bulgarian database values
-const CITY_MAPPING: Record<CityType, string> = {
-  "Sofia": "София",
-  "Plovdiv": "Пловдив",
-  "Varna": "Варна"
-}
+// Note: Mobile now uses coordinate bounds instead of city names for filtering
+// This avoids issues with Google Places API returning different city name variations
 
 // Dynamic header height calculation + robust viewport unit fallback
 const useHeaderHeight = () => {
@@ -209,16 +205,19 @@ export default function ListingsPage() {
   const [cacheVersion, setCacheVersion] = useState(0)
   const [fetchParams, setFetchParams] = useState<any>({ per_page: 0 })
 
-  // Mobile: Simple direct fetch by city and type
+  // Mobile: Simple direct fetch by city bounds and type
   const mobileFetchParams = useMemo(() => ({
     per_page: 50,
-    city: CITY_MAPPING[selectedCity],
+    sw_lat: CITY_BOUNDS[selectedCity].sw_lat,
+    sw_lng: CITY_BOUNDS[selectedCity].sw_lng,
+    ne_lat: CITY_BOUNDS[selectedCity].ne_lat,
+    ne_lng: CITY_BOUNDS[selectedCity].ne_lng,
     project_type: propertyTypeFilter === 'all' ? undefined :
       propertyTypeFilter === 'apartments' ? 'apartment_building' : 'house_complex'
   }), [selectedCity, propertyTypeFilter])
 
   // Desktop: Controlled fetch by params (caching system)
-  // Mobile: Direct fetch by city/type (simple system)
+  // Mobile: Direct fetch by city bounds/type (coordinate-based system)
   const { projects: apiProjects, loading, error } = useProjects(
     typeof window !== 'undefined' && window.innerWidth < 1024 ? mobileFetchParams : fetchParams
   )
