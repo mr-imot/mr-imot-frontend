@@ -1129,13 +1129,14 @@ export default function ListingsPage() {
                  </div>
                             ) : hasData ? (
                 <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 xs:gap-4">
-                  {filteredProperties.map((property) => (
+                  {filteredProperties.map((property, index) => (
                    <ListingCard
                      key={property.id}
                      listing={propertyToListing(property)}
                      isActive={selectedPropertyId === property.id}
                      onCardClick={() => handleCardClick(property)}
                      onCardHover={(id) => setDebouncedHover(id, 100)}
+                     priority={index < 4} // Priority for first 4 cards (2 rows on mobile)
                    />
                  ))}
                </div>
@@ -1309,6 +1310,7 @@ export default function ListingsPage() {
                         isActive={selectedPropertyId === property.id}
                         onCardClick={() => handleCardClick(property)}
                         onCardHover={(id) => setDebouncedHover(id, 100)}
+                        priority={index < 6} // Priority for first 6 cards (2 rows on desktop)
                       />
                     </div>
                   ))}

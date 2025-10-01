@@ -24,6 +24,7 @@ interface ListingCardProps {
   isActive?: boolean
   onCardClick?: (listing: Listing) => void
   onCardHover?: (listingId: string | null) => void
+  priority?: boolean
 }
 
 // Format price using Intl.NumberFormat
@@ -34,7 +35,7 @@ function summarize(text: string | null | undefined, max = 100) {
   return normalized.slice(0, max - 1) + '…'
 }
 
-export function ListingCard({ listing, isActive, onCardClick, onCardHover }: ListingCardProps) {
+export function ListingCard({ listing, isActive, onCardClick, onCardHover, priority = false }: ListingCardProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [hasTrackedView, setHasTrackedView] = useState(false)
   const hasMultipleImages = listing.images?.length > 1
@@ -186,7 +187,8 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover }: Lis
             className="object-cover cursor-pointer"
             style={{ cursor: 'pointer' }}
             sizes="(max-width: 40em) 100vw, (max-width: 64em) 50vw, 33vw"
-            loading="lazy"
+            loading={priority ? "eager" : "lazy"}
+            priority={priority}
           />
         </div>
 
