@@ -9,6 +9,7 @@ import { ensureGoogleMaps } from "@/lib/google-maps"
 import { MarkerManager, PropertyData } from "@/lib/marker-manager"
 import { ListingCard } from "@/components/ListingCard"
 import { propertyToListing } from "@/lib/listing-adapter"
+import { propertyCache } from "@/lib/property-cache"
 
 import { Card, CardContent } from "@/components/ui/card"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
@@ -17,6 +18,7 @@ import { Separator } from "@/components/ui/separator"
 
 import { MapPin, Building, Home, Loader2, Star, Heart, ExternalLink, Maximize2, X, RefreshCw } from "lucide-react"
 import { useProjects } from "@/hooks/use-projects"
+import { getProjects } from "@/lib/api"
 import { PropertyMapCard } from "@/components/property-map-card"
 import { ListingCardSkeleton, ListingCardSkeletonGrid } from "@/components/ListingCardSkeleton"
 import { FilterSkeleton } from "@/components/FilterSkeleton"
@@ -156,12 +158,14 @@ export default function ListingsPage() {
     }
   }, [ariaLiveMessage])
 
-  // Cleanup marker manager and advanced gestures on unmount
+  // Cleanup marker manager and background refresh on unmount
   useEffect(() => {
     return () => {
       if (markerManagerRef.current) {
         markerManagerRef.current.cleanup()
       }
+      // Stop background refresh when component unmounts
+      propertyCache.stopBackgroundRefresh()
       // if (advancedMapGestures) {
       //   advancedMapGestures.disable()
       // }
@@ -200,34 +204,138 @@ export default function ListingsPage() {
   const listContainerRef = useRef<HTMLDivElement>(null)
   const [mapBounds, setMapBounds] = useState<google.maps.LatLngBounds | null>(null)
 
-  // In-memory cache for properties and loaded tiles (desktop only)
+  // Airbnb-quality hybrid caching system
+  const [cachedProperties, setCachedProperties] = useState<PropertyData[]>([])
+  const [isUsingCache, setIsUsingCache] = useState(false)
+  const [fetchParams, setFetchParams] = useState<any>({ per_page: 0 })
+  
+  // Legacy desktop cache for map bounds (still needed for map exploration)
   const propertyCacheRef = useRef<Map<string, PropertyData>>(new Map())
   const loadedTilesRef = useRef<Set<string>>(new Set())
   const [cacheVersion, setCacheVersion] = useState(0)
-  const [fetchParams, setFetchParams] = useState<any>({ per_page: 0 })
-  
-  // Mobile cache to prevent unnecessary API calls
-  const mobileCacheRef = useRef<Map<string, PropertyData[]>>(new Map())
-  
-  // Desktop city cache to prevent unnecessary API calls
-  const desktopCityCacheRef = useRef<Map<string, PropertyData[]>>(new Map())
 
-  // Mobile: Simple direct fetch by city bounds and type
-  const mobileFetchParams = useMemo(() => ({
-    per_page: 50,
-    sw_lat: CITY_BOUNDS[selectedCity].sw_lat,
-    sw_lng: CITY_BOUNDS[selectedCity].sw_lng,
-    ne_lat: CITY_BOUNDS[selectedCity].ne_lat,
-    ne_lng: CITY_BOUNDS[selectedCity].ne_lng,
-    project_type: propertyTypeFilter === 'all' ? undefined :
-      propertyTypeFilter === 'apartments' ? 'apartment_building' : 'house_complex'
-  }), [selectedCity, propertyTypeFilter])
+  // Smart caching: Check cache first, then decide if we need to fetch
+  const checkCacheAndFetch = useCallback(async () => {
+    const cacheKey = `${selectedCity}-${propertyTypeFilter}`
+    
+    // 1. Check cache first (instant)
+    const cachedData = propertyCache.getCachedData(selectedCity, propertyTypeFilter)
+    if (cachedData && cachedData.length > 0) {
+      console.log(`✅ Using cached data for ${cacheKey}: ${cachedData.length} properties`)
+      setCachedProperties(cachedData)
+      setIsUsingCache(true)
+      
+      // Start background refresh if needed
+      if (propertyCache.needsBackgroundRefresh(selectedCity, propertyTypeFilter)) {
+        console.log(`🔄 Starting background refresh for ${cacheKey}`)
+        propertyCache.startBackgroundRefresh(selectedCity, propertyTypeFilter, async () => {
+          const freshData = await fetchFreshData()
+          return freshData
+        })
+      }
+      
+      return cachedData
+    }
+    
+    // 2. No cache found, fetch fresh data
+    console.log(`📡 Fetching fresh data for ${cacheKey}`)
+    setIsUsingCache(false)
+    const freshData = await fetchFreshData()
+    if (freshData && freshData.length > 0) {
+      console.log(`💾 Caching ${freshData.length} properties for ${cacheKey}`)
+      propertyCache.setCacheData(selectedCity, propertyTypeFilter, freshData)
+      setCachedProperties(freshData)
+      console.log('📊 Cache stats:', propertyCache.getCacheStats())
+    }
+    
+    return freshData
+  }, [selectedCity, propertyTypeFilter])
 
-  // Desktop: Controlled fetch by params (caching system)
-  // Mobile: Direct fetch by city bounds/type (coordinate-based system)
-  const { projects: apiProjects, loading, error } = useProjects(
-    typeof window !== 'undefined' && window.innerWidth < 1024 ? mobileFetchParams : fetchParams
-  )
+  // Fetch fresh data from API using existing API infrastructure
+  const fetchFreshData = useCallback(async () => {
+    const params = {
+      per_page: 100,
+      sw_lat: CITY_BOUNDS[selectedCity].sw_lat,
+      sw_lng: CITY_BOUNDS[selectedCity].sw_lng,
+      ne_lat: CITY_BOUNDS[selectedCity].ne_lat,
+      ne_lng: CITY_BOUNDS[selectedCity].ne_lng,
+      project_type: propertyTypeFilter === 'all' ? undefined :
+        propertyTypeFilter === 'apartments' ? 'apartment_building' : 'house_complex'
+    }
+    
+    console.log('📡 Fetching projects with params:', params)
+    
+    try {
+      const data = await getProjects(params)
+      console.log(`✅ Fetched ${data.projects?.length || 0} projects`)
+      
+      // Transform API response to PropertyData format
+      return (data.projects || []).map((project: any) => ({
+        id: String(project.id),
+        slug: String(project.title || project.name || 'Project').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
+        title: project.title || project.name || 'Project',
+        priceRange: project.price_label ? `${project.price_label}` : 'Price on request',
+        shortPrice: project.price_label || 'Request price',
+        location: project.neighborhood ? `${project.neighborhood}, ${project.city}` : project.city,
+        image: project.cover_image_url || '/placeholder.svg?height=300&width=400',
+        images: Array.isArray(project.images) ? project.images.map((img: any) => img?.urls?.card || img?.image_url).filter(Boolean) : [],
+        description: project.description || '',
+        lat: typeof project.latitude === 'number' ? project.latitude : 42.6977,
+        lng: typeof project.longitude === 'number' ? project.longitude : 23.3219,
+        color: `from-blue-500 to-blue-700`,
+        type: project.project_type === 'apartment_building' ? 'Apartment Complex' : 'Residential Houses',
+        status: 'Under Construction',
+        developer: project.developer?.company_name || 'Unknown Developer',
+        completionDate: project.expected_completion_date ? 
+          new Date(project.expected_completion_date).toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'short' 
+          }) : 'TBD',
+        rating: 4.5 + Math.random() * 0.4,
+        reviews: Math.floor(Math.random() * 30) + 5,
+        features: project.amenities_list && project.amenities_list.length > 0 ? project.amenities_list : ['Modern Design', 'Quality Construction'],
+        originalPrice: undefined,
+      }))
+    } catch (error) {
+      console.error('Failed to fetch fresh data:', error)
+      return []
+    }
+  }, [selectedCity, propertyTypeFilter])
+
+  // Legacy API hook for fallback (will be removed)
+  const { projects: apiProjects, loading, error } = useProjects({ per_page: 0 })
+
+  // Trigger cache check when city or property type changes
+  useEffect(() => {
+    checkCacheAndFetch()
+  }, [selectedCity, propertyTypeFilter, checkCacheAndFetch])
+
+  // Listen for background cache updates
+  useEffect(() => {
+    const handleCacheUpdate = (event: CustomEvent) => {
+      const { city, propertyType, data } = event.detail
+      if (city === selectedCity && propertyType === propertyTypeFilter) {
+        console.log(`🔄 Background update received: ${data.length} properties`)
+        setCachedProperties(data)
+        // Show subtle notification that data was updated
+        setAriaLiveMessage(`Updated with ${data.length} properties`)
+      }
+    }
+
+    window.addEventListener('propertyCacheUpdated', handleCacheUpdate as EventListener)
+    return () => {
+      window.removeEventListener('propertyCacheUpdated', handleCacheUpdate as EventListener)
+    }
+  }, [selectedCity, propertyTypeFilter])
+
+  // Debug: Expose cache stats to window for debugging
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window as any).propertyCache = propertyCache
+      console.log('🔧 Cache manager available at window.propertyCache')
+      console.log('📊 Current cache stats:', propertyCache.getCacheStats())
+    }
+  }, [])
   
   // Debounced bounds update for desktop caching system only
   const debouncedBoundsUpdate = useCallback(
@@ -276,7 +384,7 @@ export default function ListingsPage() {
     }
   }, [loading, isBoundsLoading])
 
-  // Merge API data into cache (desktop only)
+  // Legacy: Merge API data into cache (desktop only) - kept for map bounds exploration
   useEffect(() => {
     // Only cache on desktop - mobile uses direct API results
     if (typeof window !== 'undefined' && window.innerWidth < 1024) return
@@ -284,14 +392,10 @@ export default function ListingsPage() {
     if (apiProjects && apiProjects.length > 0) {
       const projects = apiProjects as unknown as PropertyData[]
       
-      // Update desktop property cache
+      // Update desktop property cache (for map bounds exploration)
       projects.forEach((p) => {
         propertyCacheRef.current.set(String((p as any).id || p.id), p)
       })
-      
-      // Update desktop city cache
-      const cityCacheKey = `${selectedCity}-${propertyTypeFilter}`
-      desktopCityCacheRef.current.set(cityCacheKey, projects)
       
       setCacheVersion((v) => v + 1)
     }
@@ -488,67 +592,44 @@ export default function ListingsPage() {
         // Don't clear cache - keep previous city data
         setMapBounds(bounds)
         
-        // Only fetch if we don't have data for this city
-        const cityCacheKey = `${selectedCity}-${propertyTypeFilter}`
-        if (!desktopCityCacheRef.current.has(cityCacheKey)) {
-          debouncedBoundsUpdate(bounds)
-        }
+        // Check cache will be handled by checkCacheAndFetch
+        // No need to manually trigger fetch here - the useEffect will handle it
       }
     }
     // Mobile: No cache reset needed - mobileFetchParams will trigger new fetch automatically
   }, [selectedCity])
 
-  // Build filtered list - different logic for mobile vs desktop
+  // Build filtered list using Airbnb-quality caching
   const filteredProperties = useMemo(() => {
-    // Mobile: Use cache first, then API results
-    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
-      const cacheKey = `${selectedCity}-${propertyTypeFilter}`
-      const cachedData = mobileCacheRef.current.get(cacheKey)
-      
-      // If we have cached data and no loading, use cache
-      if (cachedData && !loading) {
-        return cachedData
+    // Use cached properties as primary source
+    if (cachedProperties && cachedProperties.length > 0) {
+      // Filter by map bounds if on desktop and bounds are available
+      if (typeof window !== 'undefined' && window.innerWidth >= 1024 && mapBounds) {
+        return cachedProperties.filter((p) =>
+          typeof p.lat === 'number' && typeof p.lng === 'number' &&
+          mapBounds.contains(new google.maps.LatLng(p.lat, p.lng))
+        )
       }
       
-      // Otherwise use API results and cache them
-      const apiData = (apiProjects as unknown as PropertyData[]) || []
-      if (apiData.length > 0) {
-        mobileCacheRef.current.set(cacheKey, apiData)
-      }
-      
-      return apiData
+      // Mobile or no bounds: return all cached properties
+      return cachedProperties
     }
     
-    // Desktop: Use city cache first, then bounds filtering
-    const cityCacheKey = `${selectedCity}-${propertyTypeFilter}`
-    const cachedCityData = desktopCityCacheRef.current.get(cityCacheKey)
-    
-    // If we have cached city data, use it
-    if (cachedCityData && !loading) {
-      // Filter by current bounds if available
-      if (!mapBounds) return cachedCityData
-      return cachedCityData.filter((p) =>
-        typeof p.lat === 'number' && typeof p.lng === 'number' &&
-        mapBounds.contains(new google.maps.LatLng(p.lat, p.lng))
-      )
-    }
-    
-    // Otherwise use the old cache + bounds filtering system
+    // Fallback to legacy system if no cached data
     const all = Array.from(propertyCacheRef.current.values())
-    // Filter by type
     const typeFiltered = all.filter((p) => {
       if (propertyTypeFilter === 'all') return true
       if (propertyTypeFilter === 'apartments') return p.type === 'Apartment Complex'
       if (propertyTypeFilter === 'houses') return p.type === 'Residential Houses'
       return true
     })
-    // Filter by current bounds
+    
     if (!mapBounds) return typeFiltered
     return typeFiltered.filter((p) =>
       typeof p.lat === 'number' && typeof p.lng === 'number' &&
       mapBounds.contains(new google.maps.LatLng(p.lat, p.lng))
     )
-  }, [propertyTypeFilter, mapBounds, cacheVersion, apiProjects]) || []
+  }, [cachedProperties, propertyTypeFilter, mapBounds, cacheVersion]) || []
 
   // Memoize to prevent effects from re-running on equivalent arrays
   const memoizedProperties = useMemo(() => filteredProperties, [
@@ -820,11 +901,8 @@ export default function ListingsPage() {
 
 
   // Smart loading state - don't show loading if we have cached data
-  const hasCachedData = typeof window !== 'undefined' && window.innerWidth < 1024 
-    ? mobileCacheRef.current.has(`${selectedCity}-${propertyTypeFilter}`)
-    : desktopCityCacheRef.current.has(`${selectedCity}-${propertyTypeFilter}`)
-    
-  const shouldShowLoading = loading && !hasCachedData
+  const hasCachedData = cachedProperties && cachedProperties.length > 0
+  const shouldShowLoading = !isUsingCache && !hasCachedData && !error
   
   const showEmpty = !shouldShowLoading && !error && filteredProperties && filteredProperties.length === 0
   const showError = !shouldShowLoading && (error || localError)
@@ -857,13 +935,11 @@ export default function ListingsPage() {
     if (!city || city === selectedCity) return
     const newCity = city as CityType
     setSelectedCity(newCity)
-    setIsMapLoading(true)
     
     // Haptic feedback for city change
     haptic.light()
     
-    // Loading will be cleared when map finishes animating and bounds update
-    setTimeout(() => setIsMapLoading(false), 1000)
+    // No map loading state needed - just panning to new city
   }
 
   const handlePropertyTypeFilter = (type: PropertyTypeFilter) => {
@@ -1348,6 +1424,6 @@ export default function ListingsPage() {
                       )}
                     </div>
                   </div>
-      </div>
-    )
+    </div>
+  )
   }
