@@ -1140,7 +1140,7 @@ export default function ListingsPage() {
                    </p>
                  </div>
                             ) : hasData ? (
-                <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 xs:gap-4" style={{ transform: 'translateZ(0)', backfaceVisibility: 'hidden' }}>
+                <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 xs:gap-4 [&>*]:!transition-none" style={{ transform: 'translateZ(0)', backfaceVisibility: 'hidden' }}>
                   {filteredProperties.map((property) => (
                    <ListingCard
                      key={property.id}

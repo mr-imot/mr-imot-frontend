@@ -145,6 +145,7 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover }: Lis
       rel="noopener noreferrer nofollow"
       aria-labelledby={`title_${listing.id}`}
       className="block clickable"
+      style={{ transition: 'none', transform: 'translateZ(0)' }}
     >
       <article
         ref={cardRef}
@@ -153,6 +154,7 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover }: Lis
         style={{
           filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.1))',
           touchAction: 'manipulation',
+          transform: 'translateZ(0)',
           ...(isActive && { filter: 'drop-shadow(0 4px 16px rgba(0,0,0,0.15))' })
         }}
         onMouseEnter={handleMouseEnter}
