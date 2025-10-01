@@ -480,6 +480,15 @@
   animation: none !important;
 }
 
+/* Force instant rendering for listing cards - no animations whatsoever */
+.grid a[href^="/listing"],
+.grid article {
+  animation: none !important;
+  transition: none !important;
+  transform: none !important;
+  will-change: auto !important;
+}
+
 /* Text cursor and caret for input fields only */
 input[type="text"], 
 input[type="email"], 
