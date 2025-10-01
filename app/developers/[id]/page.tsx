@@ -150,8 +150,6 @@ export default function DeveloperPage({ params }: PageProps) {
   // Convert projects to Listing format
   const listings: Listing[] = developer.projects?.map(projectToListing) || []
   
-  // Debug: Log the final listings with images
-  console.log('Final listings with images:', listings.map(l => ({ id: l.id, title: l.title, images: l.images })));
 
   return (
     <div className="min-h-screen bg-background">

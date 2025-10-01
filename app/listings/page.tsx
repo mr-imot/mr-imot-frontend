@@ -221,13 +221,11 @@ export default function ListingsPage() {
     // 1. Check cache first (instant)
     const cachedData = propertyCache.getCachedData(selectedCity, propertyTypeFilter)
     if (cachedData && cachedData.length > 0) {
-      console.log(`✅ Using cached data for ${cacheKey}: ${cachedData.length} properties`)
       setCachedProperties(cachedData)
       setIsUsingCache(true)
       
       // Start background refresh if needed
       if (propertyCache.needsBackgroundRefresh(selectedCity, propertyTypeFilter)) {
-        console.log(`🔄 Starting background refresh for ${cacheKey}`)
         propertyCache.startBackgroundRefresh(selectedCity, propertyTypeFilter, async () => {
           const freshData = await fetchFreshData()
           return freshData
@@ -238,14 +236,11 @@ export default function ListingsPage() {
     }
     
     // 2. No cache found, fetch fresh data
-    console.log(`📡 Fetching fresh data for ${cacheKey}`)
     setIsUsingCache(false)
     const freshData = await fetchFreshData()
     if (freshData && freshData.length > 0) {
-      console.log(`💾 Caching ${freshData.length} properties for ${cacheKey}`)
       propertyCache.setCacheData(selectedCity, propertyTypeFilter, freshData)
       setCachedProperties(freshData)
-      console.log('📊 Cache stats:', propertyCache.getCacheStats())
     }
     
     return freshData
@@ -263,11 +258,9 @@ export default function ListingsPage() {
         propertyTypeFilter === 'apartments' ? 'apartment_building' : 'house_complex'
     }
     
-    console.log('📡 Fetching projects with params:', params)
     
     try {
       const data = await getProjects(params)
-      console.log(`✅ Fetched ${data.projects?.length || 0} projects`)
       
       // Transform API response to PropertyData format
       return (data.projects || []).map((project: any) => ({
@@ -315,7 +308,6 @@ export default function ListingsPage() {
     const handleCacheUpdate = (event: CustomEvent) => {
       const { city, propertyType, data } = event.detail
       if (city === selectedCity && propertyType === propertyTypeFilter) {
-        console.log(`🔄 Background update received: ${data.length} properties`)
         setCachedProperties(data)
         // Show subtle notification that data was updated
         setAriaLiveMessage(`Updated with ${data.length} properties`)
@@ -332,8 +324,6 @@ export default function ListingsPage() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       (window as any).propertyCache = propertyCache
-      console.log('🔧 Cache manager available at window.propertyCache')
-      console.log('📊 Current cache stats:', propertyCache.getCacheStats())
     }
   }, [])
   
@@ -447,7 +437,6 @@ export default function ListingsPage() {
          // Add click listener to close property card when clicking on map (Airbnb-style)
          map.addListener('click', () => {
            if (selectedPropertyId) {
-             console.log('🗺️ DESKTOP MAP CLICKED - Closing property card')
              setSelectedPropertyId(null)
            }
          })
@@ -534,7 +523,6 @@ export default function ListingsPage() {
         // Add click listener to close property card when tapping on map (Airbnb-style)
         mobileMap.addListener('click', () => {
           if (selectedPropertyId) {
-            console.log('🗺️ MOBILE MAP CLICKED - Closing property card')
             setSelectedPropertyId(null)
           }
         })

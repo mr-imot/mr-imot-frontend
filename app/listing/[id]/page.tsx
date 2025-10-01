@@ -261,7 +261,6 @@ export default function ListingPage({ params }: PageProps) {
           url: window.location.href,
         })
       } catch (err) {
-        console.log("Share canceled or failed:", err)
       }
     } else {
       // Fallback: copy to clipboard
@@ -301,7 +300,6 @@ export default function ListingPage({ params }: PageProps) {
         try {
           await navigator.clipboard.writeText(cleanPhone)
           // You could add a toast notification here if you have one
-          console.log('Phone number copied to clipboard:', cleanPhone)
         } catch (clipboardErr) {
           console.warn("Failed to copy to clipboard:", clipboardErr)
         }
@@ -385,10 +383,6 @@ export default function ListingPage({ params }: PageProps) {
             }
             
             // Debug logging
-            console.log('Gallery Debug:', {
-              property_images: property.images,
-              allImages: allImages
-            });
             
             return allImages.length > 0 ? (
               <PropertyGallery 
@@ -558,11 +552,6 @@ export default function ListingPage({ params }: PageProps) {
       {/* Project Title & Info - Under the image */}
       <div className="mt-6 lg:mt-8">
         {(() => {
-          console.log('Property Debug:', {
-            title: property.title,
-            name: property.name,
-            all_property_keys: Object.keys(property)
-          });
           return null;
         })()}
         <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3 lg:mb-4">
@@ -600,11 +589,6 @@ export default function ListingPage({ params }: PageProps) {
 
         {/* Property Features - Main Features Section */}
         {(() => {
-          console.log('Features Debug:', {
-            features: property.features,
-            hasFeatures: property.features && property.features.length > 0,
-            featuresLength: property.features?.length || 0
-          });
           
           return property.features && property.features.length > 0 ? (
             <Card>
