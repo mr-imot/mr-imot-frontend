@@ -154,7 +154,9 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover }: Lis
         style={{
           filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.1))',
           touchAction: 'manipulation',
-          transform: 'translateZ(0)',
+          transform: 'none',
+          opacity: 1,
+          willChange: 'auto',
           ...(isActive && { filter: 'drop-shadow(0 4px 16px rgba(0,0,0,0.15))' })
         }}
         onMouseEnter={handleMouseEnter}
