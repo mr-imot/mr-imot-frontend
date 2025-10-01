@@ -121,6 +121,7 @@ export default function ListingsPage() {
   }>({})
   const [localError, setLocalError] = useState<string | null>(null)
   const [isInitialLoading, setIsInitialLoading] = useState(true)
+  const [isProgrammaticMove, setIsProgrammaticMove] = useState(false)
   // const [advancedMapGestures, setAdvancedMapGestures] = useState<AdvancedMapGestures | null>(null)
   
   // Map bounds state for API calls
@@ -204,6 +205,12 @@ export default function ListingsPage() {
   const loadedTilesRef = useRef<Set<string>>(new Set())
   const [cacheVersion, setCacheVersion] = useState(0)
   const [fetchParams, setFetchParams] = useState<any>({ per_page: 0 })
+  
+  // Mobile cache to prevent unnecessary API calls
+  const mobileCacheRef = useRef<Map<string, PropertyData[]>>(new Map())
+  
+  // Desktop city cache to prevent unnecessary API calls
+  const desktopCityCacheRef = useRef<Map<string, PropertyData[]>>(new Map())
 
   // Mobile: Simple direct fetch by city bounds and type
   const mobileFetchParams = useMemo(() => ({
@@ -275,15 +282,23 @@ export default function ListingsPage() {
     if (typeof window !== 'undefined' && window.innerWidth < 1024) return
     
     if (apiProjects && apiProjects.length > 0) {
-      (apiProjects as unknown as PropertyData[]).forEach((p) => {
+      const projects = apiProjects as unknown as PropertyData[]
+      
+      // Update desktop property cache
+      projects.forEach((p) => {
         propertyCacheRef.current.set(String((p as any).id || p.id), p)
       })
+      
+      // Update desktop city cache
+      const cityCacheKey = `${selectedCity}-${propertyTypeFilter}`
+      desktopCityCacheRef.current.set(cityCacheKey, projects)
+      
       setCacheVersion((v) => v + 1)
     }
     if (!loading) {
       setIsBoundsLoading(false)
     }
-  }, [apiProjects])
+  }, [apiProjects, selectedCity, propertyTypeFilter])
 
   // Initialize Google Maps like the homepage
   useEffect(() => {
@@ -361,6 +376,9 @@ export default function ListingsPage() {
         
         // Listen for map idle (after pan/zoom/resize)
         google.maps.event.addListener(map, "idle", () => {
+          // Skip API calls during programmatic map movements (city switches)
+          if (isProgrammaticMove) return
+          
           const bounds = map.getBounds()
           if (bounds) {
             setMapBounds(bounds)
@@ -443,6 +461,9 @@ export default function ListingsPage() {
   
   // Recenter when city changes (navigation only, not filtering)
   useEffect(() => {
+    // Set flag to prevent API calls during programmatic map movement
+    setIsProgrammaticMove(true)
+    
     // Recenter desktop map
     if (googleMapRef.current) {
       googleMapRef.current.panTo(CITY_COORDINATES[selectedCity])
@@ -455,13 +476,23 @@ export default function ListingsPage() {
       mobileGoogleMapRef.current.setZoom(CITY_COORDINATES[selectedCity].zoom)
     }
     
-    // Desktop: Reset caches and trigger fetch for new city
+    // Reset flag after map animation completes (1 second should be enough)
+    setTimeout(() => {
+      setIsProgrammaticMove(false)
+    }, 1000)
+    
+    // Desktop: Only fetch if we don't have cached data for this city
     if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
       const bounds = googleMapRef.current?.getBounds()
       if (bounds) {
-        loadedTilesRef.current.clear()
+        // Don't clear cache - keep previous city data
         setMapBounds(bounds)
-        debouncedBoundsUpdate(bounds)
+        
+        // Only fetch if we don't have data for this city
+        const cityCacheKey = `${selectedCity}-${propertyTypeFilter}`
+        if (!desktopCityCacheRef.current.has(cityCacheKey)) {
+          debouncedBoundsUpdate(bounds)
+        }
       }
     }
     // Mobile: No cache reset needed - mobileFetchParams will trigger new fetch automatically
@@ -469,12 +500,40 @@ export default function ListingsPage() {
 
   // Build filtered list - different logic for mobile vs desktop
   const filteredProperties = useMemo(() => {
-    // Mobile: Use direct API results (already filtered by city and type)
+    // Mobile: Use cache first, then API results
     if (typeof window !== 'undefined' && window.innerWidth < 1024) {
-      return (apiProjects as unknown as PropertyData[]) || []
+      const cacheKey = `${selectedCity}-${propertyTypeFilter}`
+      const cachedData = mobileCacheRef.current.get(cacheKey)
+      
+      // If we have cached data and no loading, use cache
+      if (cachedData && !loading) {
+        return cachedData
+      }
+      
+      // Otherwise use API results and cache them
+      const apiData = (apiProjects as unknown as PropertyData[]) || []
+      if (apiData.length > 0) {
+        mobileCacheRef.current.set(cacheKey, apiData)
+      }
+      
+      return apiData
     }
     
-    // Desktop: Use cache + bounds filtering
+    // Desktop: Use city cache first, then bounds filtering
+    const cityCacheKey = `${selectedCity}-${propertyTypeFilter}`
+    const cachedCityData = desktopCityCacheRef.current.get(cityCacheKey)
+    
+    // If we have cached city data, use it
+    if (cachedCityData && !loading) {
+      // Filter by current bounds if available
+      if (!mapBounds) return cachedCityData
+      return cachedCityData.filter((p) =>
+        typeof p.lat === 'number' && typeof p.lng === 'number' &&
+        mapBounds.contains(new google.maps.LatLng(p.lat, p.lng))
+      )
+    }
+    
+    // Otherwise use the old cache + bounds filtering system
     const all = Array.from(propertyCacheRef.current.values())
     // Filter by type
     const typeFiltered = all.filter((p) => {
@@ -760,9 +819,16 @@ export default function ListingsPage() {
 
 
 
-  const showEmpty = !loading && !error && filteredProperties && filteredProperties.length === 0
-  const showError = !loading && (error || localError)
-  const hasData = !loading && !error && filteredProperties && filteredProperties.length > 0
+  // Smart loading state - don't show loading if we have cached data
+  const hasCachedData = typeof window !== 'undefined' && window.innerWidth < 1024 
+    ? mobileCacheRef.current.has(`${selectedCity}-${propertyTypeFilter}`)
+    : desktopCityCacheRef.current.has(`${selectedCity}-${propertyTypeFilter}`)
+    
+  const shouldShowLoading = loading && !hasCachedData
+  
+  const showEmpty = !shouldShowLoading && !error && filteredProperties && filteredProperties.length === 0
+  const showError = !shouldShowLoading && (error || localError)
+  const hasData = !shouldShowLoading && !error && filteredProperties && filteredProperties.length > 0
 
   // Get selected property data for info popup
   const selectedProperty = selectedPropertyId 
@@ -947,7 +1013,7 @@ export default function ListingsPage() {
                 className="space-y-4 relative"
               >
                
-                             {loading ? (
+                             {shouldShowLoading ? (
                  isInitialLoading ? (
                    <ListingCardSkeletonGrid count={6} />
                  ) : (
@@ -1106,7 +1172,7 @@ export default function ListingsPage() {
              <div className="listings-map-container overflow-y-auto pr-4 scrollbar-thin" style={{
                scrollbarColor: 'var(--brand-gray-300) var(--brand-gray-100)'
              }}>
-              {loading || isBoundsLoading ? (
+              {shouldShowLoading || isBoundsLoading ? (
                 <div className="flex flex-col items-center justify-center py-24 space-y-6">
                   <div className="relative">
                     <Loader2 className="h-12 w-12 animate-spin" style={{color: 'var(--brand-btn-primary-bg)'}} />
