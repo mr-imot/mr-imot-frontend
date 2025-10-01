@@ -1139,18 +1139,18 @@ export default function ListingsPage() {
                      💡 Try exploring a different location or adjusting your filters to discover more properties.
                    </p>
                  </div>
-                             ) : hasData ? (
-                 <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 xs:gap-4">
-                   {filteredProperties.map((property) => (
-                    <ListingCard
-                      key={property.id}
-                      listing={propertyToListing(property)}
-                      isActive={selectedPropertyId === property.id}
-                      onCardClick={() => handleCardClick(property)}
-                      onCardHover={(id) => setDebouncedHover(id, 100)}
-                    />
-                  ))}
-                </div>
+                            ) : hasData ? (
+                <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 xs:gap-4" style={{ transform: 'translateZ(0)', backfaceVisibility: 'hidden' }}>
+                  {filteredProperties.map((property) => (
+                   <ListingCard
+                     key={property.id}
+                     listing={propertyToListing(property)}
+                     isActive={selectedPropertyId === property.id}
+                     onCardClick={() => handleCardClick(property)}
+                     onCardHover={(id) => setDebouncedHover(id, 100)}
+                   />
+                 ))}
+               </div>
               ) : (
                 <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-8 text-center">
                   <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
