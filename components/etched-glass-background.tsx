@@ -38,10 +38,11 @@ export function EtchedGlassBackground() {
           top: 0,
           left: 0,
           width: '100vw',
-          height: '100vh',
+          height: 'calc(var(--vh, 1vh) * 100)',
           backgroundColor: '#e8edf0', // A cool, professional light gray
           overflow: 'hidden',
           zIndex: -2,
+          pointerEvents: 'none'
         }}
       >
         {/* Base Layer: The frosted glass pane */}
@@ -52,7 +53,7 @@ export function EtchedGlassBackground() {
             top: 0,
             left: 0,
             width: '100vw', 
-            height: '100vh' 
+            height: 'calc(var(--vh, 1vh) * 100)'
           }}
           onError={() => setHasError(true)}
         />
@@ -68,7 +69,7 @@ export function EtchedGlassBackground() {
             top: 0,
             left: 0,
             width: '100vw', 
-            height: '100vh', 
+            height: 'calc(var(--vh, 1vh) * 100)', 
             opacity: 0.05 
           }}
           onError={() => setHasError(true)}

@@ -11,7 +11,7 @@ import Image from "next/image"
 export function SiteHeader() {
   const t = useTranslations('navigation')
   const pathname = usePathname()
-  const isListingsPage = pathname.includes('/listings')
+  const isListingsPage = pathname.includes('/listings') || pathname.includes('/obiavi')
   const locale = useLocale()
 
   const href = (en: string, bg: string) => {
