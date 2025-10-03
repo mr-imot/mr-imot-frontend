@@ -104,3 +104,11 @@ declare module '@paper-design/shaders-react' {
 	export const Voronoi: React.FC<VoronoiProps>
 }
 
+// Fallback types for negotiator (no @types package)
+declare module 'negotiator' {
+  export default class Negotiator {
+    constructor(opts: { headers: Record<string, string | undefined> })
+    languages(available?: string[]): string[]
+  }
+}
+
