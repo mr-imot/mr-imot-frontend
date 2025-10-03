@@ -44,6 +44,8 @@ export function LanguageSwitcher() {
     // For English, navigate to root; for others, prefix
     const newPath = newLocale === 'en' ? pathWithoutLocale : `/${newLocale}${pathWithoutLocale}`
     router.push(newPath)
+    // Persist preference so middleware honors it
+    document.cookie = `locale=${newLocale}; path=/; max-age=${60 * 60 * 24 * 365}`
     setIsOpen(false)
   }
 

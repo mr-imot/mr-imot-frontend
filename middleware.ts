@@ -1,11 +1,11 @@
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { match } from '@formatjs/intl-localematcher'
 import Negotiator from 'negotiator'
 
 let locales = ['en', 'bg']
 let defaultLocale = 'en'
 
-function getLocale(request) {
+function getLocale(request: NextRequest) {
   // Get the Accept-Language header
   const acceptLanguage = request.headers.get('accept-language') ?? undefined
   let headers = { 'accept-language': acceptLanguage }
@@ -15,7 +15,7 @@ function getLocale(request) {
   return match(languages, locales, defaultLocale)
 }
 
-export function middleware(request) {
+export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   
   // Skip middleware for API routes, static assets, and internal Next.js paths
