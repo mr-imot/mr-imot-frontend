@@ -36,13 +36,13 @@ export function LanguageSwitcher() {
   const currentLanguage = languages.find(lang => lang.code === currentLocale) || languages[0]
 
   const handleLanguageChange = (newLocale: string) => {
-    // Remove current locale from pathname
-    const pathWithoutLocale = pathname.replace(`/${currentLocale}`, '') || '/'
-    
-    // Add new locale to pathname
-    const newPath = `/${newLocale}${pathWithoutLocale}`
-    
-    // Navigate to new path
+    // Remove existing locale segment if present
+    const pathWithoutLocale = pathname
+      .replace(/^\/en(?=\/|$)/, '')
+      .replace(/^\/bg(?=\/|$)/, '') || '/'
+
+    // For English, navigate to root; for others, prefix
+    const newPath = newLocale === 'en' ? pathWithoutLocale : `/${newLocale}${pathWithoutLocale}`
     router.push(newPath)
     setIsOpen(false)
   }

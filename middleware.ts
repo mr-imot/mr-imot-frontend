@@ -30,12 +30,9 @@ export function middleware(request) {
     return
   }
 
-  // If URL contains /en prefix, canonicalize to remove it
-  if (pathname === '/en' || pathname.startsWith('/en/')) {
-    const stripped = pathname.replace(/^\/en(?=\/|$)/, '') || '/'
-    const url = request.nextUrl.clone()
-    url.pathname = stripped
-    return NextResponse.redirect(url)
+  // Respect explicit locale prefixes
+  if (pathname === '/en' || pathname.startsWith('/en/') || pathname === '/bg' || pathname.startsWith('/bg/')) {
+    return
   }
 
   // Check if there is any supported locale in the pathname
@@ -45,20 +42,22 @@ export function middleware(request) {
 
   if (pathnameHasLocale) return
 
-  // No locale in path: use language negotiation
-  const locale = getLocale(request)
+  // Read user preference cookie if present
+  const cookieLocale = request.cookies.get('locale')?.value
+  const negotiated = getLocale(request)
+  const targetLocale = (cookieLocale === 'en' || cookieLocale === 'bg') ? cookieLocale : negotiated
 
-  if (locale === 'en') {
-    // Serve English at the root without /en in the URL (rewrite internally)
+  if (targetLocale === 'en') {
+    // Serve English at root by rewriting internally to /en
     const url = request.nextUrl.clone()
     url.pathname = `/en${pathname}`
     return NextResponse.rewrite(url)
+  } else {
+    // Non-default locales get explicit redirect with prefix
+    const url = request.nextUrl.clone()
+    url.pathname = `/bg${pathname}`
+    return NextResponse.redirect(url)
   }
-
-  // Non-default locale (bg) keeps explicit prefix for SEO
-  const url = request.nextUrl.clone()
-  url.pathname = `/${locale}${pathname}`
-  return NextResponse.redirect(url)
 }
 
 export const config = {
