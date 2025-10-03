@@ -17,6 +17,21 @@ function getLocale(request: NextRequest) {
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
+  // Bulgarian pretty slugs → internal canonical paths
+  if (pathname.startsWith('/bg/')) {
+    const map: Record<string, string> = {
+      '/bg/obiavi': '/bg/listings',
+      '/bg/stroiteli': '/bg/developers',
+      '/bg/za-nas': '/bg/about-us',
+    }
+    for (const [from, to] of Object.entries(map)) {
+      if (pathname === from || pathname.startsWith(from + '/')) {
+        const url = request.nextUrl.clone()
+        url.pathname = pathname.replace(from, to)
+        return NextResponse.rewrite(url)
+      }
+    }
+  }
   
   // Skip middleware for API routes, static assets, and internal Next.js paths
   if (
