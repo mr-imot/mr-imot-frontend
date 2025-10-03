@@ -1068,6 +1068,9 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
               </div>
             )}
             
+            {/* Touch overlay so map doesn't steal gestures under sheet */}
+            <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40" style={{ height: '40vh' }} />
+
             {/* Draggable bottom sheet with listings */}
             <DraggableSheet 
               snapPoints={[30, 70, 95]}
@@ -1078,7 +1081,9 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
                 {/* Sheet header */}
                 <div className="mb-4">
                   <h2 className="text-xl font-bold text-gray-900">
-                    {filteredProperties.length} {filteredProperties.length === 1 ? 'property' : 'properties'}
+                    {filteredProperties.length === 1
+                      ? (lang === 'bg' ? '1 имот' : '1 property')
+                      : `${filteredProperties.length} ${lang === 'bg' ? 'имота' : 'properties'}`}
                   </h2>
                   <p className="text-sm text-gray-600">
                     {propertyTypeFilter === 'all' ? dict.listings.allProperties : 

@@ -97,10 +97,11 @@ export function DraggableSheet({
   return (
     <div
       ref={sheetRef}
-      className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl transition-all duration-300 ease-out z-40"
+      className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl transition-all duration-300 ease-out z-50"
       style={{
         height: `${Math.min(height + dragOffset, 100)}vh`,
-        touchAction: 'none'
+        touchAction: 'none',
+        paddingBottom: 'env(safe-area-inset-bottom)'
       }}
     >
       {/* Drag Handle */}
@@ -109,7 +110,7 @@ export function DraggableSheet({
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
       >
-        <div className="w-12 h-1.5 bg-gray-300 rounded-full" />
+        <div className="w-14 h-2 bg-gray-300 rounded-full" />
       </div>
 
       {/* Content */}
