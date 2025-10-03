@@ -13,11 +13,13 @@ interface FaqItem {
 
 interface FaqSectionProps {
   heading?: string;
+  subheading?: string;
   items?: FaqItem[];
 }
 
 const FaqSection = ({
   heading = "Frequently asked questions",
+  subheading = "Everything you need to know about using Mr. imot Platform",
   items = [
     {
       id: "faq-1",
@@ -83,7 +85,7 @@ const FaqSection = ({
             {heading}
           </h2>
           <p className="text-base sm:text-lg max-w-2xl mx-auto" style={{color: 'var(--brand-text-secondary)'}}>
-            Everything you need to know about using Mr. imot Platform
+            {subheading}
           </p>
         </div>
         <Accordion type="single" collapsible className="w-full">

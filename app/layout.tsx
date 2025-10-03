@@ -6,14 +6,11 @@ import { Figtree, Instrument_Serif, Outfit, Source_Sans_3, Playfair_Display, Int
 import "./globals.css"
 import "../styles/mobile-optimizations.css"
 import { cn } from "@/lib/utils"
-import { SiteHeader } from "@/components/site-header"
-import { Footer } from "@/components/footer"
 import GlobalMaintenanceWrapper from "@/components/maintenance/global-maintenance-wrapper"
 import { AuthProvider } from "@/lib/auth-context"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme-provider"
-import { FeedbackButton } from "@/components/feedback-button"
 
 
 
@@ -142,11 +139,8 @@ html {
             <div className="header-fade-overlay" />
             
             <div className="relative flex min-h-screen flex-col">
-              <SiteHeader />
               <main className="flex-1">{children}</main>
-              <Footer />
             </div>
-            <FeedbackButton />
           </AuthProvider>
         </GlobalMaintenanceWrapper>
         </ThemeProvider>

@@ -3,10 +3,12 @@
 import Link from "next/link"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { useAuth } from "@/lib/auth-context"
+import { useTranslations } from "@/lib/locale-context"
 import { LogOut } from "lucide-react"
 
 export function UserAuthNav() {
   const { user, isAuthenticated, isLoading, logout, getDashboardUrl } = useAuth();
+  const t = useTranslations('navigation');
 
   if (isLoading) {
     return (
@@ -58,7 +60,7 @@ export function UserAuthNav() {
     <Link href="/login">
       <button className="group relative overflow-hidden px-6 py-2 rounded-full bg-white text-black font-normal text-xs transition-colors duration-300 hover:bg-white/90 cursor-pointer h-8 flex items-center justify-between w-24">
         <span className="transition-transform duration-300 ease-out group-hover:-translate-x-1 cursor-pointer">
-          Login
+          {t.login}
         </span>
         <svg className="w-3 h-3 transition-all duration-300 ease-out transform translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 17L17 7M17 7H7M17 7V17" />

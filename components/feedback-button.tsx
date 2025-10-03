@@ -10,19 +10,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
 import { useAuth } from "@/lib/auth-context"
-
-const ISSUE_TYPES = [
-  "Bug Report",
-  "Feature Request", 
-  "General Feedback",
-  "Performance Issue",
-  "UI/UX Suggestion",
-  "Other"
-]
+import { useTranslations } from "@/lib/locale-context"
 
 export function FeedbackButton() {
   const { user, isAuthenticated } = useAuth()
   const pathname = usePathname()
+  const t = useTranslations('feedback')
   const [isOpen, setIsOpen] = useState(false)
   const [issueType, setIssueType] = useState("")
   const [message, setMessage] = useState("")
@@ -31,6 +24,15 @@ export function FeedbackButton() {
   const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle")
   const [isVisible, setIsVisible] = useState(true)
   const heroRef = useRef<HTMLDivElement>(null)
+
+  const ISSUE_TYPES = [
+    { value: "bugReport", label: t.issueTypes.bugReport },
+    { value: "featureRequest", label: t.issueTypes.featureRequest },
+    { value: "generalFeedback", label: t.issueTypes.generalFeedback },
+    { value: "performanceIssue", label: t.issueTypes.performanceIssue },
+    { value: "uiUxSuggestion", label: t.issueTypes.uiUxSuggestion },
+    { value: "other", label: t.issueTypes.other }
+  ]
 
   // Set email automatically if user is logged in
   useEffect(() => {
@@ -161,7 +163,7 @@ export function FeedbackButton() {
         size="lg"
       >
         <Heart className="w-5 h-5" />
-        <span>Feedback</span>
+        <span>{t.button}</span>
       </Button>
 
       {/* Feedback Modal */}
@@ -169,14 +171,7 @@ export function FeedbackButton() {
         <DialogContent className="sm:max-w-[31.25rem] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-left">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                  <Heart className="w-5 h-5 text-purple-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Martin, founder of Mr imot</p>
-                </div>
-              </div>
+              {t.title}
             </DialogTitle>
           </DialogHeader>
 
@@ -184,8 +179,7 @@ export function FeedbackButton() {
             {/* Greeting Message */}
             <div className="text-left">
               <p className="text-gray-700 leading-relaxed">
-                Hey there - Mr imot is still in beta and we are working everyday to improve your experience! 
-                I would LOVE your feedback. What you type in this box will go directly to my inbox :)
+                {t.introMessage}
               </p>
             </div>
 
@@ -205,15 +199,15 @@ export function FeedbackButton() {
             {/* Feedback Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="issue-type">Issue Type</Label>
+                <Label htmlFor="issue-type">{t.labels.issueType}</Label>
                 <Select value={issueType} onValueChange={setIssueType}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select an issue type" />
+                    <SelectValue placeholder={t.selectPlaceholder} />
                   </SelectTrigger>
                   <SelectContent>
                     {ISSUE_TYPES.map((type) => (
-                      <SelectItem key={type} value={type}>
-                        {type}
+                      <SelectItem key={type.value} value={type.value}>
+                        {type.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -221,11 +215,11 @@ export function FeedbackButton() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
+                <Label htmlFor="email">{t.labels.email}</Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="your.email@example.com"
+                  placeholder={t.placeholders.email}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isAuthenticated}
@@ -240,10 +234,10 @@ export function FeedbackButton() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="message">Message</Label>
+                <Label htmlFor="message">{t.labels.message}</Label>
                 <Textarea
                   id="message"
-                  placeholder="Please describe your feedback or issue in detail..."
+                  placeholder={t.placeholders.message}
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   className="min-h-[7.5rem] resize-none"
@@ -260,14 +254,14 @@ export function FeedbackButton() {
                   className="text-gray-600 hover:text-gray-800"
                   disabled={isSubmitting}
                 >
-                  Cancel
+                  {t.buttons.close}
                 </Button>
                 <Button
                   type="submit"
                   disabled={!issueType || !message.trim() || !email.trim() || isSubmitting}
                   className="bg-purple-600 hover:bg-purple-700 text-white"
                 >
-                  {isSubmitting ? "Sending..." : "Send Feedback"}
+                  {isSubmitting ? t.buttons.sending : t.buttons.send}
                 </Button>
               </div>
             </form>

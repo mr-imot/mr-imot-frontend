@@ -2,15 +2,16 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
-import { Menu, LogOut, User, Settings } from "lucide-react"
+import { Menu, LogOut, User, Settings, Globe } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
+import { useTranslations, useLocale } from "@/lib/locale-context"
 import { cn } from "@/lib/utils"
 
 // Auth Actions Component for Mobile
-function AuthActionsSection({ onLinkClick }: { onLinkClick: () => void }) {
+function AuthActionsSection({ onLinkClick, t }: { onLinkClick: () => void; t: any }) {
   const { user, isAuthenticated, logout, getDashboardUrl } = useAuth();
 
   if (isAuthenticated && user) {
@@ -62,28 +63,76 @@ function AuthActionsSection({ onLinkClick }: { onLinkClick: () => void }) {
         onClick={onLinkClick}
         className="text-lg font-medium text-foreground/80 hover:text-foreground py-3 px-4 rounded-lg hover:bg-muted transition-all duration-200"
       >
-        Sign In
+        {t.login}
       </Link>
       <Button
         asChild
         className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 h-12 rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
       >
         <Link href="/register?type=developer" onClick={onLinkClick}>
-          List Your Project
+          {t.listYourProject}
         </Link>
       </Button>
     </div>
   );
 }
 
+// Mobile Language Switcher Component
+function MobileLanguageSwitcher({ onLinkClick }: { onLinkClick: () => void }) {
+  const pathname = usePathname()
+  const router = useRouter()
+  const currentLocale = useLocale()
+
+  const languages = [
+    { code: 'en', name: 'English', flag: 'https://flagcdn.com/w20/us.png', nativeName: 'English' },
+    { code: 'bg', name: 'Bulgarian', flag: 'https://flagcdn.com/w20/bg.png', nativeName: 'Български' }
+  ]
+
+  const handleLanguageChange = (newLocale: string) => {
+    const pathWithoutLocale = pathname.replace(`/${currentLocale}`, '') || '/'
+    const newPath = `/${newLocale}${pathWithoutLocale}`
+    router.push(newPath)
+    onLinkClick()
+  }
+
+  return (
+    <div className="space-y-3">
+      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Language</h3>
+      {languages.map((language) => (
+        <button
+          key={language.code}
+          onClick={() => handleLanguageChange(language.code)}
+          className={cn(
+            "w-full flex items-center space-x-3 text-left py-3 px-4 rounded-lg transition-all duration-200",
+            language.code === currentLocale 
+              ? "bg-primary/10 text-primary font-medium" 
+              : "text-foreground/80 hover:text-foreground hover:bg-muted"
+          )}
+        >
+          <img 
+            src={language.flag} 
+            alt={language.name}
+            className="w-5 h-3 rounded-sm object-cover"
+          />
+          <span className="text-sm font-medium">{language.code.toUpperCase()}</span>
+          {language.code === currentLocale && (
+            <div className="ml-auto w-2 h-2 bg-primary rounded-full" />
+          )}
+        </button>
+      ))}
+    </div>
+  )
+}
+
 export function MobileNav() {
   const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
+  const t = useTranslations('navigation')
 
   const navItems = [
-    { href: "/listings", label: "Listings" },
-    { href: "/developers", label: "Developers" },
-    { href: "/about-us", label: "About Us" },
+    { href: "/listings", label: t.listings },
+    { href: "/developers", label: t.developers },
+    { href: "/about-us", label: t.aboutUs },
   ]
 
   const handleLinkClick = () => {
@@ -100,7 +149,7 @@ export function MobileNav() {
       </SheetTrigger>
       <SheetContent side="right" className="w-80">
         <SheetHeader className="text-left">
-          <SheetTitle className="text-xl font-bold">Navigation</SheetTitle>
+          <SheetTitle className="text-xl font-bold">{t.navigation}</SheetTitle>
         </SheetHeader>
 
         <div className="flex flex-col space-y-6 mt-8">
@@ -126,12 +175,18 @@ export function MobileNav() {
           {/* Divider */}
           <div className="border-t" />
 
+          {/* Language Switcher */}
+          <MobileLanguageSwitcher onLinkClick={handleLinkClick} />
+
+          {/* Divider */}
+          <div className="border-t" />
+
           {/* Auth Actions */}
-          <AuthActionsSection onLinkClick={handleLinkClick} />
+          <AuthActionsSection onLinkClick={handleLinkClick} t={t} />
 
           {/* Footer Info */}
           <div className="mt-auto pt-8 border-t">
-            <p className="text-sm text-muted-foreground text-center">Connect directly with developers</p>
+            <p className="text-sm text-muted-foreground text-center">{t.connectDirectly}</p>
           </div>
         </div>
       </SheetContent>

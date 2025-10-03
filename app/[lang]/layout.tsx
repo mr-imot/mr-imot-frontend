@@ -1,0 +1,31 @@
+import { LocaleProvider } from "@/lib/locale-context"
+import { getDictionary } from "./dictionaries"
+import { SiteHeader } from "@/components/site-header"
+import { Footer } from "@/components/footer"
+import { FeedbackButton } from "@/components/feedback-button"
+
+export async function generateStaticParams() {
+  return [{ lang: 'en' }, { lang: 'bg' }]
+}
+
+export default async function RootLayout({
+  children,
+  params,
+}: Readonly<{
+  children: React.ReactNode
+  params: Promise<{ lang: 'en' | 'bg' }>
+}>) {
+  const { lang } = await params
+  const translations = await getDictionary(lang)
+  
+  return (
+    <LocaleProvider locale={lang} translations={translations}>
+      <div className="relative flex min-h-screen flex-col">
+        <SiteHeader />
+        <main className="flex-1">{children}</main>
+        <Footer />
+      </div>
+      <FeedbackButton />
+    </LocaleProvider>
+  )
+}

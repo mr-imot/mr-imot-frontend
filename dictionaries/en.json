@@ -1,0 +1,210 @@
+{
+  "hero": {
+    "title": {
+      "find": "Find",
+      "your": "Your",
+      "perfectProperty": "Perfect Property",
+      "directlyFromDevelopers": "Directly from Developers"
+    },
+    "subtitle": "Browse off-plan projects in Bulgaria.",
+    "tagline": "Skip the middleman. Skip the markup.",
+    "cta": "Browse Properties",
+    "imageAlt": "MR-IMOT Logo - No Brokers, No Commissions"
+  },
+  "threeSteps": {
+    "badge": "FROM SEARCH TO PURCHASE IN 3 SIMPLE STEPS",
+    "heading": "From search to purchase<br />in three simple steps",
+    "step1": {
+      "number": "01",
+      "label": "DISCOVER NEW PROJECTS",
+      "content": "Discover new developments on our<br /><span style=\"color: var(--brand-btn-primary-bg); font-weight: 600;\">interactive map</span> before they're<br />publicly available. Access<br /><span style=\"color: var(--brand-btn-primary-bg); font-weight: 600;\">verified</span> projects first."
+    },
+    "step2": {
+      "number": "02",
+      "label": "CONNECT DIRECTLY",
+      "content": "Contact developers directly to<br /><span style=\"color: var(--brand-warning); font-weight: 600;\">discuss pricing</span> and schedule<br />site visits using exact<br />map locations."
+    },
+    "step3": {
+      "number": "03",
+      "label": "SECURE YOUR PROPERTY",
+      "content": "Keep more money in your pocket<br />by purchasing directly at developer<br />pricing without broker fees."
+    },
+    "mvp": {
+      "heading": "Be among the first to discover off-plan properties direct from developers",
+      "subheading": "Be first to access Bulgaria's newest off-plan developments."
+    }
+  },
+  "whatMakesDifferent": {
+    "heading": "What Makes Mr. imot Different",
+    "subheading": "Stop wasting time with broker games. Find properties the honest way.",
+    "features": {
+      "realLocations": {
+        "title": "See Real Locations",
+        "description": "No more \"close to parks, schools and bus stops\" lies. See exact project coordinates and visit the actual site yourself."
+      },
+      "noFakeListings": {
+        "title": "No Fake Listings",
+        "description": "End the \"we just sold that one\" runaround. Only verified developers can list genuine projects."
+      },
+      "zeroCommission": {
+        "title": "Zero Commission",
+        "description": "Keep your money. No broker fees, no platform charges, no annoying ads like it's the 2000s."
+      }
+    },
+    "cta": "Browse All Properties"
+  },
+  "developerJoin": {
+    "heading": "Ready to List Your Project?",
+    "description": "Join Bulgaria's fastest-growing platform for off-plan properties. ",
+    "descriptionBold": "Zero fees. Direct connections. Maximum exposure.",
+    "cta": "Register for Free",
+    "imageAlt": "Join Mr. Imot - Developer Registration"
+  },
+  "faq": {
+    "heading": "Frequently asked questions",
+    "subheading": "Everything you need to know about using Mr. imot Platform",
+    "question1": {
+      "question": "How can I find new apartments or houses in my city?",
+      "answer": "Open the map at mrimot.com/listings and explore projects in your city. Each project is posted by a verified developer, not a broker. You can view location details, visit sites in person, and contact developers directly. No registration is required to browse and explore all listings."
+    },
+    "question2": {
+      "question": "Are the projects on the platform reliable?",
+      "answer": "Every project is posted by a verified developer. Developers are accountable for the accuracy of their listing details. Our verification confirms the developer identity, ensuring you can trust the source while connecting directly with legitimate builders without middlemen."
+    },
+    "question3": {
+      "question": "What does it cost to list a project?",
+      "answer": "Listing projects is completely free. Verified developers can post an unlimited number of residential projects at no charge, helping them reach buyers directly without middlemen."
+    },
+    "question4": {
+      "question": "Do I need to register to browse listings?",
+      "answer": "No registration is required. You can search, explore, and view all projects completely open."
+    },
+    "question5": {
+      "question": "Does it cost money for buyers to use the platform?",
+      "answer": "Browsing listings, checking project details, and contacting developers directly is 100% free. Buyers can explore all verified developer projects without any fees, advertisements, or hidden costs."
+    },
+    "question6": {
+      "question": "What does it take to get verified as a developer?",
+      "answer": "Our team manually verifies developers through direct contact via phone or email. The process confirms your identity and role in the project, ensuring only genuine developers can post listings and that buyers see authentic sources."
+    },
+    "question7": {
+      "question": "Are only developers allowed on the platform?",
+      "answer": "Yes. Only verified real estate developers can post projects. Brokers or third parties are not allowed unless explicitly authorized by the developer, ensuring a trustworthy platform for buyers."
+    },
+    "question8": {
+      "question": "How long does verification take?",
+      "answer": "Verification is usually completed within 48 hours. We prioritize speed while ensuring accuracy, so developers can post projects quickly and buyers can access verified listings reliably."
+    },
+    "question9": {
+      "question": "How do I post a project after verification?",
+      "answer": "Once verified, developers gain access to a dashboard where they can post unlimited projects. Step-by-step video tutorials and support are available to assist with posting and managing listings effectively."
+    }
+  },
+  "navigation": {
+    "listings": "Listings",
+    "developers": "Developers", 
+    "aboutUs": "About Us",
+    "contact": "Contact",
+    "login": "Login",
+    "register": "Register",
+    "listYourProject": "List Your Project",
+    "developerDashboard": "Developer Dashboard",
+    "navigation": "Navigation",
+    "connectDirectly": "Connect directly with developers"
+  },
+  "footer": {
+    "description": "Mr. imot Platform launched in 2025 to simplify off-plan property discovery in Bulgaria. Making new construction accessible to everyone.",
+    "explore": "Explore",
+    "forDevelopers": "For Developers",
+    "social": "Social",
+    "partOfProdigy": "Part of Prodigy Corp",
+    "prodigyDescription": "Bulgaria's platform for new construction properties.",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service",
+    "cookiePolicy": "Cookie Policy",
+    "copyright": "© 2025 Mr. imot. All rights reserved."
+  },
+  "feedback": {
+    "button": "Feedback",
+    "title": "Send Feedback",
+    "introMessage": "Hey there - Mr imot is still in beta and we are working everyday to improve your experience! I would LOVE your feedback. What you type in this box will go directly to my inbox :)",
+    "selectPlaceholder": "Select an issue type",
+    "issueTypes": {
+      "bugReport": "Bug Report",
+      "featureRequest": "Feature Request",
+      "generalFeedback": "General Feedback", 
+      "performanceIssue": "Performance Issue",
+      "uiUxSuggestion": "UI/UX Suggestion",
+      "other": "Other"
+    },
+    "labels": {
+      "issueType": "Issue Type",
+      "message": "Message",
+      "email": "Email (Optional)"
+    },
+    "placeholders": {
+      "message": "Describe your feedback, bug report, or feature request...",
+      "email": "your@email.com"
+    },
+    "buttons": {
+      "send": "Send Feedback",
+      "sending": "Sending...",
+      "close": "Close"
+    }
+  },
+  "listings": {
+    "pageTitle": "Property Listings",
+    "pageDescription": "Discover off-plan properties across Bulgaria",
+    "filters": {
+      "city": "City",
+      "propertyType": "Property Type",
+      "all": "All",
+      "apartments": "Apartments",
+      "houses": "Houses",
+      "chooseCity": "Choose Your City",
+      "propertyTypeLabel": "Property Type"
+    },
+    "cities": {
+      "sofia": "Sofia",
+      "plovdiv": "Plovdiv", 
+      "varna": "Varna"
+    },
+    "resultsCount": "Showing {{count}} properties",
+    "propertiesFound": "{{count}} properties found",
+    "showMap": "Show Map",
+    "showList": "Show List",
+    "map": "Map",
+    "retry": "Retry",
+    "tryAgain": "Try Again",
+    "refreshPage": "Refresh Page",
+    "somethingWentWrong": "Something Went Wrong",
+    "unexpectedIssue": "We encountered an unexpected issue. Please try refreshing the page.",
+    "noPropertiesFound": "No Properties Found",
+    "noPropertiesMatchingFilters": "No properties match your current filters. Try adjusting your search criteria.",
+    "loadingProperties": "Loading Properties",
+    "findingProperties": "Finding the perfect properties for you...",
+    "loadingMap": "Loading map...",
+    "mapError": "Error loading map. Please try again.",
+    "mapToggle": "Toggle Map View",
+    "listToggle": "Toggle List View",
+    "viewDetails": "View Details",
+    "contactDeveloper": "Contact Developer",
+    "addToFavorites": "Add to Favorites",
+    "removeFromFavorites": "Remove from Favorites",
+    "unableToLoadProperties": "Unable to Load Properties",
+    "technicalDifficulties": "We're experiencing technical difficulties. Please check your internet connection and try again.",
+    "noPropertiesAvailable": "No Properties Available",
+    "noApartmentsFound": "No Apartments Found",
+    "noHousesFound": "No Houses Found",
+    "noPropertiesInCity": "We couldn't find any properties in {{city}} at the moment. New developments are added regularly, so check back soon!",
+    "noApartmentsInCity": "No apartment complexes are currently available in {{city}}. Consider expanding your search to include houses or check back later for new listings.",
+    "noHousesInCity": "No residential houses are currently available in {{city}}. Consider expanding your search to include apartments or check back later for new listings.",
+    "tryDifferentLocation": "💡 Try exploring a different location or adjusting your filters to discover more properties.",
+    "expandMap": "Expand map",
+    "collapseMap": "Collapse map",
+    "pageOf": "Page {{current}} of {{total}}",
+    "previousPage": "Previous page",
+    "nextPage": "Next page",
+    "allProperties": "All Properties"
+  }
+}

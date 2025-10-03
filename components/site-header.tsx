@@ -1,19 +1,25 @@
 "use client"
 
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { UserAuthNav } from "@/components/user-auth-nav"
 import { MobileNav } from "@/components/mobile-nav"
+import { LanguageSwitcher } from "@/components/language-switcher"
+import { useTranslations } from "@/lib/locale-context"
 import Image from "next/image"
 
 export function SiteHeader() {
+  const t = useTranslations('navigation')
+  const pathname = usePathname()
+  const isListingsPage = pathname.includes('/listings')
 
   return (
     <>
       
-      <header className="relative z-20 flex items-center justify-between p-6">
+      <header className={`relative z-20 flex items-center justify-between p-6 ${isListingsPage ? 'hidden xl:flex' : ''}`}>
         <div className="w-full flex items-center justify-between">
-        {/* Logo */}
-        <div className="flex items-center">
+        {/* Logo (always visible) */}
+        <div className={`flex items-center`}>
           <Link href="/" className="flex items-center space-x-3 group clickable cursor-pointer">
             <div className="relative w-14 h-14 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-200 border border-white/20 cursor-pointer">
               <Image
@@ -32,29 +38,34 @@ export function SiteHeader() {
         </div>
 
         {/* Desktop Navigation - Hidden on mobile */}
-        <nav className="hidden md:flex items-center space-x-3">
+        <nav className="hidden lg:flex items-center space-x-3">
           <a
             href="/listings"
             className="text-white/80 hover:text-white text-sm font-light px-4 py-3 rounded-full hover:bg-white/10 transition-all duration-200 cursor-pointer"
           >
-            Listings
+            {t.listings}
           </a>
           <a
             href="/developers"
             className="text-white/80 hover:text-white text-sm font-light px-4 py-3 rounded-full hover:bg-white/10 transition-all duration-200 cursor-pointer"
           >
-            Developers
+            {t.developers}
           </a>
           <a
             href="/about-us"
             className="text-white/80 hover:text-white text-sm font-light px-4 py-3 rounded-full hover:bg-white/10 transition-all duration-200 cursor-pointer"
           >
-            About Us
+            {t.aboutUs}
           </a>
         </nav>
 
-        {/* Right Side - Auth + Mobile Nav */}
+        {/* Right Side - Language Switcher + Auth + Mobile Nav */}
         <div className="flex items-center space-x-4">
+          {/* Language Switcher - Hidden on mobile */}
+          <div className="hidden md:block">
+            <LanguageSwitcher />
+          </div>
+          
           {/* Desktop Auth Navigation - Hidden on mobile */}
           <div className="hidden md:block">
             <UserAuthNav />

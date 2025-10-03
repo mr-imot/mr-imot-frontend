@@ -1,34 +1,40 @@
+"use client"
+
 import Link from "next/link"
 import Image from "next/image"
 import { Separator } from "@/components/ui/separator"
 import { Facebook, Twitter, Linkedin, Instagram } from "lucide-react"
+import { useTranslations } from "@/lib/locale-context"
 
 export function Footer() {
+  const t = useTranslations('footer')
+  const tNav = useTranslations('navigation')
+
   const navColumns = [
     {
-      title: "Explore",
+      title: t.explore,
       links: [
-        { href: "/listings", label: "Listings" },
-        { href: "/developers", label: "Developers" },
-        { href: "/about-us", label: "About Us" },
-        { href: "/contact", label: "Contact" },
+        { href: "/listings", label: tNav.listings },
+        { href: "/developers", label: tNav.developers },
+        { href: "/about-us", label: tNav.aboutUs },
+        { href: "/contact", label: tNav.contact },
       ],
     },
     {
-      title: "For Developers",
+      title: t.forDevelopers,
       links: [
-        { href: "/register?type=developer", label: "List Your Project" },
-        { href: "/developer/dashboard", label: "Developer Dashboard" },
-        { href: "/login", label: "Login" },
-        { href: "/register", label: "Register" },
+        { href: "/register?type=developer", label: tNav.listYourProject },
+        { href: "/developer/dashboard", label: tNav.developerDashboard },
+        { href: "/login", label: tNav.login },
+        { href: "/register", label: tNav.register },
       ],
     },
   ]
 
   const legalLinks = [
-  { href: "/privacy-policy.html", label: "Privacy Policy" },
-  { href: "/terms-of-service.html", label: "Terms of Service" },
-  { href: "/cookie-policy.html", label: "Cookie Policy" },
+  { href: "/privacy-policy.html", label: t.privacyPolicy },
+  { href: "/terms-of-service.html", label: t.termsOfService },
+  { href: "/cookie-policy.html", label: t.cookiePolicy },
 ]
 
   const socialLinks = [
@@ -50,7 +56,7 @@ export function Footer() {
               <span className="text-lg font-semibold">Mr imot</span>
             </div>
             <p className="mt-6 text-muted-foreground leading-relaxed">
-              Mr. imot Platform launched in 2025 to simplify off-plan property discovery in Bulgaria. Making new construction accessible to everyone.
+              {t.description}
             </p>
           </div>
 
@@ -73,7 +79,7 @@ export function Footer() {
           ))}
           {/* Social column */}
           <div className="lg:col-span-1">
-            <h3 className="text-base font-semibold mb-4">Social</h3>
+            <h3 className="text-base font-semibold mb-4">{t.social}</h3>
             <div className="flex items-center gap-3">
               {socialLinks.map((social, index) => (
                 <a
@@ -97,13 +103,13 @@ export function Footer() {
       <div>
         <div className="container px-4 md:px-6 py-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            {/* Copyright */}
+            {/* Left side: Copyright + Prodigy Corp */}
             <div className="text-center md:text-left flex items-center gap-4">
               <div>
                 <p className="text-muted-foreground text-sm">
-                  &copy; {new Date().getFullYear()} Mr imot. All rights reserved. | Part of Prodigy Corp
+                  {t.copyright} | {t.partOfProdigy}
                 </p>
-                <p className="text-muted-foreground/70 text-xs mt-1">Bulgaria's platform for new construction properties.</p>
+                <p className="text-muted-foreground/70 text-xs mt-1">{t.prodigyDescription}</p>
               </div>
               <Link
                 href="https://www.prodigycorp.io/"
@@ -121,7 +127,7 @@ export function Footer() {
               </Link>
             </div>
 
-            {/* Legal Links */}
+            {/* Right side: Legal Links */}
             <nav className="flex flex-wrap justify-center md:justify-end gap-x-8 gap-y-2 text-sm">
               {legalLinks.map((link, index) => (
                 <Link
