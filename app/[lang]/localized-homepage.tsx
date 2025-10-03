@@ -155,12 +155,12 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
       
-      <div className="min-h-screen relative">
+      <div className="min-h-[calc(var(--vh,1vh)*100)] relative" style={{ paddingTop: 'var(--header-height)' }}>
         {/* Etched Glass Background */}
         <EtchedGlassBackground />
       
       {/* Hero Section */}
-      <section className="hero-section">
+      <section className="hero-section" style={{ minHeight: 'calc(var(--vh,1vh)*100 - var(--header-height))' }}>
         <div className="container mx-auto px-3 xs:px-4 sm:px-6 md:px-8 w-full">
           <div className="hero-grid grid grid-rows-[auto_1fr] lg:grid-cols-2 lg:grid-rows-none gap-2 sm:gap-4 md:gap-6 lg:gap-8 items-center w-full">
             {/* Left Column - Content */}
