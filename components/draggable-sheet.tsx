@@ -64,11 +64,13 @@ export function DraggableSheet({
 
   // Touch events
   const handleTouchStart = (e: React.TouchEvent) => {
+    e.preventDefault()
     handleStart(e.touches[0].clientY)
   }
 
   const handleTouchMove = (e: TouchEvent) => {
     if (isDragging) {
+      e.preventDefault()
       handleMove(e.touches[0].clientY)
     }
   }
@@ -77,12 +79,22 @@ export function DraggableSheet({
 
   useEffect(() => {
     if (isDragging) {
+      // Lock page scroll while dragging
+      const html = document.documentElement
+      const body = document.body
+      const prevOverflow = body.style.overflow
+      const prevTouch = body.style.touchAction
+      body.style.overflow = 'hidden'
+      body.style.touchAction = 'none'
+
       window.addEventListener('mousemove', handleMouseMove)
       window.addEventListener('mouseup', handleMouseUp)
-      window.addEventListener('touchmove', handleTouchMove)
+      window.addEventListener('touchmove', handleTouchMove, { passive: false })
       window.addEventListener('touchend', handleTouchEnd)
 
       return () => {
+        body.style.overflow = prevOverflow
+        body.style.touchAction = prevTouch
         window.removeEventListener('mousemove', handleMouseMove)
         window.removeEventListener('mouseup', handleMouseUp)
         window.removeEventListener('touchmove', handleTouchMove)
@@ -101,7 +113,8 @@ export function DraggableSheet({
       style={{
         height: `${Math.min(height + dragOffset, 100)}vh`,
         touchAction: 'none',
-        paddingBottom: 'env(safe-area-inset-bottom)'
+        paddingBottom: 'env(safe-area-inset-bottom)',
+        overscrollBehavior: 'contain'
       }}
     >
       {/* Drag Handle */}

@@ -1073,7 +1073,7 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
 
             {/* Draggable bottom sheet with listings */}
             <DraggableSheet 
-              snapPoints={[30, 70, 95]}
+              snapPoints={[40, 70, 95]}
               initialSnap={0}
               onSnapChange={setMobileSheetSnap}
             >
