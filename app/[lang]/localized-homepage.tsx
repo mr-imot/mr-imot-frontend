@@ -16,43 +16,41 @@ import { Badge } from "@/components/ui/badge"
 import { EtchedGlassBackground } from "@/components/etched-glass-background"
 import { FaqSection } from "@/components/faq-section"
 
-// Dynamic header height calculation + robust viewport unit fallback
+// Dynamic header height + resilient viewport unit fallback (iOS, orientation, bfcache)
 const useHeaderHeight = () => {
   useEffect(() => {
-    const setVhUnit = () => {
-      const vh = window.innerHeight * 0.01
+    const computeAndSetVars = () => {
+      const viewportH = (window.visualViewport?.height ?? window.innerHeight)
+      const vh = viewportH * 0.01
       document.documentElement.style.setProperty('--vh', `${vh}px`)
+
+      const header = document.querySelector('header') as HTMLElement | null
+      const headerH = header?.offsetHeight ?? 0
+      document.documentElement.style.setProperty('--header-height', `${headerH}px`)
     }
 
-    const updateHeaderHeight = () => {
-      const header = document.querySelector('header')
-      if (header) {
-        const height = header.offsetHeight
-        document.documentElement.style.setProperty('--header-height', `${height}px`)
-        
-        // Debug: Log the calculated height for verification
-        console.log(`Header height calculated: ${height}px`)
-      }
-    }
+    // First paint + next frame (layout settled)
+    computeAndSetVars()
+    requestAnimationFrame(() => computeAndSetVars())
+    setTimeout(computeAndSetVars, 200)
 
-    // Initial calculation with a small delay to ensure DOM is ready
-    const timeoutId = setTimeout(() => {
-      setVhUnit()
-      updateHeaderHeight()
-    }, 100)
+    // Events that can change available height
+    const onResize = () => computeAndSetVars()
+    const onPageShow = () => computeAndSetVars()
+    window.addEventListener('resize', onResize)
+    window.addEventListener('orientationchange', onResize)
+    window.addEventListener('pageshow', onPageShow)
+    window.visualViewport?.addEventListener('resize', onResize)
 
-    // Recalculate on resize
-    window.addEventListener('resize', setVhUnit)
-    window.addEventListener('resize', updateHeaderHeight)
-    
-    // Recalculate when DOM changes
-    const observer = new MutationObserver(updateHeaderHeight)
-    observer.observe(document.body, { childList: true, subtree: true })
+    // React to DOM mutations that alter header size
+    const observer = new MutationObserver(computeAndSetVars)
+    observer.observe(document.body, { childList: true, subtree: true, attributes: true })
 
     return () => {
-      clearTimeout(timeoutId)
-      window.removeEventListener('resize', setVhUnit)
-      window.removeEventListener('resize', updateHeaderHeight)
+      window.removeEventListener('resize', onResize)
+      window.removeEventListener('orientationchange', onResize)
+      window.removeEventListener('pageshow', onPageShow)
+      window.visualViewport?.removeEventListener('resize', onResize)
       observer.disconnect()
     }
   }, [])
@@ -155,12 +153,17 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
       
-      <div className="min-h-[calc(var(--vh,1vh)*100)] relative" style={{ paddingTop: 'var(--header-height)' }}>
+      <div className="relative">
         {/* Etched Glass Background */}
         <EtchedGlassBackground />
       
-      {/* Hero Section */}
-      <section className="hero-section" style={{ minHeight: 'calc(var(--vh,1vh)*100 - var(--header-height))' }}>
+      {/* Hero Section - Exactly 100vh (perfectly above the fold) */}
+      <section className="hero-section" style={{ 
+        height: 'calc(var(--vh, 1vh) * 100)',
+        paddingTop: 'var(--header-height)',
+        display: 'flex',
+        alignItems: 'center'
+      }}>
         <div className="container mx-auto px-3 xs:px-4 sm:px-6 md:px-8 w-full">
           <div className="hero-grid grid grid-rows-[auto_1fr] lg:grid-cols-2 lg:grid-rows-none gap-2 sm:gap-4 md:gap-6 lg:gap-8 items-center w-full">
             {/* Left Column - Content */}

@@ -1069,7 +1069,7 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
             )}
             
             {/* Touch overlay so map doesn't steal gestures under sheet */}
-            <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40" style={{ height: '40vh' }} />
+            <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40" style={{ height: '50vh' }} />
 
             {/* Draggable bottom sheet with listings */}
             <DraggableSheet 
