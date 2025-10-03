@@ -128,11 +128,13 @@ export function MobileNav() {
   const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
   const t = useTranslations('navigation')
+  const locale = useLocale()
+  const href = (en: string, bg: string) => (locale === 'bg' ? `/bg/${bg}` : `/${en}`)
 
   const navItems = [
-    { href: "/listings", label: t.listings },
-    { href: "/developers", label: t.developers },
-    { href: "/about-us", label: t.aboutUs },
+    { href: href('listings', 'obiavi'), label: t.listings },
+    { href: href('developers', 'stroiteli'), label: t.developers },
+    { href: href('about-us', 'za-nas'), label: t.aboutUs },
   ]
 
   const handleLinkClick = () => {

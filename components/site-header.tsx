@@ -5,13 +5,18 @@ import { usePathname } from "next/navigation"
 import { UserAuthNav } from "@/components/user-auth-nav"
 import { MobileNav } from "@/components/mobile-nav"
 import { LanguageSwitcher } from "@/components/language-switcher"
-import { useTranslations } from "@/lib/locale-context"
+import { useTranslations, useLocale } from "@/lib/locale-context"
 import Image from "next/image"
 
 export function SiteHeader() {
   const t = useTranslations('navigation')
   const pathname = usePathname()
   const isListingsPage = pathname.includes('/listings')
+  const locale = useLocale()
+
+  const href = (en: string, bg: string) => {
+    return locale === 'bg' ? `/bg/${bg}` : `/${en}`
+  }
 
   return (
     <>
@@ -37,22 +42,22 @@ export function SiteHeader() {
           </Link>
         </div>
 
-        {/* Desktop Navigation - Hidden on mobile */}
-        <nav className="hidden lg:flex items-center space-x-3">
+        {/* Desktop Navigation - Visible from md and up */}
+        <nav className="hidden md:flex items-center space-x-3">
           <a
-            href="/listings"
+            href={href('listings', 'obiavi')}
             className="text-white/80 hover:text-white text-sm font-light px-4 py-3 rounded-full hover:bg-white/10 transition-all duration-200 cursor-pointer"
           >
             {t.listings}
           </a>
           <a
-            href="/developers"
+            href={href('developers', 'stroiteli')}
             className="text-white/80 hover:text-white text-sm font-light px-4 py-3 rounded-full hover:bg-white/10 transition-all duration-200 cursor-pointer"
           >
             {t.developers}
           </a>
           <a
-            href="/about-us"
+            href={href('about-us', 'za-nas')}
             className="text-white/80 hover:text-white text-sm font-light px-4 py-3 rounded-full hover:bg-white/10 transition-all duration-200 cursor-pointer"
           >
             {t.aboutUs}
