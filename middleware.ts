@@ -30,6 +30,14 @@ export function middleware(request) {
     return
   }
 
+  // If URL contains /en prefix, canonicalize to remove it
+  if (pathname === '/en' || pathname.startsWith('/en/')) {
+    const stripped = pathname.replace(/^\/en(?=\/|$)/, '') || '/'
+    const url = request.nextUrl.clone()
+    url.pathname = stripped
+    return NextResponse.redirect(url)
+  }
+
   // Check if there is any supported locale in the pathname
   const pathnameHasLocale = locales.some(
     (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
@@ -37,12 +45,20 @@ export function middleware(request) {
 
   if (pathnameHasLocale) return
 
-  // Redirect if there is no locale
+  // No locale in path: use language negotiation
   const locale = getLocale(request)
-  request.nextUrl.pathname = `/${locale}${pathname}`
-  // e.g. incoming request is /products
-  // The new URL is now /en/products
-  return NextResponse.redirect(request.nextUrl)
+
+  if (locale === 'en') {
+    // Serve English at the root without /en in the URL (rewrite internally)
+    const url = request.nextUrl.clone()
+    url.pathname = `/en${pathname}`
+    return NextResponse.rewrite(url)
+  }
+
+  // Non-default locale (bg) keeps explicit prefix for SEO
+  const url = request.nextUrl.clone()
+  url.pathname = `/${locale}${pathname}`
+  return NextResponse.redirect(url)
 }
 
 export const config = {
