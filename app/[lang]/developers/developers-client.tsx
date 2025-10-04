@@ -154,7 +154,7 @@ export default function DevelopersClient({ dict, lang }: DevelopersClientProps) 
 
                           {/* Action Button */}
                           <Button asChild className="w-full mt-auto">
-                            <Link href={`/${lang}/developers/${developer.id}`}>
+                            <Link href={`/${lang === 'bg' ? 'stroiteli' : 'developers'}/${developer.id}`}>
                               {dict.developers.viewProfile}
                               <ExternalLink className="w-4 h-4 ml-2" />
                             </Link>
