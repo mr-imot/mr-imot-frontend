@@ -4,29 +4,35 @@ import Link from "next/link"
 import Image from "next/image"
 import { Separator } from "@/components/ui/separator"
 import { Facebook, Twitter, Linkedin, Instagram } from "lucide-react"
-import { useTranslations } from "@/lib/locale-context"
+import { useTranslations, useLocale } from "@/lib/locale-context"
 
 export function Footer() {
   const t = useTranslations('footer')
   const tNav = useTranslations('navigation')
+  const locale = useLocale()
+
+  // Helper function to generate localized URLs
+  const href = (en: string, bg: string) => {
+    return locale === 'bg' ? `/bg/${bg}` : `/${en}`
+  }
 
   const navColumns = [
     {
       title: t.explore,
       links: [
-        { href: "/listings", label: tNav.listings },
-        { href: "/developers", label: tNav.developers },
-        { href: "/about-us", label: tNav.aboutUs },
-        { href: "/contact", label: tNav.contact },
+        { href: href('listings', 'obiavi'), label: tNav.listings },
+        { href: href('developers', 'stroiteli'), label: tNav.developers },
+        { href: href('about-us', 'za-nas'), label: tNav.aboutUs },
+        { href: href('contact', 'kontakt'), label: tNav.contact },
       ],
     },
     {
       title: t.forDevelopers,
       links: [
-        { href: "/register?type=developer", label: tNav.listYourProject },
-        { href: "/developer/dashboard", label: tNav.developerDashboard },
-        { href: "/login", label: tNav.login },
-        { href: "/register", label: tNav.register },
+        { href: href('register?type=developer', 'register?type=developer'), label: tNav.listYourProject },
+        { href: href('developer/dashboard', 'developer/dashboard'), label: tNav.developerDashboard },
+        { href: href('login', 'login'), label: tNav.login },
+        { href: href('register', 'register'), label: tNav.register },
       ],
     },
   ]

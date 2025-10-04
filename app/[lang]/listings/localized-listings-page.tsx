@@ -228,6 +228,90 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
   // Unified: Bounds-based API hook (works for both desktop and mobile)
   const { projects: apiProjects, loading, error } = useProjects(fetchParams)
   
+  // CHANGE 1a: Background cache refresh – fetchFreshData helper
+  // Fetches via city bounds + type, maps to PropertyData, and stores into global cache
+  const fetchFreshData = useCallback(async (): Promise<PropertyData[]> => {
+    const params = {
+      per_page: 100,
+      sw_lat: CITY_BOUNDS[selectedCity].sw_lat,
+      sw_lng: CITY_BOUNDS[selectedCity].sw_lng,
+      ne_lat: CITY_BOUNDS[selectedCity].ne_lat,
+      ne_lng: CITY_BOUNDS[selectedCity].ne_lng,
+      project_type:
+        propertyTypeFilter === 'all'
+          ? undefined
+          : propertyTypeFilter === 'apartments'
+            ? 'apartment_building'
+            : 'house_complex',
+    } as const
+
+    try {
+      const data: any = await getProjects(params)
+      const mapped: PropertyData[] = (data.projects || []).map((project: any) => ({
+        id: String(project.id),
+        slug: String(project.title || project.name || 'Project')
+          .toLowerCase()
+          .replace(/\s+/g, '-')
+          .replace(/[^a-z0-9-]/g, ''),
+        title: project.title || project.name || 'Project',
+        priceRange: project.price_label ? `${project.price_label}` : 'Price on request',
+        shortPrice: project.price_label || 'Request price',
+        location: project.neighborhood ? `${project.neighborhood}, ${project.city}` : project.city,
+        image: project.cover_image_url || '/placeholder.svg?height=300&width=400',
+        images: Array.isArray(project.images)
+          ? project.images.map((img: any) => img?.urls?.card || img?.image_url).filter(Boolean)
+          : [],
+        description: project.description || '',
+        lat: typeof project.latitude === 'number' ? project.latitude : 42.6977,
+        lng: typeof project.longitude === 'number' ? project.longitude : 23.3219,
+        color: `from-blue-500 to-blue-700`,
+        type: project.project_type === 'apartment_building' ? 'Apartment Complex' : 'Residential Houses',
+        status: 'Under Construction',
+        developer: project.developer?.company_name || 'Unknown Developer',
+        completionDate: project.expected_completion_date
+          ? new Date(project.expected_completion_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })
+          : 'TBD',
+        rating: 4.5 + Math.random() * 0.4,
+        reviews: Math.floor(Math.random() * 30) + 5,
+        features: project.amenities_list && project.amenities_list.length > 0 ? project.amenities_list : ['Modern Design', 'Quality Construction'],
+        originalPrice: undefined,
+      }))
+
+      // Populate global cache for this city/type
+      propertyCache.setCacheData(selectedCity, propertyTypeFilter, mapped)
+      return mapped
+    } catch (err) {
+      console.error('Failed to fetch fresh data:', err)
+      return []
+    }
+  }, [selectedCity, propertyTypeFilter])
+
+  // CHANGE 1b: checkCacheAndFetch – show cached immediately; start background refresh if needed
+  const checkCacheAndFetch = useCallback(async () => {
+    const cached = propertyCache.getCachedData(selectedCity, propertyTypeFilter)
+    if (cached && cached.length > 0) {
+      // Hydrate page-local cache from cached data for immediate UI
+      const local = new Map<string, PropertyData>()
+      cached.forEach((p) => local.set(String((p as any).id || p.id), p))
+      propertyCacheRef.current = local
+      setCacheVersion((v) => v + 1)
+
+      // Background refresh if stale – emits propertyCacheUpdated on completion
+      if (propertyCache.needsBackgroundRefresh(selectedCity, propertyTypeFilter)) {
+        propertyCache.startBackgroundRefresh(selectedCity, propertyTypeFilter, fetchFreshData)
+      }
+      return cached
+    }
+
+    // No cached data: fetch fresh and seed local cache
+    const fresh = await fetchFreshData()
+    const local = new Map<string, PropertyData>()
+    fresh.forEach((p) => local.set(String((p as any).id || p.id), p))
+    propertyCacheRef.current = local
+    setCacheVersion((v) => v + 1)
+    return fresh
+  }, [selectedCity, propertyTypeFilter, fetchFreshData])
+  
   // DESKTOP: Fetch properties for current map bounds (Airbnb-style)
   const fetchBoundsData = useCallback((bounds: google.maps.LatLngBounds, immediate = false) => {
     // Skip on mobile
@@ -269,6 +353,8 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
   // Debounced version for pan/zoom
   const debouncedBoundsUpdate = useCallback(
     debounce((bounds: google.maps.LatLngBounds) => {
+      // CHANGE 3: Bounds fetch gating – ensure we keep the willFetch vs cached tile branches inside fetchBoundsData
+      // and that setIsBoundsLoading(true) and setFetchParams({ per_page: 0 }) are used consistently.
       fetchBoundsData(bounds, false)
     }, 500),
     [fetchBoundsData]
@@ -301,6 +387,27 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
       setIsInitialLoading(false)
     }
   }, [apiProjects, loading])
+
+  // CHANGE 2: Subscribe to propertyCacheUpdated and merge only matching city/type
+  useEffect(() => {
+    const handleCacheUpdate = (event: Event) => {
+      const custom = event as CustomEvent<{ city: string; propertyType: string; data: PropertyData[] }>
+      const { city, propertyType, data } = custom.detail || ({} as any)
+      if (!city || !propertyType || !Array.isArray(data)) return
+      if (city !== selectedCity || propertyType !== propertyTypeFilter) return
+
+      const local = new Map<string, PropertyData>(propertyCacheRef.current)
+      data.forEach((p) => local.set(String((p as any).id || p.id), p))
+      propertyCacheRef.current = local
+      setCacheVersion((v) => v + 1)
+      setAriaLiveMessage(`Updated with ${data.length} properties`)
+    }
+
+    window.addEventListener('propertyCacheUpdated', handleCacheUpdate as EventListener)
+    return () => {
+      window.removeEventListener('propertyCacheUpdated', handleCacheUpdate as EventListener)
+    }
+  }, [selectedCity, propertyTypeFilter])
 
   // Initialize Google Maps like the homepage
   useEffect(() => {
@@ -517,13 +624,18 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
       if (bounds) {
         // Don't clear cache - keep previous city data
         setMapBounds(bounds)
-        
-        // Check cache will be handled by checkCacheAndFetch
-        // No need to manually trigger fetch here - the useEffect will handle it
+
+        // CHANGE 1c: Check cache and optionally start background refresh on city change
+        void checkCacheAndFetch()
       }
     }
     // Mobile: No cache reset needed - mobileFetchParams will trigger new fetch automatically
   }, [selectedCity])
+
+  // CHANGE 1d: Also re-check cache when property type changes (affects cache key)
+  useEffect(() => {
+    void checkCacheAndFetch()
+  }, [propertyTypeFilter])
 
   // Build filtered list - MOBILE & DESKTOP both use bounds-based filtering
   const filteredProperties = useMemo(() => {
@@ -653,12 +765,12 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
   // Update marker states when hover/selection changes
   useEffect(() => {
     if (markerManagerRef.current) {
-      // First update the config with current hover/selection state
+      // CHANGE 4a: Marker update order – update config first with current hover/selection state
       markerManagerRef.current.updateConfig({
         hoveredPropertyId,
         selectedPropertyId
       })
-      // Then update marker states with the new config
+      // CHANGE 4b: Then update marker states with the new config
       markerManagerRef.current.updateMarkerStates()
     }
   }, [hoveredPropertyId, selectedPropertyId])
@@ -1117,6 +1229,7 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
                         }}
                         onCardHover={() => {}}
                         priority={index < 4}
+                        priceTranslations={dict.price}
                       />
                     ))}
                   </div>
@@ -1133,6 +1246,7 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
                   position={{ bottom: 0, left: 0, right: 0 }}
                   floating={true}
                   forceMobile={true}
+                  priceTranslations={dict.price}
                 />
               </div>
             )}
@@ -1287,8 +1401,7 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
                     <div 
                       key={property.id} 
                       data-prop-id={property.id} 
-                      className="w-full animate-in fade-in-0 slide-in-from-bottom-4 duration-500"
-                      style={{ animationDelay: `${index * 100}ms` }}
+                      className="w-full"
                     >
                       <ListingCard
                         listing={propertyToListing(property)}
@@ -1296,6 +1409,7 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
                         onCardClick={() => handleCardClick(property)}
                         onCardHover={(id) => setDebouncedHover(id, 100)}
                         priority={index < 6} // Priority for first 6 cards (2 rows on desktop)
+                        priceTranslations={dict.price}
                       />
                     </div>
                   ))}
@@ -1344,6 +1458,7 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
             property={transformToPropertyMapData(selectedProperty)}
             onClose={() => setSelectedPropertyId(null)}
             position={cardPosition}
+            priceTranslations={dict.price}
           />
         )}
       </div>

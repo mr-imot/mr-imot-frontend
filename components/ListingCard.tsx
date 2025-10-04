@@ -3,6 +3,7 @@ import Image from 'next/image'
 import { cn } from '@/lib/utils'
 import { Home, Building, ExternalLink } from 'lucide-react'
 import { recordProjectView } from '@/lib/api'
+import { translatePrice, PriceTranslations } from '@/lib/price-translator'
 
 export interface Listing {
   id: string
@@ -25,6 +26,7 @@ interface ListingCardProps {
   onCardClick?: (listing: Listing) => void
   onCardHover?: (listingId: string | null) => void
   priority?: boolean
+  priceTranslations?: PriceTranslations
 }
 
 // Format price using Intl.NumberFormat
@@ -35,7 +37,7 @@ function summarize(text: string | null | undefined, max = 100) {
   return normalized.slice(0, max - 1) + '…'
 }
 
-export function ListingCard({ listing, isActive, onCardClick, onCardHover, priority = false }: ListingCardProps) {
+export function ListingCard({ listing, isActive, onCardClick, onCardHover, priority = false, priceTranslations }: ListingCardProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [hasTrackedView, setHasTrackedView] = useState(false)
   const hasMultipleImages = listing.images?.length > 1
@@ -269,7 +271,10 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover, prior
          {/* Price - Fixed height, max 1 line */}
          <div className="h-6 flex items-center">
            <span className="text-gray-900 font-semibold text-[15px] text-left">
-             {listing.priceLabel || (listing.price?.amount && listing.price?.currency ? `${listing.price.amount} ${listing.price.currency}` : 'Request price')}
+             {priceTranslations 
+               ? translatePrice(listing.priceLabel, priceTranslations)
+               : (listing.price?.amount && listing.price?.currency ? `${listing.price.amount} ${listing.price.currency}` : 'Request price')
+             }
            </span>
          </div>
        </div>

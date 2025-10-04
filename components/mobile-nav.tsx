@@ -13,6 +13,12 @@ import { cn } from "@/lib/utils"
 // Auth Actions Component for Mobile
 function AuthActionsSection({ onLinkClick, t }: { onLinkClick: () => void; t: any }) {
   const { user, isAuthenticated, logout, getDashboardUrl } = useAuth();
+  const locale = useLocale();
+
+  // Helper function to generate localized URLs
+  const href = (en: string, bg: string) => {
+    return locale === 'bg' ? `/bg/${bg}` : `/${en}`
+  }
 
   if (isAuthenticated && user) {
     return (
@@ -59,7 +65,7 @@ function AuthActionsSection({ onLinkClick, t }: { onLinkClick: () => void; t: an
   return (
     <div className="flex flex-col space-y-4">
       <Link
-        href="/login"
+        href={href('login', 'login')}
         onClick={onLinkClick}
         className="text-lg font-medium text-foreground/80 hover:text-foreground py-3 px-4 rounded-lg hover:bg-muted transition-all duration-200"
       >
@@ -69,7 +75,7 @@ function AuthActionsSection({ onLinkClick, t }: { onLinkClick: () => void; t: an
         asChild
         className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 h-12 rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
       >
-        <Link href="/register?type=developer" onClick={onLinkClick}>
+        <Link href={href('register?type=developer', 'register?type=developer')} onClick={onLinkClick}>
           {t.listYourProject}
         </Link>
       </Button>
@@ -89,9 +95,41 @@ function MobileLanguageSwitcher({ onLinkClick }: { onLinkClick: () => void }) {
   ]
 
   const handleLanguageChange = (newLocale: string) => {
-    const pathWithoutLocale = pathname.replace(`/${currentLocale}`, '') || '/'
-    const newPath = `/${newLocale}${pathWithoutLocale}`
+    // Remove existing locale segment if present
+    let pathWithoutLocale = pathname
+      .replace(/^\/en(?=\/|$)/, '')
+      .replace(/^\/bg(?=\/|$)/, '') || '/'
+
+    // Handle pretty URL mapping for Bulgarian routes
+    if (newLocale === 'en') {
+      // Map Bulgarian pretty URLs to English canonical paths
+      const prettyUrlMap: Record<string, string> = {
+        '/obiavi': '/listings',
+        '/stroiteli': '/developers', 
+        '/za-nas': '/about-us'
+      }
+      
+      if (prettyUrlMap[pathWithoutLocale]) {
+        pathWithoutLocale = prettyUrlMap[pathWithoutLocale]
+      }
+    } else if (newLocale === 'bg') {
+      // Map English canonical paths to Bulgarian pretty URLs
+      const canonicalUrlMap: Record<string, string> = {
+        '/listings': '/obiavi',
+        '/developers': '/stroiteli',
+        '/about-us': '/za-nas'
+      }
+      
+      if (canonicalUrlMap[pathWithoutLocale]) {
+        pathWithoutLocale = canonicalUrlMap[pathWithoutLocale]
+      }
+    }
+
+    // For English, navigate to root; for others, prefix
+    const newPath = newLocale === 'en' ? pathWithoutLocale : `/${newLocale}${pathWithoutLocale}`
     router.push(newPath)
+    // Persist preference so middleware honors it (standardized to NEXT_LOCALE)
+    document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=${60 * 60 * 24 * 365}`
     onLinkClick()
   }
 

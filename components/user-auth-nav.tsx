@@ -3,12 +3,18 @@
 import Link from "next/link"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { useAuth } from "@/lib/auth-context"
-import { useTranslations } from "@/lib/locale-context"
+import { useTranslations, useLocale } from "@/lib/locale-context"
 import { LogOut } from "lucide-react"
 
 export function UserAuthNav() {
   const { user, isAuthenticated, isLoading, logout, getDashboardUrl } = useAuth();
   const t = useTranslations('navigation');
+  const locale = useLocale();
+
+  // Helper function to generate localized URLs
+  const href = (en: string, bg: string) => {
+    return locale === 'bg' ? `/bg/${bg}` : `/${en}`
+  }
 
   if (isLoading) {
     return (
@@ -57,7 +63,7 @@ export function UserAuthNav() {
 
   // Not authenticated - show the branded login button
   return (
-    <Link href="/login">
+    <Link href={href('login', 'login')}>
       <button className="group relative overflow-hidden px-6 py-2 rounded-full bg-white text-black font-normal text-xs transition-colors duration-300 hover:bg-white/90 cursor-pointer h-8 flex items-center justify-between w-24">
         <span className="transition-transform duration-300 ease-out group-hover:-translate-x-1 cursor-pointer">
           {t.login}

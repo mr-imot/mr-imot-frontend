@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { X, Phone, Globe } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { recordProjectView, recordProjectPhoneClick, recordProjectWebsiteClick } from '@/lib/api'
+import { translatePrice, PriceTranslations } from '@/lib/price-translator'
 
 interface PropertyData {
   id: string | number
@@ -35,6 +36,7 @@ interface PropertyMapCardProps {
   }
   floating?: boolean
   forceMobile?: boolean
+  priceTranslations?: PriceTranslations
 }
 
 export function PropertyMapCard({ 
@@ -43,7 +45,8 @@ export function PropertyMapCard({
   className,
   position,
   floating = false,
-  forceMobile = false
+  forceMobile = false,
+  priceTranslations
 }: PropertyMapCardProps) {
   const [isClosing, setIsClosing] = useState(false)
   const [hasTrackedView, setHasTrackedView] = useState(false)
@@ -107,6 +110,11 @@ export function PropertyMapCard({
   }
 
   const formatPrice = () => {
+    if (priceTranslations) {
+      return translatePrice(property.priceLabel, priceTranslations)
+    }
+    
+    // Fallback to original logic if no translations provided
     if (property.priceLabel) {
       const isRequest = /request/i.test(property.priceLabel)
       if (isRequest) return 'Request price'

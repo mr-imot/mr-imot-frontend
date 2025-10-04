@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
+import { useLocale } from "@/lib/locale-context"
 import {
   NavigationMenu,
   NavigationMenuList,
@@ -13,11 +14,17 @@ import {
 
 export function MainNav() {
   const pathname = usePathname()
+  const locale = useLocale()
+
+  // Helper function to generate localized URLs
+  const href = (en: string, bg: string) => {
+    return locale === 'bg' ? `/bg/${bg}` : `/${en}`
+  }
 
   const navItems = [
-    { href: "/listings", label: "Listings" },
-    { href: "/developers", label: "Developers" },
-    { href: "/about-us", label: "About Us" },
+    { href: href('listings', 'obiavi'), label: "Listings" },
+    { href: href('developers', 'stroiteli'), label: "Developers" },
+    { href: href('about-us', 'za-nas'), label: "About Us" },
   ]
 
   return (
