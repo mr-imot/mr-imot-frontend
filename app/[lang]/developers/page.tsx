@@ -8,6 +8,7 @@ interface DevelopersPageProps {
 }
 
 export default async function DevelopersPage({ params }: DevelopersPageProps) {
-  const dict = await getDictionary(params.lang)
-  return <DevelopersClient dict={dict} lang={params.lang} />
+  const { lang } = await params
+  const dict = await getDictionary(lang)
+  return <DevelopersClient dict={dict} lang={lang} />
 }
