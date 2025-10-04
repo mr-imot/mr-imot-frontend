@@ -1,5 +1,5 @@
 import { getDictionary } from '../dictionaries'
-import { LocalizedAboutPage } from './localized-about-page'
+import AboutClient from './about-client'
 
 interface AboutPageProps {
   params: {
@@ -8,7 +8,8 @@ interface AboutPageProps {
 }
 
 export default async function AboutPage({ params }: AboutPageProps) {
-  const dict = await getDictionary(params.lang)
-  
-  return <LocalizedAboutPage dict={dict} lang={params.lang} />
+  const { lang } = await params
+  const dict = await getDictionary(lang)
+
+  return <AboutClient dict={dict} lang={lang} />
 }

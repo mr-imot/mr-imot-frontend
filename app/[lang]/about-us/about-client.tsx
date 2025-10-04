@@ -1,41 +1,56 @@
+"use client"
+
 import Image from "next/image"
+import Link from "next/link"
 import { CheckCircle, Users, Shield, Zap, Heart, Target } from "lucide-react"
 import { ScrollAnimationWrapper } from "@/components/scroll-animation-wrapper"
 import { AngledSeparator } from "@/components/angled-separator"
 import { Button } from "@/components/ui/button"
+import { useLocale } from "@/lib/locale-context"
 
-export default function AboutUsPage() {
+interface AboutClientProps {
+  dict: any
+  lang: 'en' | 'bg'
+}
+
+export default function AboutClient({ dict, lang }: AboutClientProps) {
+  const locale = useLocale()
+
+  // Helper function to generate localized URLs
+  const href = (en: string, bg: string) => {
+    return locale === 'bg' ? `/bg/${bg}` : `/${en}`
+  }
+
   const values = [
     {
       icon: Shield,
-      title: "Trust & Transparency",
-      description: "Every listing is verified and every developer is authenticated to ensure complete transparency.",
+      title: dict.about?.trustTransparency || "Trust & Transparency",
+      description: dict.about?.trustTransparencyDesc || "Every listing is verified and every developer is authenticated to ensure complete transparency.",
     },
     {
       icon: Users,
-      title: "Direct Connection",
-      description: "We eliminate intermediaries, connecting buyers directly with developers for honest communication.",
+      title: dict.about?.directConnection || "Direct Connection",
+      description: dict.about?.directConnectionDesc || "We eliminate intermediaries, connecting buyers directly with developers for honest communication.",
     },
     {
       icon: Zap,
-      title: "Innovation",
-      description: "Leveraging cutting-edge technology to make real estate discovery simple and efficient.",
+      title: dict.about?.innovation || "Innovation",
+      description: dict.about?.innovationDesc || "Leveraging cutting-edge technology to make real estate discovery simple and efficient.",
     },
     {
       icon: Heart,
-      title: "Customer First",
-      description: "Your success is our success. We're committed to providing exceptional service at every step.",
+      title: dict.about?.customerFirst || "Customer First",
+      description: dict.about?.customerFirstDesc || "Your success is our success. We're committed to providing exceptional service at every step.",
     },
   ]
 
-
   const benefits = [
-    "Direct access to developers, no brokers involved",
-    "100% verified listings of projects under construction",
-    "Transparent information and direct communication",
-    "Save on commissions and avoid fake listings",
-    "User-friendly platform with powerful search and map features",
-    "Real-time project updates and progress tracking",
+    dict.about?.directAccess || "Direct access to developers, no brokers involved",
+    dict.about?.verifiedListings || "100% verified listings of projects under construction",
+    dict.about?.transparentInfo || "Transparent information and direct communication",
+    dict.about?.saveCommissions || "Save on commissions and avoid fake listings",
+    dict.about?.userFriendly || "User-friendly platform with powerful search and map features",
+    dict.about?.realtimeUpdates || "Real-time project updates and progress tracking",
   ]
 
   return (
@@ -60,13 +75,13 @@ export default function AboutUsPage() {
             <div className="text-center max-w-4xl mx-auto">
               <div className="inline-flex items-center gap-2 bg-white text-[#111827] px-4 py-2 rounded-full text-sm font-semibold mb-6 shadow-md border border-[#e5e7eb]">
                 <Target className="w-4 h-4" />
-                Our Story
+                {dict.about?.ourStory || "Our Story"}
               </div>
               <h1 className="text-4xl md:text-6xl font-bold text-[#111827] mb-6 leading-tight">
-                About <span className="text-[#111827]">Mr imot</span>
+                {dict.about?.pageTitle || "About"} <span className="text-[#111827]">Mr imot</span>
               </h1>
               <p className="text-xl text-[#374151] leading-relaxed">
-                Connecting you directly with the future of real estate through innovation, transparency, and trust.
+                {dict.about?.storyDescription || "Connecting you directly with the future of real estate through innovation, transparency, and trust."}
               </p>
             </div>
           </ScrollAnimationWrapper>
@@ -81,19 +96,16 @@ export default function AboutUsPage() {
             <ScrollAnimationWrapper>
               <div>
                 <div className="inline-flex items-center gap-2 bg-white text-[#111827] px-3 py-1 rounded-full text-sm font-semibold mb-4 shadow-md border border-[#e5e7eb]">
-                  Mission
+                  {dict.about?.ourMission || "Mission"}
                 </div>
                 <h2 className="text-3xl md:text-4xl font-bold text-[#111827] mb-6">
-                  Revolutionizing Real Estate
+                  {dict.about?.revolutionizing || "Revolutionizing Real Estate"}
                 </h2>
                 <p className="text-lg text-[#374151] leading-relaxed mb-6">
-                  At Mr imot, our mission is to revolutionize the real estate market by creating a transparent and direct
-                  connection between property buyers and real estate developers. We believe in cutting out unnecessary
-                  intermediaries, reducing costs, and providing direct access to verified, under-construction projects.
+                  {dict.about?.missionDescription || "At Mr imot, our mission is to revolutionize the real estate market by creating a transparent and direct connection between property buyers and real estate developers. We believe in cutting out unnecessary intermediaries, reducing costs, and providing direct access to verified, under-construction projects."}
                 </p>
                 <p className="text-lg text-[#374151] leading-relaxed">
-                  We empower buyers to make informed decisions and help developers showcase their work efficiently to a
-                  targeted audience.
+                  {dict.about?.missionDescription2 || "We empower buyers to make informed decisions and help developers showcase their work efficiently to a targeted audience."}
                 </p>
               </div>
             </ScrollAnimationWrapper>
@@ -103,7 +115,7 @@ export default function AboutUsPage() {
                 <div className="relative bg-white p-2 rounded-2xl shadow-xl">
                   <Image
                     src="https://ik.imagekit.io/ts59gf2ul/about-us/revolutionizing-real-estate-mr-imot.png?updatedAt=1759254011823"
-                    alt="Our Mission - Modern Construction"
+                    alt={dict.about?.missionImageAlt || "Our Mission - Modern Construction"}
                     width={600}
                     height={400}
                     className="rounded-xl w-full h-80 object-cover"
@@ -120,7 +132,7 @@ export default function AboutUsPage() {
                 <div className="relative bg-white p-2 rounded-2xl shadow-xl">
                   <Image
                     src="https://ik.imagekit.io/ts59gf2ul/about-us/building-tomorrows-marketplace-mr-imot.png?updatedAt=1759254011857"
-                    alt="Our Vision - Future of Real Estate"
+                    alt={dict.about?.visionImageAlt || "Our Vision - Future of Real Estate"}
                     width={600}
                     height={400}
                     className="rounded-xl w-full h-80 object-cover"
@@ -131,19 +143,16 @@ export default function AboutUsPage() {
             <ScrollAnimationWrapper delay={0.2}>
               <div className="order-1 lg:order-2">
                 <div className="inline-flex items-center gap-2 bg-white text-[#111827] px-3 py-1 rounded-full text-sm font-semibold mb-4 shadow-md border border-[#e5e7eb]">
-                  Vision
+                  {dict.about?.vision || "Vision"}
                 </div>
                 <h2 className="text-3xl md:text-4xl font-bold text-[#111827] mb-6">
-                  Building Tomorrow's Marketplace
+                  {dict.about?.buildingTomorrow || "Building Tomorrow's Marketplace"}
                 </h2>
                 <p className="text-lg text-[#374151] leading-relaxed mb-6">
-                  We envision a world where finding and investing in new real estate is simple, direct, and trustworthy.
-                  Mr imot aims to be the go-to platform for anyone seeking new construction properties and for developers
-                  looking to list their projects with confidence and ease.
+                  {dict.about?.visionDescription || "We envision a world where finding and investing in new real estate is simple, direct, and trustworthy. Mr imot aims to be the go-to platform for anyone seeking new construction properties and for developers looking to list their projects with confidence and ease."}
                 </p>
                 <p className="text-lg text-[#374151] leading-relaxed">
-                  We are committed to fostering a community where quality projects meet genuine demand, creating value
-                  for everyone involved.
+                  {dict.about?.visionDescription2 || "We are committed to fostering a community where quality projects meet genuine demand, creating value for everyone involved."}
                 </p>
               </div>
             </ScrollAnimationWrapper>
@@ -151,18 +160,17 @@ export default function AboutUsPage() {
         </div>
       </section>
 
-
       {/* Values Section */}
       <section className="py-20 bg-gradient-to-br from-[#f0f4f6] to-[#e8edf0]">
         <div className="container">
           <ScrollAnimationWrapper>
             <div className="text-center mb-16">
               <div className="inline-flex items-center gap-2 bg-white text-[#111827] px-4 py-2 rounded-full text-sm font-semibold mb-6 shadow-md border border-[#e5e7eb]">
-                Our Values
+                {dict.about?.ourValues || "Our Values"}
               </div>
-              <h2 className="text-3xl md:text-4xl font-bold text-[#111827] mb-4">What Drives Us Forward</h2>
+              <h2 className="text-3xl md:text-4xl font-bold text-[#111827] mb-4">{dict.about?.whatDrivesUs || "What Drives Us Forward"}</h2>
               <p className="text-xl text-[#374151] max-w-3xl mx-auto">
-                Our core values guide every decision we make and every feature we build
+                {dict.about?.valuesDescription || "Our core values guide every decision we make and every feature we build"}
               </p>
             </div>
           </ScrollAnimationWrapper>
@@ -189,14 +197,13 @@ export default function AboutUsPage() {
             <ScrollAnimationWrapper>
               <div>
                 <div className="inline-flex items-center gap-2 bg-white text-[#111827] px-4 py-2 rounded-full text-sm font-semibold mb-6 shadow-md border border-[#e5e7eb]">
-                  Why Choose Mr imot?
+                  {dict.about?.whyChooseUs || "Why Choose Mr imot?"}
                 </div>
                 <h2 className="text-3xl md:text-4xl font-bold text-[#111827] mb-6">
-                  Your Success is Our Priority
+                  {dict.about?.successPriority || "Your Success is Our Priority"}
                 </h2>
                 <p className="text-lg text-[#374151] leading-relaxed mb-8">
-                  We've built Mr imot with one goal in mind: making real estate investment simple, transparent, and
-                  profitable for everyone involved.
+                  {dict.about?.builtWithGoal || "We've built Mr imot with one goal in mind: making real estate investment simple, transparent, and profitable for everyone involved."}
                 </p>
                 <div className="space-y-4">
                   {benefits.map((benefit, index) => (
@@ -214,7 +221,7 @@ export default function AboutUsPage() {
                 <div className="relative bg-white p-3 rounded-3xl shadow-2xl">
                   <Image
                     src="https://ik.imagekit.io/ts59gf2ul/about-us/couple-mr-imot-success.png?updatedAt=1759254011838"
-                    alt="Happy customers with their new home"
+                    alt={dict.about?.successImageAlt || "Happy customers with their new home"}
                     width={600}
                     height={500}
                     className="rounded-2xl w-full h-96 object-cover"
@@ -243,9 +250,9 @@ export default function AboutUsPage() {
         <div className="container relative">
           <ScrollAnimationWrapper>
             <div className="text-center max-w-3xl mx-auto">
-              <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to Find Your Perfect Property?</h2>
+              <h2 className="text-3xl md:text-4xl font-bold mb-6">{dict.about?.readyToFind || "Ready to Find Your Perfect Property?"}</h2>
               <p className="text-xl text-white/90 mb-8">
-                Don't wait! Start exploring verified projects and connect directly with developers today.
+                {dict.about?.dontWait || "Don't wait! Start exploring verified projects and connect directly with developers today."}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button
@@ -253,7 +260,7 @@ export default function AboutUsPage() {
                   size="lg"
                   className="bg-white text-[#111827] hover:bg-[#f3f4f6] px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
                 >
-                  <a href="/listings">Browse Properties</a>
+                  <Link href={href('listings', 'obiavi')}>{dict.about?.browseProperties || "Browse Properties"}</Link>
                 </Button>
                 <Button
                   asChild
@@ -261,7 +268,7 @@ export default function AboutUsPage() {
                   size="lg"
                   className="border-2 border-white text-white hover:bg-white hover:text-[#111827] px-8 py-4 text-lg font-semibold rounded-xl transition-all duration-300 bg-transparent"
                 >
-                  <a href="/developers">Meet Developers</a>
+                  <Link href={href('developers', 'stroiteli')}>{dict.about?.meetDevelopers || "Meet Developers"}</Link>
                 </Button>
               </div>
             </div>
