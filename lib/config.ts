@@ -30,10 +30,10 @@ export const config = {
 
 
     // Enable backend health monitoring
-    healthChecking: true, // Enable in all environments
+    healthChecking: false, // Disabled - causing false positives in production
 
     // Enable global maintenance wrapper (protects entire app)
-    globalMaintenanceMode: true,
+    globalMaintenanceMode: false, // Disabled - use per-page error handling instead
   },
 
   // UI Configuration

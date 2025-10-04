@@ -11,11 +11,16 @@ interface GlobalMaintenanceWrapperProps {
 
 export const GlobalMaintenanceWrapper: React.FC<GlobalMaintenanceWrapperProps> = ({ children }) => {
   const [isBackendDown, setIsBackendDown] = useState(false)
-  const [isChecking, setIsChecking] = useState(true)
+  const [isChecking, setIsChecking] = useState(!config.features.globalMaintenanceMode) // Skip checking if disabled
   const router = useRouter()
 
   // Check if we should show maintenance mode
   const shouldShowMaintenance = () => {
+    // If global maintenance mode is disabled, never show it
+    if (!config.features.globalMaintenanceMode) {
+      return false
+    }
+
     // Explicit maintenance mode
     if (config.features.maintenanceMode) {
       return true
@@ -66,7 +71,10 @@ export const GlobalMaintenanceWrapper: React.FC<GlobalMaintenanceWrapperProps> =
 
   // Check on mount only - no automatic reloading
   useEffect(() => {
-    checkBackendHealth()
+    // Only check if global maintenance mode is enabled
+    if (config.features.globalMaintenanceMode) {
+      checkBackendHealth()
+    }
 
     // Only check again when user manually retries
     // No automatic polling to prevent UX interruptions
