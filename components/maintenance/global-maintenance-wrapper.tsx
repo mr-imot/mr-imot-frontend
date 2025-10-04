@@ -11,7 +11,7 @@ interface GlobalMaintenanceWrapperProps {
 
 export const GlobalMaintenanceWrapper: React.FC<GlobalMaintenanceWrapperProps> = ({ children }) => {
   const [isBackendDown, setIsBackendDown] = useState(false)
-  const [isChecking, setIsChecking] = useState(!config.features.globalMaintenanceMode) // Skip checking if disabled
+  const [isChecking, setIsChecking] = useState(config.features.globalMaintenanceMode) // Only check if enabled
   const router = useRouter()
 
   // Check if we should show maintenance mode
@@ -37,32 +37,67 @@ export const GlobalMaintenanceWrapper: React.FC<GlobalMaintenanceWrapperProps> =
       
       // Check backend health using dedicated health endpoint
       let healthFailed = false
+      let retryCount = 0
+      const maxRetries = 2
+      const timeout = 5000 // Increased to 5 seconds for production cold starts
 
-      try {
-        const healthStatus = await fetch(`/health`, { signal: AbortSignal.timeout(3000) })
-        healthFailed = !healthStatus.ok || healthStatus.status >= 500
-      } catch {
-        healthFailed = true
+      while (retryCount < maxRetries && !healthFailed) {
+        try {
+          const controller = new AbortController()
+          const timeoutId = setTimeout(() => controller.abort(), timeout)
+          
+          const healthStatus = await fetch(`/health`, { 
+            signal: controller.signal,
+            cache: 'no-store' // Prevent caching of health checks
+          })
+          
+          clearTimeout(timeoutId)
+          
+          // Only consider 500+ errors as failures, not 404 or other client errors
+          healthFailed = healthStatus.status >= 500
+          
+          if (config.features.debugLogging) {
+            console.log(`Health check attempt ${retryCount + 1}:`, healthStatus.status)
+          }
+          
+          // If check succeeded (any 2xx, 3xx, 4xx response), break the loop
+          if (healthStatus.status < 500) {
+            break
+          }
+        } catch (err: any) {
+          // Only retry on timeout/network errors, not on HTTP errors
+          if (err.name === 'AbortError' || err.message?.includes('fetch')) {
+            retryCount++
+            if (retryCount < maxRetries) {
+              // Wait before retrying
+              await new Promise(resolve => setTimeout(resolve, 1000))
+            } else {
+              healthFailed = true
+            }
+          } else {
+            // Other errors (like CORS) might mean backend is responding
+            healthFailed = false
+            break
+          }
+        }
       }
 
-      const allFailed = healthFailed
-
-      if (allFailed) {
+      if (healthFailed) {
         setIsBackendDown(true)
         if (config.features.debugLogging) {
-          console.warn('🚨 Complete backend failure detected - showing global maintenance page')
+          console.warn('🚨 Backend appears to be down after retries - showing maintenance page')
         }
       } else {
         setIsBackendDown(false)
         if (config.features.debugLogging) {
-          console.info('✅ Backend is responsive - normal operation')
+          console.info('✅ Backend is responsive or health check passed - normal operation')
         }
       }
     } catch (error) {
-      // Complete network failure
-      setIsBackendDown(true)
+      // Unexpected error - be conservative and allow the app to load
+      setIsBackendDown(false)
       if (config.features.debugLogging) {
-        console.warn('🚨 Network failure detected - showing global maintenance page', error)
+        console.warn('⚠️ Health check error, defaulting to allow app load:', error)
       }
     } finally {
       setIsChecking(false)

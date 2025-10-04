@@ -132,8 +132,9 @@ export function middleware(request: VercelRequest) {
   }
 
   // 2. Check Vercel geo header (IP-based detection)
+  // Note: request.geo might be undefined during cold starts or in preview deployments
   const country = request.geo?.country?.toLowerCase()
-  if (country === 'bg') {
+  if (country && country === 'bg') {
     return NextResponse.redirect(new URL(`/bg${pathname}`, request.url))
   }
 
