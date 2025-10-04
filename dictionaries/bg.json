@@ -316,5 +316,32 @@
     "officeVisitCta": "Посетете нашия офис, за да обсъдите инвестицията си и да получите персонализирана помощ.",
     "addressNotAvailable": "Адресът не е наличен",
     "getDirections": "Упътване до офиса"
+  },
+  "login": {
+    "welcomeBack": "Добре дошли отново",
+    "signInToAccount": "Влезте в профила си на Mr imot строител",
+    "emailAddress": "Имейл адрес",
+    "password": "Парола",
+    "forgotPassword": "Забравихте паролата?",
+    "signIn": "Вход",
+    "signingIn": "Влизате...",
+    "newToMrImot": "Нови в Mr imot?",
+    "createAccount": "Създайте профил",
+    "bySigningIn": "С влизането се съгласявате с нашите",
+    "termsOfService": "Условия за ползване",
+    "and": "и",
+    "privacyPolicy": "Политика за поверителност",
+    "loadingSignInForm": "Зареждане на формата за вход...",
+    "fillAllFields": "Моля, попълнете всички полета",
+    "loginFailed": "Входът неуспешен",
+    "emailVerificationRequired": "Изисква се верификация на имейла",
+    "resendEmail": "Изпрати отново имейл",
+    "tryAgain": "Опитай отново",
+    "sending": "Изпращане...",
+    "verificationEmailSent": "Имейлът за верификация е изпратен! Моля, проверете пощенската си кутия.",
+    "failedToResend": "Неуспешно изпращане на имейл за верификация",
+    "hidePassword": "Скрий паролата",
+    "showPassword": "Покажи паролата",
+    "passwordResetSuccess": "Паролата е успешно нулирана"
   }
 }

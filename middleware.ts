@@ -36,14 +36,15 @@ export function middleware(request: VercelRequest) {
     return NextResponse.redirect(new URL('/', request.url))
   }
 
-              // Bulgarian pretty slugs → internal canonical paths
-              if (pathname.startsWith('/bg/')) {
-                const map: Record<string, string> = {
-                  '/bg/obiavi': '/bg/listings',
-                  '/bg/stroiteli': '/bg/developers',
-                  '/bg/za-nas': '/bg/about-us',
-                  '/bg/kontakt': '/bg/contact',
-                }
+        // Bulgarian pretty slugs → internal canonical paths
+        if (pathname.startsWith('/bg/')) {
+          const map: Record<string, string> = {
+            '/bg/obiavi': '/bg/listings',
+            '/bg/stroiteli': '/bg/developers',
+            '/bg/za-nas': '/bg/about-us',
+            '/bg/kontakt': '/bg/contact',
+            '/bg/vhod': '/bg/login',
+          }
                 for (const [from, to] of Object.entries(map)) {
                   if (pathname === from || pathname.startsWith(from + '/')) {
                     const url = request.nextUrl.clone()

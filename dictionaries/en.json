@@ -316,5 +316,32 @@
     "officeVisitCta": "Visit our office to discuss your investment and get personalized assistance.",
     "addressNotAvailable": "Address not available",
     "getDirections": "Get Directions to Office"
+  },
+  "login": {
+    "welcomeBack": "Welcome back",
+    "signInToAccount": "Sign in to your Mr imot developer account",
+    "emailAddress": "Email Address",
+    "password": "Password",
+    "forgotPassword": "Forgot password?",
+    "signIn": "Sign In",
+    "signingIn": "Signing you in...",
+    "newToMrImot": "New to Mr imot?",
+    "createAccount": "Create your account",
+    "bySigningIn": "By signing in, you agree to our",
+    "termsOfService": "Terms of Service",
+    "and": "and",
+    "privacyPolicy": "Privacy Policy",
+    "loadingSignInForm": "Loading sign in form...",
+    "fillAllFields": "Please fill in all fields",
+    "loginFailed": "Login failed",
+    "emailVerificationRequired": "Email Verification Required",
+    "resendEmail": "Resend Email",
+    "tryAgain": "Try Again",
+    "sending": "Sending...",
+    "verificationEmailSent": "Verification email sent! Please check your inbox.",
+    "failedToResend": "Failed to resend verification email",
+    "hidePassword": "Hide password",
+    "showPassword": "Show password",
+    "passwordResetSuccess": "Password successfully reset"
   }
 }
