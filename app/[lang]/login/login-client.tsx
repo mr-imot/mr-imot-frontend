@@ -13,7 +13,6 @@ import { LogIn, CheckCircle, Shield, ArrowRight, Sparkles, Mail, Eye, EyeOff, Lo
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from "@/lib/auth-constants"
 import { useAuth } from "@/lib/auth-context"
 import { useLocale } from "@/lib/locale-context"
-
 import { createAuthError, getErrorDisplayMessage, AuthenticationError } from "@/lib/auth-errors"
 
 interface LoginClientProps {
@@ -143,10 +142,10 @@ function LoginFormContent({ dict, lang }: LoginClientProps) {
           <Shield className="w-8 h-8" style={{color: 'var(--brand-btn-primary-bg)'}} />
         </div>
         <h1 className="text-3xl font-bold mb-2" style={{color: 'var(--brand-text-primary)'}}>
-          {dict.login?.welcomeBack || 'Welcome back'}
+          {dict.login?.welcomeBack || "Welcome back"}
         </h1>
         <p className="text-lg" style={{color: 'var(--brand-text-secondary)'}}>
-          {dict.login?.signInToAccount || 'Sign in to your Mr imot developer account'}
+          {dict.login?.signInToAccount || "Sign in to your Mr imot developer account"}
         </p>
       </div>
 
@@ -175,7 +174,7 @@ function LoginFormContent({ dict, lang }: LoginClientProps) {
                   <Mail className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
                   <div className="flex-1">
                     <h3 className="text-sm font-medium text-amber-800 mb-1">
-                      {dict.login?.emailVerificationRequired || 'Email Verification Required'}
+                      {dict.login?.emailVerificationRequired || "Email Verification Required"}
                     </h3>
                     <p className="text-sm text-amber-700 mb-3">
                       {verificationRequired.message}
@@ -206,7 +205,7 @@ function LoginFormContent({ dict, lang }: LoginClientProps) {
               <AuthError 
                 error={error}
                 onRetry={() => setError(null)}
-                retryLabel={dict.login?.tryAgain || 'Try Again'}
+                retryLabel={dict.login?.tryAgain || "Try Again"}
               />
             </div>
           ) : null}
@@ -214,13 +213,13 @@ function LoginFormContent({ dict, lang }: LoginClientProps) {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email Field */}
             <div className="space-y-2">
-              <Label htmlFor="email">{dict.login?.emailAddress || 'Email Address'} <span className="text-destructive">*</span></Label>
+              <Label htmlFor="email">{dict.login?.emailAddress || "Email Address"} <span className="text-destructive">*</span></Label>
               <Input id="email" type="email" autoComplete="email" value={formData.email} onChange={(e) => handleInputChange('email', e.target.value)} disabled={isLoading} required />
             </div>
 
             {/* Password Field */}
             <div className="space-y-2">
-              <Label htmlFor="password">{dict.login?.password || 'Password'} <span className="text-destructive">*</span></Label>
+              <Label htmlFor="password">{dict.login?.password || "Password"} <span className="text-destructive">*</span></Label>
               <div className="relative">
                 <Input id="password" type={showPassword ? 'text' : 'password'} autoComplete="current-password" value={formData.password} onChange={(e) => handleInputChange('password', e.target.value)} disabled={isLoading} required />
                 <button type="button" aria-label={showPassword ? (dict.login?.hidePassword || 'Hide password') : (dict.login?.showPassword || 'Show password')} onClick={() => setShowPassword((v) => !v)} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
@@ -231,26 +230,17 @@ function LoginFormContent({ dict, lang }: LoginClientProps) {
               {/* Forgot Password - Right aligned */}
               <div className="flex items-center justify-end">
                 <Link 
-                  href={href('forgot-password', 'zabravena-parola')}
+                  href={href('forgot-password', 'forgot-password')}
                   className="text-sm font-medium hover:underline"
                   style={{color: 'var(--brand-btn-primary-bg)'}}
                 >
-                  {dict.login?.forgotPassword || 'Forgot password?'}
+                  {dict.login?.forgotPassword || "Forgot password?"}
                 </Link>
               </div>
             </div>
 
             {/* Sign In Button */}
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> 
-                  {dict.login?.signingIn || 'Signing you in...'}
-                </>
-              ) : (
-                dict.login?.signIn || 'Sign In'
-              )}
-            </Button>
+            <Button type="submit" className="w-full" disabled={isLoading}>{isLoading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" /> {dict.login?.signingIn || "Signing you in..."}</>) : (dict.login?.signIn || 'Sign In')}</Button>
           </form>
 
           {/* Social Login (Future Enhancement) */}
@@ -261,15 +251,15 @@ function LoginFormContent({ dict, lang }: LoginClientProps) {
               </div>
               <div className="relative flex justify-center text-sm">
                 <span className="px-4 bg-card text-muted-foreground">
-                  {dict.login?.newToMrImot || 'New to Mr imot?'}
+                  {dict.login?.newToMrImot || "New to Mr imot?"}
                 </span>
               </div>
             </div>
 
             <div className="mt-6">
-              <Link href={href('register?type=developer', 'registraciya?type=developer')}>
+              <Link href={href('register?type=developer', 'register?type=developer')}>
                 <Button variant="outline" className="w-full group">
-                  <span>{dict.login?.createAccount || 'Create your account'}</span>
+                  <span>{dict.login?.createAccount || "Create your account"}</span>
                   <ArrowRight size={16} className="ml-2 transition-transform group-hover:translate-x-1" />
                 </Button>
               </Link>
@@ -281,13 +271,13 @@ function LoginFormContent({ dict, lang }: LoginClientProps) {
       {/* Footer */}
       <div className="mt-8 text-center">
         <p className="text-sm" style={{color: 'var(--brand-text-muted)'}}>
-          {dict.login?.bySigningIn || 'By signing in, you agree to our'}{' '}
-          <Link href="/terms-of-service.html" className="font-medium hover:underline" style={{color: 'var(--brand-btn-primary-bg)'}}>
-            {dict.login?.termsOfService || 'Terms of Service'}
+          {dict.login?.bySigningIn || "By signing in, you agree to our"}{' '}
+          <Link href={href('terms-of-service.html', 'terms-of-service.html')} className="font-medium hover:underline" style={{color: 'var(--brand-btn-primary-bg)'}}>
+            {dict.login?.termsOfService || "Terms of Service"}
           </Link>{' '}
-          {dict.login?.and || 'and'}{' '}
-          <Link href="/privacy-policy.html" className="font-medium hover:underline" style={{color: 'var(--brand-btn-primary-bg)'}}>
-            {dict.login?.privacyPolicy || 'Privacy Policy'}
+          {dict.login?.and || "and"}{' '}
+          <Link href={href('privacy-policy.html', 'privacy-policy.html')} className="font-medium hover:underline" style={{color: 'var(--brand-btn-primary-bg)'}}>
+            {dict.login?.privacyPolicy || "Privacy Policy"}
           </Link>
         </p>
       </div>
@@ -297,7 +287,7 @@ function LoginFormContent({ dict, lang }: LoginClientProps) {
 
 export default function LoginClient({ dict, lang }: LoginClientProps) {
   return (
-    <div className="min-h-screen" style={{backgroundColor: 'var(--brand-glass-primary)'}}>
+    <div className="min-h-screen relative">
       <div className="relative z-10 flex items-center justify-center min-h-screen py-12 px-4 sm:px-6 lg:px-8">
         <Suspense fallback={
           <div className="w-full max-w-md mx-auto">
@@ -308,7 +298,7 @@ export default function LoginClient({ dict, lang }: LoginClientProps) {
                 <div className="w-8 h-8 bg-muted rounded-full animate-pulse delay-150"></div>
               </div>
               <p className="text-center mt-4 text-muted-foreground">
-                {dict.login?.loadingSignInForm || 'Loading sign in form...'}
+                {dict.login?.loadingSignInForm || "Loading sign in form..."}
               </p>
             </div>
           </div>

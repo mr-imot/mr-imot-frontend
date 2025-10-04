@@ -1,14 +1,15 @@
 import { getDictionary } from '../dictionaries'
-import { LocalizedContactPage } from './localized-contact-page'
+import ContactClient from './contact-client'
 
 interface ContactPageProps {
-  params: {
+  params: Promise<{
     lang: 'en' | 'bg'
-  }
+  }>
 }
 
 export default async function ContactPage({ params }: ContactPageProps) {
-  const dict = await getDictionary(params.lang)
+  const { lang } = await params
+  const dict = await getDictionary(lang)
   
-  return <LocalizedContactPage dict={dict} lang={params.lang} />
+  return <ContactClient dict={dict} lang={lang} />
 }

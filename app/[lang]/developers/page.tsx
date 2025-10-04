@@ -2,9 +2,9 @@ import { getDictionary } from '../dictionaries'
 import DevelopersClient from './developers-client'
 
 interface DevelopersPageProps {
-  params: {
+  params: Promise<{
     lang: 'en' | 'bg'
-  }
+  }>
 }
 
 export default async function DevelopersPage({ params }: DevelopersPageProps) {

@@ -47,7 +47,8 @@ export function LanguageSwitcher() {
       const prettyUrlMap: Record<string, string> = {
         '/obiavi': '/listings',
         '/stroiteli': '/developers', 
-        '/za-nas': '/about-us'
+        '/za-nas': '/about-us',
+        '/kontakt': '/contact'
       }
       
       if (prettyUrlMap[pathWithoutLocale]) {
@@ -58,7 +59,8 @@ export function LanguageSwitcher() {
       const canonicalUrlMap: Record<string, string> = {
         '/listings': '/obiavi',
         '/developers': '/stroiteli',
-        '/about-us': '/za-nas'
+        '/about-us': '/za-nas',
+        '/contact': '/kontakt'
       }
       
       if (canonicalUrlMap[pathWithoutLocale]) {

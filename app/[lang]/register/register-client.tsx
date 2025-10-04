@@ -28,6 +28,7 @@ import { Eye, EyeOff, CheckCircle, AlertCircle, Shield, Sparkles, UserPlus, Arro
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
+import { useLocale } from "@/lib/locale-context"
 
 // Extend Window interface for Google Maps
 declare global {
@@ -36,7 +37,12 @@ declare global {
   }
 }
 
-function RegisterFormContent() {
+interface RegisterClientProps {
+  dict: any
+  lang: 'en' | 'bg'
+}
+
+function RegisterFormContent({ dict, lang }: RegisterClientProps) {
   const searchParams = useSearchParams()
   const userType = searchParams.get("type")
   const router = useRouter()
@@ -85,11 +91,18 @@ function RegisterFormContent() {
     message: string
   }>({ type: null, message: "" })
 
+  const locale = useLocale()
+
+  // Helper function to generate localized URLs
+  const href = (en: string, bg: string) => {
+    return locale === 'bg' ? `/bg/${bg}` : `/${en}`
+  }
+
   const isDeveloper = userType === "developer"
-  const title = isDeveloper ? "Register as Developer" : "Register as Buyer"
+  const title = isDeveloper ? (dict.register?.registerAsDeveloper || "Register as Developer") : (dict.register?.registerAsBuyer || "Register as Buyer")
   const description = isDeveloper
-      ? "Create your developer account to list projects."
-      : "Create your buyer account to find projects."
+      ? (dict.register?.createDeveloperAccount || "Create your developer account to list projects.")
+      : (dict.register?.createBuyerAccount || "Create your buyer account to find projects.")
 
   // Google Maps initialization
   useEffectHook(() => {
@@ -348,84 +361,84 @@ function RegisterFormContent() {
           <Card className="bg-card border shadow-sm">
             <CardHeader>
               <div className="flex items-center gap-3 flex-wrap">
-                <Badge variant="secondary" className="w-max">For Developers</Badge>
-                <Badge className="w-max" variant="outline">100% Free</Badge>
+                <Badge variant="secondary" className="w-max">{dict.register?.forDevelopers || "For Developers"}</Badge>
+                <Badge className="w-max" variant="outline">{dict.register?.free || "100% Free"}</Badge>
               </div>
-              <CardTitle className="text-2xl">Why register on Mr imot?</CardTitle>
-              <CardDescription>Publish projects, reach verified buyers, and manage inbound leads in one place.</CardDescription>
+              <CardTitle className="text-2xl">{dict.register?.whyRegisterOnMrImot || "Why register on Mr imot?"}</CardTitle>
+              <CardDescription>{dict.register?.publishProjectsReachBuyers || "Publish projects, reach verified buyers, and manage inbound leads in one place."}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="flex items-start gap-3">
                   <Shield className="h-5 w-5 text-primary mt-0.5" />
                   <div>
-                    <p className="font-medium">Verified presence</p>
-                    <p className="text-sm text-muted-foreground">Show a trusted, verified profile for your company and projects.</p>
+                    <p className="font-medium">{dict.register?.verifiedPresence || "Verified presence"}</p>
+                    <p className="text-sm text-muted-foreground">{dict.register?.showTrustedProfile || "Show a trusted, verified profile for your company and projects."}</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <Sparkles className="h-5 w-5 text-primary mt-0.5" />
                   <div>
-                    <p className="font-medium">High‑intent leads</p>
-                    <p className="text-sm text-muted-foreground">Buyers contact you directly — no brokers, no commission.</p>
+                    <p className="font-medium">{dict.register?.highIntentLeads || "High‑intent leads"}</p>
+                    <p className="text-sm text-muted-foreground">{dict.register?.buyersContactDirectly || "Buyers contact you directly — no brokers, no commission."}</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <LayoutDashboard className="h-5 w-5 text-primary mt-0.5" />
                   <div>
-                    <p className="font-medium">Developer dashboard</p>
-                    <p className="text-sm text-muted-foreground">Manage listings, inquiries, and view stats in your private dashboard.</p>
+                    <p className="font-medium">{dict.register?.developerDashboard || "Developer dashboard"}</p>
+                    <p className="text-sm text-muted-foreground">{dict.register?.manageListingsInquiries || "Manage listings, inquiries, and view stats in your private dashboard."}</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <BarChart3 className="h-5 w-5 text-primary mt-0.5" />
                   <div>
-                    <p className="font-medium">Project analytics</p>
-                    <p className="text-sm text-muted-foreground">Track views and leads to understand interest over time.</p>
+                    <p className="font-medium">{dict.register?.projectAnalytics || "Project analytics"}</p>
+                    <p className="text-sm text-muted-foreground">{dict.register?.trackViewsAndLeads || "Track views and leads to understand interest over time."}</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <Clock className="h-5 w-5 text-primary mt-0.5" />
                   <div>
-                    <p className="font-medium">Faster launch</p>
-                    <p className="text-sm text-muted-foreground">Create a profile in minutes; publish when you are ready.</p>
+                    <p className="font-medium">{dict.register?.fasterLaunch || "Faster launch"}</p>
+                    <p className="text-sm text-muted-foreground">{dict.register?.createProfileInMinutes || "Create a profile in minutes; publish when you are ready."}</p>
                   </div>
                 </div>
               </div>
               <Separator />
               <div className="space-y-3">
-                <p className="font-medium">What you’ll need</p>
+                <p className="font-medium">{dict.register?.whatYoullNeed || "What you'll need"}</p>
                 <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li className="flex items-start gap-2"><Check className="h-4 w-4 text-primary mt-0.5" />Company name and contact person</li>
-                  <li className="flex items-start gap-2"><Check className="h-4 w-4 text-primary mt-0.5" />Company email and phone</li>
-                  <li className="flex items-start gap-2"><Check className="h-4 w-4 text-primary mt-0.5" />Office address and optional website</li>
-                  <li className="flex items-start gap-2"><Check className="h-4 w-4 text-primary mt-0.5" />Ability to verify ownership when requested</li>
+                  <li className="flex items-start gap-2"><Check className="h-4 w-4 text-primary mt-0.5" />{dict.register?.companyNameAndContact || "Company name and contact person"}</li>
+                  <li className="flex items-start gap-2"><Check className="h-4 w-4 text-primary mt-0.5" />{dict.register?.companyEmailAndPhone || "Company email and phone"}</li>
+                  <li className="flex items-start gap-2"><Check className="h-4 w-4 text-primary mt-0.5" />{dict.register?.officeAddressAndWebsite || "Office address and optional website"}</li>
+                  <li className="flex items-start gap-2"><Check className="h-4 w-4 text-primary mt-0.5" />{dict.register?.abilityToVerifyOwnership || "Ability to verify ownership when requested"}</li>
                 </ul>
               </div>
 
               <Separator />
               <div className="space-y-3">
-                <p className="font-medium">Verification process</p>
+                <p className="font-medium">{dict.register?.verificationProcess || "Verification process"}</p>
                 <ol className="space-y-3 text-sm">
                   <li className="flex items-start gap-3">
-                    <Badge variant="secondary" className="mt-0.5">Step 1</Badge>
+                    <Badge variant="secondary" className="mt-0.5">{dict.register?.step1 || "Step 1"}</Badge>
                     <div className="flex items-start gap-2">
                       <Mail className="h-4 w-4 text-primary mt-0.5" />
-                      <span className="text-muted-foreground">Email verification to secure your login.</span>
+                      <span className="text-muted-foreground">{dict.register?.emailVerification || "Email verification to secure your login."}</span>
                     </div>
                   </li>
                   <li className="flex items-start gap-3">
-                    <Badge variant="secondary" className="mt-0.5">Step 2</Badge>
+                    <Badge variant="secondary" className="mt-0.5">{dict.register?.step2 || "Step 2"}</Badge>
                     <div className="flex items-start gap-2">
                       <PhoneCall className="h-4 w-4 text-primary mt-0.5" />
-                      <span className="text-muted-foreground">Manual verification by phone or email for trust.</span>
+                      <span className="text-muted-foreground">{dict.register?.manualVerification || "Manual verification by phone or email for trust."}</span>
                     </div>
                   </li>
                   <li className="flex items-start gap-3">
-                    <Badge variant="secondary" className="mt-0.5">Step 3</Badge>
+                    <Badge variant="secondary" className="mt-0.5">{dict.register?.step3 || "Step 3"}</Badge>
                     <div className="flex items-start gap-2">
                       <UserCheck className="h-4 w-4 text-primary mt-0.5" />
-                      <span className="text-muted-foreground">Optional in‑person verification for premium trust badge.</span>
+                      <span className="text-muted-foreground">{dict.register?.inPersonVerification || "Optional in‑person verification for premium trust badge."}</span>
                     </div>
                   </li>
                 </ol>
@@ -436,8 +449,8 @@ function RegisterFormContent() {
           {/* Form column */}
           <Card className="bg-card border shadow-sm">
             <CardHeader>
-              <CardTitle>Register as Developer</CardTitle>
-              <CardDescription>Create your account to list projects and receive leads.</CardDescription>
+              <CardTitle>{dict.register?.registerAsDeveloper || "Register as Developer"}</CardTitle>
+              <CardDescription>{dict.register?.createAccountToListProjects || "Create your account to list projects and receive leads."}</CardDescription>
             </CardHeader>
             <CardContent>
               {submitStatus.type === "success" ? (
@@ -454,7 +467,7 @@ function RegisterFormContent() {
                   <AuthError 
                     error={submitStatus.message}
                     onRetry={() => setSubmitStatus({ type: null, message: "" })}
-                    retryLabel="Try Again"
+                    retryLabel={dict.register?.tryAgain || "Try Again"}
                   />
                 </div>
               ) : null}
@@ -464,7 +477,7 @@ function RegisterFormContent() {
                 {/* Company Information */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="companyName">Company Name <span className="text-destructive">*</span></Label>
+                    <Label htmlFor="companyName">{dict.register?.companyName || "Company Name"} <span className="text-destructive">*</span></Label>
                     <Input 
                       id="companyName" 
                       value={formData.companyName} 
@@ -477,7 +490,7 @@ function RegisterFormContent() {
                     {getFieldError(errors, "companyName") && (<p className="text-sm text-destructive">{getFieldError(errors, "companyName")}</p>)}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="contactPerson">Contact Person <span className="text-destructive">*</span></Label>
+                    <Label htmlFor="contactPerson">{dict.register?.contactPerson || "Contact Person"} <span className="text-destructive">*</span></Label>
                     <Input 
                       id="contactPerson" 
                       value={formData.contactPerson} 
@@ -494,7 +507,7 @@ function RegisterFormContent() {
                 {/* Contact Information */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email Address <span className="text-destructive">*</span></Label>
+                    <Label htmlFor="email">{dict.register?.emailAddress || "Email Address"} <span className="text-destructive">*</span></Label>
                     <Input 
                       id="email" 
                       type="email" 
@@ -508,21 +521,21 @@ function RegisterFormContent() {
                     {getFieldError(errors, "email") && (<p className="text-sm text-destructive">{getFieldError(errors, "email")}</p>)}
                   </div>
                   <InternationalPhoneInput
-                    label="Phone Number"
+                    label={dict.register?.phoneNumber || "Phone Number"}
                     value={formData.phone}
                     onChange={(phone) => handleInputChange("phone", phone)}
                     error={getFieldError(errors, "phone")}
                     disabled={isLoading}
                     required
                     defaultCountry="bg"
-                    placeholder="Enter your phone number"
+                    placeholder={dict.register?.enterPhoneNumber || "Enter your phone number"}
                   />
                 </div>
 
                 {/* Address with Google Maps */}
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="officeAddress">Office Address <span className="text-destructive">*</span></Label>
+                    <Label htmlFor="officeAddress">{dict.register?.officeAddress || "Office Address"} <span className="text-destructive">*</span></Label>
                     <div className="relative">
                       <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                       <Input 
@@ -540,7 +553,7 @@ function RegisterFormContent() {
                           }
                         }}
                         className="pl-10"
-                        placeholder="Search for office address" 
+                        placeholder={dict.register?.searchForOfficeAddress || "Search for office address"} 
                         autoComplete="street-address" 
                         disabled={isLoading} 
                         required 
@@ -549,14 +562,14 @@ function RegisterFormContent() {
                     {getFieldError(errors, "officeAddress") && (<p className="text-sm text-destructive">{getFieldError(errors, "officeAddress")}</p>)}
                     {placesBlocked && (
                       <p className="text-sm text-amber-600">
-                        Address search is not available. You can still enter the address manually.
+                        {dict.register?.addressSearchNotAvailable || "Address search is not available. You can still enter the address manually."}
                       </p>
                     )}
                   </div>
                   
                   {/* Map Display */}
                   <div className="space-y-2">
-                    <Label>Office Location</Label>
+                    <Label>{dict.register?.officeLocation || "Office Location"}</Label>
                     <div className="relative">
                       <div 
                         ref={mapRef}
@@ -565,8 +578,8 @@ function RegisterFormContent() {
                       />
                       <div className="absolute top-2 left-2 bg-white/90 backdrop-blur-sm rounded-md px-2 py-1 text-xs text-gray-600">
                         {addressSelected 
-                          ? "Drag the marker or search for a new address to update your office location."
-                          : "Search for your office address to set the location on the map."
+                          ? (dict.register?.dragMarkerOrSearch || "Drag the marker or search for a new address to update your office location.")
+                          : (dict.register?.searchForOfficeAddressToSet || "Search for your office address to set the location on the map.")
                         }
                       </div>
                     </div>
@@ -575,7 +588,7 @@ function RegisterFormContent() {
 
                 {/* Website */}
                 <div className="space-y-2">
-                  <Label htmlFor="website">Website URL (Optional)</Label>
+                  <Label htmlFor="website">{dict.register?.websiteUrlOptional || "Website URL (Optional)"}</Label>
                   <Input id="website" type="url" placeholder="https://" value={formData.website} onChange={(e) => handleInputChange("website", e.target.value)} autoComplete="url" disabled={isLoading} />
                   {getFieldError(errors, "website") && (<p className="text-sm text-destructive">{getFieldError(errors, "website")}</p>)}
                 </div>
@@ -583,7 +596,7 @@ function RegisterFormContent() {
                 {/* Password */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                  <Label htmlFor="password">Password <span className="text-destructive">*</span></Label>
+                  <Label htmlFor="password">{dict.register?.password || "Password"} <span className="text-destructive">*</span></Label>
                     <Input 
                       id="password" 
                       type="password" 
@@ -599,7 +612,7 @@ function RegisterFormContent() {
                     {getFieldError(errors, "password") && (<p className="text-sm text-destructive">{getFieldError(errors, "password")}</p>)}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">Confirm Password <span className="text-destructive">*</span></Label>
+                    <Label htmlFor="confirmPassword">{dict.register?.confirmPassword || "Confirm Password"} <span className="text-destructive">*</span></Label>
                     <Input 
                       id="confirmPassword" 
                       type="password" 
@@ -620,10 +633,10 @@ function RegisterFormContent() {
                   <div className="flex items-start gap-3">
                     <Checkbox id="acceptTerms" checked={formData.acceptTerms} onCheckedChange={(v) => handleInputChange("acceptTerms", v === true)} disabled={isLoading} />
                     <Label htmlFor="acceptTerms" className="text-sm text-foreground leading-relaxed cursor-pointer flex-1">
-                      I agree to the{' '}
-                      <a href="/terms-of-service.html" target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-4">Terms of Service</a>{' '}
-                      and{' '}
-                      <a href="/privacy-policy.html" target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-4">Privacy Policy</a>
+                      {dict.register?.iAgreeToThe || "I agree to the"}{' '}
+                      <a href={href('terms-of-service.html', 'terms-of-service.html')} target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-4">{dict.register?.termsOfService || "Terms of Service"}</a>{' '}
+                      {dict.register?.and || "and"}{' '}
+                      <a href={href('privacy-policy.html', 'privacy-policy.html')} target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-4">{dict.register?.privacyPolicy || "Privacy Policy"}</a>
                       <span className="text-destructive ml-1 font-bold">*</span>
                     </Label>
                   </div>
@@ -639,27 +652,27 @@ function RegisterFormContent() {
 
                 {/* Submit Button */}
                 <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating Your Account...</>) : (<>Create Developer Account</>)}
+                  {isLoading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" /> {dict.register?.creatingYourAccount || "Creating Your Account..."}</>) : (<>{dict.register?.createDeveloperAccount || "Create Developer Account"}</>)}
                 </Button>
 
-                <p className="text-xs text-muted-foreground text-center">We never share your information. Used only for account and verification.</p>
+                <p className="text-xs text-muted-foreground text-center">{dict.register?.weNeverShareInformation || "We never share your information. Used only for account and verification."}</p>
               </form>
               )}
 
               {submitStatus.type !== "success" && (
               <div className="mt-8">
                 <div className="relative flex justify-center">
-                  <span className="px-4 text-sm text-muted-foreground">Already have an account?</span>
+                  <span className="px-4 text-sm text-muted-foreground">{dict.register?.alreadyHaveAccount || "Already have an account?"}</span>
                 </div>
                 <div className="mt-4">
-                  <Link href="/login">
+                  <Link href={href('login', 'login')}>
                     <EnhancedButton
                       variant="outline"
                       size="lg"
                       fullWidth
                       className="group"
                     >
-                      <span>Sign In</span>
+                      <span>{dict.register?.signIn || "Sign In"}</span>
                       <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
                     </EnhancedButton>
                   </Link>
@@ -718,7 +731,7 @@ function RegisterFormContent() {
             {/* Company Information */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FloatingInput
-                label="Company Name"
+                label={dict.register?.companyName || "Company Name"}
                 type="text"
                 value={formData.companyName}
                 onChange={(e) => handleInputChange("companyName", e.target.value)}
@@ -727,7 +740,7 @@ function RegisterFormContent() {
                 required
               />
               <FloatingInput
-                label="Contact Person"
+                label={dict.register?.contactPerson || "Contact Person"}
                 type="text"
                 value={formData.contactPerson}
                 onChange={(e) => handleInputChange("contactPerson", e.target.value)}
@@ -740,7 +753,7 @@ function RegisterFormContent() {
             {/* Contact Information */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FloatingInput
-                label="Email Address"
+                label={dict.register?.emailAddress || "Email Address"}
                 type="email"
                 value={formData.email}
                 onChange={(e) => handleInputChange("email", e.target.value)}
@@ -749,20 +762,20 @@ function RegisterFormContent() {
                 required
               />
               <InternationalPhoneInput
-                label="Phone Number"
+                label={dict.register?.phoneNumber || "Phone Number"}
                 value={formData.phone}
                 onChange={(phone) => handleInputChange("phone", phone)}
                 error={getFieldError(errors, "phone")}
                 disabled={isLoading}
                 required
                 defaultCountry="bg"
-                placeholder="Enter your phone number"
+                placeholder={dict.register?.enterPhoneNumber || "Enter your phone number"}
               />
             </div>
 
             {/* Address */}
             <FloatingInput
-              label="Office Address"
+              label={dict.register?.officeAddress || "Office Address"}
               type="text"
               value={formData.officeAddress}
               onChange={(e) => handleInputChange("officeAddress", e.target.value)}
@@ -773,7 +786,7 @@ function RegisterFormContent() {
 
             {/* Website */}
             <FloatingInput
-              label="Website URL (Optional)"
+              label={dict.register?.websiteUrlOptional || "Website URL (Optional)"}
               type="url"
               value={formData.website}
               onChange={(e) => handleInputChange("website", e.target.value)}
@@ -784,7 +797,7 @@ function RegisterFormContent() {
             {/* Password */}
             <div className="space-y-4">
             <FloatingInput
-              label="Password"
+              label={dict.register?.password || "Password"}
               type="password"
               value={formData.password}
               onChange={(e) => handleInputChange("password", e.target.value)}
@@ -799,7 +812,7 @@ function RegisterFormContent() {
 
             {/* Confirm Password */}
             <FloatingInput
-              label="Confirm Password"
+              label={dict.register?.confirmPassword || "Confirm Password"}
               type="password"
               value={formData.confirmPassword}
               onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
@@ -823,23 +836,23 @@ function RegisterFormContent() {
                   disabled={isLoading}
                 />
                 <label htmlFor="acceptTerms" className="text-sm text-gray-700 leading-relaxed cursor-pointer flex-1">
-                  I agree to the{' '}
+                  {dict.register?.iAgreeToThe || "I agree to the"}{' '}
                   <a 
-                    href="/terms-of-service.html" 
+                    href={href('terms-of-service.html', 'terms-of-service.html')} 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="text-blue-600 hover:text-blue-700 font-medium underline decoration-2 underline-offset-2 transition-colors"
                   >
-                    Terms of Service
+                    {dict.register?.termsOfService || "Terms of Service"}
                   </a>{' '}
-                  and{' '}
+                  {dict.register?.and || "and"}{' '}
                   <a 
-                    href="/privacy-policy.html" 
+                    href={href('privacy-policy.html', 'privacy-policy.html')} 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="text-blue-600 hover:text-blue-700 font-medium underline decoration-2 underline-offset-2 transition-colors"
                   >
-                    Privacy Policy
+                    {dict.register?.privacyPolicy || "Privacy Policy"}
                   </a>
                   <span className="text-red-500 ml-1 font-bold">*</span>
                 </label>
@@ -863,11 +876,11 @@ function RegisterFormContent() {
               size="lg"
               fullWidth
               loading={isLoading}
-              loadingText="Creating Your Account..."
+              loadingText={dict.register?.creatingYourAccount || "Creating Your Account..."}
               disabled={isLoading}
               icon={!isLoading ? <Sparkles size={20} /> : undefined}
             >
-              Create Developer Account
+              {dict.register?.createDeveloperAccount || "Create Developer Account"}
             </EnhancedButton>
           </form>
           )}
@@ -881,20 +894,20 @@ function RegisterFormContent() {
               </div>
               <div className="relative flex justify-center text-sm">
                 <span className="px-4 bg-white text-gray-500 font-medium">
-                  Already have an account?
+                  {dict.register?.alreadyHaveAccount || "Already have an account?"}
                 </span>
               </div>
             </div>
 
             <div className="mt-6">
-              <Link href="/login">
+              <Link href={href('login', 'login')}>
                 <EnhancedButton
                   variant="outline"
                   size="lg"
                   fullWidth
                   className="group"
                 >
-                  <span>Sign In</span>
+                  <span>{dict.register?.signIn || "Sign In"}</span>
                   <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
                 </EnhancedButton>
               </Link>
@@ -907,13 +920,13 @@ function RegisterFormContent() {
       {/* Footer */}
       <div className="mt-8 text-center">
         <p className="text-sm text-gray-500">
-          By creating an account, you agree to our{' '}
-          <Link href="/terms-of-service.html" className="text-blue-600 hover:text-blue-700 font-medium">
-            Terms of Service
+          {dict.register?.byCreatingAccount || "By creating an account, you agree to our"}{' '}
+          <Link href={href('terms-of-service.html', 'terms-of-service.html')} className="text-blue-600 hover:text-blue-700 font-medium">
+            {dict.register?.termsOfService || "Terms of Service"}
           </Link>{' '}
-          and{' '}
-          <Link href="/privacy-policy.html" className="text-blue-600 hover:text-blue-700 font-medium">
-            Privacy Policy
+          {dict.register?.and || "and"}{' '}
+          <Link href={href('privacy-policy.html', 'privacy-policy.html')} className="text-blue-600 hover:text-blue-700 font-medium">
+            {dict.register?.privacyPolicy || "Privacy Policy"}
           </Link>
         </p>
       </div>
@@ -921,7 +934,7 @@ function RegisterFormContent() {
   )
 }
 
-export default function RegisterPage() {
+export default function RegisterClient({ dict, lang }: RegisterClientProps) {
   return (
     <div className="min-h-screen bg-background">
       <div className="relative z-10 flex items-start justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -931,15 +944,14 @@ export default function RegisterPage() {
               <div className="flex justify-center">
                 <Loader2 className="h-6 w-6 animate-spin" />
               </div>
-              <p className="text-center mt-4 text-muted-foreground">Loading registration form...</p>
+              <p className="text-center mt-4 text-muted-foreground">{dict.register?.loadingRegistrationForm || "Loading registration form..."}</p>
             </div>
           </div>
         }>
-          <RegisterFormContent />
+          <RegisterFormContent dict={dict} lang={lang} />
         </Suspense>
       </div>
     </div>
   )
 }
-
 

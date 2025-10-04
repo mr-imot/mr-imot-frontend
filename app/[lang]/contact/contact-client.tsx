@@ -5,24 +5,37 @@ import { Card, CardContent } from "@/components/ui/card"
 import { ScrollAnimationWrapper } from "@/components/scroll-animation-wrapper"
 import { AngledSeparator } from "@/components/angled-separator"
 import { Mail, Phone, MessageCircle } from "lucide-react"
+import { useLocale } from "@/lib/locale-context"
 
-export default function ContactPage() {
+interface ContactClientProps {
+  dict: any
+  lang: 'en' | 'bg'
+}
+
+export default function ContactClient({ dict, lang }: ContactClientProps) {
+  const locale = useLocale()
+
+  // Helper function to generate localized URLs
+  const href = (en: string, bg: string) => {
+    return locale === 'bg' ? `/bg/${bg}` : `/${en}`
+  }
+
   const contactMethods = [
     {
       icon: Phone,
-      title: "Call Us",
-      description: "Speak directly with our team",
+      title: dict.contact?.callUs || "Call Us",
+      description: dict.contact?.speakDirectly || "Speak directly with our team",
       value: "+359 899520856",
       action: "tel:+359899520856",
-      available: "Mon-Fri 9AM-6PM",
+      available: dict.contact?.monFriHours || "Mon-Fri 9AM-6PM",
     },
     {
       icon: Mail,
-      title: "Email Us",
-      description: "Get a response within 24 hours",
+      title: dict.contact?.emailUs || "Email Us",
+      description: dict.contact?.responseWithin24 || "Get a response within 24 hours",
       value: "support@mrimot.com",
       action: "mailto:support@mrimot.com",
-      available: "24/7 Support",
+      available: dict.contact?.support247 || "24/7 Support",
     },
   ]
 
@@ -48,13 +61,13 @@ export default function ContactPage() {
             <div className="text-center max-w-4xl mx-auto">
               <div className="inline-flex items-center gap-2 bg-white text-[#111827] px-4 py-2 rounded-full text-sm font-semibold mb-6 shadow-md border border-[#e5e7eb]">
                 <MessageCircle className="w-4 h-4" />
-                Get in Touch
+                {dict.contact?.getInTouch || 'Get in Touch'}
               </div>
               <h1 className="text-4xl md:text-6xl font-bold text-[#111827] mb-6 leading-tight">
-                We're Here to <span className="text-[#111827]">Help</span>
+                {dict.contact?.heroTitle || 'We\'re Here to'} <span className="text-[#111827]">{dict.contact?.heroTitleHighlight || 'Help'}</span>
               </h1>
               <p className="text-xl text-[#374151] leading-relaxed max-w-3xl mx-auto">
-                Have questions about our platform? Want to register as a developer? Need technical support? Our team is here to help you succeed.
+                {dict.contact?.heroDescription || 'Have questions about our platform? Want to register as a developer? Need technical support? Our team is here to help you succeed.'}
               </p>
             </div>
           </ScrollAnimationWrapper>
@@ -67,9 +80,9 @@ export default function ContactPage() {
         <div className="container">
           <ScrollAnimationWrapper>
             <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold text-[#111827] mb-4">Get in Touch</h2>
+              <h2 className="text-3xl md:text-4xl font-bold text-[#111827] mb-4">{dict.contact?.getInTouch || 'Get in Touch'}</h2>
               <p className="text-lg text-[#374151] max-w-2xl mx-auto">
-                Choose the method that works best for you. We're committed to responding quickly and helping you get the most out of our platform.
+                {dict.contact?.chooseMethod || 'Choose the method that works best for you. We\'re committed to responding quickly and helping you get the most out of our platform.'}
               </p>
             </div>
           </ScrollAnimationWrapper>
@@ -98,7 +111,7 @@ export default function ContactPage() {
                         }
                       }}
                     >
-                      Contact Now
+                      {dict.contact?.contactNow || 'Contact Now'}
                     </Button>
                   </CardContent>
                 </Card>
@@ -126,9 +139,9 @@ export default function ContactPage() {
         <div className="container relative">
           <ScrollAnimationWrapper>
             <div className="text-center max-w-3xl mx-auto">
-              <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to Find Your Perfect Property?</h2>
+              <h2 className="text-3xl md:text-4xl font-bold mb-6">{dict.contact?.readyToFind || 'Ready to Find Your Perfect Property?'}</h2>
               <p className="text-xl text-white/90 mb-8">
-                Don't wait! Start exploring verified projects and connect directly with developers today.
+                {dict.contact?.dontWait || 'Don\'t wait! Start exploring verified projects and connect directly with developers today.'}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button
@@ -136,7 +149,7 @@ export default function ContactPage() {
                   size="lg"
                   className="bg-white text-[#111827] hover:bg-[#f3f4f6] px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
                 >
-                  <a href="/listings">Browse Properties</a>
+                  <a href={href('listings', 'obiavi')}>{dict.contact?.browseProperties || 'Browse Properties'}</a>
                 </Button>
                 <Button
                   asChild
@@ -144,7 +157,7 @@ export default function ContactPage() {
                   size="lg"
                   className="border-2 border-white text-white hover:bg-white hover:text-[#111827] px-8 py-4 text-lg font-semibold rounded-xl transition-all duration-300 bg-transparent"
                 >
-                  <a href="/developers">Meet Developers</a>
+                  <a href={href('developers', 'stroiteli')}>{dict.contact?.meetDevelopers || 'Meet Developers'}</a>
                 </Button>
               </div>
             </div>

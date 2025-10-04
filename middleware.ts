@@ -36,31 +36,77 @@ export function middleware(request: VercelRequest) {
     return NextResponse.redirect(new URL('/', request.url))
   }
 
-        // Bulgarian pretty slugs → internal canonical paths
-        if (pathname.startsWith('/bg/')) {
-          const map: Record<string, string> = {
-            '/bg/obiavi': '/bg/listings',
-            '/bg/stroiteli': '/bg/developers',
-            '/bg/za-nas': '/bg/about-us',
-            '/bg/kontakt': '/bg/contact',
-            '/bg/vhod': '/bg/login',
-          }
-                for (const [from, to] of Object.entries(map)) {
-                  if (pathname === from || pathname.startsWith(from + '/')) {
-                    const url = request.nextUrl.clone()
-                    url.pathname = pathname.replace(from, to)
-                    return NextResponse.rewrite(url)
-                  }
-                }
-              }
+  // Handle /register route specially - needs locale prefix first
+  if (pathname === '/register') {
+    const url = request.nextUrl.clone()
+    
+    // Check cookie preference first
+    const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value
+    if (cookieLocale === 'bg') {
+      url.pathname = '/bg/register'
+    } else {
+      // Rewrite to /en/register internally
+      url.pathname = '/en/register'
+    }
+    
+    // Add default query param if not present
+    if (!url.searchParams.has('type')) {
+      url.searchParams.set('type', 'developer')
+    }
+    
+    return NextResponse.rewrite(url)
+  }
   
-  // Skip middleware for API routes, static assets, and internal Next.js paths
+  // Handle /bg/register with query param
+  if (pathname === '/bg/register') {
+    const url = request.nextUrl.clone()
+    if (!url.searchParams.has('type')) {
+      url.searchParams.set('type', 'developer')
+      return NextResponse.redirect(url, 308)
+    }
+  }
+
+  // Note: no pretty slug for register in BG; '/bg/register' is canonical
+
+  // Bulgarian pretty slugs → internal canonical paths
+  if (pathname.startsWith('/bg/')) {
+    const map: Record<string, string> = {
+      '/bg/obiavi': '/bg/listings',
+      '/bg/stroiteli': '/bg/developers',
+      '/bg/za-nas': '/bg/about-us',
+      '/bg/kontakt': '/bg/contact',
+      '/bg/login': '/bg/login',
+    }
+    for (const [from, to] of Object.entries(map)) {
+      if (pathname === from || pathname.startsWith(from + '/')) {
+        const url = request.nextUrl.clone()
+        url.pathname = pathname.replace(from, to)
+        return NextResponse.rewrite(url)
+      }
+    }
+  }
+  
+  // Skip middleware for API routes, static assets, internal Next.js paths, and non-localized pages
+  const nonLocalizedPaths = [
+    '/api/',
+    '/_next/',
+    '/images/',
+    '/favicon',
+    '/health',
+    '/forgot-password',
+    '/reset-password',
+    '/verify-email',
+    '/admin/',
+    '/developer/',
+    '/buyer/',
+    '/test-api',
+    '/debug',
+    '/design-system',
+    '/maintenance',
+  ]
+  
   if (
-    pathname.startsWith('/api/') ||
-    pathname.startsWith('/_next/') ||
-    pathname.startsWith('/images/') ||
-    pathname.startsWith('/favicon') ||
-    pathname.startsWith('/health') ||
+    nonLocalizedPaths.some(path => pathname.startsWith(path)) ||
     pathname.includes('.') // Skip files with extensions (images, etc.)
   ) {
     return NextResponse.next()

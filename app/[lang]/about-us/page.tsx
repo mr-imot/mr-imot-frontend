@@ -2,9 +2,9 @@ import { getDictionary } from '../dictionaries'
 import AboutClient from './about-client'
 
 interface AboutPageProps {
-  params: {
+  params: Promise<{
     lang: 'en' | 'bg'
-  }
+  }>
 }
 
 export default async function AboutPage({ params }: AboutPageProps) {
