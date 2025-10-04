@@ -268,5 +268,29 @@
     "storyDescription": "Founded with a vision to transform Bulgaria's real estate market, Mr. Imot has become the trusted platform for property buyers and developers alike.",
     "browseProperties": "Browse Properties",
     "meetDevelopers": "Meet Developers"
+  },
+  "developersDetail": {
+    "loading": "Loading developer details...",
+    "errorTitle": "Error Loading Developer",
+    "errorMessage": "Unable to load developer details. Please try again later.",
+    "contactInformation": "Contact Information",
+    "contactPerson": "Contact Person",
+    "officeAddress": "Office Address",
+    "phone": "Phone",
+    "visitWebsite": "Visit Website",
+    "officeAddressButton": "Office Address",
+    "companyDetails": "Company Details",
+    "company": "Company",
+    "verificationStatus": "Verification Status",
+    "pendingVerification": "Pending Verification",
+    "memberSince": "Member Since",
+    "projects": "Projects",
+    "totalProjects": "total projects",
+    "noProjectsFound": "No Projects Found",
+    "noProjectsMessage": "This developer hasn't published any projects yet.",
+    "officeLocation": "Office Location",
+    "officeVisitCta": "Visit our office to discuss your investment and get personalized assistance.",
+    "addressNotAvailable": "Address not available",
+    "getDirections": "Get Directions to Office"
   }
 }

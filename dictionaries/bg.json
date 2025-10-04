@@ -268,5 +268,29 @@
     "storyDescription": "Основани с визия да трансформираме пазара на недвижими имоти в България, Mr. Imot се превърна в доверената платформа за купувачи на имоти и строители.",
     "browseProperties": "Разгледай имоти",
     "meetDevelopers": "Запознай се със строителите"
+  },
+  "developersDetail": {
+    "loading": "Зареждане на детайли за строителя...",
+    "errorTitle": "Грешка при зареждане на строителя",
+    "errorMessage": "Не може да се заредят детайлите за строителя. Моля, опитайте отново по-късно.",
+    "contactInformation": "Информация за контакт",
+    "contactPerson": "Лице за контакт",
+    "officeAddress": "Офис адрес",
+    "phone": "Телефон",
+    "visitWebsite": "Посети уебсайт",
+    "officeAddressButton": "Офис адрес",
+    "companyDetails": "Детайли за компанията",
+    "company": "Компания",
+    "verificationStatus": "Статус на верификация",
+    "pendingVerification": "В процес на верификация",
+    "memberSince": "Член от",
+    "projects": "Проекти",
+    "totalProjects": "общо проекти",
+    "noProjectsFound": "Няма намерени проекти",
+    "noProjectsMessage": "Този строител още не е публикувал проекти.",
+    "officeLocation": "Местоположение на офиса",
+    "officeVisitCta": "Посетете нашия офис, за да обсъдите инвестицията си и да получите персонализирана помощ.",
+    "addressNotAvailable": "Адресът не е наличен",
+    "getDirections": "Упътване до офиса"
   }
 }
