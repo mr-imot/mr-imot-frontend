@@ -1,5 +1,5 @@
 import { getDictionary } from '../dictionaries'
-import { LocalizedDevelopersPage } from './localized-developers-page'
+import DevelopersClient from './developers-client'
 
 interface DevelopersPageProps {
   params: {
@@ -9,6 +9,5 @@ interface DevelopersPageProps {
 
 export default async function DevelopersPage({ params }: DevelopersPageProps) {
   const dict = await getDictionary(params.lang)
-  
-  return <LocalizedDevelopersPage dict={dict} lang={params.lang} />
+  return <DevelopersClient dict={dict} lang={params.lang} />
 }

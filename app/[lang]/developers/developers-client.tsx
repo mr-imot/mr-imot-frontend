@@ -5,12 +5,16 @@ import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ScrollAnimationWrapper } from "@/components/scroll-animation-wrapper"
-import { MapPin, Building, Star, Award, CheckCircle, Phone, Mail, ExternalLink, Globe } from "lucide-react"
+import { MapPin, Building, CheckCircle, Globe, ExternalLink } from "lucide-react"
 import { useDevelopers } from "@/hooks/use-developers"
 
-export default function DevelopersPage() {
+interface DevelopersClientProps {
+  dict: any
+  lang: 'en' | 'bg'
+}
+
+export default function DevelopersClient({ dict, lang }: DevelopersClientProps) {
   const { developers, loading, error, pagination } = useDevelopers({ per_page: 20 })
 
   if (loading) {
@@ -19,7 +23,7 @@ export default function DevelopersPage() {
         <div className="container mx-auto px-4 py-16">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Loading developers...</p>
+            <p className="text-muted-foreground">{dict.developers.loading}</p>
           </div>
         </div>
       </div>
@@ -31,8 +35,8 @@ export default function DevelopersPage() {
       <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-16">
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-destructive mb-4">Error Loading Developers</h1>
-            <p className="text-muted-foreground">Unable to load developer information. Please try again later.</p>
+            <h1 className="text-3xl font-bold text-destructive mb-4">{dict.developers.errorTitle}</h1>
+            <p className="text-muted-foreground">{dict.developers.errorMessage}</p>
           </div>
         </div>
       </div>
@@ -41,15 +45,15 @@ export default function DevelopersPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero Section */}
+      {/* Hero Section (i18n) */}
       <section className="bg-gradient-to-br from-muted to-muted/50 py-16">
         <div className="container mx-auto px-4 text-center">
           <ScrollAnimationWrapper>
             <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
-              Verified Developers
+              {dict.developers.pageTitle}
             </h1>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Discover Bulgaria's leading real estate developers, all verified and trusted by the Mr. Imot community.
+              {dict.developers.pageDescription}
             </p>
           </ScrollAnimationWrapper>
         </div>
@@ -61,13 +65,12 @@ export default function DevelopersPage() {
           {developers && developers.length > 0 ? (
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {developers.map((developer, index) => (
+                {developers.map((developer: any, index: number) => (
                   <ScrollAnimationWrapper key={developer.id} delay={index * 100}>
                     <Card className="group hover:shadow-xl transition-all duration-300 h-full flex flex-col">
                       <CardContent className="p-0 flex flex-col h-full">
                         {/* Cover Image */}
                         <div className="relative h-48 bg-gradient-to-br from-primary to-primary/80 rounded-t-lg overflow-hidden">
-                          {/* Profile Image as Cover */}
                           {developer.profile_image_url ? (
                             <>
                               <Image
@@ -82,25 +85,16 @@ export default function DevelopersPage() {
                           ) : (
                             <div className="absolute inset-0 bg-gradient-to-br from-primary to-primary/80"></div>
                           )}
-                          
+
                           {/* Verification Badge */}
                           <div className="absolute top-4 left-4 flex gap-2">
                             {developer.is_verified && (
                               <Badge className="bg-green-500 text-white">
                                 <CheckCircle className="w-3 h-3 mr-1" />
-                                Verified
+                                {dict.developers.verified}
                               </Badge>
                             )}
                           </div>
-                          
-                          {/* Company Initials Fallback */}
-                          {!developer.profile_image_url && (
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <div className="text-6xl font-bold text-white/80">
-                                {developer.company_name?.charAt(0) || 'C'}
-                              </div>
-                            </div>
-                          )}
                         </div>
 
                         {/* Developer Info */}
@@ -112,7 +106,7 @@ export default function DevelopersPage() {
                               </h3>
                               {developer.contact_person && (
                                 <p className="text-sm text-muted-foreground mb-2">
-                                  Contact: {developer.contact_person}
+                                  {dict.developers.contact}: {developer.contact_person}
                                 </p>
                               )}
                               <div className="flex items-center text-sm text-muted-foreground mb-2">
@@ -126,7 +120,7 @@ export default function DevelopersPage() {
                           <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
                             <div className="flex items-center">
                               <Building className="w-4 h-4 mr-1 flex-shrink-0" />
-                              <span>{developer.project_count || 0} Active Projects</span>
+                              <span>{developer.project_count || 0} {dict.developers.activeProjects}</span>
                             </div>
                           </div>
 
@@ -134,34 +128,34 @@ export default function DevelopersPage() {
                           <div className="space-y-2 mb-4 flex-grow">
                             {developer.phone && (
                               <div className="flex items-center text-sm text-muted-foreground">
-                                <Phone className="w-4 h-4 mr-2 flex-shrink-0" />
+                                <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
                                 <span>{developer.phone}</span>
                               </div>
                             )}
                             {developer.website ? (
                               <div className="flex items-center text-sm text-muted-foreground">
                                 <Globe className="w-4 h-4 mr-2 flex-shrink-0" />
-                                <a 
-                                  href={developer.website} 
-                                  target="_blank" 
+                                <a
+                                  href={developer.website}
+                                  target="_blank"
                                   rel="noopener noreferrer"
                                   className="text-primary hover:text-primary/80 hover:underline"
                                 >
-                                  Website
+                                  {dict.developers.website}
                                 </a>
                               </div>
                             ) : (
                               <div className="flex items-center text-sm text-muted-foreground opacity-0">
                                 <Globe className="w-4 h-4 mr-2 flex-shrink-0" />
-                                <span>Website</span>
+                                <span>{dict.developers.website}</span>
                               </div>
                             )}
                           </div>
 
                           {/* Action Button */}
                           <Button asChild className="w-full mt-auto">
-                            <Link href={`/developers/${developer.id}`}>
-                              View Profile
+                            <Link href={`/${lang}/developers/${developer.id}`}>
+                              {dict.developers.viewProfile}
                               <ExternalLink className="w-4 h-4 ml-2" />
                             </Link>
                           </Button>
@@ -171,19 +165,23 @@ export default function DevelopersPage() {
                   </ScrollAnimationWrapper>
                 ))}
               </div>
-              
+
               {/* Pagination Info */}
               {pagination && pagination.total_pages > 1 && (
                 <div className="mt-8 text-center text-muted-foreground">
-                  <p>Showing {developers.length} of {pagination.total} developers</p>
+                  <p>
+                    {dict.developers.showingResults
+                      .replace('{{count}}', String(developers.length))
+                      .replace('{{total}}', String(pagination.total))}
+                  </p>
                 </div>
               )}
             </>
           ) : (
             <div className="text-center py-16">
               <Building className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-xl font-semibold text-foreground mb-2">No Developers Found</h3>
-              <p className="text-muted-foreground">No verified developers are currently available.</p>
+              <h3 className="text-xl font-semibold text-foreground mb-2">{dict.developers.noDevelopersFound}</h3>
+              <p className="text-muted-foreground">{dict.developers.noDevelopersMessage}</p>
             </div>
           )}
         </div>
@@ -191,3 +189,5 @@ export default function DevelopersPage() {
     </div>
   )
 }
+
+
