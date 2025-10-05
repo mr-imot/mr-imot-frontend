@@ -24,7 +24,24 @@ export const ProtectedRoute = ({
 }: ProtectedRouteProps) => {
   const { isAuthenticated, isLoading, user } = useAuth();
   const router = useRouter();
-  const t = useTranslations();
+  
+  // Try to get translations, but don't fail if LocaleProvider is not available
+  let t: any = null;
+  try {
+    t = useTranslations();
+  } catch (error) {
+    // LocaleProvider not available, use fallback translations
+    t = {
+      protectedRoute: {
+        checkingAuthentication: 'Checking authentication...',
+        accessDenied: 'Access Denied',
+        noPermission: "You don't have permission to access this page.",
+        requiresAccess: (role: string) => `This page requires ${role} access.`,
+        switchAccount: 'Switch Account',
+        goBack: 'Go Back'
+      }
+    };
+  }
   
 
 
@@ -77,7 +94,9 @@ export const ProtectedRoute = ({
                 <p className="font-medium">{t.protectedRoute?.accessDenied || 'Access Denied'}</p>
                 <p>
                   {t.protectedRoute?.noPermission || "You don't have permission to access this page."}
-                  {requiredRole && ` ${t.protectedRoute?.requiresAccess?.replace('{{role}}', requiredRole) || `This page requires ${requiredRole} access.`}`}
+                  {requiredRole && ` ${typeof t.protectedRoute?.requiresAccess === 'function' 
+                    ? t.protectedRoute.requiresAccess(requiredRole)
+                    : `This page requires ${requiredRole} access.`}`}
                 </p>
                 <div className="flex gap-2 mt-4">
                   <button
