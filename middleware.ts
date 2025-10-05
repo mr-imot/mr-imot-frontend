@@ -161,7 +161,9 @@ export function middleware(request: VercelRequest) {
 
   // 1. Check cookie preference (user override) - HIGHEST PRIORITY
   const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value
+  console.log('[Middleware] Cookie locale:', cookieLocale, 'Path:', pathname)
   if (cookieLocale && SUPPORTED_LOCALES.includes(cookieLocale)) {
+    console.log('[Middleware] Using cookie preference:', cookieLocale)
     if (cookieLocale === 'bg') {
       return NextResponse.redirect(new URL(`/bg${pathname}`, request.url))
     }
@@ -173,8 +175,10 @@ export function middleware(request: VercelRequest) {
 
   // 2. Check Vercel geo header (IP-based detection)
   // Note: request.geo might be undefined during cold starts or in preview deployments
-  const country = request.geo?.country?.toLowerCase()
-  if (country && country === 'bg') {
+  const country = request.geo?.country?.toUpperCase()
+  console.log('[Middleware] IP Detection - Country:', country, 'Path:', pathname)
+  if (country === 'BG') {
+    console.log('[Middleware] Redirecting to /bg based on IP detection')
     return NextResponse.redirect(new URL(`/bg${pathname}`, request.url))
   }
 
