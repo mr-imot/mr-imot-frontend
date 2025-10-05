@@ -1,6 +1,7 @@
 "use client"
 
 import { Badge } from "@/components/ui/badge"
+import { useTranslations } from "@/lib/locale-context"
 
 type FeatureCategory = 'building_infrastructure' | 'security_access' | 'amenities' | 'modern_features'
 
@@ -26,12 +27,7 @@ const categoryColors: Record<FeatureCategory, string> = {
   modern_features: "bg-orange-100 text-orange-800 border-orange-300"
 }
 
-const categoryLabels: Record<FeatureCategory, string> = {
-  building_infrastructure: "Building & Infrastructure",
-  security_access: "Security & Access",
-  amenities: "Amenities", 
-  modern_features: "Modern Features"
-}
+// Category labels will be handled by translations
 
 // Helper function to get vibrant dot colors
 const getCategoryDotColor = (category: FeatureCategory): string => {
@@ -66,8 +62,33 @@ const getCategoryBoxStyle = (category: FeatureCategory): string => {
 }
 
 export function FeaturesDisplay({ features, title, compact = false, showCategories = false }: FeaturesDisplayProps) {
+  const t = useTranslations('features')
+  
   if (!features || features.length === 0) {
     return null
+  }
+
+  // Translation mapping for category labels
+  const getCategoryLabel = (category: FeatureCategory): string => {
+    switch (category) {
+      case 'building_infrastructure':
+        return t?.buildingInfrastructure || "Building & Infrastructure"
+      case 'security_access':
+        return t?.securityAccess || "Security & Access"
+      case 'amenities':
+        return t?.amenities || "Amenities"
+      case 'modern_features':
+        return t?.modernFeatures || "Modern Features"
+      default:
+        return category
+    }
+  }
+
+  // Translation mapping for feature names
+  const getFeatureName = (feature: Feature): string => {
+    // Try to get translation for the feature name using display_name
+    const featureKey = feature.display_name?.toLowerCase().replace(/[^a-z0-9]/g, '')
+    return t?.features?.[featureKey] || feature.display_name || feature.name
   }
 
   if (compact) {
@@ -81,7 +102,7 @@ export function FeaturesDisplay({ features, title, compact = false, showCategori
               variant="outline"
               className={showCategories ? categoryColors[feature.category] : undefined}
             >
-              {feature.display_name}
+              {getFeatureName(feature)}
             </Badge>
           ))}
         </div>
@@ -109,7 +130,7 @@ export function FeaturesDisplay({ features, title, compact = false, showCategori
           <div key={category} className="space-y-3">
             <h4 className="font-semibold text-gray-900 flex items-center gap-2">
               <span className={`w-3 h-3 rounded-full ${getCategoryDotColor(categoryKey)}`}></span>
-              {categoryLabels[categoryKey] || category}
+              {getCategoryLabel(categoryKey)}
             </h4>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {categoryFeatures.map((feature, index) => (
@@ -118,7 +139,7 @@ export function FeaturesDisplay({ features, title, compact = false, showCategori
                   className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${getCategoryBoxStyle(categoryKey)}`}
                 >
                   <div className={`w-2 h-2 rounded-full ${getCategoryDotColor(categoryKey)}`}></div>
-                  <span className="font-medium text-gray-900">{feature.display_name}</span>
+                  <span className="font-medium text-gray-900">{getFeatureName(feature)}</span>
                 </div>
               ))}
             </div>

@@ -36,6 +36,31 @@ export function middleware(request: VercelRequest) {
     return NextResponse.redirect(new URL('/', request.url))
   }
 
+  // Handle old /listing/ route - redirect to proper localized route
+  if (pathname.startsWith('/listing/')) {
+    const listingId = pathname.replace('/listing/', '')
+    
+    // Check cookie preference first
+    const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value
+    if (cookieLocale === 'bg') {
+      return NextResponse.redirect(new URL(`/bg/obiavi/${listingId}`, request.url))
+    } else {
+      return NextResponse.redirect(new URL(`/en/listings/${listingId}`, request.url))
+    }
+  }
+
+  // Handle /bg/listing/ route - redirect to /bg/obiavi/
+  if (pathname.startsWith('/bg/listing/')) {
+    const listingId = pathname.replace('/bg/listing/', '')
+    return NextResponse.redirect(new URL(`/bg/obiavi/${listingId}`, request.url))
+  }
+
+  // Handle /en/listing/ route - redirect to /en/listings/
+  if (pathname.startsWith('/en/listing/')) {
+    const listingId = pathname.replace('/en/listing/', '')
+    return NextResponse.redirect(new URL(`/en/listings/${listingId}`, request.url))
+  }
+
   // Handle /register route specially - needs locale prefix first
   if (pathname === '/register') {
     const url = request.nextUrl.clone()
