@@ -218,8 +218,8 @@ function BillingContent({ dict, lang }: BillingClientProps) {
             <CardContent className="p-6">
               <div className="space-y-6">
                 <div className="text-center">
-                  <h2 className="text-xl font-bold mb-2">Why Our Platform is Different</h2>
-                  <p className="text-muted-foreground text-sm">Built specifically for Bulgarian real estate developers</p>
+                  <h2 className="text-xl font-bold mb-2">{t.whyDifferent || "Why Our Platform is Different"}</h2>
+                  <p className="text-muted-foreground text-sm">{t.builtForBulgarian || "Built specifically for Bulgarian real estate developers"}</p>
                 </div>
                 
                 <div className="space-y-4">
@@ -228,8 +228,8 @@ function BillingContent({ dict, lang }: BillingClientProps) {
                       <TrendingUp className="h-5 w-5 text-primary" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-sm mb-1">Qualified Lead Generation</h3>
-                      <p className="text-muted-foreground text-xs">Get leads from buyers specifically looking for your properties. No wasted time on unqualified inquiries.</p>
+                      <h3 className="font-semibold text-sm mb-1">{t.qualifiedLeads || "Qualified Lead Generation"}</h3>
+                      <p className="text-muted-foreground text-xs">{t.qualifiedLeadsDesc || "Get leads from buyers specifically looking for your properties. No wasted time on unqualified inquiries."}</p>
                     </div>
                   </div>
                   
@@ -238,8 +238,8 @@ function BillingContent({ dict, lang }: BillingClientProps) {
                       <Star className="h-5 w-5 text-primary" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-sm mb-1">Exclusive Listings</h3>
-                      <p className="text-muted-foreground text-xs">Your listings are exclusively yours. No duplicate listings or stolen content like other platforms.</p>
+                      <h3 className="font-semibold text-sm mb-1">{t.exclusiveListings || "Exclusive Listings"}</h3>
+                      <p className="text-muted-foreground text-xs">{t.exclusiveListingsDesc || "Your listings are exclusively yours. No duplicate listings or stolen content like other platforms."}</p>
                     </div>
                   </div>
                   
@@ -248,8 +248,8 @@ function BillingContent({ dict, lang }: BillingClientProps) {
                       <Crown className="h-5 w-5 text-primary" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-sm mb-1">No Brokers Needed</h3>
-                      <p className="text-muted-foreground text-xs">Connect directly with buyers. Cut out the middleman and maximize your profits.</p>
+                      <h3 className="font-semibold text-sm mb-1">{t.noBrokers || "No Brokers Needed"}</h3>
+                      <p className="text-muted-foreground text-xs">{t.noBrokersDesc || "Connect directly with buyers. Cut out the middleman and maximize your profits."}</p>
                     </div>
                   </div>
                 </div>
@@ -262,33 +262,33 @@ function BillingContent({ dict, lang }: BillingClientProps) {
             <CardContent className="p-6">
               <div className="space-y-6">
                 <div className="text-center">
-                  <h2 className="text-xl font-bold mb-2">Simple Per-Listing Pricing</h2>
+                  <h2 className="text-xl font-bold mb-2">{t.simplePerListing || "Simple Per-Listing Pricing"}</h2>
                   <p className="text-muted-foreground text-sm">
-                    Pay only for what you use. Rotate your listings as needed - when one sells, activate another.
+                    {t.payOnlyWhatYouUse || "Pay only for what you use. Rotate your listings as needed - when one sells, activate another."}
                   </p>
                 </div>
                 
                 <div className="bg-muted/50 rounded-lg p-4">
-                  <h3 className="font-semibold mb-3 text-sm">How It Works</h3>
+                  <h3 className="font-semibold mb-3 text-sm">{t.howItWorks || "How It Works"}</h3>
                   <div className="space-y-3">
                     <div className="flex items-center gap-3">
                       <div className="bg-primary w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md">1</div>
-                      <p className="text-xs">Choose how many active project listings you want</p>
+                      <p className="text-xs">{t.step1 || "Choose how many active project listings you want"}</p>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="bg-primary w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md">2</div>
-                      <p className="text-xs">Pay monthly for your active project listings</p>
+                      <p className="text-xs">{t.step2 || "Pay monthly for your active project listings"}</p>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="bg-primary w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md">3</div>
-                      <p className="text-xs">Rotate listings as projects sell out</p>
+                      <p className="text-xs">{t.step3 || "Rotate listings as projects sell out"}</p>
                     </div>
                   </div>
                 </div>
                 
                 <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg p-4 text-center">
-                  <p className="text-sm font-semibold text-primary mb-1">Pricing will be competitive and transparent</p>
-                  <p className="text-xs text-muted-foreground">No hidden fees, no long-term contracts</p>
+                  <p className="text-sm font-semibold text-primary mb-1">{t.competitiveTransparent || "Pricing will be competitive and transparent"}</p>
+                  <p className="text-xs text-muted-foreground">{t.noHiddenFees || "No hidden fees, no long-term contracts"}</p>
                 </div>
               </div>
             </CardContent>
@@ -298,7 +298,7 @@ function BillingContent({ dict, lang }: BillingClientProps) {
         {/* FAQ Section */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-xl font-bold">Frequently Asked Questions</CardTitle>
+            <CardTitle className="text-xl font-bold">{t.faqTitle || "Frequently Asked Questions"}</CardTitle>
           </CardHeader>
           <CardContent>
             {/* Highlighted Early Supporter Benefits */}
@@ -308,10 +308,9 @@ function BillingContent({ dict, lang }: BillingClientProps) {
                   <Star className="h-4 w-4 text-white" />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-green-800 mb-1">Early Supporter Benefits</h4>
+                  <h4 className="font-semibold text-green-800 mb-1">{t.earlySupporterBenefits || "Early Supporter Benefits"}</h4>
                   <p className="text-green-700 text-sm">
-                    Developers who join our waitlist get <strong>up to 30% early-bird discount</strong> and 
-                    <strong> priority support</strong> when pricing launches.
+                    {t.earlySupporterDesc || "Developers who join our waitlist get up to 30% early-bird discount and priority support when pricing launches."}
                   </p>
                 </div>
               </div>
@@ -320,41 +319,41 @@ function BillingContent({ dict, lang }: BillingClientProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
                 <div>
-                  <h4 className="font-medium mb-2 text-sm">When will pricing be available?</h4>
+                  <h4 className="font-medium mb-2 text-sm">{t.whenPricingAvailable || "When will pricing be available?"}</h4>
                   <p className="text-muted-foreground text-xs">
-                    We're gathering feedback from developers like you to set fair pricing. Launch expected in the coming months.
+                    {t.whenPricingAvailableAnswer || "We're gathering feedback from developers like you to set fair pricing. Launch expected in the coming months."}
                   </p>
                 </div>
                 <div>
-                  <h4 className="font-medium mb-2 text-sm">How does the per-listing model work?</h4>
+                  <h4 className="font-medium mb-2 text-sm">{t.howPerListingWorks || "How does the per-listing model work?"}</h4>
                   <p className="text-muted-foreground text-xs">
-                    You pay monthly for each active project listing. When a project sells out, you can deactivate it and activate another one.
+                    {t.howPerListingWorksAnswer || "You pay monthly for each active project listing. When a project sells out, you can deactivate it and activate another one."}
                   </p>
                 </div>
                 <div>
-                  <h4 className="font-medium mb-2 text-sm">What happens to my current listings?</h4>
+                  <h4 className="font-medium mb-2 text-sm">{t.whatHappensCurrentListings || "What happens to my current listings?"}</h4>
                   <p className="text-muted-foreground text-xs">
-                    All your current listings and data will be preserved for paying users when we transition to paid plans.
+                    {t.whatHappensCurrentListingsAnswer || "All your current listings and data will be preserved for paying users when we transition to paid plans."}
                   </p>
                 </div>
               </div>
               <div className="space-y-4">
                 <div>
-                  <h4 className="font-medium mb-2 text-sm">Can I change my active listings?</h4>
+                  <h4 className="font-medium mb-2 text-sm">{t.canChangeActiveListings || "Can I change my active listings?"}</h4>
                   <p className="text-muted-foreground text-xs">
-                    Absolutely! You can rotate project listings as needed - deactivate sold-out projects and activate new ones.
+                    {t.canChangeActiveListingsAnswer || "Absolutely! You can rotate project listings as needed - deactivate sold-out projects and activate new ones."}
                   </p>
                 </div>
                 <div>
-                  <h4 className="font-medium mb-2 text-sm">Is there a contract?</h4>
+                  <h4 className="font-medium mb-2 text-sm">{t.isThereContract || "Is there a contract?"}</h4>
                   <p className="text-muted-foreground text-xs">
-                    No long-term contracts. Pay monthly and cancel anytime. We believe in earning your business every month.
+                    {t.isThereContractAnswer || "No long-term contracts. Pay monthly and cancel anytime. We believe in earning your business every month."}
                   </p>
                 </div>
                 <div>
-                  <h4 className="font-medium mb-2 text-sm">What happens if I don't subscribe?</h4>
+                  <h4 className="font-medium mb-2 text-sm">{t.whatIfDontSubscribe || "What happens if I don't subscribe?"}</h4>
                   <p className="text-muted-foreground text-xs">
-                    Your listings will be frozen and hidden from public view until you subscribe to keep them active.
+                    {t.whatIfDontSubscribeAnswer || "Your listings will be frozen and hidden from public view until you subscribe to keep them active."}
                   </p>
                 </div>
               </div>

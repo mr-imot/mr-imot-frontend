@@ -650,7 +650,7 @@ export default function DeveloperProfilePage({ dict, lang }: ProfileClientProps)
                         <FormItem>
                           <FormLabel>{t.companyName || "Company Name"}</FormLabel>
                           <FormControl>
-                            <Input {...field} placeholder="Enter company name" />
+                            <Input {...field} placeholder={t.enterCompanyName || "Enter company name"} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -665,7 +665,7 @@ export default function DeveloperProfilePage({ dict, lang }: ProfileClientProps)
                         <FormItem>
                           <FormLabel>{t.contactPerson || "Contact Person"}</FormLabel>
                           <FormControl>
-                            <Input {...field} placeholder="Enter contact person name" />
+                            <Input {...field} placeholder={t.enterContactPerson || "Enter contact person name"} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -680,7 +680,7 @@ export default function DeveloperProfilePage({ dict, lang }: ProfileClientProps)
                         <FormItem>
                           <FormLabel>{t.phone || "Phone Number"}</FormLabel>
                           <FormControl>
-                            <Input {...field} placeholder="Enter phone number" />
+                            <Input {...field} placeholder={t.enterPhoneNumber || "Enter phone number"} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -716,7 +716,7 @@ export default function DeveloperProfilePage({ dict, lang }: ProfileClientProps)
                                 {...field}
                                 ref={addressInputRef}
                                 className="pl-10"
-                                placeholder="Search for office address"
+                                placeholder={t.searchOfficeAddress || "Search for office address"}
                                 onChange={(e) => {
                                   field.onChange(e)
                                   setAddressSelected(false) // Reset when user types
@@ -793,7 +793,7 @@ export default function DeveloperProfilePage({ dict, lang }: ProfileClientProps)
                               <Input
                                 {...field}
                                 type={showPasswords.current ? "text" : "password"}
-                                placeholder="Enter current password"
+                                placeholder={t.enterCurrentPassword || "Enter current password"}
                               />
                               <Button
                                 type="button"
@@ -827,7 +827,7 @@ export default function DeveloperProfilePage({ dict, lang }: ProfileClientProps)
                               <Input
                                 {...field}
                                 type={showPasswords.new ? "text" : "password"}
-                                placeholder="Enter new password"
+                                placeholder={t.enterNewPassword || "Enter new password"}
                               />
                               <Button
                                 type="button"
@@ -861,7 +861,7 @@ export default function DeveloperProfilePage({ dict, lang }: ProfileClientProps)
                               <Input
                                 {...field}
                                 type={showPasswords.confirm ? "text" : "password"}
-                                placeholder="Confirm new password"
+                                placeholder={t.confirmNewPasswordPlaceholder || "Confirm new password"}
                               />
                               <Button
                                 type="button"
@@ -929,8 +929,8 @@ export default function DeveloperProfilePage({ dict, lang }: ProfileClientProps)
                 <div className="space-y-4">
                   <p className="text-sm text-gray-600">
                     {addressSelected 
-                      ? "Drag the marker or search for a new address to update your office location."
-                      : "Search for your office address to set the location on the map."
+                      ? (t.dragMarkerOrSearch || "Drag the marker or search for a new address to update your office location.")
+                      : (t.searchForOfficeAddress || "Search for your office address to set the location on the map.")
                     }
                   </p>
                   
