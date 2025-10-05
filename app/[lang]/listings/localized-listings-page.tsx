@@ -548,14 +548,8 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
           gestureHandling: 'greedy',
           mapId: 'DEMO_MAP_ID',
           draggableCursor: 'grab',
-          draggingCursor: 'grabbing',
-          styles: [
-            {
-              featureType: "poi",
-              elementType: "labels",
-              stylers: [{ visibility: "off" }] // Hide POIs for cleaner map
-            }
-          ]
+          draggingCursor: 'grabbing'
+          // Note: styles removed when mapId is present to avoid Google Maps warning
         })
         mobileGoogleMapRef.current = mobileMap
         
@@ -1030,12 +1024,12 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
             <div ref={mobileMapRef} className="w-full h-full" />
             
             {/* In-map header: Logo + Search + Filter + Hamburger on one line */}
-            <div className="absolute top-3 left-3 right-3 z-40">
-              <div className="flex items-center gap-2">
+            <div className="absolute top-4 left-4 right-4 z-40">
+              <div className="flex items-center gap-3">
                 {/* Logo: match homepage size (56x56) but keep compact padding */}
                 <Link href="/" className="flex-shrink-0">
-                  <div className="relative w-14 h-14 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-sm border border-white/20">
-                    <Image src="/images/mr-imot-logo-no-background.png" alt="Mr. Imot Logo" width={56} height={56} className="object-contain" />
+                  <div className="relative w-14 h-14 flex items-center justify-center rounded-full bg-white/95 backdrop-blur-md border border-white/30 shadow-lg hover:shadow-xl transition-all">
+                    <Image src="/images/mr-imot-logo-no-background.png" alt="Mr. Imot Logo" width={56} height={56} className="object-contain" priority />
                   </div>
                 </Link>
 
@@ -1048,10 +1042,10 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
                       searchContainer.style.display = 'block'
                     }
                   }}
-                  className="flex-1 flex items-center gap-2 px-4 py-3 bg-white/95 backdrop-blur-md rounded-full shadow-lg hover:shadow-xl transition-all"
+                  className="flex-1 flex items-center gap-3 px-5 py-4 bg-white/95 backdrop-blur-md rounded-2xl shadow-lg hover:shadow-xl transition-all touch-manipulation"
                 >
-                  <Search className="w-4 h-4 text-gray-500 flex-shrink-0" />
-                  <span className="text-sm text-gray-600 truncate">
+                  <Search className="w-5 h-5 text-gray-500 flex-shrink-0" />
+                  <span className="text-base text-gray-600 truncate">
                     {lang === 'bg' ? 'Търси София, Пловдив...' : 'Search Sofia, Plovdiv...'}
                   </span>
                 </button>
@@ -1059,9 +1053,9 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
                 {/* Filter Button (same visual weight as search) */}
                 <button
                   onClick={() => setIsFilterModalOpen(true)}
-                  className="flex items-center justify-center w-12 h-12 bg-white/95 backdrop-blur-md rounded-full shadow-lg hover:shadow-xl transition-all flex-shrink-0"
+                  className="flex items-center justify-center w-14 h-14 bg-white/95 backdrop-blur-md rounded-2xl shadow-lg hover:shadow-xl transition-all flex-shrink-0 touch-manipulation"
                 >
-                  <SlidersHorizontal className="w-5 h-5 text-gray-700" />
+                  <SlidersHorizontal className="w-6 h-6 text-gray-700" />
                 </button>
 
                 {/* Hamburger - use MobileNav trigger (align right) */}
@@ -1125,21 +1119,21 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
             {isFilterModalOpen && (
               <div className="fixed inset-0 z-50 bg-black/50 flex items-end">
                 <div className="w-full bg-white rounded-t-3xl p-6 animate-slide-up">
-                  <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-2xl font-bold text-gray-900">
+                  <div className="flex items-center justify-between mb-8">
+                    <h2 className="text-3xl font-bold text-gray-900">
                       {lang === 'bg' ? 'Филтри' : 'Filters'}
                     </h2>
                     <button
                       onClick={() => setIsFilterModalOpen(false)}
-                      className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                      className="p-3 hover:bg-gray-100 active:bg-gray-200 rounded-full transition-colors touch-manipulation"
                     >
-                      <X className="w-6 h-6" />
+                      <X className="w-7 h-7" />
                     </button>
                   </div>
                   
                   {/* Property Type */}
-                  <div className="mb-6">
-                    <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-3">
+                  <div className="mb-8">
+                    <h3 className="text-base font-bold text-gray-900 mb-4">
                       {dict.listings.filters.propertyTypeLabel}
                     </h3>
                     <div className="grid grid-cols-3 gap-3">
@@ -1148,10 +1142,10 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
                           handlePropertyTypeFilter('all')
                           setIsFilterModalOpen(false)
                         }}
-                        className={`py-4 px-4 rounded-2xl text-base font-semibold transition-all border-2 ${
+                        className={`py-5 px-4 rounded-2xl text-base font-semibold transition-all border-2 touch-manipulation ${
                           propertyTypeFilter === 'all'
-                            ? 'bg-gray-900 text-white border-gray-900'
-                            : 'bg-white text-gray-700 border-gray-200 hover:border-gray-400'
+                            ? 'bg-gray-900 text-white border-gray-900 shadow-lg'
+                            : 'bg-white text-gray-700 border-gray-200 hover:border-gray-400 hover:shadow-md active:bg-gray-50'
                         }`}
                       >
                         {dict.listings.filters.all}
@@ -1161,10 +1155,10 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
                           handlePropertyTypeFilter('apartments')
                           setIsFilterModalOpen(false)
                         }}
-                        className={`py-4 px-4 rounded-2xl text-base font-semibold transition-all border-2 flex flex-col items-center gap-2 ${
+                        className={`py-5 px-4 rounded-2xl text-base font-semibold transition-all border-2 flex flex-col items-center gap-2 touch-manipulation ${
                           propertyTypeFilter === 'apartments'
-                            ? 'bg-gray-900 text-white border-gray-900'
-                            : 'bg-white text-gray-700 border-gray-200 hover:border-gray-400'
+                            ? 'bg-gray-900 text-white border-gray-900 shadow-lg'
+                            : 'bg-white text-gray-700 border-gray-200 hover:border-gray-400 hover:shadow-md active:bg-gray-50'
                         }`}
                       >
                         <Building className="w-6 h-6" />
@@ -1175,10 +1169,10 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
                           handlePropertyTypeFilter('houses')
                           setIsFilterModalOpen(false)
                         }}
-                        className={`py-4 px-4 rounded-2xl text-base font-semibold transition-all border-2 flex flex-col items-center gap-2 ${
+                        className={`py-5 px-4 rounded-2xl text-base font-semibold transition-all border-2 flex flex-col items-center gap-2 touch-manipulation ${
                           propertyTypeFilter === 'houses'
-                            ? 'bg-gray-900 text-white border-gray-900'
-                            : 'bg-white text-gray-700 border-gray-200 hover:border-gray-400'
+                            ? 'bg-gray-900 text-white border-gray-900 shadow-lg'
+                            : 'bg-white text-gray-700 border-gray-200 hover:border-gray-400 hover:shadow-md active:bg-gray-50'
                         }`}
                       >
                         <Home className="w-6 h-6" />
@@ -1190,7 +1184,7 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
                   {/* Apply Button */}
                   <button
                     onClick={() => setIsFilterModalOpen(false)}
-                    className="w-full py-4 bg-gray-900 text-white font-semibold rounded-2xl hover:bg-gray-800 transition-colors"
+                    className="w-full py-5 bg-gray-900 text-white font-bold text-lg rounded-2xl hover:bg-gray-800 active:bg-gray-700 transition-colors touch-manipulation shadow-lg"
                   >
                     {lang === 'bg' ? 'Приложи филтри' : 'Apply filters'}
                   </button>
@@ -1207,15 +1201,15 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
               initialSnap={0}
               onSnapChange={setMobileSheetSnap}
             >
-              <div className="px-4 py-2">
+              <div className="px-5 py-4">
                 {/* Sheet header */}
-                <div className="mb-4">
-                  <h2 className="text-xl font-bold text-gray-900">
+                <div className="mb-6">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-2">
                     {filteredProperties.length === 1
                       ? (lang === 'bg' ? '1 имот' : '1 property')
                       : `${filteredProperties.length} ${lang === 'bg' ? 'имота' : 'properties'}`}
                   </h2>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-base text-gray-600 font-medium">
                     {propertyTypeFilter === 'all' ? dict.listings.allProperties : 
                      propertyTypeFilter === 'apartments' ? dict.listings.filters.apartments : dict.listings.filters.houses}
                   </p>
@@ -1225,17 +1219,17 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
                 {shouldShowLoading ? (
                   <ListingCardSkeletonGrid count={6} />
                 ) : showEmpty ? (
-                  <div className="py-12 text-center">
-                    <Building className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                  <div className="py-16 text-center">
+                    <Building className="w-20 h-20 mx-auto text-gray-300 mb-6" />
+                    <h3 className="text-xl font-semibold text-gray-800 mb-3">
                       {dict.listings.noPropertiesAvailable}
                     </h3>
-                    <p className="text-gray-600 text-sm">
+                    <p className="text-gray-600 text-base">
                       {dict.listings.tryDifferentLocation}
                     </p>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 xs:grid-cols-2 gap-4 pb-20">
+                  <div className="grid grid-cols-1 xs:grid-cols-2 gap-4 pb-24">
                     {filteredProperties.map((property, index) => (
                       <ListingCard
                         key={property.id}

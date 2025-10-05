@@ -104,7 +104,7 @@ export function DraggableSheet({
       return
     } else {
       // Sheet is collapsed or content not scrollable, always capture for drag
-      e.preventDefault()
+      // Only prevent default if we're actually going to handle the drag
       handleStart(touchY)
     }
   }
@@ -155,7 +155,7 @@ export function DraggableSheet({
       window.addEventListener('mousemove', handleMouseMove)
       window.addEventListener('mouseup', handleMouseUp)
       window.addEventListener('touchmove', handleTouchMove, { passive: false })
-      window.addEventListener('touchend', handleTouchEnd)
+      window.addEventListener('touchend', handleTouchEnd, { passive: false })
 
       return () => {
         body.style.overflow = prevOverflow

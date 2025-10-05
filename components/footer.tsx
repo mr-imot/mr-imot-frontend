@@ -129,6 +129,7 @@ export function Footer() {
                   width={96}
                   height={96}
                   className="w-24 h-24 object-contain cursor-pointer"
+                  style={{ width: 'auto', height: 'auto' }}
                 />
               </Link>
             </div>

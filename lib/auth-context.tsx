@@ -125,7 +125,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       if (!response.ok) {
         if (response.status === 401) {
-          // Not authenticated
+          // Not authenticated - this is expected behavior, don't log as error
           setUser(null);
           return false;
         }
@@ -136,7 +136,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setUser(userData);
       return true;
     } catch (error) {
-      console.error('Auth check failed:', error);
+      // Only log unexpected errors, not 401s
+      if (error instanceof Error && !error.message.includes('401')) {
+        console.error('Auth check failed:', error);
+      }
       setUser(null);
       return false;
     }
