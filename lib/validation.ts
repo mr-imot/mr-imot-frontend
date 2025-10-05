@@ -20,74 +20,74 @@ export interface FormData {
   officeLongitude?: number
 }
 
-export const validateForm = (data: FormData): ValidationError[] => {
+export const validateForm = (data: FormData, translations?: any): ValidationError[] => {
   const errors: ValidationError[] = []
 
   // Company Name validation
   if (!data.companyName.trim()) {
-    errors.push({ field: 'companyName', message: 'Company name is required' })
+    errors.push({ field: 'companyName', message: translations?.validation?.companyNameRequired || 'Company name is required' })
   } else if (data.companyName.trim().length < 2) {
-    errors.push({ field: 'companyName', message: 'Company name must be at least 2 characters' })
+    errors.push({ field: 'companyName', message: translations?.validation?.companyNameMinLength || 'Company name must be at least 2 characters' })
   }
 
   // Contact Person validation
   if (!data.contactPerson.trim()) {
-    errors.push({ field: 'contactPerson', message: 'Contact person is required' })
+    errors.push({ field: 'contactPerson', message: translations?.validation?.contactPersonRequired || 'Contact person is required' })
   } else if (data.contactPerson.trim().length < 2) {
-    errors.push({ field: 'contactPerson', message: 'Contact person must be at least 2 characters' })
+    errors.push({ field: 'contactPerson', message: translations?.validation?.contactPersonMinLength || 'Contact person must be at least 2 characters' })
   }
 
   // Email validation
   if (!data.email.trim()) {
-    errors.push({ field: 'email', message: 'Email is required' })
+    errors.push({ field: 'email', message: translations?.validation?.emailRequired || 'Email is required' })
   } else if (!isValidEmail(data.email)) {
-    errors.push({ field: 'email', message: 'Please enter a valid email address' })
+    errors.push({ field: 'email', message: translations?.validation?.emailInvalid || 'Please enter a valid email address' })
   }
 
   // Phone validation
   if (!data.phone.trim()) {
-    errors.push({ field: 'phone', message: 'Phone number is required' })
+    errors.push({ field: 'phone', message: translations?.validation?.phoneRequired || 'Phone number is required' })
   } else if (!isValidPhone(data.phone)) {
-    errors.push({ field: 'phone', message: 'Please enter a valid phone number' })
+    errors.push({ field: 'phone', message: translations?.validation?.phoneInvalid || 'Please enter a valid phone number' })
   }
 
   // Office Address validation
   if (!data.officeAddress.trim()) {
-    errors.push({ field: 'officeAddress', message: 'Office address is required' })
+    errors.push({ field: 'officeAddress', message: translations?.validation?.officeAddressRequired || 'Office address is required' })
   }
 
   // Office Coordinates validation (required for developers)
   if (!data.officeLatitude || !data.officeLongitude) {
-    errors.push({ field: 'officeAddress', message: 'Please select your office location on the map' })
+    errors.push({ field: 'officeAddress', message: translations?.validation?.officeLocationRequired || 'Please select your office location on the map' })
   }
 
   // Password validation
   if (!data.password) {
-    errors.push({ field: 'password', message: 'Password is required' })
+    errors.push({ field: 'password', message: translations?.validation?.passwordRequired || 'Password is required' })
   } else if (data.password.length < 8) {
-    errors.push({ field: 'password', message: 'Password must be at least 8 characters' })
+    errors.push({ field: 'password', message: translations?.validation?.passwordMinLength || 'Password must be at least 8 characters' })
   } else if (!isValidPassword(data.password)) {
     errors.push({ 
       field: 'password', 
-      message: 'Password must contain uppercase, lowercase, and number' 
+      message: translations?.validation?.passwordRequirements || 'Password must contain uppercase, lowercase, and number' 
     })
   }
 
   // Confirm Password validation
   if (!data.confirmPassword) {
-    errors.push({ field: 'confirmPassword', message: 'Please confirm your password' })
+    errors.push({ field: 'confirmPassword', message: translations?.validation?.confirmPasswordRequired || 'Please confirm your password' })
   } else if (data.password !== data.confirmPassword) {
-    errors.push({ field: 'confirmPassword', message: 'Passwords do not match' })
+    errors.push({ field: 'confirmPassword', message: translations?.validation?.passwordsDoNotMatch || 'Passwords do not match' })
   }
 
   // Website validation (optional)
   if (data.website && data.website.trim() && !isValidUrl(data.website)) {
-    errors.push({ field: 'website', message: 'Please enter a valid URL' })
+    errors.push({ field: 'website', message: translations?.validation?.websiteInvalid || 'Please enter a valid URL' })
   }
 
   // Terms acceptance validation
   if (!data.acceptTerms) {
-    errors.push({ field: 'acceptTerms', message: 'You must accept the Terms of Service and Privacy Policy' })
+    errors.push({ field: 'acceptTerms', message: translations?.validation?.acceptTermsRequired || 'You must accept the Terms of Service and Privacy Policy' })
   }
 
   return errors

@@ -296,6 +296,26 @@
     "pleaseWaitBeforeRequest": "Моля, изчакайте, преди да поискате друга връзка за нулиране",
     "failedToSendResetEmail": "Неуспешно изпращане на имейл за нулиране"
   },
+  "validation": {
+    "companyNameRequired": "Името на компанията е задължително",
+    "companyNameMinLength": "Името на компанията трябва да бъде поне 2 символа",
+    "contactPersonRequired": "Лицето за контакт е задължително",
+    "contactPersonMinLength": "Лицето за контакт трябва да бъде поне 2 символа",
+    "emailRequired": "Имейлът е задължителен",
+    "emailInvalid": "Моля, въведете валиден имейл адрес",
+    "phoneRequired": "Телефонният номер е задължителен",
+    "phoneInvalid": "Моля, въведете валиден телефонен номер",
+    "officeAddressRequired": "Адресът на офиса е задължителен",
+    "officeAddressMinLength": "Адресът на офиса трябва да бъде поне 5 символа",
+    "officeLocationRequired": "Моля, изберете местоположението на офиса си на картата",
+    "passwordRequired": "Паролата е задължителна",
+    "passwordMinLength": "Паролата трябва да бъде поне 8 символа",
+    "passwordRequirements": "Паролата трябва да съдържа поне една главна буква, една малка буква и една цифра",
+    "confirmPasswordRequired": "Моля, потвърдете паролата си",
+    "passwordsDoNotMatch": "Паролите не съвпадат",
+    "acceptTermsRequired": "Трябва да приемете Условията за ползване и Политиката за поверителност",
+    "websiteInvalid": "Моля, въведете валиден URL на уебсайт"
+  },
   "register": {
     "pageTitle": "Регистрация",
     "pageDescription": "Създайте профил като строител или купувач на недвижими имоти.",

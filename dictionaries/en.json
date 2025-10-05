@@ -296,6 +296,26 @@
     "pleaseWaitBeforeRequest": "Please wait before requesting another reset link",
     "failedToSendResetEmail": "Failed to send reset email"
   },
+  "validation": {
+    "companyNameRequired": "Company name is required",
+    "companyNameMinLength": "Company name must be at least 2 characters",
+    "contactPersonRequired": "Contact person is required",
+    "contactPersonMinLength": "Contact person must be at least 2 characters",
+    "emailRequired": "Email is required",
+    "emailInvalid": "Please enter a valid email address",
+    "phoneRequired": "Phone number is required",
+    "phoneInvalid": "Please enter a valid phone number",
+    "officeAddressRequired": "Office address is required",
+    "officeAddressMinLength": "Office address must be at least 5 characters",
+    "officeLocationRequired": "Please select your office location on the map",
+    "passwordRequired": "Password is required",
+    "passwordMinLength": "Password must be at least 8 characters",
+    "passwordRequirements": "Password must contain at least one uppercase letter, one lowercase letter, and one number",
+    "confirmPasswordRequired": "Please confirm your password",
+    "passwordsDoNotMatch": "Passwords do not match",
+    "acceptTermsRequired": "You must accept the Terms of Service and Privacy Policy",
+    "websiteInvalid": "Please enter a valid website URL"
+  },
   "contact": {
     "pageTitle": "Contact Us",
     "pageDescription": "Get in touch with our team for any questions about properties, developers, or our services.",

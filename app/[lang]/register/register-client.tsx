@@ -290,7 +290,7 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
     e.preventDefault()
     
     // Validate form
-    const validationErrors = validateForm(formData)
+    const validationErrors = validateForm(formData, dict)
     if (validationErrors.length > 0) {
       setErrors(validationErrors)
       return
@@ -328,7 +328,7 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
       
       // Handle terms acceptance as special field-specific error
       if (errorMessage.toLowerCase().includes("terms") || errorMessage.toLowerCase().includes("accept")) {
-        setErrors([{ field: "acceptTerms", message: "You must accept the Terms of Service and Privacy Policy" }])
+        setErrors([{ field: "acceptTerms", message: dict.validation?.acceptTermsRequired || "You must accept the Terms of Service and Privacy Policy" }])
         setIsLoading(false)
         return
       }
@@ -336,10 +336,10 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
       // Create structured error
       const statusCode = error?.statusCode
       const details = error?.details
-      const authError = createAuthError(errorMessage, statusCode, details)
+      const authError = createAuthError(errorMessage, statusCode, details, dict)
       
       // Get user-friendly error message
-      const displayMessage = getErrorDisplayMessage(authError)
+      const displayMessage = getErrorDisplayMessage(authError, dict)
       
       setSubmitStatus({
         type: "error",
