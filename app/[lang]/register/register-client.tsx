@@ -355,8 +355,8 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
   // Developer-specific layout with informative left column
   if (isDeveloper) {
     return (
-      <div className="mx-auto w-full max-w-6xl px-4">
-        <div className="grid lg:grid-cols-[1.1fr_1fr] gap-8 items-start">
+      <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
+        <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-6 lg:gap-8 items-start">
           {/* Info column */}
           <Card className="bg-card border shadow-sm">
             <CardHeader>
@@ -452,7 +452,7 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
               <CardTitle>{dict.register?.registerAsDeveloper || "Register as Developer"}</CardTitle>
               <CardDescription>{dict.register?.createAccountToListProjects || "Create your account to list projects and receive leads."}</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-6 sm:p-8">
               {submitStatus.type === "success" ? (
                 <EmailVerificationSent
                   email={formData.email}
@@ -473,10 +473,10 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
               ) : null}
 
               {submitStatus.type !== "success" && (
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
                 {/* Company Information */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2 min-h-[44px]">
                     <Label htmlFor="companyName">{dict.register?.companyName || "Company Name"} <span className="text-destructive">*</span></Label>
                     <Input 
                       id="companyName" 
@@ -489,7 +489,7 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
                     />
                     {getFieldError(errors, "companyName") && (<p className="text-sm text-destructive">{getFieldError(errors, "companyName")}</p>)}
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-2 min-h-[44px]">
                     <Label htmlFor="contactPerson">{dict.register?.contactPerson || "Contact Person"} <span className="text-destructive">*</span></Label>
                     <Input 
                       id="contactPerson" 
@@ -505,8 +505,8 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
                 </div>
 
                 {/* Contact Information */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2 min-h-[44px]">
                     <Label htmlFor="email">{dict.register?.emailAddress || "Email Address"} <span className="text-destructive">*</span></Label>
                     <Input 
                       id="email" 
@@ -534,7 +534,7 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
 
                 {/* Address with Google Maps */}
                 <div className="space-y-4">
-                  <div className="space-y-2">
+                  <div className="space-y-2 min-h-[44px]">
                     <Label htmlFor="officeAddress">{dict.register?.officeAddress || "Office Address"} <span className="text-destructive">*</span></Label>
                     <div className="relative">
                       <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
@@ -568,7 +568,7 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
                   </div>
                   
                   {/* Map Display */}
-                  <div className="space-y-2">
+                  <div className="space-y-2 min-h-[44px]">
                     <Label>{dict.register?.officeLocation || "Office Location"}</Label>
                     <div className="relative">
                       <div 
@@ -594,8 +594,8 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
                 </div>
 
                 {/* Password */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2 min-h-[44px]">
                   <Label htmlFor="password">{dict.register?.password || "Password"} <span className="text-destructive">*</span></Label>
                     <Input 
                       id="password" 
@@ -611,7 +611,7 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
                     <PasswordStrength password={formData.password} />
                     {getFieldError(errors, "password") && (<p className="text-sm text-destructive">{getFieldError(errors, "password")}</p>)}
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-2 min-h-[44px]">
                     <Label htmlFor="confirmPassword">{dict.register?.confirmPassword || "Confirm Password"} <span className="text-destructive">*</span></Label>
                     <Input 
                       id="confirmPassword" 
@@ -651,7 +651,7 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
                 </div>
 
                 {/* Submit Button */}
-                <Button type="submit" className="w-full" disabled={isLoading}>
+                <Button type="submit" className="w-full h-12 sm:h-10" disabled={isLoading}>
                   {isLoading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" /> {dict.register?.creatingYourAccount || "Creating Your Account..."}</>) : (<>{dict.register?.createDeveloperAccount || "Create Developer Account"}</>)}
                 </Button>
 
@@ -704,7 +704,7 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
 
       {/* Main Card */}
       <div className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl shadow-blue-500/10 border border-white/20 overflow-hidden">
-        <div className="p-8">
+        <div className="p-6 sm:p-8">
           {submitStatus.type === "success" ? (
             <EmailVerificationSent
               email={formData.email}
@@ -727,9 +727,9 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
 
           {/* Hide form when showing email verification */}
           {submitStatus.type !== "success" && (
-          <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
             {/* Company Information */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FloatingInput
                 label={dict.register?.companyName || "Company Name"}
                 type="text"
@@ -751,7 +751,7 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
             </div>
 
             {/* Contact Information */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FloatingInput
                 label={dict.register?.emailAddress || "Email Address"}
                 type="email"
