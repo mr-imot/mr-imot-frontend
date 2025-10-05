@@ -95,10 +95,10 @@ function LoginFormContent({ dict, lang }: LoginClientProps) {
       // Create structured error with status code if available
       const statusCode = (err as any)?.statusCode
       const details = (err as any)?.details
-      const authError = createAuthError(errorMessage, statusCode, details)
+      const authError = createAuthError(errorMessage, statusCode, details, dict)
       
       // Get user-friendly error message
-      const displayMessage = getErrorDisplayMessage(authError)
+      const displayMessage = getErrorDisplayMessage(authError, dict)
       setError(displayMessage)
     } finally {
       setIsLoading(false)

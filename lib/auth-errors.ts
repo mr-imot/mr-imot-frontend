@@ -42,25 +42,26 @@ export class AuthenticationError extends Error {
 export const createAuthError = (
   message: string, 
   statusCode?: number, 
-  details?: any
+  details?: any,
+  translations?: any
 ): AuthenticationError => {
   // Determine error type based on message and status code
   const msg = message.toLowerCase();
   
   if (statusCode === 401 || msg.includes('invalid credentials') || msg.includes('invalid email or password')) {
-    return new AuthenticationError(AuthErrorType.INVALID_CREDENTIALS, 'Invalid email or password. Please check your credentials and try again.', statusCode, undefined, details);
+    return new AuthenticationError(AuthErrorType.INVALID_CREDENTIALS, translations?.errors?.invalidCredentials || 'Invalid email or password. Please check your credentials and try again.', statusCode, undefined, details);
   }
   
   if (msg.includes('email not verified') || msg.includes('verification required')) {
-    return new AuthenticationError(AuthErrorType.EMAIL_NOT_VERIFIED, 'Please verify your email address before signing in.', statusCode, undefined, details);
+    return new AuthenticationError(AuthErrorType.EMAIL_NOT_VERIFIED, translations?.errors?.emailNotVerified || 'Please verify your email address before signing in.', statusCode, undefined, details);
   }
   
   if (msg.includes('account disabled') || msg.includes('disabled')) {
-    return new AuthenticationError(AuthErrorType.ACCOUNT_DISABLED, 'This account has been disabled. Please contact support.', statusCode, undefined, details);
+    return new AuthenticationError(AuthErrorType.ACCOUNT_DISABLED, translations?.errors?.accountDisabled || 'This account has been disabled. Please contact support.', statusCode, undefined, details);
   }
   
   if (msg.includes('account locked') || msg.includes('locked')) {
-    return new AuthenticationError(AuthErrorType.ACCOUNT_LOCKED, 'This account has been temporarily locked due to failed login attempts.', statusCode, undefined, details);
+    return new AuthenticationError(AuthErrorType.ACCOUNT_LOCKED, translations?.errors?.accountLocked || 'This account has been temporarily locked due to failed login attempts.', statusCode, undefined, details);
   }
   
   if (msg.includes('access denied') || msg.includes('admin account required') || msg.includes('developer') || msg.includes('role')) {
@@ -68,57 +69,57 @@ export const createAuthError = (
   }
   
   if (msg.includes('token expired') || msg.includes('expired')) {
-    return new AuthenticationError(AuthErrorType.TOKEN_EXPIRED, 'Your session has expired. Please sign in again.', statusCode, undefined, details);
+    return new AuthenticationError(AuthErrorType.TOKEN_EXPIRED, translations?.errors?.tokenExpired || 'Your session has expired. Please sign in again.', statusCode, undefined, details);
   }
   
   if (statusCode === 429 || msg.includes('too many requests') || msg.includes('rate limit')) {
-    return new AuthenticationError(AuthErrorType.RATE_LIMITED, 'Too many requests. Please wait before trying again.', statusCode, undefined, details);
+    return new AuthenticationError(AuthErrorType.RATE_LIMITED, translations?.errors?.rateLimited || 'Too many requests. Please wait before trying again.', statusCode, undefined, details);
   }
   
   if (msg.includes('email already') || msg.includes('already exists')) {
-    return new AuthenticationError(AuthErrorType.EMAIL_ALREADY_EXISTS, 'An account with this email already exists. Try signing in instead.', statusCode, 'email', details);
+    return new AuthenticationError(AuthErrorType.EMAIL_ALREADY_EXISTS, translations?.errors?.emailAlreadyExists || 'An account with this email already exists. Try signing in instead.', statusCode, 'email', details);
   }
   
   if (statusCode === 422 || msg.includes('validation') || msg.includes('invalid input')) {
-    return new AuthenticationError(AuthErrorType.VALIDATION_ERROR, 'Please check your input and try again.', statusCode, undefined, details);
+    return new AuthenticationError(AuthErrorType.VALIDATION_ERROR, translations?.errors?.validationError || 'Please check your input and try again.', statusCode, undefined, details);
   }
   
   if (msg.includes('network') || msg.includes('fetch') || msg.includes('connection')) {
-    return new AuthenticationError(AuthErrorType.NETWORK_ERROR, 'Connection failed. Please check your internet and try again.', statusCode, undefined, details);
+    return new AuthenticationError(AuthErrorType.NETWORK_ERROR, translations?.errors?.networkError || 'Connection failed. Please check your internet and try again.', statusCode, undefined, details);
   }
   
   if (statusCode && statusCode >= 500 || msg.includes('server error') || msg.includes('server')) {
-    return new AuthenticationError(AuthErrorType.SERVER_ERROR, 'Something went wrong on our end. Please try again later.', statusCode, undefined, details);
+    return new AuthenticationError(AuthErrorType.SERVER_ERROR, translations?.errors?.serverError || 'Something went wrong on our end. Please try again later.', statusCode, undefined, details);
   }
   
   // Default to unknown error
-  return new AuthenticationError(AuthErrorType.UNKNOWN_ERROR, message.length < 100 ? message : 'An unexpected error occurred. Please try again.', statusCode, undefined, details);
+  return new AuthenticationError(AuthErrorType.UNKNOWN_ERROR, translations?.errors?.unknownError || (message.length < 100 ? message : 'An unexpected error occurred. Please try again.'), statusCode, undefined, details);
 };
 
-export const getErrorDisplayMessage = (error: AuthenticationError): string => {
+export const getErrorDisplayMessage = (error: AuthenticationError, translations?: any): string => {
   switch (error.type) {
     case AuthErrorType.INVALID_CREDENTIALS:
-      return 'Invalid email or password. Please check your credentials and try again.';
+      return translations?.errors?.invalidCredentials || 'Invalid email or password. Please check your credentials and try again.';
     case AuthErrorType.EMAIL_NOT_VERIFIED:
-      return 'Please verify your email address before signing in.';
+      return translations?.errors?.emailNotVerified || 'Please verify your email address before signing in.';
     case AuthErrorType.ACCOUNT_DISABLED:
-      return 'This account has been disabled. Please contact support.';
+      return translations?.errors?.accountDisabled || 'This account has been disabled. Please contact support.';
     case AuthErrorType.ACCOUNT_LOCKED:
-      return 'This account has been temporarily locked. Please wait before trying again.';
+      return translations?.errors?.accountLocked || 'This account has been temporarily locked. Please wait before trying again.';
     case AuthErrorType.ROLE_ACCESS_DENIED:
       return error.message; // Use the specific role access message
     case AuthErrorType.TOKEN_EXPIRED:
-      return 'Your session has expired. Please sign in again.';
+      return translations?.errors?.tokenExpired || 'Your session has expired. Please sign in again.';
     case AuthErrorType.NETWORK_ERROR:
-      return 'Connection failed. Please check your internet and try again.';
+      return translations?.errors?.networkError || 'Connection failed. Please check your internet and try again.';
     case AuthErrorType.SERVER_ERROR:
-      return 'Something went wrong on our end. Please try again later.';
+      return translations?.errors?.serverError || 'Something went wrong on our end. Please try again later.';
     case AuthErrorType.VALIDATION_ERROR:
-      return 'Please check your input and try again.';
+      return translations?.errors?.validationError || 'Please check your input and try again.';
     case AuthErrorType.RATE_LIMITED:
-      return 'Too many requests. Please wait before trying again.';
+      return translations?.errors?.rateLimited || 'Too many requests. Please wait before trying again.';
     case AuthErrorType.EMAIL_ALREADY_EXISTS:
-      return 'An account with this email already exists. Try signing in instead.';
+      return translations?.errors?.emailAlreadyExists || 'An account with this email already exists. Try signing in instead.';
     default:
       return error.message;
   }

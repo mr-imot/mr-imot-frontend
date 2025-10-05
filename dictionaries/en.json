@@ -279,6 +279,23 @@
     "resend": "Resend",
     "backToForgotPassword": "← Back to forgot password form"
   },
+  "errors": {
+    "invalidCredentials": "Invalid email or password. Please check your credentials and try again.",
+    "emailNotVerified": "Please verify your email address before signing in.",
+    "accountDisabled": "This account has been disabled. Please contact support.",
+    "accountLocked": "This account has been temporarily locked. Please wait before trying again.",
+    "tokenExpired": "Your session has expired. Please sign in again.",
+    "networkError": "Connection failed. Please check your internet and try again.",
+    "serverError": "Something went wrong on our end. Please try again later.",
+    "validationError": "Please check your input and try again.",
+    "rateLimited": "Too many requests. Please wait before trying again.",
+    "emailAlreadyExists": "An account with this email already exists. Try signing in instead.",
+    "unknownError": "An unexpected error occurred. Please try again.",
+    "pleaseEnterEmail": "Please enter your email address",
+    "pleaseEnterValidEmail": "Please enter a valid email address",
+    "pleaseWaitBeforeRequest": "Please wait before requesting another reset link",
+    "failedToSendResetEmail": "Failed to send reset email"
+  },
   "contact": {
     "pageTitle": "Contact Us",
     "pageDescription": "Get in touch with our team for any questions about properties, developers, or our services.",

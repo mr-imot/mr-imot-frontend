@@ -48,17 +48,17 @@ export default function ForgotPasswordClient({ dict, lang }: ForgotPasswordClien
     e.preventDefault();
     
     if (!email.trim()) {
-      setError('Please enter your email address');
+      setError(t.errors?.pleaseEnterEmail || 'Please enter your email address');
       return;
     }
 
     if (!validateEmail(email)) {
-      setError('Please enter a valid email address');
+      setError(t.errors?.pleaseEnterValidEmail || 'Please enter a valid email address');
       return;
     }
 
     if (!canRequest()) {
-      setError('Please wait before requesting another reset link');
+      setError(t.errors?.pleaseWaitBeforeRequest || 'Please wait before requesting another reset link');
       return;
     }
 
@@ -81,7 +81,7 @@ export default function ForgotPasswordClient({ dict, lang }: ForgotPasswordClien
       setLastRequestTime(new Date());
       setEmailSent(true);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to send reset email';
+      const errorMessage = err instanceof Error ? err.message : (t.errors?.failedToSendResetEmail || 'Failed to send reset email');
       const predefinedMessage = ERROR_MESSAGES[errorMessage as keyof typeof ERROR_MESSAGES];
       setError(predefinedMessage || errorMessage);
     } finally {
