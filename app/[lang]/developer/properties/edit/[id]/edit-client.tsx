@@ -22,6 +22,14 @@ import { useAuth } from "@/lib/auth-context"
 import { FeaturesSelector } from "@/components/FeaturesSelector"
 import Link from "next/link"
 
+interface EditPropertyClientProps {
+  dict: any
+  lang: 'en' | 'bg'
+  params: Promise<{
+    id: string
+  }>
+}
+
 // Extend Window interface for Google Maps
 declare global {
   interface Window {
@@ -34,11 +42,6 @@ interface PageProps {
     id: string
   }>
 }
-
-const projectTypeOptions = [
-  { label: "Apartment building", value: "apartment_building" },
-  { label: "House complex", value: "house_complex" },
-]
 
 const formSchema = z.object({
   name: z.string().min(2, "Name is required"),
@@ -76,11 +79,16 @@ interface ImageFile {
   imageId?: string // For existing image deletion
 }
 
-export default function EditProjectPage({ params }: PageProps) {
+export default function EditProjectPage({ dict, lang, params }: EditPropertyClientProps) {
   const resolvedParams = use(params)
   const projectId = resolvedParams.id
   const router = useRouter()
   const { user, isLoading } = useAuth()
+  
+  const projectTypeOptions = [
+    { label: dict?.developer?.properties?.apartmentBuilding || "Apartment building", value: "apartment_building" },
+    { label: dict?.developer?.properties?.houseComplex || "House complex", value: "house_complex" },
+  ]
   
   // Backup authentication check (in addition to layout protection)
   useEffect(() => {
@@ -577,18 +585,18 @@ export default function EditProjectPage({ params }: PageProps) {
         <Link href="/developer/properties">
           <Button variant="outline" size="sm">
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Properties
+            {dict.developer?.properties?.backToProperties || "Back to Properties"}
           </Button>
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Edit Project</h1>
-          <p className="text-gray-600">Update your project details and features</p>
+          <h1 className="text-2xl font-bold text-gray-900">{dict.developer?.properties?.editProject || "Edit Project"}</h1>
+          <p className="text-gray-600">{dict.developer?.properties?.updateProjectDetails || "Update your project details and features"}</p>
         </div>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl font-bold text-gray-900">Edit Project</CardTitle>
+          <CardTitle className="text-2xl font-bold text-gray-900">{dict.developer?.properties?.editProject || "Edit Project"}</CardTitle>
           <p className="text-gray-600">Update your project details and features</p>
         </CardHeader>
         <CardContent>
@@ -616,7 +624,7 @@ export default function EditProjectPage({ params }: PageProps) {
                     name="name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-sm font-medium text-gray-700">Project Name <span className="text-red-500">*</span></FormLabel>
+                        <FormLabel className="text-sm font-medium text-gray-700">{dict.developer?.properties?.projectName || "Project Name"} <span className="text-red-500">*</span></FormLabel>
                         <FormControl>
                           <Input placeholder="e.g., Sunrise Residences" className="h-11" {...field} />
                         </FormControl>
@@ -631,7 +639,7 @@ export default function EditProjectPage({ params }: PageProps) {
                     render={({ field }) => (
                       <FormItem>
                         <div className="flex items-center gap-2">
-                          <FormLabel className="text-sm font-medium text-gray-700">Description <span className="text-red-500">*</span></FormLabel>
+                          <FormLabel className="text-sm font-medium text-gray-700">{dict.developer?.properties?.description || "Description"} <span className="text-red-500">*</span></FormLabel>
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
@@ -658,7 +666,7 @@ export default function EditProjectPage({ params }: PageProps) {
                     name="project_type"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-sm font-medium text-gray-700">Project Type <span className="text-red-500">*</span></FormLabel>
+                        <FormLabel className="text-sm font-medium text-gray-700">{dict.developer?.properties?.projectType || "Project Type"} <span className="text-red-500">*</span></FormLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger className="h-11">
@@ -684,7 +692,7 @@ export default function EditProjectPage({ params }: PageProps) {
                       name="completion_month"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-medium text-gray-700">Project Completion Month <span className="text-red-500">*</span></FormLabel>
+                          <FormLabel className="text-sm font-medium text-gray-700">{dict.developer?.properties?.completionMonth || "Project Completion Month"} <span className="text-red-500">*</span></FormLabel>
                           <FormControl>
                             <Select onValueChange={field.onChange} value={field.value}>
                               <SelectTrigger className="h-11">
@@ -715,7 +723,7 @@ export default function EditProjectPage({ params }: PageProps) {
                       name="completion_year"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-medium text-gray-700">Project Completion Year <span className="text-red-500">*</span></FormLabel>
+                          <FormLabel className="text-sm font-medium text-gray-700">{dict.developer?.properties?.completionYear || "Project Completion Year"} <span className="text-red-500">*</span></FormLabel>
                           <FormControl>
                             <Select onValueChange={field.onChange} value={field.value}>
                               <SelectTrigger className="h-11">
@@ -855,7 +863,7 @@ export default function EditProjectPage({ params }: PageProps) {
                       name="price_per_m2"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-medium text-gray-700">Price per m² (EUR)</FormLabel>
+                          <FormLabel className="text-sm font-medium text-gray-700">{dict.developer?.properties?.pricePerM2 || "Price per m² (EUR)"}</FormLabel>
                           <FormControl>
                             <Input
                               type="number"
@@ -884,7 +892,7 @@ export default function EditProjectPage({ params }: PageProps) {
                       name="address"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-medium text-gray-700">Project Address <span className="text-red-500">*</span></FormLabel>
+                          <FormLabel className="text-sm font-medium text-gray-700">{dict.developer?.properties?.projectAddress || "Project Address"} <span className="text-red-500">*</span></FormLabel>
                           <div className="relative">
                             <FormControl>
                               <Input 
@@ -968,16 +976,16 @@ export default function EditProjectPage({ params }: PageProps) {
                     {isSubmitting ? (
                       <>
                         <Loader className="h-5 w-5 animate-spin mr-2" />
-                        Saving Changes...
+                        {dict.developer?.properties?.savingChanges || "Saving Changes..."}
                       </>
                     ) : (
-                      "Save Changes"
+                      dict.developer?.properties?.saveChanges || "Save Changes"
                     )}
                   </Button>
                   
                   <Link href="/developer/properties">
                     <Button type="button" variant="outline" disabled={isSubmitting} className="px-8 h-12 text-base">
-                      Cancel
+                      {dict.developer?.properties?.cancel || "Cancel"}
                     </Button>
                   </Link>
                 </div>

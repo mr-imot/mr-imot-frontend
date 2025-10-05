@@ -8,7 +8,15 @@ import { ProtectedRoute } from "@/components/protected-route"
 import { DeveloperSidebar } from "@/components/developer-sidebar"
 import { joinWaitlist, getWaitlistStatus } from "@/lib/api"
 
-function BillingContent() {
+interface BillingClientProps {
+  dict: any
+  lang: 'en' | 'bg'
+}
+
+function BillingContent({ dict, lang }: BillingClientProps) {
+  // Access translations from dict.developer.billing
+  const t = dict?.developer?.billing || {}
+  
   const [isAnnual, setIsAnnual] = useState(false)
   const [willingPrice, setWillingPrice] = useState<number | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -34,7 +42,7 @@ function BillingContent() {
   const handlePriceSubmission = async () => {
     // Validate price input - must be between 1-5000 BGN
     if (!willingPrice || willingPrice < 1 || willingPrice > 5000) {
-      alert('Please enter a valid amount between 1-5000 BGN to join the waitlist.')
+      alert(t.validAmount || 'Please enter a valid amount between 1-5000 BGN to join the waitlist.')
       return
     }
 
@@ -45,7 +53,7 @@ function BillingContent() {
       setWillingPrice(null)
     } catch (error) {
       console.error('Error joining waitlist:', error)
-      alert('There was an error joining the waitlist. Please try again.')
+      alert(t.errorJoiningWaitlist || 'There was an error joining the waitlist. Please try again.')
     } finally {
       setIsSubmitting(false)
     }
@@ -58,8 +66,8 @@ function BillingContent() {
         <div className="px-8 py-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <h1 className="text-3xl font-bold text-foreground tracking-tight">Billing & Subscription</h1>
-              <p className="text-muted-foreground text-lg">Manage your subscription and view upcoming pricing plans</p>
+              <h1 className="text-3xl font-bold text-foreground tracking-tight">{t.title || "Billing & Subscription"}</h1>
+              <p className="text-muted-foreground text-lg">{t.description || "Manage your subscription and view upcoming pricing plans"}</p>
             </div>
           </div>
         </div>
@@ -76,13 +84,13 @@ function BillingContent() {
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <Rocket className="h-8 w-8" />
-                  <h2 className="text-2xl font-bold">Platform is FREE during development period</h2>
+                  <h2 className="text-2xl font-bold">{t.platformFree || "Platform is FREE during development period"}</h2>
                 </div>
                 <p className="text-white/90 text-base">
-                  Use the platform extensively while it's completely free! Build your property portfolio, connect with qualified buyers, and grow your business at no cost.
+                  {t.platformFreeDescription || "Use the platform extensively while it's completely free! Build your property portfolio, connect with qualified buyers, and grow your business at no cost."}
                 </p>
                 <div className="bg-white/10 rounded-lg p-3 inline-block">
-                  <p className="text-sm font-medium">🏠 Join developers who are already growing their business</p>
+                  <p className="text-sm font-medium">{t.joinDevelopers || "🏠 Join developers who are already growing their business"}</p>
                 </div>
               </div>
             </CardContent>
@@ -96,31 +104,31 @@ function BillingContent() {
                 <div className="text-center space-y-4">
                   <div className="flex items-center justify-center gap-2">
                     <Check className="h-8 w-8 text-green-500" />
-                    <h3 className="text-xl font-bold text-green-700">🎉 Congratulations! You've guaranteed your spot!</h3>
+                    <h3 className="text-xl font-bold text-green-700">{t.congratulations || "🎉 Congratulations! You've guaranteed your spot!"}</h3>
                   </div>
                   
                   <div className="space-y-3 text-left">
                     <p className="text-muted-foreground text-sm">
-                      You're now among the first 50 developers to get:
+                      {t.first50Developers || "You're now among the first 50 developers to get:"}
                     </p>
                     
                     <div className="space-y-2">
                       <div className="flex items-center gap-2 text-sm">
                         <CheckCircle className="h-4 w-4 text-green-500" />
-                        <span>Up to 30% early-bird discount</span>
+                        <span>{t.earlyBirdDiscount || "Up to 30% early-bird discount"}</span>
                       </div>
                       <div className="flex items-center gap-2 text-sm">
                         <CheckCircle className="h-4 w-4 text-green-500" />
-                        <span>Priority support when we launch</span>
+                        <span>{t.prioritySupport || "Priority support when we launch"}</span>
                       </div>
                       <div className="flex items-center gap-2 text-sm">
                         <CheckCircle className="h-4 w-4 text-green-500" />
-                        <span>Personal call from our team</span>
+                        <span>{t.personalCall || "Personal call from our team"}</span>
                       </div>
                     </div>
                     
                     <p className="text-muted-foreground text-sm mt-4">
-                      We'll contact you directly when pricing goes live with your exclusive offer.
+                      {t.contactDirectly || "We'll contact you directly when pricing goes live with your exclusive offer."}
                     </p>
                   </div>
                 </div>
@@ -131,7 +139,7 @@ function BillingContent() {
                 {/* Early Bird Badge */}
                 <div className="absolute top-4 right-4">
                   <div className="bg-gradient-to-r from-green-500 to-green-600 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg">
-                    🎁 Early Bird Special
+                    {t.earlyBirdSpecial || "🎁 Early Bird Special"}
                   </div>
                 </div>
                 
@@ -142,16 +150,16 @@ function BillingContent() {
                         <Bell className="h-10 w-10 text-primary mx-auto mb-3 animate-pulse" />
                         <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-ping"></div>
                       </div>
-                      <h3 className="text-xl font-bold mb-2">Get Early Access & Save</h3>
+                      <h3 className="text-xl font-bold mb-2">{t.getEarlyAccess || "Get Early Access & Save"}</h3>
                       <p className="text-muted-foreground text-sm">
-                        Be among the first 50 developers to join our exclusive waitlist for special pricing.
+                        {t.waitlistDescription || "Be among the first 50 developers to join our exclusive waitlist for special pricing."}
                       </p>
                     </div>
                     
                     <div className="space-y-3">
                       <div>
                         <label className="block text-sm font-medium text-foreground mb-2">
-                          How much would you pay per listing per month? <span className="text-red-500">*</span>
+                          {t.howMuchWilling || "How much would you pay per listing per month?"} <span className="text-red-500">*</span>
                         </label>
                         <div className="flex items-center gap-2">
                           <input
@@ -178,14 +186,14 @@ function BillingContent() {
                         size="lg"
                       >
                         <Bell className="h-5 w-5 mr-2" />
-                        {isSubmitting ? 'Joining Waitlist...' : 'Join Waitlist & Save'}
+                        {isSubmitting ? (t.joiningWaitlist || 'Joining Waitlist...') : (t.joinWaitlist || 'Join Waitlist & Save')}
                       </Button>
                     </div>
                     
                     <div className="bg-white/60 rounded-lg p-3 space-y-2">
                       <div className="flex items-center gap-2 text-xs text-green-700 font-medium">
                         <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                        <span>Up to 30% early-bird discount</span>
+                        <span>{t.earlyBirdDiscount || "Up to 30% early-bird discount"}</span>
                       </div>
                       <div className="flex items-center gap-2 text-xs text-green-700 font-medium">
                         <div className="w-2 h-2 bg-green-500 rounded-full"></div>
@@ -358,11 +366,11 @@ function BillingContent() {
   )
 }
 
-export default function BillingPage() {
+export default function BillingPage({ dict, lang }: BillingClientProps) {
   return (
     <ProtectedRoute requiredRole="developer">
-      <DeveloperSidebar>
-        <BillingContent />
+      <DeveloperSidebar dict={dict} lang={lang}>
+        <BillingContent dict={dict} lang={lang} />
       </DeveloperSidebar>
     </ProtectedRoute>
   )

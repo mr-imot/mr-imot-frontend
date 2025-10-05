@@ -138,7 +138,6 @@ export function middleware(request: VercelRequest) {
     '/reset-password',
     '/verify-email',
     '/admin/',
-    '/developer/',
     '/buyer/',
     '/test-api',
     '/debug',

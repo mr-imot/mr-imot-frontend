@@ -22,9 +22,14 @@ import { getDeveloperProjects, updateProject, deleteProject, toggleProjectActive
 
 import { Building2, Home, BarChart3, MessageSquare, User, Settings, Plus, MapPin, Eye, Globe, Phone, Calendar, Pencil, Trash2, Power } from "lucide-react"
 
+interface PropertiesClientProps {
+  dict: any
+  lang: 'en' | 'bg'
+}
+
 type StatusFilter = "all" | "active" | "draft" | "paused"
 
-export default function DeveloperPropertiesPage() {
+export default function DeveloperPropertiesPage({ dict, lang }: PropertiesClientProps) {
   const { canCreateProjects } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
@@ -110,15 +115,15 @@ export default function DeveloperPropertiesPage() {
 
   return (
     <ProtectedRoute requiredRole="developer">
-      <DeveloperSidebar>
+      <DeveloperSidebar dict={dict} lang={lang}>
         <div className="flex-1 bg-gradient-to-br from-background via-background to-muted/20 overflow-auto">
           {/* Properties Header */}
           <header className="bg-card/95 backdrop-blur-sm border-b border-border/50 sticky top-0 z-30 shadow-sm">
             <div className="px-8 py-6">
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
-                  <h1 className="text-3xl font-bold text-foreground tracking-tight">Your Properties</h1>
-                  <p className="text-muted-foreground text-lg">Create, update and manage your listings</p>
+                  <h1 className="text-3xl font-bold text-foreground tracking-tight">{dict.developer?.properties?.title || "Your Properties"}</h1>
+                  <p className="text-muted-foreground text-lg">{dict.developer?.properties?.description || "Create, update and manage your listings"}</p>
                 </div>
                 <div className="flex items-center gap-4">
                   <TooltipProvider>
@@ -134,12 +139,12 @@ export default function DeveloperPropertiesPage() {
                           }}
                         >
                           <Plus className="h-4 w-4 mr-2" />
-                          Add Property
+                          {dict.developer?.properties?.addProperty || "Add Property"}
                         </Button>
                       </TooltipTrigger>
                       {!canCreateProjects && (
                         <TooltipContent>
-                          <p>Available after account approval</p>
+                          <p>{dict.developer?.properties?.availableAfterApproval || "Available after account approval"}</p>
                         </TooltipContent>
                       )}
                     </Tooltip>
@@ -158,42 +163,42 @@ export default function DeveloperPropertiesPage() {
             <div className="grid gap-3 md:grid-cols-4 mb-6">
               <div>
                 <Select value={status} onValueChange={(v)=>{ setStatus(v as StatusFilter); setPage(1) }}>
-                  <SelectTrigger><SelectValue placeholder="Status" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder={dict.developer?.properties?.status || "Status"} /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All</SelectItem>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="draft">Draft</SelectItem>
-                    <SelectItem value="paused">Paused</SelectItem>
+                    <SelectItem value="all">{dict.developer?.properties?.all || "All"}</SelectItem>
+                    <SelectItem value="active">{dict.developer?.properties?.active || "Active"}</SelectItem>
+                    <SelectItem value="draft">{dict.developer?.properties?.draft || "Draft"}</SelectItem>
+                    <SelectItem value="paused">{dict.developer?.properties?.paused || "Paused"}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div>
                 <Select value={String(pageSize)} onValueChange={(v)=>{ setPageSize(parseInt(v,10)); setPage(1) }}>
-                  <SelectTrigger><SelectValue placeholder="Rows per page" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder={dict.developer?.properties?.rowsPerPage || "Rows per page"} /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="12">12 rows</SelectItem>
-                    <SelectItem value="24">24 rows</SelectItem>
-                    <SelectItem value="48">48 rows</SelectItem>
+                    <SelectItem value="12">12 {dict.developer?.properties?.rows || "rows"}</SelectItem>
+                    <SelectItem value="24">24 {dict.developer?.properties?.rows || "rows"}</SelectItem>
+                    <SelectItem value="48">48 {dict.developer?.properties?.rows || "rows"}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="md:col-span-2 flex items-center justify-end gap-2">
-                <span className="text-sm text-muted-foreground">Sort by</span>
+                <span className="text-sm text-muted-foreground">{dict.developer?.properties?.sortBy || "Sort by"}</span>
                 <Select value={sortKey} onValueChange={(v)=> setSortKey(v as any)}>
                   <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="date">Date</SelectItem>
-                    <SelectItem value="views">Views</SelectItem>
-                    <SelectItem value="clicks">Clicks</SelectItem>
-                    <SelectItem value="website">Web clicks</SelectItem>
-                    <SelectItem value="phone">Phone clicks</SelectItem>
+                    <SelectItem value="date">{dict.developer?.properties?.date || "Date"}</SelectItem>
+                    <SelectItem value="views">{dict.developer?.properties?.views || "Views"}</SelectItem>
+                    <SelectItem value="clicks">{dict.developer?.properties?.clicks || "Clicks"}</SelectItem>
+                    <SelectItem value="website">{dict.developer?.properties?.webClicks || "Web clicks"}</SelectItem>
+                    <SelectItem value="phone">{dict.developer?.properties?.phoneClicks || "Phone clicks"}</SelectItem>
                   </SelectContent>
                 </Select>
                 <Select value={sortDir} onValueChange={(v)=> setSortDir(v as any)}>
                   <SelectTrigger className="w-28"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="desc">Desc</SelectItem>
-                    <SelectItem value="asc">Asc</SelectItem>
+                    <SelectItem value="desc">{dict.developer?.properties?.desc || "Desc"}</SelectItem>
+                    <SelectItem value="asc">{dict.developer?.properties?.asc || "Asc"}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -288,24 +293,24 @@ export default function DeveloperPropertiesPage() {
                           <Button asChild variant="outline" size="sm" className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400">
                             <Link href={`/developer/properties/edit/${p.id}`}>
                               <Pencil className="h-3.5 w-3.5 mr-1" />
-                              Edit
+                              {dict.developer?.properties?.edit || "Edit"}
                             </Link>
                           </Button>
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
                               <Button variant="destructive" size="sm" className="flex-1 bg-red-600 hover:bg-red-700 text-white">
                                 <Trash2 className="h-3.5 w-3.5 mr-1" />
-                                Delete
+                                {dict.developer?.properties?.delete || "Delete"}
                               </Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
-                                <AlertDialogTitle>Delete this listing?</AlertDialogTitle>
-                                <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
+                                <AlertDialogTitle>{dict.developer?.properties?.deleteConfirmTitle || "Delete this listing?"}</AlertDialogTitle>
+                                <AlertDialogDescription>{dict.developer?.properties?.deleteConfirmDescription || "This action cannot be undone."}</AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => handleDelete(p.id)}>Delete</AlertDialogAction>
+                                <AlertDialogCancel>{dict.developer?.properties?.cancel || "Cancel"}</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleDelete(p.id)}>{dict.developer?.properties?.delete || "Delete"}</AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>
                           </AlertDialog>
@@ -317,8 +322,8 @@ export default function DeveloperPropertiesPage() {
               </div>
             ) : (
               <Card className="p-8 text-center bg-white border border-gray-200 shadow-sm">
-                <CardTitle className="mb-2 text-gray-900">No properties yet</CardTitle>
-                <CardDescription className="mb-6 text-gray-600">Create your first listing to get started.</CardDescription>
+                <CardTitle className="mb-2 text-gray-900">{dict.developer?.properties?.noPropertiesYet || "No properties yet"}</CardTitle>
+                <CardDescription className="mb-6 text-gray-600">{dict.developer?.properties?.createFirstListing || "Create your first listing to get started."}</CardDescription>
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -327,12 +332,12 @@ export default function DeveloperPropertiesPage() {
                         disabled={!canCreateProjects}
                         className={!canCreateProjects ? "opacity-50 cursor-not-allowed" : ""}
                       >
-                        <Plus className="h-4 w-4 mr-2" />Add Property
+                        <Plus className="h-4 w-4 mr-2" />{dict.developer?.properties?.addProperty || "Add Property"}
                       </Button>
                     </TooltipTrigger>
                     {!canCreateProjects && (
                       <TooltipContent>
-                        <p>Available after account approval</p>
+                        <p>{dict.developer?.properties?.availableAfterApproval || "Available after account approval"}</p>
                       </TooltipContent>
                     )}
                   </Tooltip>
@@ -343,9 +348,9 @@ export default function DeveloperPropertiesPage() {
             {/* Simple pagination */}
             {totalPages > 1 && (
               <div className="flex items-center justify-center gap-3 mt-8">
-                <Button variant="outline" size="sm" onClick={() => setPage(Math.max(1, page - 1))}>Previous</Button>
-                <span className="text-sm text-muted-foreground">Page {page} of {totalPages}</span>
-                <Button variant="outline" size="sm" onClick={() => setPage(Math.min(totalPages, page + 1))}>Next</Button>
+                <Button variant="outline" size="sm" onClick={() => setPage(Math.max(1, page - 1))}>{dict.developer?.properties?.previous || "Previous"}</Button>
+                <span className="text-sm text-muted-foreground">{dict.developer?.properties?.pageOf || "Page"} {page} {dict.developer?.properties?.of || "of"} {totalPages}</span>
+                <Button variant="outline" size="sm" onClick={() => setPage(Math.min(totalPages, page + 1))}>{dict.developer?.properties?.next || "Next"}</Button>
               </div>
             )}
           </main>

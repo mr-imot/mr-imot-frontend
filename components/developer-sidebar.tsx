@@ -21,47 +21,49 @@ import { cn } from "@/lib/utils"
 
 interface DeveloperSidebarProps {
   children: React.ReactNode
+  dict?: any
+  lang?: 'en' | 'bg'
 }
 
-// Navigation items - including Profile button after Analytics
-const navigationItems = [
-  { 
-    icon: Home, 
-    label: "Dashboard", 
-    href: "/developer/dashboard",
-    description: "Overview & insights"
-  },
-  { 
-    icon: Building2, 
-    label: "Properties", 
-    href: "/developer/properties",
-    description: "Manage listings"
-  },
-  { 
-    icon: BarChart3, 
-    label: "Analytics", 
-    href: "/developer/analytics",
-    description: "Performance metrics"
-  },
-  { 
-    icon: CreditCard, 
-    label: "Billing", 
-    href: "/developer/billing",
-    description: "Subscription & plans"
-  },
-  { 
-    icon: User, 
-    label: "Profile", 
-    href: "/developer/profile",
-    description: "Account settings"
-  },
-]
-
-export function DeveloperSidebar({ children }: DeveloperSidebarProps) {
+export function DeveloperSidebar({ children, dict, lang }: DeveloperSidebarProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
   const { user, logout } = useAuth()
+
+  // Create navigation items with translations
+  const navigationItems = [
+    { 
+      icon: Home, 
+      label: dict?.sidebar?.dashboard || "Dashboard", 
+      href: lang === 'bg' ? "/bg/developer/dashboard" : "/developer/dashboard",
+      description: dict?.sidebar?.dashboardDescription || "Overview & insights"
+    },
+    { 
+      icon: Building2, 
+      label: dict?.sidebar?.properties || "Properties", 
+      href: lang === 'bg' ? "/bg/developer/properties" : "/developer/properties",
+      description: dict?.sidebar?.propertiesDescription || "Manage listings"
+    },
+    { 
+      icon: BarChart3, 
+      label: dict?.sidebar?.analytics || "Analytics", 
+      href: lang === 'bg' ? "/bg/developer/analytics" : "/developer/analytics",
+      description: dict?.sidebar?.analyticsDescription || "Performance metrics"
+    },
+    { 
+      icon: CreditCard, 
+      label: dict?.sidebar?.billing || "Billing", 
+      href: lang === 'bg' ? "/bg/developer/billing" : "/developer/billing",
+      description: dict?.sidebar?.billingDescription || "Subscription & plans"
+    },
+    { 
+      icon: User, 
+      label: dict?.sidebar?.profile || "Profile", 
+      href: lang === 'bg' ? "/bg/developer/profile" : "/developer/profile",
+      description: dict?.sidebar?.profileDescription || "Account settings"
+    },
+  ]
 
   const handleNavigation = (href: string) => {
     router.push(href)
@@ -115,7 +117,7 @@ export function DeveloperSidebar({ children }: DeveloperSidebarProps) {
           </div>
           <div className="flex-1">
             <h1 className="text-lg font-bold text-foreground tracking-tight">Mr imot</h1>
-            <p className="text-xs text-muted-foreground font-medium">Developer Portal</p>
+            <p className="text-xs text-muted-foreground font-medium">{dict?.sidebar?.developerPortal || "Developer Portal"}</p>
           </div>
           {/* Mobile close button */}
           <Button
@@ -197,7 +199,7 @@ export function DeveloperSidebar({ children }: DeveloperSidebarProps) {
                   variant="default"
                   className="text-xs px-2 py-1 bg-green-500 text-white border-0"
                 >
-                  ✓ Verified
+                  ✓ {dict?.sidebar?.verified || "Verified"}
                 </Badge>
               )}
             </div>
@@ -210,7 +212,7 @@ export function DeveloperSidebar({ children }: DeveloperSidebarProps) {
             className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground hover:bg-accent font-medium rounded-xl p-3 h-auto"
           >
             <LogOut className="h-4 w-4" />
-            Sign out
+            {dict?.sidebar?.signOut || "Sign out"}
           </Button>
         </div>
       </div>

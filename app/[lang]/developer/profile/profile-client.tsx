@@ -19,6 +19,13 @@ import { Loader, MapPin, Building, User, Phone, Mail, Globe, Lock, Save, Eye, Ey
 import { Badge } from "@/components/ui/badge"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { upload } from "@imagekit/next"
+import { ProtectedRoute } from "@/components/protected-route"
+import { DeveloperSidebar } from "@/components/developer-sidebar"
+
+interface ProfileClientProps {
+  dict: any
+  lang: 'en' | 'bg'
+}
 
 // Extend Window interface for Google Maps
 declare global {
@@ -48,22 +55,25 @@ const passwordSchema = z.object({
 
 interface DeveloperProfile {
   id: string
-  email: string
+  email?: string
   company_name: string
   contact_person: string
   phone: string
   office_address: string
   office_latitude?: number
   office_longitude?: number
-  website: string
+  website?: string
   profile_image_url?: string
   verification_status: string
   created_at: string
 }
 
-export default function DeveloperProfilePage() {
+export default function DeveloperProfilePage({ dict, lang }: ProfileClientProps) {
   const router = useRouter()
   const { user, isLoading } = useAuth()
+  
+  // Access translations from dict.developer.profile
+  const t = dict?.developer?.profile || {}
   
   // Refs for Google Maps
   const mapRef = useRef<HTMLDivElement | null>(null)
@@ -517,23 +527,25 @@ export default function DeveloperProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Profile Settings</h1>
-          <p className="mt-2 text-gray-600">Manage your company information and account settings</p>
-        </div>
+    <ProtectedRoute requiredRole="developer">
+      <DeveloperSidebar dict={dict} lang={lang}>
+        <div className="min-h-screen bg-gray-50 py-8">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            {/* Header */}
+            <div className="mb-8">
+              <h1 className="text-3xl font-bold text-gray-900">{t.title || "Profile Settings"}</h1>
+              <p className="mt-2 text-gray-600">{t.description || "Manage your company information and account settings"}</p>
+            </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Profile Information */}
-          <div className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Profile Information */}
+              <div className="space-y-6">
             {/* Profile Image */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Camera className="h-5 w-5" />
-                  Profile Image
+                  {t.profileImage || "Profile Image"}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -569,7 +581,7 @@ export default function DeveloperProfilePage() {
                         className="flex items-center gap-2"
                       >
                         <Upload className="h-4 w-4" />
-                        {profile?.profile_image_url ? 'Change Image' : 'Upload Image'}
+                        {profile?.profile_image_url ? (t.uploadImage || 'Change Image') : (t.uploadImage || 'Upload Image')}
                       </Button>
                       
                       {profile?.profile_image_url && (
@@ -582,7 +594,7 @@ export default function DeveloperProfilePage() {
                           className="flex items-center gap-2 text-red-600 hover:text-red-700"
                         >
                           <X className="h-4 w-4" />
-                          Remove
+                          {t.removeImage || "Remove"}
                         </Button>
                       )}
                     </div>
@@ -624,7 +636,7 @@ export default function DeveloperProfilePage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Building className="h-5 w-5" />
-                  Company Information
+                  {t.personalInfo || "Company Information"}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -636,7 +648,7 @@ export default function DeveloperProfilePage() {
                       name="company_name"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Company Name</FormLabel>
+                          <FormLabel>{t.companyName || "Company Name"}</FormLabel>
                           <FormControl>
                             <Input {...field} placeholder="Enter company name" />
                           </FormControl>
@@ -651,7 +663,7 @@ export default function DeveloperProfilePage() {
                       name="contact_person"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Contact Person</FormLabel>
+                          <FormLabel>{t.contactPerson || "Contact Person"}</FormLabel>
                           <FormControl>
                             <Input {...field} placeholder="Enter contact person name" />
                           </FormControl>
@@ -666,7 +678,7 @@ export default function DeveloperProfilePage() {
                       name="phone"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Phone Number</FormLabel>
+                          <FormLabel>{t.phone || "Phone Number"}</FormLabel>
                           <FormControl>
                             <Input {...field} placeholder="Enter phone number" />
                           </FormControl>
@@ -681,7 +693,7 @@ export default function DeveloperProfilePage() {
                       name="website"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Website (Optional)</FormLabel>
+                          <FormLabel>{t.website || "Website (Optional)"}</FormLabel>
                           <FormControl>
                             <Input {...field} placeholder="https://example.com" />
                           </FormControl>
@@ -696,7 +708,7 @@ export default function DeveloperProfilePage() {
                       name="office_address"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Office Address</FormLabel>
+                          <FormLabel>{t.officeAddress || "Office Address"}</FormLabel>
                           <FormControl>
                             <div className="relative">
                               <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
@@ -744,12 +756,12 @@ export default function DeveloperProfilePage() {
                       {saving ? (
                         <>
                           <Loader className="mr-2 h-4 w-4 animate-spin" />
-                          Saving...
+                          {t.savingChanges || "Saving..."}
                         </>
                       ) : (
                         <>
                           <Save className="mr-2 h-4 w-4" />
-                          Save Changes
+                          {t.saveChanges || "Save Changes"}
                         </>
                       )}
                     </Button>
@@ -763,7 +775,7 @@ export default function DeveloperProfilePage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Lock className="h-5 w-5" />
-                  Change Password
+                  {t.changePassword || "Change Password"}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -775,7 +787,7 @@ export default function DeveloperProfilePage() {
                       name="current_password"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Current Password</FormLabel>
+                          <FormLabel>{t.currentPassword || "Current Password"}</FormLabel>
                           <FormControl>
                             <div className="relative">
                               <Input
@@ -809,7 +821,7 @@ export default function DeveloperProfilePage() {
                       name="new_password"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>New Password</FormLabel>
+                          <FormLabel>{t.newPassword || "New Password"}</FormLabel>
                           <FormControl>
                             <div className="relative">
                               <Input
@@ -843,7 +855,7 @@ export default function DeveloperProfilePage() {
                       name="confirm_password"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Confirm New Password</FormLabel>
+                          <FormLabel>{t.confirmPassword || "Confirm New Password"}</FormLabel>
                           <FormControl>
                             <div className="relative">
                               <Input
@@ -888,12 +900,12 @@ export default function DeveloperProfilePage() {
                       {passwordSaving ? (
                         <>
                           <Loader className="mr-2 h-4 w-4 animate-spin" />
-                          Changing Password...
+                          {t.changingPassword || "Changing Password..."}
                         </>
                       ) : (
                         <>
                           <Lock className="mr-2 h-4 w-4" />
-                          Change Password
+                          {t.changePasswordButton || "Change Password"}
                         </>
                       )}
                     </Button>
@@ -938,14 +950,14 @@ export default function DeveloperProfilePage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <User className="h-5 w-5" />
-                  Account Information
+                  {t.accountInfo || "Account Information"}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center gap-3">
                   <Mail className="h-4 w-4 text-gray-400" />
                   <div>
-                    <p className="text-sm font-medium text-gray-900">Email</p>
+                    <p className="text-sm font-medium text-gray-900">{t.email || "Email"}</p>
                     <p className="text-sm text-gray-600">{profile?.email}</p>
                   </div>
                 </div>
@@ -958,7 +970,7 @@ export default function DeveloperProfilePage() {
                           variant={profile?.verification_status === 'verified' ? 'default' : 'secondary'}
                           className="w-fit cursor-help"
                         >
-                          {profile?.verification_status === 'verified' ? 'Verified' : 'Limited Access'}
+                          {profile?.verification_status === 'verified' ? (t.verified || 'Verified') : 'Limited Access'}
                         </Badge>
                       </TooltipTrigger>
                       <TooltipContent 
@@ -979,14 +991,16 @@ export default function DeveloperProfilePage() {
 
                 <div className="flex items-center gap-3">
                   <p className="text-sm text-gray-500">
-                    Member since {profile?.created_at ? new Date(profile.created_at).toLocaleDateString() : 'Unknown'}
+                    {t.memberSince || "Member since"} {profile?.created_at ? new Date(profile.created_at).toLocaleDateString() : 'Unknown'}
                   </p>
                 </div>
               </CardContent>
             </Card>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
+      </DeveloperSidebar>
+    </ProtectedRoute>
   )
 }

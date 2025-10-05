@@ -477,7 +477,7 @@ function DashboardContent({ dict, lang }: { dict: any, lang: 'en' | 'bg' }) {
 export default function DeveloperDashboardClient({ dict, lang }: { dict: any, lang: 'en' | 'bg' }) {
   return (
     <ProtectedRoute requiredRole="developer">
-      <DeveloperSidebar>
+      <DeveloperSidebar dict={dict} lang={lang}>
         <DashboardContent dict={dict} lang={lang} />
       </DeveloperSidebar>
     </ProtectedRoute>

@@ -23,17 +23,17 @@ import { useAuth } from "@/lib/auth-context"
 import { getCurrentDeveloper } from "@/lib/api"
 import { FeaturesSelector } from "@/components/FeaturesSelector"
 
+interface NewPropertyClientProps {
+  dict: any
+  lang: 'en' | 'bg'
+}
+
 // Extend Window interface for Google Maps
 declare global {
   interface Window {
     google: typeof google
   }
 }
-
-const projectTypeOptions = [
-  { label: "Apartment building", value: "apartment_building" },
-  { label: "House complex", value: "house_complex" },
-]
 
 const formSchema = z.object({
   name: z.string().min(2, "Name is required"),
@@ -77,9 +77,14 @@ interface ImageFile {
   order: number
 }
 
-export default function NewPropertyPage() {
+export default function NewPropertyPage({ dict, lang }: NewPropertyClientProps) {
   const router = useRouter()
   const { user, isLoading } = useAuth()
+  
+  const projectTypeOptions = [
+    { label: dict?.developer?.properties?.apartmentBuilding || "Apartment building", value: "apartment_building" },
+    { label: dict?.developer?.properties?.houseComplex || "House complex", value: "house_complex" },
+  ]
   
   // Backup authentication check (in addition to layout protection)
   useEffect(() => {
@@ -100,7 +105,7 @@ export default function NewPropertyPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <Loader className="h-8 w-8 animate-spin mx-auto" />
-          <p className="mt-4 text-gray-600">Checking authentication...</p>
+          <p className="mt-4 text-gray-600">{dict.developer?.properties?.checkingAuthentication || "Checking authentication..."}</p>
         </div>
       </div>
     )
@@ -636,8 +641,8 @@ export default function NewPropertyPage() {
     <div className="max-w-7xl mx-auto p-6 space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl font-bold text-gray-900">Create New Project</CardTitle>
-          <p className="text-gray-600">Fill in the details below to showcase your real estate project</p>
+          <CardTitle className="text-2xl font-bold text-gray-900">{dict.developer?.properties?.createNewProject || "Create New Project"}</CardTitle>
+          <p className="text-gray-600">{dict.developer?.properties?.fillDetailsBelow || "Fill in the details below to showcase your real estate project"}</p>
         </CardHeader>
         <CardContent>
           {/* Success/Error Messages */}
@@ -664,7 +669,7 @@ export default function NewPropertyPage() {
                     name="name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-sm font-medium text-gray-700">Project Name <span className="text-red-500">*</span></FormLabel>
+                        <FormLabel className="text-sm font-medium text-gray-700">{dict.developer?.properties?.projectName || "Project Name"} <span className="text-red-500">*</span></FormLabel>
                         <FormControl>
                           <Input 
                             placeholder="e.g., Sunrise Residences" 
@@ -684,7 +689,7 @@ export default function NewPropertyPage() {
                     render={({ field }) => (
                       <FormItem>
                         <div className="flex items-center gap-2">
-                          <FormLabel className="text-sm font-medium text-gray-700">Description <span className="text-red-500">*</span></FormLabel>
+                          <FormLabel className="text-sm font-medium text-gray-700">{dict.developer?.properties?.description || "Description"} <span className="text-red-500">*</span></FormLabel>
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger className="text-muted-foreground">
@@ -709,7 +714,7 @@ export default function NewPropertyPage() {
                     name="project_type"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-sm font-medium text-gray-700">Project Type <span className="text-red-500">*</span></FormLabel>
+                        <FormLabel className="text-sm font-medium text-gray-700">{dict.developer?.properties?.projectType || "Project Type"} <span className="text-red-500">*</span></FormLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger className="h-11">
@@ -732,7 +737,7 @@ export default function NewPropertyPage() {
                      name="completion_month"
                      render={({ field }) => (
                        <FormItem>
-                         <FormLabel className="text-sm font-medium text-gray-700">Project Completion Month <span className="text-red-500">*</span></FormLabel>
+                         <FormLabel className="text-sm font-medium text-gray-700">{dict.developer?.properties?.completionMonth || "Project Completion Month"} <span className="text-red-500">*</span></FormLabel>
                          <FormControl>
                            <Select onValueChange={field.onChange} value={field.value}>
                              <SelectTrigger className="h-11">
@@ -764,7 +769,7 @@ export default function NewPropertyPage() {
                      name="completion_year"
                      render={({ field }) => (
                        <FormItem>
-                         <FormLabel className="text-sm font-medium text-gray-700">Project Completion Year <span className="text-red-500">*</span></FormLabel>
+                         <FormLabel className="text-sm font-medium text-gray-700">{dict.developer?.properties?.completionYear || "Project Completion Year"} <span className="text-red-500">*</span></FormLabel>
                          <FormControl>
                            <Select onValueChange={field.onChange} value={field.value}>
                              <SelectTrigger className="h-11">
@@ -793,7 +798,7 @@ export default function NewPropertyPage() {
                      name="website"
                      render={({ field }) => (
                        <FormItem>
-                         <FormLabel className="text-sm font-medium text-gray-700">Project Website</FormLabel>
+                         <FormLabel className="text-sm font-medium text-gray-700">{dict.developer?.properties?.projectWebsite || "Project Website"}</FormLabel>
                          <FormControl>
                            <Input 
                              type="url" 
@@ -817,7 +822,7 @@ export default function NewPropertyPage() {
                           <FormControl>
                             <Checkbox checked={field.value} onCheckedChange={(v) => field.onChange(!!v)} />
                           </FormControl>
-                          <FormLabel className="mb-0 text-sm font-medium text-gray-700">Request price</FormLabel>
+                          <FormLabel className="mb-0 text-sm font-medium text-gray-700">{dict.developer?.properties?.requestPrice || "Request price"}</FormLabel>
                         </FormItem>
                       )}
                     />
@@ -828,7 +833,7 @@ export default function NewPropertyPage() {
                         name="price_per_m2"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-sm font-medium text-gray-700">Price per m² <span className="text-red-500">*</span></FormLabel>
+                            <FormLabel className="text-sm font-medium text-gray-700">{dict.developer?.properties?.pricePerM2 || "Price per m²"} <span className="text-red-500">*</span></FormLabel>
                             <FormControl>
                               <Input
                                 type="number"
@@ -1056,7 +1061,7 @@ export default function NewPropertyPage() {
                         name="address"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-sm font-medium text-gray-700">Project Address <span className="text-red-500">*</span></FormLabel>
+                            <FormLabel className="text-sm font-medium text-gray-700">{dict.developer?.properties?.projectAddress || "Project Address"} <span className="text-red-500">*</span></FormLabel>
                             <div className="relative">
                               <FormControl>
                                 <Input 
@@ -1142,10 +1147,10 @@ export default function NewPropertyPage() {
                     {isSubmitting ? (
                       <>
                         <Loader className="h-5 w-5 animate-spin mr-2" />
-                        Creating Project...
+                        {dict.developer?.properties?.creatingProject || "Creating Project..."}
                       </>
                     ) : (
-                      "Create Project"
+                      dict.developer?.properties?.createProject || "Create Project"
                     )}
                   </Button>
                 ) : (
