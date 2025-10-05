@@ -51,11 +51,18 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover, prior
   const minSwipeDistance = 50
 
   const handleClick = (e: React.MouseEvent) => {
-    // Call the parent click handler if provided (for map interactions)
-    onCardClick?.(listing)
+    // Check if this is a mobile device or if we're in a mobile context
+    const isMobile = window.innerWidth < 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
     
-    // Let the link handle navigation naturally
-    // No need to prevent default or handle manually
+    if (isMobile) {
+      // On mobile, call the parent click handler for sheet interactions
+      onCardClick?.(listing)
+      // Prevent default link behavior on mobile
+      e.preventDefault()
+    } else {
+      // On desktop, let the link handle navigation naturally (new tab)
+      // Don't call onCardClick to avoid interference
+    }
   }
 
   const handleMouseEnter = () => {
@@ -149,6 +156,7 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover, prior
       aria-labelledby={`title_${listing.id}`}
       className="block clickable"
       style={{ transition: 'none', transform: 'translateZ(0)' }}
+      onClick={handleClick}
     >
       <article
         ref={cardRef}
