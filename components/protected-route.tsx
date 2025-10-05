@@ -6,6 +6,7 @@ import { useAuth } from '@/lib/auth-context';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { Alert, AlertDescription } from './ui/alert';
 import { AlertTriangle } from 'lucide-react';
+import { useTranslations } from '@/lib/locale-context';
 
 
 interface ProtectedRouteProps {
@@ -23,6 +24,7 @@ export const ProtectedRoute = ({
 }: ProtectedRouteProps) => {
   const { isAuthenticated, isLoading, user } = useAuth();
   const router = useRouter();
+  const t = useTranslations();
   
 
 
@@ -53,7 +55,7 @@ export const ProtectedRoute = ({
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <LoadingSpinner size="lg" />
-          <p className="mt-4 text-gray-600">Checking authentication...</p>
+          <p className="mt-4 text-gray-600">{t.protectedRoute?.checkingAuthentication || 'Checking authentication...'}</p>
         </div>
       </div>
     );
@@ -72,23 +74,23 @@ export const ProtectedRoute = ({
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
               <div className="space-y-2">
-                <p className="font-medium">Access Denied</p>
+                <p className="font-medium">{t.protectedRoute?.accessDenied || 'Access Denied'}</p>
                 <p>
-                  You don't have permission to access this page. 
-                  {requiredRole && ` This page requires ${requiredRole} access.`}
+                  {t.protectedRoute?.noPermission || "You don't have permission to access this page."}
+                  {requiredRole && ` ${t.protectedRoute?.requiresAccess?.replace('{{role}}', requiredRole) || `This page requires ${requiredRole} access.`}`}
                 </p>
                 <div className="flex gap-2 mt-4">
                   <button
                     onClick={() => router.push('/login')}
                     className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
                   >
-                    Switch Account
+                    {t.protectedRoute?.switchAccount || 'Switch Account'}
                   </button>
                   <button
                     onClick={() => router.back()}
                     className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
                   >
-                    Go Back
+                    {t.protectedRoute?.goBack || 'Go Back'}
                   </button>
                 </div>
               </div>
