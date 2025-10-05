@@ -11,6 +11,7 @@ interface TestimonialCardProps {
 }
 
 function getInitials(name: string): string {
+  if (!name) return 'U'
   return name
     .split(" ")
     .map((word) => word.charAt(0))

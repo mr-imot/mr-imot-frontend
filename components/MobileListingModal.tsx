@@ -316,53 +316,53 @@ export function MobileListingModal({
             </div>
           )}
 
-          {/* Developer Info */}
-          {property.developer && (
-            <div className="space-y-5">
-              <h3 className="text-xl font-bold text-gray-900">
-                {t.listingDetail?.developer || 'Developer'}
-              </h3>
-              <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-4">
-                <div className="flex items-start gap-4">
-                  <Avatar className="w-14 h-14">
-                    <AvatarImage src={property.developer.logo} alt={property.developer.name} />
-                    <AvatarFallback className="bg-gray-100 text-gray-600 font-semibold text-lg">
-                      {property.developer.name.charAt(0)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-bold text-gray-900 text-lg">{property.developer.name}</h4>
-                    {property.developer.email && (
-                      <p className="text-sm text-gray-600 mt-1">{property.developer.email}</p>
-                    )}
+              {/* Developer Info */}
+              {property.developer && (
+                <div className="space-y-5">
+                  <h3 className="text-xl font-bold text-gray-900">
+                    {t.listingDetail?.developer || 'Developer'}
+                  </h3>
+                  <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-4">
+                    <div className="flex items-start gap-4">
+                      <Avatar className="w-14 h-14">
+                        <AvatarImage src={property.developer?.logo} alt={property.developer?.name || 'Developer'} />
+                        <AvatarFallback className="bg-gray-100 text-gray-600 font-semibold text-lg">
+                          {property.developer?.name?.charAt(0) || 'D'}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-bold text-gray-900 text-lg">{property.developer?.name || 'Developer'}</h4>
+                        {property.developer?.email && (
+                          <p className="text-sm text-gray-600 mt-1">{property.developer.email}</p>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Contact Buttons */}
+                    <div className="flex gap-3">
+                      {property.developer?.phone && (
+                        <Button 
+                          onClick={handlePhoneClick}
+                          className="flex-1 bg-green-600 hover:bg-green-700 active:bg-green-800 h-12 text-base font-semibold rounded-xl"
+                        >
+                          <Phone className="w-5 h-5 mr-2" />
+                          {t.listingDetail?.call || 'Call'}
+                        </Button>
+                      )}
+                      {property.developer?.website && (
+                        <Button 
+                          onClick={handleWebsiteClick}
+                          variant="outline"
+                          className="flex-1 h-12 text-base font-semibold rounded-xl border-2"
+                        >
+                          <Globe className="w-5 h-5 mr-2" />
+                          {t.listingDetail?.website || 'Website'}
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </div>
-                
-                {/* Contact Buttons */}
-                <div className="flex gap-3">
-                  {property.developer.phone && (
-                    <Button 
-                      onClick={handlePhoneClick}
-                      className="flex-1 bg-green-600 hover:bg-green-700 active:bg-green-800 h-12 text-base font-semibold rounded-xl"
-                    >
-                      <Phone className="w-5 h-5 mr-2" />
-                      {t.listingDetail?.call || 'Call'}
-                    </Button>
-                  )}
-                  {property.developer.website && (
-                    <Button 
-                      onClick={handleWebsiteClick}
-                      variant="outline"
-                      className="flex-1 h-12 text-base font-semibold rounded-xl border-2"
-                    >
-                      <Globe className="w-5 h-5 mr-2" />
-                      {t.listingDetail?.website || 'Website'}
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
+              )}
         </div>
         
         {/* Bottom padding for safe scrolling */}
