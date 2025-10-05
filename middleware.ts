@@ -37,12 +37,6 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
   
-  // Log geo data for debugging
-  console.log('[Middleware] Geo data available:', {
-    country: (request as any).geo?.country,
-    city: (request as any).geo?.city,
-    hasGeo: !!(request as any).geo
-  })
 
   // Handle explicit /en/ paths - redirect to root (English default)
   if (pathname.startsWith('/en/')) {
@@ -180,9 +174,7 @@ export function middleware(request: NextRequest) {
 
   // 1. Check cookie preference (user override) - HIGHEST PRIORITY
   const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value
-  console.log('[Middleware] Cookie locale:', cookieLocale, 'Path:', pathname)
   if (cookieLocale && SUPPORTED_LOCALES.includes(cookieLocale)) {
-    console.log('[Middleware] Using cookie preference:', cookieLocale)
     if (cookieLocale === 'bg') {
       return NextResponse.redirect(new URL(`/bg${pathname}`, request.url))
     }
@@ -203,9 +195,7 @@ export function middleware(request: NextRequest) {
     country = request.headers.get('x-vercel-ip-country')?.toUpperCase() || undefined
   }
   
-  console.log('[Middleware] IP Detection - Country:', country, 'Geo object:', geo, 'Header:', request.headers.get('x-vercel-ip-country'), 'Path:', pathname)
   if (country === 'BG') {
-    console.log('[Middleware] Redirecting to /bg based on IP detection')
     const response = NextResponse.redirect(new URL(`/bg${pathname}`, request.url))
     // Set cookie to persist Bulgarian preference (so we don't re-detect on every request)
     response.cookies.set('NEXT_LOCALE', 'bg', {

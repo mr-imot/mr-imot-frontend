@@ -126,10 +126,9 @@ export function Footer() {
                 <Image
                   src="/prodigy-corp-logo-nobg.png"
                   alt="Prodigy Corp"
-                  width={96}
-                  height={96}
-                  className="w-24 h-24 object-contain cursor-pointer"
-                  style={{ width: 'auto', height: 'auto' }}
+                  width={48}
+                  height={48}
+                  className="object-contain cursor-pointer"
                 />
               </Link>
             </div>
