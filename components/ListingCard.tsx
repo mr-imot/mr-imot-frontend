@@ -27,6 +27,7 @@ interface ListingCardProps {
   onCardHover?: (listingId: string | null) => void
   priority?: boolean
   priceTranslations?: PriceTranslations
+  onMobileModalOpen?: (listing: Listing) => void
 }
 
 // Format price using Intl.NumberFormat
@@ -37,7 +38,7 @@ function summarize(text: string | null | undefined, max = 100) {
   return normalized.slice(0, max - 1) + '…'
 }
 
-export function ListingCard({ listing, isActive, onCardClick, onCardHover, priority = false, priceTranslations }: ListingCardProps) {
+export function ListingCard({ listing, isActive, onCardClick, onCardHover, priority = false, priceTranslations, onMobileModalOpen }: ListingCardProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [hasTrackedView, setHasTrackedView] = useState(false)
   const hasMultipleImages = listing.images?.length > 1
@@ -55,10 +56,9 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover, prior
     const isMobile = window.innerWidth < 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
     
     if (isMobile) {
-      // On mobile, call the parent click handler for sheet interactions
-      onCardClick?.(listing)
-      // Prevent default link behavior on mobile
+      // On mobile, open modal instead of navigating
       e.preventDefault()
+      onMobileModalOpen?.(listing)
     } else {
       // On desktop, let the link handle navigation naturally (new tab)
       // Don't call onCardClick to avoid interference
