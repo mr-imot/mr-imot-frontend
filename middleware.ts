@@ -24,8 +24,15 @@ function getLocale(request: NextRequest) {
   return match(languages, SUPPORTED_LOCALES, DEFAULT_LOCALE)
 }
 
-export function middleware(request: VercelRequest) {
+export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
+  
+  // Log geo data for debugging
+  console.log('[Middleware] Geo data available:', {
+    country: (request as any).geo?.country,
+    city: (request as any).geo?.city,
+    hasGeo: !!(request as any).geo
+  })
 
   // Handle explicit /en/ paths - redirect to root (English default)
   if (pathname.startsWith('/en/')) {
@@ -175,8 +182,16 @@ export function middleware(request: VercelRequest) {
 
   // 2. Check Vercel geo header (IP-based detection)
   // Note: request.geo might be undefined during cold starts or in preview deployments
-  const country = request.geo?.country?.toUpperCase()
-  console.log('[Middleware] IP Detection - Country:', country, 'Path:', pathname)
+  // Cast to any to access geo property which is injected by Vercel Edge
+  const geo = (request as any).geo
+  let country = geo?.country?.toUpperCase()
+  
+  // Fallback to x-vercel-ip-country header if geo is not available
+  if (!country) {
+    country = request.headers.get('x-vercel-ip-country')?.toUpperCase() || undefined
+  }
+  
+  console.log('[Middleware] IP Detection - Country:', country, 'Geo object:', geo, 'Header:', request.headers.get('x-vercel-ip-country'), 'Path:', pathname)
   if (country === 'BG') {
     console.log('[Middleware] Redirecting to /bg based on IP detection')
     return NextResponse.redirect(new URL(`/bg${pathname}`, request.url))
