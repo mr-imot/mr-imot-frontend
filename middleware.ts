@@ -27,6 +27,16 @@ function getLocale(request: NextRequest) {
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   
+  // Skip static files and special paths immediately (before any processing)
+  if (
+    pathname.includes('.') || // Any file with extension (.txt, .xml, .ico, etc.)
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/api') ||
+    pathname.startsWith('/images')
+  ) {
+    return NextResponse.next()
+  }
+  
   // Log geo data for debugging
   console.log('[Middleware] Geo data available:', {
     country: (request as any).geo?.country,
@@ -150,6 +160,8 @@ export function middleware(request: NextRequest) {
     '/debug',
     '/design-system',
     '/maintenance',
+    '/robots.txt',
+    '/sitemap.xml',
   ]
   
   if (
