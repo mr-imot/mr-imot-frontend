@@ -81,6 +81,22 @@ export function middleware(request: VercelRequest) {
     
     return NextResponse.rewrite(url)
   }
+
+  // Handle /forgot-password route specially - needs locale prefix first
+  if (pathname === '/forgot-password') {
+    const url = request.nextUrl.clone()
+    
+    // Check cookie preference first
+    const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value
+    if (cookieLocale === 'bg') {
+      url.pathname = '/bg/forgot-password'
+    } else {
+      // Rewrite to /en/forgot-password internally
+      url.pathname = '/en/forgot-password'
+    }
+    
+    return NextResponse.rewrite(url)
+  }
   
   // Handle /bg/register with query param
   if (pathname === '/bg/register') {

@@ -10,9 +10,16 @@ import { AuthError } from '@/components/ui/auth-error';
 import { RateLimitInfo } from '@/components/ui/rate-limit-info';
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/lib/auth-constants';
 import { cn } from '@/lib/utils';
+import { useTranslations } from '@/lib/locale-context';
 
-export default function ForgotPasswordPage() {
+interface ForgotPasswordClientProps {
+  dict: any
+  lang: 'en' | 'bg'
+}
+
+export default function ForgotPasswordClient({ dict, lang }: ForgotPasswordClientProps) {
   const router = useRouter();
+  const t = useTranslations();
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -90,28 +97,31 @@ export default function ForgotPasswordPage() {
 
   if (emailSent) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen relative">
         <div className="relative z-10 flex items-center justify-center min-h-screen py-12 px-4 sm:px-6 lg:px-8">
           <div className="w-full max-w-md mx-auto">
             {/* Brand Header */}
             <div className="text-center mb-8">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-card/70 backdrop-blur border shadow mb-6">
-                <CheckCircle className="w-8 h-8 text-foreground" />
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl shadow mb-6 backdrop-blur border" style={{
+                backgroundColor: 'var(--brand-white-overlay-10)',
+                borderColor: 'var(--brand-gray-200)'
+              }}>
+                <CheckCircle className="w-8 h-8" style={{color: 'var(--brand-btn-primary-bg)'}} />
               </div>
-              <h1 className="text-3xl font-bold text-foreground mb-2">
-                Check your email
+              <h1 className="text-3xl font-bold mb-2" style={{color: 'var(--brand-text-primary)'}}>
+                {t.forgotPassword?.checkYourEmail || "Check your email"}
               </h1>
-              <p className="text-muted-foreground text-lg">
-                Reset link sent successfully
+              <p className="text-lg" style={{color: 'var(--brand-text-secondary)'}}>
+                {t.forgotPassword?.resetLinkSent || "Reset link sent successfully"}
               </p>
             </div>
 
             {/* Main Card */}
-            <div className="bg-card rounded-xl border overflow-hidden">
+            <div className="rounded-xl border overflow-hidden" style={{backgroundColor: '#ffffff', borderColor: 'var(--brand-gray-200)'}}>
               <div className="p-8">
                 <div className="text-center space-y-6">
                   <p className="text-foreground text-lg leading-relaxed">
-                    We've sent a password reset link to{' '}
+                    {t.forgotPassword?.sentResetLinkTo || "We've sent a password reset link to"}{' '}
                     <span className="font-semibold text-foreground">{email}</span>
                   </p>
 
@@ -119,8 +129,8 @@ export default function ForgotPasswordPage() {
                     <div className="flex items-start gap-3">
                       <span className="text-sm font-bold">!</span>
                       <div className="text-left">
-                        <p className="text-foreground font-semibold text-sm">Important</p>
-                        <p className="text-muted-foreground text-sm">The reset link expires in 15 minutes for security.</p>
+                        <p className="text-foreground font-semibold text-sm">{t.forgotPassword?.important || "Important"}</p>
+                        <p className="text-muted-foreground text-sm">{t.forgotPassword?.resetLinkExpires || "The reset link expires in 15 minutes for security."}</p>
                       </div>
                     </div>
                   </div>
@@ -128,15 +138,15 @@ export default function ForgotPasswordPage() {
                   <div className="space-y-3 text-sm text-muted-foreground bg-muted rounded-2xl p-4">
                     <p className="flex items-center gap-2">
                       <span className="w-1.5 h-1.5 bg-primary rounded-full"></span>
-                      Check your spam folder if you don't see the email
+                      {t.forgotPassword?.checkSpamFolder || "Check your spam folder if you don't see the email"}
                     </p>
                     <p className="flex items-center gap-2">
                       <span className="w-1.5 h-1.5 bg-primary rounded-full"></span>
-                      The link will only work once for security
+                      {t.forgotPassword?.linkWorksOnce || "The link will only work once for security"}
                     </p>
                     <p className="flex items-center gap-2">
                       <span className="w-1.5 h-1.5 bg-primary rounded-full"></span>
-                      You can close this page after clicking the link
+                      {t.forgotPassword?.canClosePage || "You can close this page after clicking the link"}
                     </p>
                   </div>
 
@@ -146,8 +156,19 @@ export default function ForgotPasswordPage() {
                   />
 
                   <div className="flex gap-3">
-                    <Button variant="outline" onClick={() => router.push('/login')} className="flex-1">Back to Sign In</Button>
-                    <Button onClick={handleResendReset} disabled={!canRequest() || isSubmitting} className="flex-1">{isSubmitting ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Sending...</>) : 'Resend'}</Button>
+                    <Button variant="outline" onClick={() => router.push(`/${lang}/login`)} className="flex-1">
+                      {t.login?.signIn || "Back to Sign In"}
+                    </Button>
+                    <Button onClick={handleResendReset} disabled={!canRequest() || isSubmitting} className="flex-1">
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" /> 
+                          {t.login?.sending || "Sending..."}
+                        </>
+                      ) : (
+                        t.forgotPassword?.resend || "Resend"
+                      )}
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -155,7 +176,9 @@ export default function ForgotPasswordPage() {
 
             {/* Back Link */}
             <div className="mt-6 text-center">
-              <button onClick={() => setEmailSent(false)} className="text-primary hover:underline font-medium text-sm">← Back to forgot password form</button>
+              <button onClick={() => setEmailSent(false)} className="text-primary hover:underline font-medium text-sm">
+                {t.forgotPassword?.backToForgotPassword || "← Back to forgot password form"}
+              </button>
             </div>
           </div>
         </div>
@@ -164,31 +187,34 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen relative">
       <div className="relative z-10 flex items-center justify-center min-h-screen py-12 px-4 sm:px-6 lg:px-8">
         <div className="w-full max-w-md mx-auto">
           {/* Brand Header */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-card/70 backdrop-blur border shadow mb-6">
-              <Shield className="w-8 h-8 text-foreground" />
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl shadow mb-6 backdrop-blur border" style={{
+              backgroundColor: 'var(--brand-white-overlay-10)',
+              borderColor: 'var(--brand-gray-200)'
+            }}>
+              <Shield className="w-8 h-8" style={{color: 'var(--brand-btn-primary-bg)'}} />
             </div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">
-              Forgot password?
+            <h1 className="text-3xl font-bold mb-2" style={{color: 'var(--brand-text-primary)'}}>
+              {t.forgotPassword?.forgotPasswordTitle || "Forgot password?"}
             </h1>
-            <p className="text-muted-foreground text-lg">
-              No worries, we'll send you reset instructions
+            <p className="text-lg" style={{color: 'var(--brand-text-secondary)'}}>
+              {t.forgotPassword?.noWorries || "No worries, we'll send you reset instructions"}
             </p>
           </div>
 
           {/* Main Card */}
-          <div className="bg-card rounded-xl border overflow-hidden">
+          <div className="rounded-xl border overflow-hidden" style={{backgroundColor: '#ffffff', borderColor: 'var(--brand-gray-200)'}}>
             <div className="p-8">
               {error && (
                 <div className="mb-6">
                   <AuthError
                     error={error}
                     onRetry={() => setError(null)}
-                    retryLabel="Try Again"
+                    retryLabel={t.login?.tryAgain || "Try Again"}
                   />
                 </div>
               )}
@@ -196,8 +222,18 @@ export default function ForgotPasswordPage() {
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Email Field */}
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email Address <span className="text-destructive">*</span></Label>
-                  <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" disabled={isSubmitting} required />
+                  <Label htmlFor="email">
+                    {t.login?.emailAddress || "Email Address"} <span className="text-destructive">*</span>
+                  </Label>
+                  <Input 
+                    id="email" 
+                    type="email" 
+                    value={email} 
+                    onChange={(e) => setEmail(e.target.value)} 
+                    autoComplete="email" 
+                    disabled={isSubmitting} 
+                    required 
+                  />
                 </div>
 
                 <RateLimitInfo 
@@ -207,7 +243,14 @@ export default function ForgotPasswordPage() {
 
                 {/* Send Reset Button */}
                 <Button type="submit" className="w-full" disabled={isSubmitting || !canRequest()}>
-                  {isSubmitting ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Sending reset link...</>) : 'Send Reset Link'}
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> 
+                      {t.forgotPassword?.sendingResetLink || "Sending reset link..."}
+                    </>
+                  ) : (
+                    t.forgotPassword?.sendResetLink || "Send Reset Link"
+                  )}
                 </Button>
               </form>
 
@@ -219,14 +262,14 @@ export default function ForgotPasswordPage() {
                   </div>
                   <div className="relative flex justify-center text-sm">
                     <span className="px-4 bg-card text-muted-foreground">
-                      Remember your password?
+                      {t.forgotPassword?.rememberPassword || "Remember your password?"}
                     </span>
                   </div>
                 </div>
 
                 <div className="mt-6">
-                  <Button variant="outline" className="w-full" onClick={() => router.push('/login')}>
-                    Back to Sign In
+                  <Button variant="outline" className="w-full" onClick={() => router.push(`/${lang}/login`)}>
+                    {t.forgotPassword?.backToSignIn || "Back to Sign In"}
                   </Button>
                 </div>
               </div>
@@ -236,9 +279,9 @@ export default function ForgotPasswordPage() {
           {/* Footer */}
           <div className="mt-8 text-center">
             <p className="text-sm text-muted-foreground">
-              Don't have an account?{' '}
-              <button onClick={() => router.push('/register?type=developer')} className="text-primary hover:underline font-medium">
-                Sign up
+              {t.forgotPassword?.dontHaveAccount || "Don't have an account?"}{' '}
+              <button onClick={() => router.push(`/${lang}/register?type=developer`)} className="text-primary hover:underline font-medium">
+                {t.forgotPassword?.signUp || "Sign up"}
               </button>
             </p>
           </div>
