@@ -36,12 +36,15 @@ export function LanguageSwitcher() {
   const currentLanguage = languages.find(lang => lang.code === currentLocale) || languages[0]
 
   const handleLanguageChange = (newLocale: string) => {
-    // Remove existing locale segment if present
+    // 1. Set cookie FIRST (before navigation) - this is critical!
+    document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=${60 * 60 * 24 * 365}`
+    
+    // 2. Remove existing locale segment if present
     let pathWithoutLocale = pathname
       .replace(/^\/en(?=\/|$)/, '')
       .replace(/^\/bg(?=\/|$)/, '') || '/'
 
-    // Handle pretty URL mapping for Bulgarian routes
+    // 3. Handle pretty URL mapping for Bulgarian routes
     if (newLocale === 'en') {
       // Map Bulgarian pretty URLs to English canonical paths
       const prettyUrlMap: Record<string, string> = {
@@ -68,11 +71,13 @@ export function LanguageSwitcher() {
       }
     }
 
-    // For English, navigate to root; for others, prefix
+    // 4. For English, navigate to root; for others, prefix
     const newPath = newLocale === 'en' ? pathWithoutLocale : `/${newLocale}${pathWithoutLocale}`
+    
+    // 5. Navigate and force a full refresh to ensure cookie is picked up
     router.push(newPath)
-    // Persist preference so middleware honors it (standardized to NEXT_LOCALE)
-    document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=${60 * 60 * 24 * 365}`
+    router.refresh()
+    
     setIsOpen(false)
   }
 

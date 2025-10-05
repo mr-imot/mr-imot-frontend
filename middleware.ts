@@ -206,7 +206,14 @@ export function middleware(request: NextRequest) {
   console.log('[Middleware] IP Detection - Country:', country, 'Geo object:', geo, 'Header:', request.headers.get('x-vercel-ip-country'), 'Path:', pathname)
   if (country === 'BG') {
     console.log('[Middleware] Redirecting to /bg based on IP detection')
-    return NextResponse.redirect(new URL(`/bg${pathname}`, request.url))
+    const response = NextResponse.redirect(new URL(`/bg${pathname}`, request.url))
+    // Set cookie to persist Bulgarian preference (so we don't re-detect on every request)
+    response.cookies.set('NEXT_LOCALE', 'bg', {
+      path: '/',
+      maxAge: 60 * 60 * 24 * 365, // 1 year
+      sameSite: 'lax',
+    })
+    return response
   }
 
   // 3. Check Accept-Language header
