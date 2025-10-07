@@ -12,52 +12,74 @@
     "imageAlt": "MR-IMOT Logo - No Brokers, No Commissions"
   },
   "threeSteps": {
-    "badge": "FROM SEARCH TO PURCHASE IN 3 SIMPLE STEPS",
-    "heading": "From search to purchase<br />in three simple steps",
+        "badge": "FROM SEARCH TO DEAL<br />IN 3 EASY STEPS",
+    "heading": "How does Mr. Imot work?",
     "step1": {
       "number": "01",
-      "label": "DISCOVER NEW PROJECTS",
-      "content": "Discover new developments on our<br /><span style=\"color: var(--brand-btn-primary-bg); font-weight: 600;\">interactive map</span> before they're<br />publicly available. Access<br /><span style=\"color: var(--brand-btn-primary-bg); font-weight: 600;\">verified</span> projects first."
+      "label": "Browse the map",
+      "content": "Real location of new projects.<br />Photos, plans and developer profiles. Everything in one place."
     },
     "step2": {
       "number": "02",
-      "label": "CONNECT DIRECTLY",
-      "content": "Contact developers directly to<br /><span style=\"color: var(--brand-warning); font-weight: 600;\">discuss pricing</span> and schedule<br />site visits using exact<br />map locations."
+      "label": "Connect directly",
+      "content": "Ask questions, schedule a viewing or simply visit the site to see the project up close. No intermediaries."
     },
     "step3": {
       "number": "03",
-      "label": "SECURE YOUR PROPERTY",
-      "content": "Keep more money in your pocket<br />by purchasing directly at developer<br />pricing without broker fees."
+      "label": "Buy at real price",
+      "content": "No commissions, no hidden fees.<br />Only direct deal between buyer and developer. Save money and time."
     },
     "mvp": {
-      "heading": "Be among the first to discover off-plan properties direct from developers",
-      "subheading": "Be first to access Bulgaria's newest off-plan developments."
+      "heading": "Finding off-plan properties is now:",
+      "benefits": {
+        "fast": "fast",
+        "easy": "easy",
+        "free": "completely free"
+      }
     }
   },
   "whatMakesDifferent": {
-    "heading": "What Makes Mr. imot Different",
-    "subheading": "Stop wasting time with broker games. Find properties the honest way.",
-    "features": {
-      "realLocations": {
-        "title": "See Real Locations",
-        "description": "No more \"close to parks, schools and bus stops\" lies. See exact project coordinates and visit the actual site yourself."
+    "heading": "Why We're Different",
+    "subheading": "We're not brokers. We're a platform.",
+    "principles": {
+      "verifiedDevelopers": {
+        "title": "Verified Developers Only",
+        "description": "Not everyone can post. We verify every developer and guarantee listing quality."
       },
-      "noFakeListings": {
-        "title": "No Fake Listings",
-        "description": "End the \"we just sold that one\" runaround. Only verified developers can list genuine projects."
+      "noFinancialBias": {
+        "title": "No Financial Bias",
+        "description": "We don't earn from deals. We earn from platform success. Your interests are our interests."
       },
-      "zeroCommission": {
-        "title": "Zero Commission",
-        "description": "Keep your money. No broker fees, no platform charges, no annoying ads like it's the 2000s."
+      "cleanExperience": {
+        "title": "Clean Experience",
+        "description": "No ads, no clutter, no 2000s vibe. Focus on what truly matters."
+      },
+      "honestBrokers": {
+        "title": "Honest Brokers",
+        "description": "There are honest brokers, we just haven't met them yet. Until we do, we work directly with developers."
       }
     },
     "cta": "Browse All Properties"
   },
   "developerJoin": {
     "heading": "Ready to List Your Project?",
-    "description": "Join Bulgaria's fastest-growing platform for off-plan properties. ",
-    "descriptionBold": "Zero fees. Direct connections. Maximum exposure.",
-    "cta": "Register for Free",
+    "subheading": "Join Bulgaria's fastest-growing platform for new construction projects.",
+    "benefits": {
+      "noCommissions": "No commissions – keep 100% of your profit",
+      "qualifiedLeads": "Qualified leads only – no time wasters",
+      "professionalDashboard": "Professional dashboard for listing management and analytics",
+      "freeRegistration": "Free registration – monthly subscription can be cancelled anytime"
+    },
+    "specialOffer": {
+      "heading": "Special offer for early developers:",
+      "benefits": [
+        "Your subscription is immediately returned as Facebook advertising for your listing",
+        "Advertising is managed by our marketing team for maximum impact",
+        "Limited spots – don't miss the opportunity to be among the first"
+      ],
+      "example": "Example: 50 BGN/25€ subscription → you receive advertising report with 50 BGN ad budget for your listing on Facebook."
+    },
+    "cta": "REGISTER FOR FREE",
     "imageAlt": "Join Mr. Imot - Developer Registration"
   },
   "faq": {

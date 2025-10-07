@@ -164,7 +164,14 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
         <div className="container mx-auto px-3 xs:px-4 sm:px-6 md:px-8 w-full">
           <div className="hero-grid grid grid-rows-[auto_1fr] lg:grid-cols-2 lg:grid-rows-none gap-2 sm:gap-4 md:gap-6 lg:gap-8 items-center w-full">
             {/* Left Column - Content */}
-            <div className="hero-content space-y-2 sm:space-y-3 md:space-y-4 lg:space-y-5 order-2 lg:order-none">
+            <div className="hero-content order-2 lg:order-none flex flex-col" style={{ 
+              minHeight: 'calc(100vh - 80px)', // Use min-height instead of height
+              paddingTop: 'clamp(60px, 15vh, 120px)', 
+              paddingBottom: 'clamp(60px, 12vh, 100px)', // Increased bottom padding
+              justifyContent: 'space-between'
+            }}>
+              {/* Top Section - Title + Subtitle */}
+              <div className="flex-1 flex flex-col justify-center">
               {/* Main Headline */}
               <div className="space-y-2">
                 <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl laptop:text-6xl lg:text-7xl leading-[1.1] tracking-tight text-gray-900" style={{
@@ -179,49 +186,103 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                 </h1>
               </div>
               
-              {/* Subtitle */}
-              <div className="space-y-2">
+                {/* Combined Subtitle + Promise */}
+                <div className="space-y-2" style={{ marginTop: 'clamp(16px, 4vh, 32px)' }}>
                 <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-normal text-gray-600 leading-relaxed" style={{
-                  fontFamily: 'Inter, system-ui, sans-serif'
-                }}>
-                  {dict.hero.subtitle}
-                </p>
-              </div>
-              
-              {/* Tagline */}
-              <div className="space-y-2">
-                <p className="text-base sm:text-lg md:text-xl font-light text-gray-500 leading-relaxed italic" style={{
-                  fontFamily: 'Inter, system-ui, sans-serif'
-                }}>
-                  {dict.hero.tagline}
-                </p>
+                    fontFamily: 'Inter, system-ui, sans-serif',
+                    fontSize: '20px',
+                    lineHeight: '1.6',
+                    maxWidth: '520px'
+                  }}>
+                    {lang === 'bg' ? (
+                      <>
+                        <span className="font-semibold text-gray-800">Единствената</span> платформа в България за нови проекти в строеж и на зелено, <span className="font-semibold text-gray-800">без брокери и без комисионни</span>.
+                      </>
+                    ) : (
+                      <>
+                        <span className="font-semibold text-gray-800">The only</span> platform in Bulgaria for new residential projects under construction and off-plan, <span className="font-semibold text-gray-800">with no brokers and no commissions</span>.
+                      </>
+                    )}
+                  </p>
+                  
+                  {/* Promise - Separate line like CloudCart */}
+                  <div style={{ marginTop: 'clamp(16px, 4vh, 32px)' }}>
+                    <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-normal text-gray-600 leading-relaxed" style={{
+                      fontFamily: 'Inter, system-ui, sans-serif',
+                      fontSize: '20px',
+                      lineHeight: '1.6',
+                      maxWidth: '520px'
+                    }}>
+                      {lang === 'bg' ? (
+                        <>
+                          <span className="font-semibold text-gray-800">Обещанието на Мистър Имот:</span> Без фалшиви обяви и загуба на време.
+                        </>
+                      ) : (
+                        <>
+                          <span className="font-semibold text-gray-800">Mr. Imot's Promise:</span> No fake listings, no wasted time.
+                        </>
+                      )}
+                    </p>
+                  </div>
+                </div>
               </div>
 
-              {/* Single CTA - Positioned under text, left-aligned */}
-              <div className="hero-cta mt-2 sm:mt-4 lg:mt-6">
+              {/* Bottom Section - CTA Button */}
+              <div className="flex-shrink-0" style={{ 
+                marginTop: 'clamp(20px, 5vh, 40px)',
+                marginBottom: 'clamp(40px, 8vh, 80px)' // Add bottom margin to CTA container
+              }}>
                 <Link href={`/${lang}/listings`}>
-                  <button className="w-full sm:w-auto px-6 py-3 min-h-[48px] rounded-xl bg-slate-900 text-white font-medium text-lg transition-all duration-200 ease-in-out hover:bg-slate-800 hover:shadow-lg active:scale-[0.98] cursor-pointer" style={{
+                  <button className="w-full sm:w-auto text-white font-semibold transition-all duration-300 ease-out hover:shadow-2xl active:scale-[0.98] cursor-pointer relative overflow-hidden group" style={{
                     fontFamily: 'Playfair Display, serif',
-                    backgroundColor: '#0f172a'
+                    background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)',
+                    padding: '18px 44px',
+                    fontSize: '18px',
+                    fontWeight: '600',
+                    minHeight: '56px',
+                    borderRadius: '12px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    backdropFilter: 'blur(10px)',
+                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
                   }}>
-                    {dict.hero.cta}
+                    {/* Liquid Glass Overlay */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out" style={{
+                      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.2) 25%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.1) 100%)',
+                      borderRadius: '12px',
+                      animation: 'liquidFlow 2s ease-in-out infinite'
+                    }} />
+                    
+                    {/* Shimmer Effect */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-out" style={{
+                      background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%)',
+                      transform: 'translateX(-100%)',
+                      animation: 'shimmer 1.5s ease-in-out infinite'
+                    }} />
+                    
+                    {/* Button Text */}
+                    <span className="relative z-10">{dict.hero.cta}</span>
                   </button>
                 </Link>
               </div>
             </div>
 
-            {/* Right Column - Supporting Mascot */}
-            <div className="hero-visual order-1 lg:order-none lg:flex lg:items-center lg:justify-end lg:h-full">
-              {/* Hero Image - Resized and repositioned as supporting element */}
+            {/* Right Column - Supporting Mascot (Desktop Only) */}
+            <div className="hero-visual hidden lg:flex lg:items-center lg:justify-end lg:h-full">
+              {/* Hero Image - Original Size + Dynamic Scaling */}
               <div className="w-full flex justify-center lg:justify-end">
                 <img
                   src="https://ik.imagekit.io/ts59gf2ul/Logo/Generated%20Image%20September%2012,%202025%20-%205_13PM.png?updatedAt=1757686598043"
                   alt={dict.hero.imageAlt}
-                  className="w-auto h-auto max-w-[300px] sm:max-w-[400px] md:max-w-[500px] lg:max-w-[550px] xl:max-w-[600px] transition-all duration-700 hover:scale-105 hover:rotate-1"
+                  className="w-auto h-auto transition-all duration-700 hover:scale-105 hover:rotate-1"
                   style={{
                     willChange: 'transform',
                     transform: 'translateZ(0)',
-                    filter: 'drop-shadow(0 4px 15px rgba(0, 0, 0, 0.1))'
+                    filter: 'drop-shadow(0 4px 15px rgba(0, 0, 0, 0.1))',
+                    maxWidth: 'clamp(900px, 40vw, 1200px)',
+                    maxHeight: 'clamp(800px, 35vw, 1000px)',
+                    animation: 'float 6s ease-in-out infinite'
                   }}
                 />
               </div>
@@ -235,195 +296,497 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
         </div>
       </section>
 
-             {/* 3-Step Process Section - Moved up for better psychological flow */}
-       <section className="relative overflow-hidden py-12 sm:py-16 md:py-20 lg:py-24" style={{backgroundColor: 'var(--brand-glass-light)'}}>
+      {/* Mobile Mascot Section - Below Hero */}
+      <section className="lg:hidden py-12">
+        <div className="container mx-auto px-3 xs:px-4 sm:px-6 md:px-8 w-full">
+          <div className="flex justify-center">
+            <img
+              src="https://ik.imagekit.io/ts59gf2ul/Logo/Generated%20Image%20September%2012,%202025%20-%205_13PM.png?updatedAt=1757686598043"
+              alt={dict.hero.imageAlt}
+              className="w-auto h-auto transition-all duration-700 hover:scale-105 hover:rotate-1"
+              style={{
+                willChange: 'transform',
+                transform: 'translateZ(0)',
+                filter: 'drop-shadow(0 4px 15px rgba(0, 0, 0, 0.1))',
+                maxWidth: 'clamp(300px, 70vw, 500px)',
+                maxHeight: 'clamp(250px, 60vw, 400px)',
+                animation: 'float 6s ease-in-out infinite'
+              }}
+            />
+          </div>
+        </div>
+      </section>
+
+             {/* 3-Step Process Section - Premium Design */}
+       <section className="relative overflow-hidden py-16 sm:py-20 md:py-24 lg:py-32" style={{backgroundColor: '#f9fafb'}}>
          <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
            {/* Section Header */}
-           <div className="text-center mb-6 sm:mb-8 md:mb-12 lg:mb-20">
-                                         <div className="inline-block px-3 py-1 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-medium mb-6 sm:mb-8 uppercase tracking-wide border" style={{
-                backgroundColor: 'var(--brand-badge-bg)',
-                color: 'var(--brand-badge-text)',
-                borderColor: 'var(--brand-badge-border)'
-              }}>
-                {dict.threeSteps.badge}
-              </div>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black max-w-4xl mx-auto leading-tight tracking-tight" style={{
-                color: 'var(--brand-text-primary)',
-                fontFamily: 'var(--font-instrument-serif)'
-              }} dangerouslySetInnerHTML={{ __html: dict.threeSteps.heading }}>
+           <div className="text-center mb-12 sm:mb-16 md:mb-20 lg:mb-24">
+             <div className="inline-block px-4 py-2 rounded-full text-sm font-medium mb-8 uppercase tracking-wide border-2" style={{
+               backgroundColor: 'rgba(15, 23, 42, 0.05)',
+               color: '#64748b',
+               borderColor: 'rgba(15, 23, 42, 0.1)'
+             }} dangerouslySetInnerHTML={{ __html: dict.threeSteps.badge }}>
+             </div>
+             <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-6" style={{
+               fontFamily: 'Playfair Display, serif',
+               lineHeight: '1.1',
+               fontSize: 'clamp(2.5rem, 5vw, 4.5rem)'
+             }}>
+               {dict.threeSteps.heading}
               </h2>
            </div>
 
-           {/* Steps Grid */}
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-             
-             {/* Step 1 - DISCOVER HIDDEN GEMS */}
-             <div className="relative w-full max-w-sm mx-auto md:max-w-none">
-               <div className="p-6 sm:p-8 relative min-h-[15.625rem] sm:min-h-[17.5rem] md:min-h-[18.75rem] flex flex-col rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl border" style={{
-                 backgroundColor: '#ffffff',
-                 borderColor: 'var(--brand-gray-200)'
-               }}>
+           {/* 3-Step Cards */}
+           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
+               {/* Step 1 */}
+               <div className="group">
+                 <div className="bg-white rounded-3xl p-8 shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 hover:border-gray-300 group-hover:-translate-y-2">
+                   <div className="text-center">
+                     {/* Number + Icon Container */}
+                     <div className="flex items-center justify-center gap-4 mb-6">
                  {/* Number */}
-                 <div className="text-3xl sm:text-4xl md:text-5xl font-semibold mb-3 leading-none" style={{
-                   color: 'var(--brand-btn-primary-bg)'
-                 }}>
+                       <div className="inline-flex items-center justify-center w-12 h-12 rounded-full text-xl font-bold text-white bg-emerald-700">
                    {dict.threeSteps.step1.number}
                  </div>
                  
-                                   {/* Label */}
-                  <div className="text-xs font-medium uppercase tracking-wider mb-4" style={{
-                    color: 'var(--brand-text-muted)'
+                       {/* Icon with Liquid Glass Effect */}
+                       <div className="relative">
+                         <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300 bg-emerald-700 relative overflow-hidden">
+                           {/* Liquid Glass Overlay */}
+                           <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out" style={{
+                             background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.2) 25%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.1) 100%)',
+                             borderRadius: '16px',
+                             animation: 'liquidFlow 2s ease-in-out infinite'
+                           }} />
+                           
+                           {/* Shimmer Effect */}
+                           <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-out" style={{
+                             background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%)',
+                             transform: 'translateX(-100%)',
+                             animation: 'shimmer 1.5s ease-in-out infinite'
+                           }} />
+                           
+                           {/* Original Map SVG with White Color */}
+                           <svg className="w-10 h-10 text-white relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                           </svg>
+                         </div>
+                       </div>
+                     </div>
+                     
+                     <h3 className="text-2xl font-bold text-gray-900 mb-4" style={{
+                       fontFamily: 'Playfair Display, serif'
                   }}>
                     {dict.threeSteps.step1.label}
-                  </div>
-                  
-                                     {/* Content */}
-                   <div className="text-sm sm:text-base leading-relaxed font-medium flex-1" style={{
-                     color: 'var(--brand-text-primary)'
+                     </h3>
+                     <p className="text-gray-600 leading-relaxed" style={{
+                       fontFamily: 'Inter, system-ui, sans-serif',
+                       fontSize: '16px',
+                       lineHeight: '1.6'
                    }} dangerouslySetInnerHTML={{ __html: dict.threeSteps.step1.content }}>
+                     </p>
+                   </div>
                    </div>
                </div>
                
-               {/* Arrow */}
-               <div className="absolute -right-4 top-1/2 transform -translate-y-1/2 z-10 w-8 h-4 items-center justify-center hidden xl:flex">
-                 <svg width="16" height="8" viewBox="0 0 16 8" fill="none">
-                   <path d="M1 4L15 4M15 4L12 1M15 4L12 7" stroke="var(--brand-gray-400)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/>
+               {/* Step 2 */}
+               <div className="group">
+                 <div className="bg-white rounded-3xl p-8 shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 hover:border-gray-400 group-hover:-translate-y-2">
+                   <div className="text-center">
+                     {/* Number + Icon Container */}
+                     <div className="flex items-center justify-center gap-4 mb-6">
+                       {/* Number */}
+                       <div className="inline-flex items-center justify-center w-12 h-12 rounded-full text-xl font-bold text-white bg-blue-700">
+                         {dict.threeSteps.step2.number}
+                       </div>
+                       
+                       {/* Icon with Liquid Glass Effect */}
+                       <div className="relative">
+                         <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300 bg-blue-700 relative overflow-hidden">
+                           {/* Liquid Glass Overlay */}
+                           <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out" style={{
+                             background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.2) 25%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.1) 100%)',
+                             borderRadius: '16px',
+                             animation: 'liquidFlow 2s ease-in-out infinite'
+                           }} />
+                           
+                           {/* Shimmer Effect */}
+                           <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-out" style={{
+                             background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%)',
+                             transform: 'translateX(-100%)',
+                             animation: 'shimmer 1.5s ease-in-out infinite'
+                           }} />
+                           
+                           {/* SVG Icon */}
+                           <svg className="w-10 h-10 text-white relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
                  </svg>
                </div>
              </div>
-
-             {/* Step 2 - NEGOTIATE LIKE AN INSIDER */}
-             <div className="relative w-full max-w-sm mx-auto md:max-w-none">
-               <div className="p-6 sm:p-8 relative min-h-[15.625rem] sm:min-h-[17.5rem] md:min-h-[18.75rem] flex flex-col rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl border" style={{
-                 backgroundColor: '#ffffff',
-                 borderColor: 'var(--brand-gray-200)'
-               }}>
-                 {/* Number */}
-                 <div className="text-3xl sm:text-4xl md:text-5xl font-semibold mb-3 leading-none" style={{
-                   color: 'var(--brand-warning)'
-                 }}>
-                   {dict.threeSteps.step2.number}
                  </div>
                  
-                                   {/* Label */}
-                  <div className="text-xs font-medium uppercase tracking-wider mb-4" style={{
-                    color: 'var(--brand-text-muted)'
+                     <h3 className="text-2xl font-bold text-gray-900 mb-4" style={{
+                       fontFamily: 'Playfair Display, serif'
                   }}>
                     {dict.threeSteps.step2.label}
-                  </div>
-                  
-                                     {/* Content */}
-                   <div className="text-sm sm:text-base leading-relaxed font-medium flex-1" style={{
-                     color: 'var(--brand-text-primary)'
+                     </h3>
+                     <p className="text-gray-600 leading-relaxed" style={{
+                       fontFamily: 'Inter, system-ui, sans-serif',
+                       fontSize: '16px',
+                       lineHeight: '1.6'
                    }} dangerouslySetInnerHTML={{ __html: dict.threeSteps.step2.content }}>
+                     </p>
+                   </div>
                    </div>
                </div>
                
-               {/* Arrow */}
-               <div className="absolute -right-4 top-1/2 transform -translate-y-1/2 z-10 w-8 h-4 items-center justify-center hidden xl:flex">
-                 <svg width="16" height="8" viewBox="0 0 16 8" fill="none">
-                   <path d="M1 4L15 4M15 4L12 1M15 4L12 7" stroke="var(--brand-gray-400)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/>
+               {/* Step 3 */}
+               <div className="group">
+                 <div className="bg-white rounded-3xl p-8 shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 hover:border-gray-300 group-hover:-translate-y-2">
+                   <div className="text-center">
+                     {/* Number + Icon Container */}
+                     <div className="flex items-center justify-center gap-4 mb-6">
+                       {/* Number */}
+                       <div className="inline-flex items-center justify-center w-12 h-12 rounded-full text-xl font-bold text-white bg-indigo-600">
+                         {dict.threeSteps.step3.number}
+                       </div>
+                       
+                       {/* Icon with Liquid Glass Effect */}
+                       <div className="relative">
+                         <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300 bg-indigo-600 relative overflow-hidden">
+                           {/* Liquid Glass Overlay */}
+                           <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out" style={{
+                             background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.2) 25%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.1) 100%)',
+                             borderRadius: '16px',
+                             animation: 'liquidFlow 2s ease-in-out infinite'
+                           }} />
+                           
+                           {/* Shimmer Effect */}
+                           <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-out" style={{
+                             background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%)',
+                             transform: 'translateX(-100%)',
+                             animation: 'shimmer 1.5s ease-in-out infinite'
+                           }} />
+                           
+                           {/* SVG Icon */}
+                           <svg className="w-10 h-10 text-white relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1721 9z"/>
                  </svg>
                </div>
              </div>
-
-             {/* Step 3 - LOCK IN FUTURE VALUE */}
-             <div className="relative w-full max-w-sm mx-auto md:max-w-none">
-               <div className="p-6 sm:p-8 relative min-h-[15.625rem] sm:min-h-[17.5rem] md:min-h-[18.75rem] flex flex-col rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl border" style={{
-                 backgroundColor: '#ffffff',
-                 borderColor: 'var(--brand-gray-200)'
-               }}>
-                 {/* Number */}
-                 <div className="text-3xl sm:text-4xl md:text-5xl font-semibold mb-3 leading-none" style={{
-                   color: 'var(--brand-success)'
-                 }}>
-                   {dict.threeSteps.step3.number}
                  </div>
                  
-                                   {/* Label */}
-                  <div className="text-xs font-medium uppercase tracking-wider mb-4" style={{
-                    color: 'var(--brand-text-muted)'
+                     <h3 className="text-2xl font-bold text-gray-900 mb-4" style={{
+                       fontFamily: 'Playfair Display, serif'
                   }}>
                     {dict.threeSteps.step3.label}
-                  </div>
-                  
-                                     {/* Content */}
-                   <div className="text-sm sm:text-base leading-relaxed font-medium flex-1" style={{
-                     color: 'var(--brand-text-primary)'
-                   }}>
-                     {dict.threeSteps.step3.content}
+                     </h3>
+                     <p className="text-gray-600 leading-relaxed" style={{
+                       fontFamily: 'Inter, system-ui, sans-serif',
+                       fontSize: '16px',
+                       lineHeight: '1.6'
+                     }} dangerouslySetInnerHTML={{ __html: dict.threeSteps.step3.content }}>
+                     </p>
                    </div>
                </div>
              </div>
            </div>
 
-                       {/* Honest MVP Messaging */}
-            <div className="text-center mt-8 sm:mt-12 md:mt-16">
-              <p className="text-base sm:text-lg font-semibold text-gray-700 mb-3 sm:mb-4">
+           {/* Bottom Tagline */}
+           <div className="text-center mt-16 sm:mt-20 md:mt-24 lg:mt-28">
+             <div className="max-w-4xl mx-auto">
+               <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-6" style={{
+                 fontFamily: 'Playfair Display, serif',
+                 lineHeight: '1.2',
+                 letterSpacing: '-0.02em'
+               }}>
                 {dict.threeSteps.mvp.heading}
-              </p>
-              <p className="text-sm sm:text-base text-gray-600 max-w-2xl mx-auto">
-                {dict.threeSteps.mvp.subheading}
-              </p>
+               </h3>
+               
+               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
+                 <div className="flex items-center gap-3">
+                   <div className="w-6 h-6 rounded-full bg-emerald-600 flex items-center justify-center">
+                     <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/>
+                     </svg>
+                   </div>
+                   <span className="text-lg sm:text-xl font-semibold text-gray-800">
+                     {dict.threeSteps.mvp.benefits.fast}
+                   </span>
+                 </div>
+                 
+                 <div className="flex items-center gap-3">
+                   <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center">
+                     <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/>
+                     </svg>
+                   </div>
+                   <span className="text-lg sm:text-xl font-semibold text-gray-800">
+                     {dict.threeSteps.mvp.benefits.easy}
+                   </span>
+                 </div>
+                 
+                 <div className="flex items-center gap-3">
+                   <div className="w-6 h-6 rounded-full bg-indigo-600 flex items-center justify-center">
+                     <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/>
+                     </svg>
+                   </div>
+                   <span className="text-lg sm:text-xl font-semibold text-gray-800">
+                     {dict.threeSteps.mvp.benefits.free}
+                   </span>
+                 </div>
+               </div>
+             </div>
             </div>
          </div>
        </section>
 
-      {/* What Makes Mr. Imot Different Section */}
-      <section className="py-12 sm:py-16 md:py-20 lg:py-24" style={{backgroundColor: 'var(--brand-glass-primary)'}}>
-        <div className="container mx-auto px-4 sm:px-6 md:px-8">
-                     <div className="text-center mb-6 sm:mb-8 md:mb-12">
-             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 sm:mb-3" style={{color: 'var(--brand-text-primary)'}}>
+      {/* Platform Principles Section - Why We're Different */}
+      <section className="py-16 sm:py-20 md:py-24 lg:py-32 relative overflow-hidden">
+        {/* Paper Shaders Background */}
+        <EtchedGlassBackground />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 relative">
+          {/* Section Header */}
+          <div className="text-center mb-12 sm:mb-16 md:mb-20 lg:mb-24">
+            <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-6" style={{
+              fontFamily: 'Playfair Display, serif',
+              lineHeight: '1.1',
+              fontSize: 'clamp(2.5rem, 5vw, 4.5rem)'
+            }}>
                {dict.whatMakesDifferent.heading}
              </h2>
-             <p className="text-base sm:text-lg max-w-3xl mx-auto mb-3 sm:mb-4" style={{color: 'var(--brand-text-secondary)'}}>
+            <p className="text-xl sm:text-2xl md:text-3xl font-medium text-gray-700 max-w-4xl mx-auto leading-relaxed" style={{
+              fontFamily: 'Inter, system-ui, sans-serif',
+              fontSize: 'clamp(1.25rem, 3vw, 2rem)'
+            }}>
                {dict.whatMakesDifferent.subheading}
              </p>
            </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 max-w-6xl mx-auto">
-            <div className="text-center group p-4 sm:p-6 md:p-8">
-              <div className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 group-hover:scale-110 transition-transform" style={{backgroundColor: 'var(--brand-btn-primary-bg)'}}>
-                <MapPin className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10" style={{color: 'var(--brand-btn-primary-text)'}} />
+          {/* 2x2 Platform Principles Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 max-w-6xl mx-auto">
+            {/* Principle 1: Verified Developers */}
+            <div className="group">
+              <div className="bg-white rounded-3xl p-8 lg:p-10 shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 hover:border-gray-300 group-hover:-translate-y-2 h-full">
+                <div className="text-center h-full flex flex-col">
+                  {/* Icon */}
+                  <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300 bg-emerald-700 relative overflow-hidden">
+                    {/* Liquid Glass Overlay */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out" style={{
+                      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.2) 25%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.1) 100%)',
+                      borderRadius: '16px',
+                      animation: 'liquidFlow 2s ease-in-out infinite'
+                    }} />
+                    
+                    {/* Shimmer Effect */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-out" style={{
+                      background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%)',
+                      transform: 'translateX(-100%)',
+                      animation: 'shimmer 1.5s ease-in-out infinite'
+                    }} />
+                    
+                    {/* Shield Icon */}
+                    <svg className="w-10 h-10 text-white relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                  </div>
+
+                  {/* Content */}
+                  <div className="flex-1 flex flex-col justify-center">
+                    <h3 className="text-2xl font-bold text-gray-900 mb-4" style={{
+                      fontFamily: 'Playfair Display, serif'
+                    }}>
+                      {dict.whatMakesDifferent.principles.verifiedDevelopers.title}
+                    </h3>
+                    <p className="text-gray-600 leading-relaxed" style={{
+                      fontFamily: 'Inter, system-ui, sans-serif',
+                      fontSize: '16px',
+                      lineHeight: '1.6'
+                    }}>
+                      {dict.whatMakesDifferent.principles.verifiedDevelopers.description}
+                    </p>
+                  </div>
+                </div>
               </div>
-              <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4" style={{color: 'var(--brand-text-primary)'}}>{dict.whatMakesDifferent.features.realLocations.title}</h3>
-              <p className="text-sm sm:text-base leading-relaxed" style={{color: 'var(--brand-text-secondary)'}}>
-                {dict.whatMakesDifferent.features.realLocations.description}
-              </p>
             </div>
 
-            <div className="text-center group p-4 sm:p-6 md:p-8">
-              <div className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 group-hover:scale-110 transition-transform" style={{backgroundColor: 'var(--brand-btn-primary-bg)'}}>
-                <Shield className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10" style={{color: 'var(--brand-btn-primary-text)'}} />
+            {/* Principle 2: No Financial Bias */}
+            <div className="group">
+              <div className="bg-white rounded-3xl p-8 lg:p-10 shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 hover:border-gray-300 group-hover:-translate-y-2 h-full">
+                <div className="text-center h-full flex flex-col">
+                  {/* Icon */}
+                  <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300 bg-blue-700 relative overflow-hidden">
+                    {/* Liquid Glass Overlay */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out" style={{
+                      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.2) 25%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.1) 100%)',
+                      borderRadius: '16px',
+                      animation: 'liquidFlow 2s ease-in-out infinite'
+                    }} />
+                    
+                    {/* Shimmer Effect */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-out" style={{
+                      background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%)',
+                      transform: 'translateX(-100%)',
+                      animation: 'shimmer 1.5s ease-in-out infinite'
+                    }} />
+                    
+                    {/* Target Icon */}
+                    <svg className="w-10 h-10 text-white relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                  </div>
+
+                  {/* Content */}
+                  <div className="flex-1 flex flex-col justify-center">
+                    <h3 className="text-2xl font-bold text-gray-900 mb-4" style={{
+                      fontFamily: 'Playfair Display, serif'
+                    }}>
+                      {dict.whatMakesDifferent.principles.noFinancialBias.title}
+                    </h3>
+                    <p className="text-gray-600 leading-relaxed" style={{
+                      fontFamily: 'Inter, system-ui, sans-serif',
+                      fontSize: '16px',
+                      lineHeight: '1.6'
+                    }}>
+                      {dict.whatMakesDifferent.principles.noFinancialBias.description}
+                    </p>
+                  </div>
+                </div>
               </div>
-              <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4" style={{color: 'var(--brand-text-primary)'}}>{dict.whatMakesDifferent.features.noFakeListings.title}</h3>
-              <p className="text-sm sm:text-base leading-relaxed" style={{color: 'var(--brand-text-secondary)'}}>
-                {dict.whatMakesDifferent.features.noFakeListings.description}
-              </p>
             </div>
 
-            <div className="text-center group p-4 sm:p-6 md:p-8">
-              <div className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 group-hover:scale-110 transition-transform" style={{backgroundColor: 'var(--brand-btn-primary-bg)'}}>
-                <DollarSign className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10" style={{color: 'var(--brand-btn-primary-text)'}} />
+            {/* Principle 3: Clean Experience */}
+            <div className="group">
+              <div className="bg-white rounded-3xl p-8 lg:p-10 shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 hover:border-gray-300 group-hover:-translate-y-2 h-full">
+                <div className="text-center h-full flex flex-col">
+                  {/* Icon */}
+                  <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300 bg-white border-2 border-indigo-200 relative overflow-hidden">
+                    {/* Liquid Glass Overlay */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out" style={{
+                      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.2) 25%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.1) 100%)',
+                      borderRadius: '16px',
+                      animation: 'liquidFlow 2s ease-in-out infinite'
+                    }} />
+                    
+                    {/* Shimmer Effect */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-out" style={{
+                      background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%)',
+                      transform: 'translateX(-100%)',
+                      animation: 'shimmer 1.5s ease-in-out infinite'
+                    }} />
+                    
+                    {/* Sparkles Icon */}
+                    <svg className="w-10 h-10 text-indigo-600 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+                    </svg>
+                  </div>
+
+                  {/* Content */}
+                  <div className="flex-1 flex flex-col justify-center">
+                    <h3 className="text-2xl font-bold text-gray-900 mb-4" style={{
+                      fontFamily: 'Playfair Display, serif'
+                    }}>
+                      {dict.whatMakesDifferent.principles.cleanExperience.title}
+                    </h3>
+                    <p className="text-gray-600 leading-relaxed" style={{
+                      fontFamily: 'Inter, system-ui, sans-serif',
+                      fontSize: '16px',
+                      lineHeight: '1.6'
+                    }}>
+                      {dict.whatMakesDifferent.principles.cleanExperience.description}
+                    </p>
+                  </div>
+                </div>
               </div>
-              <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4" style={{color: 'var(--brand-text-primary)'}}>{dict.whatMakesDifferent.features.zeroCommission.title}</h3>
-              <p className="text-sm sm:text-base leading-relaxed" style={{color: 'var(--brand-text-secondary)'}}>
-                {dict.whatMakesDifferent.features.zeroCommission.description}
-              </p>
+            </div>
+
+            {/* Principle 4: Honest Brokers */}
+            <div className="group">
+              <div className="bg-white rounded-3xl p-8 lg:p-10 shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 hover:border-gray-300 group-hover:-translate-y-2 h-full">
+                <div className="text-center h-full flex flex-col">
+                  {/* Icon */}
+                  <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300 bg-indigo-600 relative overflow-hidden">
+                    {/* Liquid Glass Overlay */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out" style={{
+                      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.2) 25%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.1) 100%)',
+                      borderRadius: '16px',
+                      animation: 'liquidFlow 2s ease-in-out infinite'
+                    }} />
+                    
+                    {/* Shimmer Effect */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-out" style={{
+                      background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%)',
+                      transform: 'translateX(-100%)',
+                      animation: 'shimmer 1.5s ease-in-out infinite'
+                    }} />
+                    
+                    {/* Handshake Icon */}
+                    <svg className="w-10 h-10 text-white relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                  </div>
+
+                  {/* Content */}
+                  <div className="flex-1 flex flex-col justify-center">
+                    <h3 className="text-2xl font-bold text-gray-900 mb-4" style={{
+                      fontFamily: 'Playfair Display, serif'
+                    }}>
+                      {dict.whatMakesDifferent.principles.honestBrokers.title}
+                    </h3>
+                    <p className="text-gray-600 leading-relaxed" style={{
+                      fontFamily: 'Inter, system-ui, sans-serif',
+                      fontSize: '16px',
+                      lineHeight: '1.6'
+                    }}>
+                      {dict.whatMakesDifferent.principles.honestBrokers.description}
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Single CTA - Enhanced prominence */}
-          <div className="text-center mt-6 sm:mt-8 md:mt-10">
-            <button className="w-full sm:w-auto px-6 py-3 sm:px-8 sm:py-3 md:px-10 md:py-4 rounded-full font-bold text-sm sm:text-base transition-all duration-200 shadow-xl hover:shadow-2xl inline-flex items-center justify-center transform hover:scale-105" style={{
-              backgroundColor: 'var(--brand-btn-primary-bg)',
-              color: 'var(--brand-btn-primary-text)'
-            }}>
-              <Link href={`/${lang}/listings`} className="flex items-center">
+          {/* CTA Button */}
+          <div className="text-center mt-16 sm:mt-20 md:mt-24 lg:mt-28">
+            <Link href={`/${lang}/listings`}>
+              <button className="w-full sm:w-auto text-white font-semibold transition-all duration-300 ease-out hover:shadow-2xl active:scale-[0.98] cursor-pointer relative overflow-hidden group" style={{
+                fontFamily: 'Playfair Display, serif',
+                background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)',
+                padding: '18px 44px',
+                fontSize: '18px',
+                fontWeight: '600',
+                minHeight: '56px',
+                borderRadius: '12px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                backdropFilter: 'blur(10px)',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+              }}>
+                {/* Liquid Glass Overlay */}
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out" style={{
+                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.2) 25%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.1) 100%)',
+                  borderRadius: '12px',
+                  animation: 'liquidFlow 2s ease-in-out infinite'
+                }} />
+                
+                {/* Shimmer Effect */}
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-out" style={{
+                  background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%)',
+                  transform: 'translateX(-100%)',
+                  animation: 'shimmer 1.5s ease-in-out infinite'
+                }} />
+                
+                {/* Button Text */}
+                <span className="relative z-10 flex items-center justify-center">
                 {dict.whatMakesDifferent.cta}
                 <ExternalLink className="ml-2 w-5 h-5" />
+                </span>
+              </button>
               </Link>
-            </button>
           </div>
         </div>
       </section>
@@ -431,45 +794,153 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
       {/* Developer Join Section */}
       <section className="py-16 sm:py-20 md:py-24" style={{backgroundColor: 'var(--brand-glass-light)'}}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8">
-          <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
-            {/* Left Content */}
-            <div className="flex-1 text-center lg:text-left">
+          <div className="flex flex-col lg:flex-row items-start gap-8 lg:gap-16">
+            {/* Left Content - Wider */}
+            <div className="flex-1 text-center lg:text-left lg:max-w-2xl">
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6" style={{
                 fontFamily: 'Playfair Display, serif',
                 color: 'var(--brand-text-primary)'
               }}>
                 {dict.developerJoin.heading}
               </h2>
-              <p className="text-lg sm:text-xl md:text-2xl text-gray-700 mb-6 sm:mb-8 leading-relaxed" style={{
+              
+              <p className="text-lg sm:text-xl md:text-2xl text-gray-700 mb-8 sm:mb-10 leading-relaxed" style={{
                 fontFamily: 'Inter, system-ui, sans-serif'
               }}>
-                {dict.developerJoin.description}
-                <span className="font-semibold text-gray-900"> {dict.developerJoin.descriptionBold}</span>
+                {dict.developerJoin.subheading}
               </p>
-              <div className="flex justify-center lg:justify-start">
-                <Link href={`/${lang}/register?type=developer`}>
-                  <button className="px-8 py-4 rounded-xl bg-slate-900 text-white font-semibold text-lg transition-all duration-200 ease-in-out hover:bg-slate-800 hover:shadow-lg active:scale-[0.98] cursor-pointer" style={{
-                    fontFamily: 'Playfair Display, serif',
-                    backgroundColor: '#0f172a'
-                  }}>
-                    {dict.developerJoin.cta}
-                  </button>
-                </Link>
+
+              {/* Key Benefits - Better Spacing */}
+              <div className="mb-10 sm:mb-12">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div className="flex items-start gap-4">
+                    <div className="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center flex-shrink-0">
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/>
+                      </svg>
+                    </div>
+                    <span className="text-base sm:text-lg text-gray-800 font-medium leading-relaxed">
+                      {dict.developerJoin.benefits.noCommissions}
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-start gap-4">
+                    <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/>
+                      </svg>
+                    </div>
+                    <span className="text-base sm:text-lg text-gray-800 font-medium leading-relaxed">
+                      {dict.developerJoin.benefits.qualifiedLeads}
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-start gap-4">
+                    <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center flex-shrink-0">
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/>
+                      </svg>
+                    </div>
+                    <span className="text-base sm:text-lg text-gray-800 font-medium leading-relaxed">
+                      {dict.developerJoin.benefits.professionalDashboard}
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-start gap-4">
+                    <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center flex-shrink-0">
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/>
+                      </svg>
+                    </div>
+                    <span className="text-base sm:text-lg text-gray-800 font-medium leading-relaxed">
+                      {dict.developerJoin.benefits.freeRegistration}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Additional Offer Details - Subtle */}
+              <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
+                    <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                  </div>
+                  <span className="text-sm font-semibold text-gray-800">Bonus:</span>
+                </div>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  {dict.developerJoin.specialOffer.example}
+                </p>
               </div>
             </div>
 
-            {/* Right Mascot */}
-            <div className="flex-shrink-0">
-              <img
-                src="https://ik.imagekit.io/ts59gf2ul/Logo/join-us-mr-imot-no-bg?updatedAt=1757692449277"
-                alt={dict.developerJoin.imageAlt}
-                className="w-auto h-auto max-w-[300px] sm:max-w-[400px] md:max-w-[500px] lg:max-w-[400px] xl:max-w-[450px] transition-all duration-700 hover:scale-105 hover:rotate-1"
-                style={{
-                  willChange: 'transform',
-                  transform: 'translateZ(0)',
-                  filter: 'drop-shadow(0 8px 25px rgba(0, 0, 0, 0.15))'
-                }}
-              />
+            {/* Right Side - Narrower Banner + CTA */}
+            <div className="flex-shrink-0 w-full lg:w-80 xl:w-96">
+              {/* Mascot */}
+              <div className="text-center mb-6">
+                <img
+                  src="https://ik.imagekit.io/ts59gf2ul/Logo/join-us-mr-imot-no-bg?updatedAt=1757692449277"
+                  alt={dict.developerJoin.imageAlt}
+                  className="w-auto h-auto max-w-[200px] sm:max-w-[250px] lg:max-w-[220px] xl:max-w-[250px] mx-auto transition-all duration-700 hover:scale-105 hover:rotate-1"
+                  style={{
+                    willChange: 'transform',
+                    transform: 'translateZ(0)',
+                    filter: 'drop-shadow(0 8px 25px rgba(0, 0, 0, 0.15))'
+                  }}
+                />
+              </div>
+
+              {/* Special Offer Banner - Compact */}
+              <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl p-4 mb-6 text-white relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-600/90 to-indigo-700/90"></div>
+                <div className="relative z-10 text-center">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
+                      <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                      </svg>
+                    </div>
+                    <span className="text-xs font-semibold uppercase tracking-wide">Limited Time</span>
+                  </div>
+                  <h3 className="text-base sm:text-lg font-bold mb-2" style={{
+                    fontFamily: 'Playfair Display, serif'
+                  }}>
+                    {dict.developerJoin.specialOffer.heading}
+                  </h3>
+                  <p className="text-xs text-blue-100 leading-relaxed">
+                    {dict.developerJoin.specialOffer.benefits[0]}
+                  </p>
+                </div>
+              </div>
+
+              {/* Primary CTA - Compact */}
+              <div className="text-center">
+                <Link href={`/${lang}/register?type=developer`}>
+                  <button className="w-full px-8 py-4 rounded-2xl text-white font-bold text-lg transition-all duration-300 ease-in-out hover:shadow-2xl hover:scale-105 active:scale-[0.98] cursor-pointer uppercase tracking-wide relative overflow-hidden group" style={{
+                    fontFamily: 'Playfair Display, serif',
+                    backgroundColor: '#0f172a'
+                  }}>
+                    {/* Liquid Glass Overlay */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out" style={{
+                      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.2) 25%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.1) 100%)',
+                      borderRadius: '16px',
+                      animation: 'liquidFlow 2s ease-in-out infinite'
+                    }} />
+
+                    {/* Shimmer Effect */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-out" style={{
+                      background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%)',
+                      transform: 'translateX(-100%)',
+                      animation: 'shimmer 1.5s ease-in-out infinite'
+                    }} />
+
+                    <span className="relative z-10">
+                    {dict.developerJoin.cta}
+                    </span>
+                  </button>
+                </Link>
+              </div>
             </div>
           </div>
         </div>
