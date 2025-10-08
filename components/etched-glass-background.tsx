@@ -6,12 +6,32 @@ import { useEffect, useState } from 'react'
 export function EtchedGlassBackground() {
   const [mounted, setMounted] = useState(false)
   const [hasError, setHasError] = useState(false)
+  const [webglSupported, setWebglSupported] = useState(true)
 
   useEffect(() => {
     setMounted(true)
+    
+    // Check WebGL support
+    const checkWebGLSupport = () => {
+      try {
+        const canvas = document.createElement('canvas')
+        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl')
+        if (!gl) {
+          console.warn('WebGL not supported, using CSS fallback')
+          setWebglSupported(false)
+          setHasError(true)
+        }
+      } catch (error) {
+        console.warn('WebGL check failed, using CSS fallback:', error)
+        setWebglSupported(false)
+        setHasError(true)
+      }
+    }
+    
+    checkWebGLSupport()
   }, [])
 
-  // Error boundary fallback
+  // Enhanced CSS fallback that mimics the etched glass effect
   const ErrorFallback = () => (
     <div 
       style={{
@@ -23,10 +43,30 @@ export function EtchedGlassBackground() {
         background: 'linear-gradient(135deg, #eaf0f2 0%, #f0f4f6 50%, #e8edf0 100%)',
         zIndex: -2,
       }}
-    />
+    >
+      {/* CSS-only etched lines effect */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          backgroundImage: `
+            linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.03) 50%, transparent 100%),
+            linear-gradient(0deg, transparent 0%, rgba(255,255,255,0.02) 50%, transparent 100%),
+            radial-gradient(circle at 20% 20%, rgba(255,255,255,0.05) 0%, transparent 50%),
+            radial-gradient(circle at 80% 80%, rgba(255,255,255,0.03) 0%, transparent 50%)
+          `,
+          backgroundSize: '200px 200px, 200px 200px, 400px 400px, 400px 400px',
+          backgroundPosition: '0 0, 0 0, 0 0, 0 0',
+          animation: 'subtleShift 20s ease-in-out infinite'
+        }}
+      />
+    </div>
   )
 
-  if (!mounted || hasError) {
+  if (!mounted || hasError || !webglSupported) {
     return <ErrorFallback />
   }
 
@@ -55,14 +95,16 @@ export function EtchedGlassBackground() {
             width: '100vw', 
             height: 'calc(var(--vh, 1vh) * 100)'
           }}
-          onError={() => setHasError(true)}
+          onError={() => {
+            console.warn('StaticMeshGradient error, falling back to CSS')
+            setHasError(true)
+          }}
         />
         
         {/* Top Layer: The subtle, static etched lines */}
         <Waves
           colors={['#FFFFFF00', '#FFFFFF']} // From transparent to a faint white
           scale={18} // Very high scale creates wide, almost-straight lines
-          distortion={0.3} // Adds slight, organic imperfections to the lines
           speed={0} // Completely static
           style={{ 
             position: 'absolute', 
@@ -72,7 +114,10 @@ export function EtchedGlassBackground() {
             height: 'calc(var(--vh, 1vh) * 100)', 
             opacity: 0.05 
           }}
-          onError={() => setHasError(true)}
+          onError={() => {
+            console.warn('Waves shader error, falling back to CSS')
+            setHasError(true)
+          }}
         />
       </div>
     )

@@ -194,35 +194,37 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                     lineHeight: '1.6',
                     maxWidth: '520px'
                   }}>
-                    {lang === 'bg' ? (
-                      <>
-                        <span className="font-semibold text-gray-800">Единствената</span> платформа в България за нови проекти в строеж и на зелено, <span className="font-semibold text-gray-800">без брокери и без комисионни</span>.
-                      </>
-                    ) : (
-                      <>
-                        <span className="font-semibold text-gray-800">The only</span> platform in Bulgaria for new residential projects under construction and off-plan, <span className="font-semibold text-gray-800">with no brokers and no commissions</span>.
-                      </>
-                    )}
+                    <span className="font-semibold text-gray-800">{dict.hero.description.intro}</span> {dict.hero.description.platform} <span className="font-semibold text-gray-800">{dict.hero.description.noBrokers}</span>.
                   </p>
                   
                   {/* Promise - Separate line like CloudCart */}
                   <div style={{ marginTop: 'clamp(16px, 4vh, 32px)' }}>
-                    <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-normal text-gray-600 leading-relaxed" style={{
+                    <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-normal text-gray-600 leading-relaxed" style={{
                       fontFamily: 'Inter, system-ui, sans-serif',
                       fontSize: '20px',
                       lineHeight: '1.6',
                       maxWidth: '520px'
                     }}>
-                      {lang === 'bg' ? (
-                        <>
-                          <span className="font-semibold text-gray-800">Обещанието на Мистър Имот:</span> Без фалшиви обяви и загуба на време.
-                        </>
-                      ) : (
-                        <>
-                          <span className="font-semibold text-gray-800">Mr. Imot's Promise:</span> No fake listings, no wasted time.
-                        </>
-                      )}
-                    </p>
+                      <p className="font-semibold text-gray-800 mb-3">{dict.hero.promises.heading}</p>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-3">
+                          <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0">
+                            <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                            </svg>
+                          </div>
+                          <span>{dict.hero.promises.noFakeListings}</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0">
+                            <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                            </svg>
+                          </div>
+                          <span>{dict.hero.promises.noWastedTime}</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -233,36 +235,27 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                 marginBottom: 'clamp(40px, 8vh, 80px)' // Add bottom margin to CTA container
               }}>
                 <Link href={`/${lang}/listings`}>
-                  <button className="w-full sm:w-auto text-white font-semibold transition-all duration-300 ease-out hover:shadow-2xl active:scale-[0.98] cursor-pointer relative overflow-hidden group" style={{
+                  <button className="w-full sm:w-auto px-8 py-4 rounded-2xl text-white font-bold text-lg transition-all duration-300 ease-in-out hover:shadow-2xl hover:scale-105 active:scale-[0.98] cursor-pointer uppercase tracking-wide relative overflow-hidden group" style={{
                     fontFamily: 'Playfair Display, serif',
-                    background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)',
-                    padding: '18px 44px',
-                    fontSize: '18px',
-                    fontWeight: '600',
-                    minHeight: '56px',
-                    borderRadius: '12px',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.5px',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    backdropFilter: 'blur(10px)',
-                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+                    backgroundColor: '#0f172a'
                   }}>
-                    {/* Liquid Glass Overlay */}
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out" style={{
+                    {/* Liquid Glass Overlay - Always Visible */}
+                    <div className="absolute inset-0 opacity-100 transition-opacity duration-300 ease-out" style={{
                       background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.2) 25%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.1) 100%)',
-                      borderRadius: '12px',
+                      borderRadius: '16px',
                       animation: 'liquidFlow 2s ease-in-out infinite'
                     }} />
-                    
-                    {/* Shimmer Effect */}
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-out" style={{
+
+                    {/* Shimmer Effect - Always Visible */}
+                    <div className="absolute inset-0 opacity-100 transition-opacity duration-500 ease-out" style={{
                       background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%)',
                       transform: 'translateX(-100%)',
                       animation: 'shimmer 1.5s ease-in-out infinite'
                     }} />
-                    
-                    {/* Button Text */}
-                    <span className="relative z-10">{dict.hero.cta}</span>
+
+                    <span className="relative z-10">
+                      {dict.hero.cta}
+                    </span>
                   </button>
                 </Link>
               </div>
@@ -471,7 +464,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                            
                            {/* SVG Icon */}
                            <svg className="w-10 h-10 text-white relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1721 9z"/>
+                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1 1 21 9z"/>
                  </svg>
                </div>
              </div>
@@ -504,36 +497,32 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                 {dict.threeSteps.mvp.heading}
                </h3>
                
-               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
-                 <div className="flex items-center gap-3">
+               <div className="flex justify-center">
+                 <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-4 sm:flex sm:flex-row sm:items-center sm:gap-8">
                    <div className="w-6 h-6 rounded-full bg-emerald-600 flex items-center justify-center">
                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/>
                      </svg>
                    </div>
-                   <span className="text-lg sm:text-xl font-semibold text-gray-800">
+                   <span className="text-lg sm:text-xl font-semibold text-gray-800 flex items-center">
                      {dict.threeSteps.mvp.benefits.fast}
                    </span>
-                 </div>
-                 
-                 <div className="flex items-center gap-3">
+                   
                    <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center">
                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/>
                      </svg>
                    </div>
-                   <span className="text-lg sm:text-xl font-semibold text-gray-800">
+                   <span className="text-lg sm:text-xl font-semibold text-gray-800 flex items-center">
                      {dict.threeSteps.mvp.benefits.easy}
                    </span>
-                 </div>
-                 
-                 <div className="flex items-center gap-3">
+                   
                    <div className="w-6 h-6 rounded-full bg-indigo-600 flex items-center justify-center">
                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/>
                      </svg>
                    </div>
-                   <span className="text-lg sm:text-xl font-semibold text-gray-800">
+                   <span className="text-lg sm:text-xl font-semibold text-gray-800 flex items-center">
                      {dict.threeSteps.mvp.benefits.free}
                    </span>
                  </div>
@@ -752,38 +741,27 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
           {/* CTA Button */}
           <div className="text-center mt-16 sm:mt-20 md:mt-24 lg:mt-28">
             <Link href={`/${lang}/listings`}>
-              <button className="w-full sm:w-auto text-white font-semibold transition-all duration-300 ease-out hover:shadow-2xl active:scale-[0.98] cursor-pointer relative overflow-hidden group" style={{
+              <button className="w-full sm:w-auto px-8 py-4 rounded-2xl text-white font-bold text-lg transition-all duration-300 ease-in-out hover:shadow-2xl hover:scale-105 active:scale-[0.98] cursor-pointer uppercase tracking-wide relative overflow-hidden group" style={{
                 fontFamily: 'Playfair Display, serif',
-                background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)',
-                padding: '18px 44px',
-                fontSize: '18px',
-                fontWeight: '600',
-                minHeight: '56px',
-                borderRadius: '12px',
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                backdropFilter: 'blur(10px)',
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+                backgroundColor: '#0f172a'
               }}>
-                {/* Liquid Glass Overlay */}
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out" style={{
+                {/* Liquid Glass Overlay - Always Visible */}
+                <div className="absolute inset-0 opacity-100 transition-opacity duration-300 ease-out" style={{
                   background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.2) 25%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.1) 100%)',
-                  borderRadius: '12px',
+                  borderRadius: '16px',
                   animation: 'liquidFlow 2s ease-in-out infinite'
                 }} />
-                
-                {/* Shimmer Effect */}
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-out" style={{
+
+                {/* Shimmer Effect - Always Visible */}
+                <div className="absolute inset-0 opacity-100 transition-opacity duration-500 ease-out" style={{
                   background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%)',
                   transform: 'translateX(-100%)',
                   animation: 'shimmer 1.5s ease-in-out infinite'
                 }} />
-                
-                {/* Button Text */}
+
                 <span className="relative z-10 flex items-center justify-center">
-                {dict.whatMakesDifferent.cta}
-                <ExternalLink className="ml-2 w-5 h-5" />
+                  {dict.whatMakesDifferent.cta}
+                  <ExternalLink className="ml-2 w-5 h-5" />
                 </span>
               </button>
               </Link>
@@ -921,15 +899,15 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                     fontFamily: 'Playfair Display, serif',
                     backgroundColor: '#0f172a'
                   }}>
-                    {/* Liquid Glass Overlay */}
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out" style={{
+                    {/* Liquid Glass Overlay - Always Visible */}
+                    <div className="absolute inset-0 opacity-100 transition-opacity duration-300 ease-out" style={{
                       background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.2) 25%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.1) 100%)',
                       borderRadius: '16px',
                       animation: 'liquidFlow 2s ease-in-out infinite'
                     }} />
 
-                    {/* Shimmer Effect */}
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-out" style={{
+                    {/* Shimmer Effect - Always Visible */}
+                    <div className="absolute inset-0 opacity-100 transition-opacity duration-500 ease-out" style={{
                       background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%)',
                       transform: 'translateX(-100%)',
                       animation: 'shimmer 1.5s ease-in-out infinite'
