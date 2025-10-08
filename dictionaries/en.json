@@ -6,14 +6,22 @@
       "perfectProperty": "Perfect Property",
       "directlyFromDevelopers": "Directly from Developers"
     },
-    "subtitle": "Browse off-plan projects in Bulgaria.",
-    "tagline": "Skip the middleman. Skip the markup.",
+    "description": {
+      "intro": "The only",
+      "platform": "platform in Bulgaria for new residential projects under construction and off-plan,",
+      "noBrokers": "with no brokers and no commissions"
+    },
+    "promises": {
+      "heading": "Mr imot Promises:",
+      "noFakeListings": "No fake listings",
+      "noWastedTime": "No wasted time"
+    },
     "cta": "Browse Properties",
     "imageAlt": "MR-IMOT Logo - No Brokers, No Commissions"
   },
   "threeSteps": {
         "badge": "FROM SEARCH TO DEAL<br />IN 3 EASY STEPS",
-    "heading": "How does Mr. Imot work?",
+    "heading": "How does Mr imot work?",
     "step1": {
       "number": "01",
       "label": "Browse the map",
@@ -34,7 +42,7 @@
       "benefits": {
         "fast": "fast",
         "easy": "easy",
-        "free": "completely free"
+        "free": "free"
       }
     }
   },
