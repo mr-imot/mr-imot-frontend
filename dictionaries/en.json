@@ -16,7 +16,7 @@
       "noFakeListings": "No fake listings",
       "noWastedTime": "No wasted time"
     },
-    "cta": "Browse Properties",
+    "cta": "Explore Properties",
     "imageAlt": "MR-IMOT Logo - No Brokers, No Commissions"
   },
   "threeSteps": {
@@ -70,24 +70,38 @@
     "cta": "Browse All Properties"
   },
   "developerJoin": {
-    "heading": "Ready to List Your Project?",
-    "subheading": "Join Bulgaria's fastest-growing platform for new construction projects.",
+    "heading": "Why Join as a Developer?",
+    "subheading": "Stop wasting time with low-quality leads and brokers. Get direct contact with serious buyers for your projects.",
     "benefits": {
-      "noCommissions": "No commissions – keep 100% of your profit",
-      "qualifiedLeads": "Qualified leads only – no time wasters",
-      "professionalDashboard": "Professional dashboard for listing management and analytics",
-      "freeRegistration": "Free registration – monthly subscription can be cancelled anytime"
+      "directContact": "Direct contact with buyers, no brokers",
+      "quickPublishing": "Publish new projects in minutes",
+      "fullControl": "Full control and statistics for your listings",
+      "flexibleCommitment": "No long-term commitment – pay month by month"
+    },
+    "pricing": {
+      "heading": "Choose Your Plan",
+      "freePlan": {
+        "name": "Free Registration",
+        "description": "Start free and test the platform",
+        "cta": "Create Profile"
+      },
+      "standardPlan": {
+        "name": "Standard Plan",
+        "price": "€25/month",
+        "description": "Perfect for active developers",
+        "note": "First month — €25 Facebook advertising from us",
+        "cta": "Choose Plan"
+      },
+      "cancelAnytime": "Cancel your subscription anytime."
     },
     "specialOffer": {
-      "heading": "Special offer for early developers:",
-      "benefits": [
-        "Your subscription is immediately returned as Facebook advertising for your listing",
-        "Advertising is managed by our marketing team for maximum impact",
-        "Limited spots – don't miss the opportunity to be among the first"
-      ],
-      "example": "Example: 50 BGN/25€ subscription → you receive advertising report with 50 BGN ad budget for your listing on Facebook."
+      "heading": "🎁 Special offer for early developers",
+      "description": "Your first month is returned as Facebook advertising."
     },
-    "cta": "REGISTER FOR FREE",
+    "finalCta": {
+      "heading": "Become part of a trusted platform",
+      "button": "Register for Free"
+    },
     "imageAlt": "Join Mr. Imot - Developer Registration"
   },
   "faq": {

@@ -1,7 +1,8 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import {
   Shield,
@@ -11,10 +12,14 @@ import {
   Search,
   Phone,
   CheckCircle,
+  Loader2,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { EtchedGlassBackground } from "@/components/etched-glass-background"
 import { FaqSection } from "@/components/faq-section"
+import { PricingSection } from "@/components/pricing/PricingSection"
+import { TestimonialsSection } from "@/components/TestimonialsSection"
+import { getProjects } from "@/lib/api"
 
 // Dynamic header height calculation + robust viewport unit fallback
 const useHeaderHeight = () => {
@@ -66,6 +71,31 @@ interface LocalizedHomePageProps {
 export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
   // Dynamic header height calculation
   useHeaderHeight()
+  
+  // State for recently added listings
+  const [recentListings, setRecentListings] = useState<any[]>([])
+  const [isLoadingListings, setIsLoadingListings] = useState(true)
+  
+  // Fetch recently added listings
+  useEffect(() => {
+    const fetchRecentListings = async () => {
+      try {
+        setIsLoadingListings(true)
+        const response = await getProjects({ 
+          sort_by: "created_at", 
+          per_page: 6 
+        })
+        setRecentListings(response.projects || [])
+      } catch (error) {
+        console.error("Failed to fetch recent listings:", error)
+        setRecentListings([])
+      } finally {
+        setIsLoadingListings(false)
+      }
+    }
+    
+    fetchRecentListings()
+  }, [])
 
   // FAQ Schema for SEO
   const faqSchema = {
@@ -155,13 +185,13 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
       
-      <div className="min-h-screen relative">
+      <div className="min-h-screen relative overflow-visible">
         {/* Etched Glass Background */}
         <EtchedGlassBackground />
       
       {/* Hero Section */}
       <section className="hero-section">
-        <div className="container mx-auto px-3 xs:px-4 sm:px-6 md:px-8 w-full">
+        <div className="container mx-auto px-3 sm:px-6 md:px-8 w-full">
           <div className="hero-grid grid grid-rows-[auto_1fr] lg:grid-cols-2 lg:grid-rows-none gap-2 sm:gap-4 md:gap-6 lg:gap-8 items-center w-full">
             {/* Left Column - Content */}
             <div className="hero-content order-2 lg:order-none flex flex-col" style={{ 
@@ -172,17 +202,20 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
             }}>
               {/* Top Section - Title + Subtitle */}
               <div className="flex-1 flex flex-col justify-center">
-              {/* Main Headline */}
-              <div className="space-y-2">
-                <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl laptop:text-6xl lg:text-7xl leading-[1.1] tracking-tight text-gray-900" style={{
+              {/* Main Headline - premium gradient text */}
+              <div className="space-y-1">
+                <h1 className="headline-gradient hero-title leading-[0.72] tracking-tight" style={{
                   fontFamily: 'Playfair Display, serif',
-                  fontSize: 'clamp(2rem, 5vw, 4.5rem)'
+                  fontSize: 'clamp(2.25rem, 5vw, 4.75rem)'
                 }}>
-                  <span className="font-normal text-gray-600 italic">{dict.hero.title.find}</span> {dict.hero.title.your}
+                  <span className="font-normal italic text-slate-900/70 drop-shadow-sm mr-2">
+                    {dict.hero.title.find}
+                  </span>
+                  {dict.hero.title.your}
                   <br />
-                  <span className="font-bold text-gray-900">{dict.hero.title.perfectProperty}</span>
+                  <span className="font-semibold">{dict.hero.title.perfectProperty}</span>
                   <br />
-                  <span className="font-semibold text-gray-800">{dict.hero.title.directlyFromDevelopers}</span>
+                  <span className="font-medium">{dict.hero.title.directlyFromDevelopers}</span>
                 </h1>
               </div>
               
@@ -235,9 +268,8 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                 marginBottom: 'clamp(40px, 8vh, 80px)' // Add bottom margin to CTA container
               }}>
                 <Link href={`/${lang}/listings`}>
-                  <button className="w-full sm:w-auto px-8 py-4 rounded-2xl text-white font-bold text-lg transition-all duration-300 ease-in-out hover:shadow-2xl hover:scale-105 active:scale-[0.98] cursor-pointer uppercase tracking-wide relative overflow-hidden group" style={{
-                    fontFamily: 'Playfair Display, serif',
-                    backgroundColor: '#0f172a'
+                  <button className="w-full sm:w-auto px-10 py-5 rounded-2xl text-white font-bold text-xl uppercase transition-all duration-300 ease-in-out hover:shadow-2xl hover:scale-105 active:scale-[0.98] cursor-pointer tracking-wider relative overflow-hidden group bg-gradient-to-r from-slate-900 to-slate-800" style={{
+                    fontFamily: 'Playfair Display, serif'
                   }}>
                     {/* Liquid Glass Overlay - Always Visible */}
                     <div className="absolute inset-0 opacity-100 transition-opacity duration-300 ease-out" style={{
@@ -291,12 +323,12 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
 
       {/* Mobile Mascot Section - Below Hero */}
       <section className="lg:hidden py-12">
-        <div className="container mx-auto px-3 xs:px-4 sm:px-6 md:px-8 w-full">
+        <div className="container mx-auto px-3 sm:px-6 md:px-8 w-full">
           <div className="flex justify-center">
             <img
               src="https://ik.imagekit.io/ts59gf2ul/Logo/Generated%20Image%20September%2012,%202025%20-%205_13PM.png?updatedAt=1757686598043"
               alt={dict.hero.imageAlt}
-              className="w-auto h-auto transition-all duration-700 hover:scale-105 hover:rotate-1"
+              className="w-auto h-auto transition-all duration-700 hover:scale-105 hover:rotate-1 drop-shadow-xl"
               style={{
                 willChange: 'transform',
                 transform: 'translateZ(0)',
@@ -312,7 +344,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
 
              {/* 3-Step Process Section - Premium Design */}
        <section className="relative overflow-hidden py-16 sm:py-20 md:py-24 lg:py-32" style={{backgroundColor: '#f9fafb'}}>
-         <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+         <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 relative">
            {/* Section Header */}
            <div className="text-center mb-12 sm:mb-16 md:mb-20 lg:mb-24">
              <div className="inline-block px-4 py-2 rounded-full text-sm font-medium mb-8 uppercase tracking-wide border-2" style={{
@@ -321,7 +353,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                borderColor: 'rgba(15, 23, 42, 0.1)'
              }} dangerouslySetInnerHTML={{ __html: dict.threeSteps.badge }}>
              </div>
-             <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-6" style={{
+             <h2 className="headline-gradient text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6" style={{
                fontFamily: 'Playfair Display, serif',
                lineHeight: '1.1',
                fontSize: 'clamp(2.5rem, 5vw, 4.5rem)'
@@ -330,11 +362,12 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
               </h2>
            </div>
 
-           {/* 3-Step Cards */}
-           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
+           {/* 3-Step Cards with subtle connector line on desktop */}
+           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12 relative">
+             <div className="hidden lg:block absolute left-0 right-0 top-1/2 h-px -translate-y-1/2 bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
                {/* Step 1 */}
                <div className="group">
-                 <div className="bg-white rounded-3xl p-8 shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 hover:border-gray-300 group-hover:-translate-y-2">
+                 <div className="card p-8 hover:shadow-2xl transition-all duration-500 hover:border-gray-300 group-hover:-translate-y-2">
                    <div className="text-center">
                      {/* Number + Icon Container */}
                      <div className="flex items-center justify-center gap-4 mb-6">
@@ -385,7 +418,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                
                {/* Step 2 */}
                <div className="group">
-                 <div className="bg-white rounded-3xl p-8 shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 hover:border-gray-400 group-hover:-translate-y-2">
+                 <div className="card p-8 hover:shadow-2xl transition-all duration-500 hover:border-gray-400 group-hover:-translate-y-2">
                    <div className="text-center">
                      {/* Number + Icon Container */}
                      <div className="flex items-center justify-center gap-4 mb-6">
@@ -436,7 +469,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                
                {/* Step 3 */}
                <div className="group">
-                 <div className="bg-white rounded-3xl p-8 shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 hover:border-gray-300 group-hover:-translate-y-2">
+                 <div className="card p-8 hover:shadow-2xl transition-all duration-500 hover:border-gray-300 group-hover:-translate-y-2">
                    <div className="text-center">
                      {/* Number + Icon Container */}
                      <div className="flex items-center justify-center gap-4 mb-6">
@@ -540,7 +573,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 relative">
           {/* Section Header */}
           <div className="text-center mb-12 sm:mb-16 md:mb-20 lg:mb-24">
-            <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-6" style={{
+            <h2 className="headline-gradient text-4xl sm:text-5xl md:text-6xl lg:mb-6 lg:text-7xl font-bold mb-6" style={{
               fontFamily: 'Playfair Display, serif',
               lineHeight: '1.1',
               fontSize: 'clamp(2.5rem, 5vw, 4.5rem)'
@@ -554,6 +587,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                {dict.whatMakesDifferent.subheading}
              </p>
            </div>
+
 
           {/* 2x2 Platform Principles Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 max-w-6xl mx-auto">
@@ -738,8 +772,97 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
             </div>
           </div>
 
-          {/* CTA Button */}
-          <div className="text-center mt-16 sm:mt-20 md:mt-24 lg:mt-28">
+        </div>
+      </section>
+
+      {/* Featured Projects Carousel */}
+      <section className="py-16 sm:py-20 md:py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+          <div className="text-center mb-10">
+            <h3 className="headline-gradient text-4xl sm:text-5xl font-bold" style={{ fontFamily: 'Playfair Display, serif' }}>
+              {lang === 'bg' ? 'Наскоро добавени' : 'Recently added'}
+            </h3>
+          </div>
+          <div className="relative">
+            {isLoadingListings ? (
+              <div className="flex gap-6 overflow-x-auto pb-2">
+                {[1,2,3,4,5,6].map((i) => (
+                  <div key={i} className="min-w-[280px] max-w-[320px] card p-4 animate-pulse">
+                    <div className="h-40 bg-gray-200 rounded-xl mb-4" />
+                    <div className="h-6 bg-gray-200 rounded mb-2" />
+                    <div className="h-4 bg-gray-200 rounded w-2/3" />
+                  </div>
+                ))}
+              </div>
+            ) : recentListings.length > 0 ? (
+              <div className="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-2 edge-fade-l edge-fade-r scrollbar-thin" style={{ scrollSnapType: 'x mandatory' }}>
+                {recentListings.map((listing) => (
+                  <Link 
+                    key={listing.id} 
+                    href={`/${lang}/listings/${listing.id}`}
+                    className="min-w-[280px] max-w-[320px] snap-start"
+                  >
+                    <article className="card p-4 hover:-translate-y-1 transition-transform cursor-pointer h-full">
+                      <div className="relative h-40 bg-muted rounded-xl mb-4 overflow-hidden">
+                        {(() => {
+                          // Try to get the best available image URL
+                          const imageUrl = listing.cover_image_url || 
+                                         (listing.images && listing.images[0] && listing.images[0].urls && listing.images[0].urls.card) ||
+                                         (listing.images && listing.images[0] && listing.images[0].image_url);
+                          
+                          return imageUrl ? (
+                            <Image
+                              src={imageUrl}
+                              alt={listing.name || 'Property'}
+                              fill
+                              className="object-cover"
+                              sizes="320px"
+                              onError={(e) => {
+                                // Fallback to placeholder if image fails to load
+                                const target = e.target as HTMLImageElement;
+                                target.style.display = 'none';
+                                const parent = target.parentElement;
+                                if (parent) {
+                                  parent.innerHTML = `
+                                    <div class="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                                      <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                      </svg>
+                                    </div>
+                                  `;
+                                }
+                              }}
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                              <MapPin className="w-12 h-12 text-gray-400" />
+                            </div>
+                          );
+                        })()}
+                      </div>
+                      <h4 className="font-semibold text-lg mb-1 line-clamp-1">
+                        {listing.name || (lang === 'bg' ? 'Проект' : 'Project')}
+                      </h4>
+                      <p className="text-muted-foreground text-sm flex items-center gap-1">
+                        <MapPin className="w-3 h-3" />
+                        {listing.city || (lang === 'bg' ? 'България' : 'Bulgaria')}
+                      </p>
+                    </article>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-gray-500">
+                  {lang === 'bg' ? 'Няма налични обяви в момента' : 'No listings available at the moment'}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* CTA moved here below cards */}
+          <div className="mt-10 flex justify-center">
             <Link href={`/${lang}/listings`}>
               <button className="w-full sm:w-auto px-8 py-4 rounded-2xl text-white font-bold text-lg transition-all duration-300 ease-in-out hover:shadow-2xl hover:scale-105 active:scale-[0.98] cursor-pointer uppercase tracking-wide relative overflow-hidden group" style={{
                 fontFamily: 'Playfair Display, serif',
@@ -764,161 +887,127 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                   <ExternalLink className="ml-2 w-5 h-5" />
                 </span>
               </button>
-              </Link>
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* Developer Join Section */}
+      {/* Developer Join Section - New 4-Part Funnel */}
       <section className="py-16 sm:py-20 md:py-24" style={{backgroundColor: 'var(--brand-glass-light)'}}>
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8">
-          <div className="flex flex-col lg:flex-row items-start gap-8 lg:gap-16">
-            {/* Left Content - Wider */}
-            <div className="flex-1 text-center lg:text-left lg:max-w-2xl">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6" style={{
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+          
+          {/* 1️⃣ Section: "Why Join as Developer?" (Value Section) */}
+          <div className="relative">
+            {/* Background Pattern */}
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-white to-indigo-50/30 rounded-3xl"></div>
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.1),transparent_50%)] rounded-3xl"></div>
+            
+            <div className="relative z-10 px-8 py-16 sm:px-12 sm:py-20">
+              <div className="text-center mb-16">
+                <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-8 bg-gradient-to-r from-gray-900 via-blue-900 to-indigo-900 bg-clip-text text-transparent leading-tight" style={{
+                  fontFamily: 'Playfair Display, serif'
+                }}>
+                  {dict.developerJoin.heading}
+                </h2>
+                
+                <p className="text-xl sm:text-2xl md:text-3xl text-gray-700 mb-16 leading-relaxed max-w-5xl mx-auto font-medium" style={{
+                  fontFamily: 'Inter, system-ui, sans-serif'
+                }}>
+                  {dict.developerJoin.subheading}
+                </p>
+
+                {/* 4 Key Benefits with Enhanced Icons */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+                  <div className="group flex flex-col items-center text-center p-8 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 hover:shadow-2xl hover:scale-105 transition-all duration-300 hover:bg-white">
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                      </svg>
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-800 mb-3 group-hover:text-emerald-700 transition-colors">
+                      {dict.developerJoin.benefits.directContact}
+                    </h3>
+                  </div>
+                  
+                  <div className="group flex flex-col items-center text-center p-8 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 hover:shadow-2xl hover:scale-105 transition-all duration-300 hover:bg-white">
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                      </svg>
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-800 mb-3 group-hover:text-blue-700 transition-colors">
+                      {dict.developerJoin.benefits.quickPublishing}
+                    </h3>
+                  </div>
+                  
+                  <div className="group flex flex-col items-center text-center p-8 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 hover:shadow-2xl hover:scale-105 transition-all duration-300 hover:bg-white">
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                      </svg>
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-800 mb-3 group-hover:text-indigo-700 transition-colors">
+                      {dict.developerJoin.benefits.fullControl}
+                    </h3>
+                  </div>
+                  
+                  <div className="group flex flex-col items-center text-center p-8 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 hover:shadow-2xl hover:scale-105 transition-all duration-300 hover:bg-white">
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+                      </svg>
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-800 mb-3 group-hover:text-purple-700 transition-colors">
+                      {dict.developerJoin.benefits.flexibleCommitment}
+                    </h3>
+                  </div>
+                </div>
+
+                {/* Mascot Section */}
+                <div className="flex justify-center">
+                  <img
+                    src="https://ik.imagekit.io/ts59gf2ul/Logo/join-us-mr-imot-no-bg?updatedAt=1757692449277"
+                    alt={dict.developerJoin.imageAlt}
+                    className="w-auto h-auto max-w-[280px] sm:max-w-[320px] lg:max-w-[300px] xl:max-w-[350px] mx-auto transition-all duration-700 hover:scale-110 hover:rotate-2"
+                    style={{
+                      willChange: 'transform',
+                      transform: 'translateZ(0)',
+                      filter: 'drop-shadow(0 20px 40px rgba(0, 0, 0, 0.15))'
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 2️⃣ Section: "Pricing / Subscription Plans" */}
+          <PricingSection lang={lang} />
+
+
+
+        </div>
+      </section>
+
+      {/* Testimonials below pricing */}
+      <TestimonialsSection lang={lang} />
+
+      {/* Ready to publish section - moved under testimonials */}
+      <section className="py-16 sm:py-20 md:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+          <div className="text-center">
+            <div className="bg-gray-50 rounded-2xl p-12">
+              <h3 className="text-2xl sm:text-3xl font-bold mb-6" style={{
                 fontFamily: 'Playfair Display, serif',
                 color: 'var(--brand-text-primary)'
               }}>
-                {dict.developerJoin.heading}
-              </h2>
-              
-              <p className="text-lg sm:text-xl md:text-2xl text-gray-700 mb-8 sm:mb-10 leading-relaxed" style={{
-                fontFamily: 'Inter, system-ui, sans-serif'
-              }}>
-                {dict.developerJoin.subheading}
-              </p>
-
-              {/* Key Benefits - Better Spacing */}
-              <div className="mb-10 sm:mb-12">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <div className="flex items-start gap-4">
-                    <div className="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center flex-shrink-0">
-                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/>
-                      </svg>
-                    </div>
-                    <span className="text-base sm:text-lg text-gray-800 font-medium leading-relaxed">
-                      {dict.developerJoin.benefits.noCommissions}
-                    </span>
-                  </div>
-                  
-                  <div className="flex items-start gap-4">
-                    <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
-                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/>
-                      </svg>
-                    </div>
-                    <span className="text-base sm:text-lg text-gray-800 font-medium leading-relaxed">
-                      {dict.developerJoin.benefits.qualifiedLeads}
-                    </span>
-                  </div>
-                  
-                  <div className="flex items-start gap-4">
-                    <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center flex-shrink-0">
-                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/>
-                      </svg>
-                    </div>
-                    <span className="text-base sm:text-lg text-gray-800 font-medium leading-relaxed">
-                      {dict.developerJoin.benefits.professionalDashboard}
-                    </span>
-                  </div>
-                  
-                  <div className="flex items-start gap-4">
-                    <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center flex-shrink-0">
-                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/>
-                      </svg>
-                    </div>
-                    <span className="text-base sm:text-lg text-gray-800 font-medium leading-relaxed">
-                      {dict.developerJoin.benefits.freeRegistration}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Additional Offer Details - Subtle */}
-              <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
-                    <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/>
-                    </svg>
-                  </div>
-                  <span className="text-sm font-semibold text-gray-800">Bonus:</span>
-                </div>
-                <p className="text-sm text-gray-600 leading-relaxed">
-                  {dict.developerJoin.specialOffer.example}
-                </p>
-              </div>
-            </div>
-
-            {/* Right Side - Narrower Banner + CTA */}
-            <div className="flex-shrink-0 w-full lg:w-80 xl:w-96">
-              {/* Mascot */}
-              <div className="text-center mb-6">
-                <img
-                  src="https://ik.imagekit.io/ts59gf2ul/Logo/join-us-mr-imot-no-bg?updatedAt=1757692449277"
-                  alt={dict.developerJoin.imageAlt}
-                  className="w-auto h-auto max-w-[200px] sm:max-w-[250px] lg:max-w-[220px] xl:max-w-[250px] mx-auto transition-all duration-700 hover:scale-105 hover:rotate-1"
-                  style={{
-                    willChange: 'transform',
-                    transform: 'translateZ(0)',
-                    filter: 'drop-shadow(0 8px 25px rgba(0, 0, 0, 0.15))'
-                  }}
-                />
-              </div>
-
-              {/* Special Offer Banner - Compact */}
-              <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl p-4 mb-6 text-white relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-600/90 to-indigo-700/90"></div>
-                <div className="relative z-10 text-center">
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
-                      <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                      </svg>
-                    </div>
-                    <span className="text-xs font-semibold uppercase tracking-wide">Limited Time</span>
-                  </div>
-                  <h3 className="text-base sm:text-lg font-bold mb-2" style={{
-                    fontFamily: 'Playfair Display, serif'
-                  }}>
-                    {dict.developerJoin.specialOffer.heading}
-                  </h3>
-                  <p className="text-xs text-blue-100 leading-relaxed">
-                    {dict.developerJoin.specialOffer.benefits[0]}
-                  </p>
-                </div>
-              </div>
-
-              {/* Primary CTA - Compact */}
-              <div className="text-center">
-                <Link href={`/${lang}/register?type=developer`}>
-                  <button className="w-full px-8 py-4 rounded-2xl text-white font-bold text-lg transition-all duration-300 ease-in-out hover:shadow-2xl hover:scale-105 active:scale-[0.98] cursor-pointer uppercase tracking-wide relative overflow-hidden group" style={{
-                    fontFamily: 'Playfair Display, serif',
-                    backgroundColor: '#0f172a'
-                  }}>
-                    {/* Liquid Glass Overlay - Always Visible */}
-                    <div className="absolute inset-0 opacity-100 transition-opacity duration-300 ease-out" style={{
-                      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.2) 25%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.1) 100%)',
-                      borderRadius: '16px',
-                      animation: 'liquidFlow 2s ease-in-out infinite'
-                    }} />
-
-                    {/* Shimmer Effect - Always Visible */}
-                    <div className="absolute inset-0 opacity-100 transition-opacity duration-500 ease-out" style={{
-                      background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%)',
-                      transform: 'translateX(-100%)',
-                      animation: 'shimmer 1.5s ease-in-out infinite'
-                    }} />
-
-                    <span className="relative z-10">
-                    {dict.developerJoin.cta}
-                    </span>
-                  </button>
-                </Link>
-              </div>
+                {lang === 'bg' ? 'Присъединете се към надеждна платформа' : 'Join a trusted platform'}
+              </h3>
+              <Link href={`/${lang}/register?type=developer`}>
+                <button className="group relative px-10 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-700 text-white font-bold tracking-wider uppercase hover:from-blue-700 hover:to-indigo-800 transition-all duration-300 shadow-xl hover:shadow-2xl active:scale-95 overflow-hidden">
+                  <div className="absolute inset-0 -skew-x-12 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+                  <span className="relative z-10">{dict.developerJoin.finalCta.button}</span>
+                </button>
+              </Link>
             </div>
           </div>
         </div>
@@ -976,7 +1065,94 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
           },
         ]}
       />
+
     </div>
     </>
+  )
+}
+
+function PricingToggle({ lang }: { lang: string }) {
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>(() => 'monthly')
+  return (
+    <div className="flex items-center justify-center mb-8">
+      <div className="inline-flex p-1 rounded-full bg-gray-100 border border-gray-200 shadow-sm">
+        <button
+          onClick={() => setBillingCycle('monthly')}
+          className={`px-4 py-2 rounded-full text-sm font-medium transition ${billingCycle === 'monthly' ? 'bg-white shadow text-gray-900' : 'text-gray-600 hover:text-gray-800'}`}
+        >
+          {lang === 'bg' ? 'Месечно' : 'Monthly'}
+        </button>
+        <button
+          onClick={() => setBillingCycle('yearly')}
+          className={`px-4 py-2 rounded-full text-sm font-medium transition ${billingCycle === 'yearly' ? 'bg-white shadow text-gray-900' : 'text-gray-600 hover:text-gray-800'}`}
+        >
+          {lang === 'bg' ? 'Годишно (спестявате 2 месеца)' : 'Yearly (save 2 months)'}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function PremiumStandardCard({ dict, lang }: { dict: any, lang: string }) {
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly')
+  // Mirror global toggle if needed in future via context; keep local UX simple for now
+  const monthlyLabel = lang === 'bg' ? '50 лв/месец' : '€25/month'
+  const yearlyLabel = lang === 'bg' ? '500 лв/годишно' : '€250/year'
+  const features = (lang === 'bg' ? [
+    'До 5 активни обяви',
+    'Директни лидове – без брокери',
+    'Разширени статистики',
+    'Приоритетно показване',
+    'Имейл и чат поддръжка',
+  ] : [
+    'Up to 5 active listings',
+    'Direct leads — no brokers',
+    'Advanced analytics',
+    'Priority placement',
+    'Email & chat support',
+  ])
+
+  return (
+    <div className="card p-8 border-2 border-primary relative">
+      <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+        <span className="bg-primary text-white px-4 py-1 rounded-full text-sm font-semibold">
+          {lang === 'bg' ? 'Популярен' : 'Popular'}
+        </span>
+      </div>
+      <div className="text-center">
+        <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
+          <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          </svg>
+        </div>
+        <h4 className="text-xl font-bold text-gray-900 mb-2">
+          {dict.developerJoin.pricing.standardPlan.name}
+        </h4>
+        <div className="text-4xl font-extrabold text-gray-900 mb-2">
+          {billingCycle === 'yearly' ? yearlyLabel : monthlyLabel}
+        </div>
+        <p className="text-gray-600 mb-4">
+          {dict.developerJoin.pricing.standardPlan.description}
+        </p>
+        <div className="bg-blue-50 rounded-lg p-3 mb-6">
+          <p className="text-sm text-blue-800 font-medium">
+            {dict.developerJoin.pricing.standardPlan.note}
+          </p>
+        </div>
+        <ul className="text-left space-y-3 mb-6">
+          {features.map((f: string, i: number) => (
+            <li key={i} className="flex items-center gap-3 text-gray-700">
+              <CheckCircle className="w-5 h-5 text-indigo-600" />
+              <span className="text-sm">{f}</span>
+            </li>
+          ))}
+        </ul>
+        <Link href={`/${lang}/register?type=developer`}>
+          <button className="w-full px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition-colors">
+            {dict.developerJoin.pricing.standardPlan.cta}
+          </button>
+        </Link>
+      </div>
+    </div>
   )
 }

@@ -464,6 +464,7 @@ class ApiClient {
     sw_lng?: number;
     ne_lat?: number;
     ne_lng?: number;
+    sort_by?: string;
   } = {}): Promise<ProjectListResponse> {
     const searchParams = new URLSearchParams();
     Object.entries(params).forEach(([key, value]) => {

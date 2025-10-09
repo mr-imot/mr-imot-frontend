@@ -21,7 +21,7 @@ export function SiteHeader() {
   return (
     <>
       
-      <header className={`relative z-20 flex items-center justify-between p-6 ${isListingsPage ? 'hidden xl:flex' : ''}`}>
+      <header className={`header-glass flex items-center justify-between px-4 sm:px-6 md:px-8 py-4 ${isListingsPage ? 'hidden xl:flex' : ''}`}>
         <div className="w-full flex items-center justify-between">
         {/* Logo (always visible) */}
         <div className={`flex items-center`}>
@@ -46,19 +46,19 @@ export function SiteHeader() {
         <nav className="hidden md:flex items-center space-x-3">
           <a
             href={href('listings', 'obiavi')}
-            className="text-white/80 hover:text-white text-sm font-light px-4 py-3 rounded-full hover:bg-white/10 transition-all duration-200 cursor-pointer"
+            className="text-slate-800/80 hover:text-slate-900 text-sm font-medium px-4 py-2 rounded-full bg-white/60 border border-slate-200 shadow-sm hover:bg-white transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/30 active:scale-95"
           >
             {t.listings}
           </a>
           <a
             href={href('developers', 'stroiteli')}
-            className="text-white/80 hover:text-white text-sm font-light px-4 py-3 rounded-full hover:bg-white/10 transition-all duration-200 cursor-pointer"
+            className="text-slate-800/80 hover:text-slate-900 text-sm font-medium px-4 py-2 rounded-full bg-white/60 border border-slate-200 shadow-sm hover:bg-white transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/30 active:scale-95"
           >
             {t.developers}
           </a>
           <a
             href={href('about-us', 'za-nas')}
-            className="text-white/80 hover:text-white text-sm font-light px-4 py-3 rounded-full hover:bg-white/10 transition-all duration-200 cursor-pointer"
+            className="text-slate-800/80 hover:text-slate-900 text-sm font-medium px-4 py-2 rounded-full bg-white/60 border border-slate-200 shadow-sm hover:bg-white transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/30 active:scale-95"
           >
             {t.aboutUs}
           </a>
@@ -66,6 +66,12 @@ export function SiteHeader() {
 
         {/* Right Side - Language Switcher + Auth + Mobile Nav */}
         <div className="flex items-center space-x-4">
+          {/* Primary CTA - List Project */}
+          <div className="hidden md:block">
+            <Link href={href('register?type=developer', 'register?type=developer')} className="btn-shine inline-flex items-center px-5 py-2 rounded-full bg-gradient-to-r from-blue-600 to-indigo-700 text-white text-sm font-semibold hover:from-blue-700 hover:to-indigo-800 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+              {t.listYourProject}
+            </Link>
+          </div>
           {/* Language Switcher - Hidden on mobile */}
           <div className="hidden md:block">
             <LanguageSwitcher />

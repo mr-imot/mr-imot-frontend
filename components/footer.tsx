@@ -52,6 +52,7 @@ export function Footer() {
 
   return (
     <footer className="bg-card border-t text-card-foreground">
+      <div className="h-px w-full bg-gradient-to-r from-transparent via-blue-200/60 to-transparent" />
       {/* Main Footer Content */}
       <div className="container px-4 md:px-6 py-16 md:py-20">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-16">

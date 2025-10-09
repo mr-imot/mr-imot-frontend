@@ -88,13 +88,13 @@ const FaqSection = ({
             {subheading}
           </p>
         </div>
-        <Accordion type="single" collapsible className="w-full">
+        <Accordion type="single" collapsible className="w-full divide-y divide-gray-200 rounded-2xl bg-white/60 backdrop-blur-sm border border-gray-200/60">
           {items.map((item, index) => (
-            <AccordionItem key={index} value={`item-${index}`} className="border-b border-gray-200">
-              <AccordionTrigger className="font-semibold hover:no-underline text-left py-4" style={{color: 'var(--brand-text-primary)'}}>
+            <AccordionItem key={index} value={`item-${index}`} className="px-4 sm:px-6">
+              <AccordionTrigger className="font-semibold hover:no-underline text-left py-5 sm:py-6 text-gray-900">
                 {item.question}
               </AccordionTrigger>
-              <AccordionContent className="text-muted-foreground pb-4 leading-relaxed">
+              <AccordionContent className="text-muted-foreground pb-6 leading-relaxed">
                 {item.answer}
               </AccordionContent>
             </AccordionItem>
