@@ -22,6 +22,26 @@ export function isMobileDevice(): boolean {
   return isMobileUserAgent || (isSmallScreen && isTouchDevice)
 }
 
+// Detects touch-pointer devices reliably (phones/tablets) regardless of width/orientation
+export function isTouchPointerDevice(): boolean {
+  if (typeof window === 'undefined') return false
+  try {
+    return (
+      window.matchMedia('(pointer: coarse)').matches ||
+      // any-pointer is supported by some browsers when multiple inputs exist
+      window.matchMedia('(any-pointer: coarse)').matches ||
+      // Fallbacks
+      'ontouchstart' in window ||
+      (typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0)
+    )
+  } catch {
+    return (
+      'ontouchstart' in (typeof window !== 'undefined' ? window : ({} as any)) ||
+      (typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0)
+    )
+  }
+}
+
 export function isTabletDevice(): boolean {
   if (typeof window === 'undefined') return false
   

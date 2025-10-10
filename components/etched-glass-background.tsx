@@ -12,11 +12,30 @@ export function EtchedGlassBackground() {
   useEffect(() => {
     setMounted(true)
     
-    // On mobile, capture initial viewport height and lock it
-    const isMobile = window.innerWidth <= 768
+    // Detect touch device instead of relying on width
+    const isMobile = window.matchMedia('(pointer: coarse)').matches
+    
+    const setShaderHeight = () => {
+      if (isMobile) {
+        const currentHeight = window.innerHeight
+        setFixedHeight(currentHeight)
+        console.log(`Mobile shader height set to: ${currentHeight}px`)
+      }
+    }
+    
+    // Set initial height for mobile devices
     if (isMobile) {
-      const initialHeight = window.innerHeight
-      setFixedHeight(initialHeight)
+      setShaderHeight()
+    }
+    
+    // Reapply shader height only when orientation changes (mobile devices)
+    const handleOrientationChange = () => {
+      if (isMobile) {
+        // Small delay to ensure viewport has updated after rotation
+        setTimeout(() => {
+          setShaderHeight()
+        }, 100)
+      }
     }
     
     // Check WebGL support
@@ -37,6 +56,11 @@ export function EtchedGlassBackground() {
     }
     
     checkWebGLSupport()
+    window.addEventListener('orientationchange', handleOrientationChange)
+    
+    return () => {
+      window.removeEventListener('orientationchange', handleOrientationChange)
+    }
   }, [])
 
   // Enhanced CSS fallback that mimics the etched glass effect

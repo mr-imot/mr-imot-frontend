@@ -4,6 +4,7 @@ import { SiteHeader } from "@/components/site-header"
 import { Footer } from "@/components/footer"
 import { FeedbackButton } from "@/components/feedback-button"
 import type { Metadata } from "next"
+import { ViewportLock } from "@/components/ViewportLock"
 
 export async function generateStaticParams() {
   return [{ lang: 'en' }, { lang: 'bg' }]
@@ -71,6 +72,8 @@ export default async function RootLayout({
       <LocaleProvider locale={lang} translations={translations}>
         <div className="relative flex min-h-screen flex-col">
           <SiteHeader />
+          {/* Global viewport fixes: mobile height lock and header height sync */}
+          <ViewportLock />
           <main className="flex-1">{children}</main>
           <Footer />
         </div>

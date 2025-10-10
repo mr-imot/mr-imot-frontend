@@ -21,7 +21,7 @@ import { PricingSection } from "@/components/pricing/PricingSection"
 import { TestimonialsSection } from "@/components/TestimonialsSection"
 import { getProjects } from "@/lib/api"
 
-// Dynamic header height calculation + mobile height locking
+// Dynamic header height calculation + mobile height locking with touch device detection
 const useHeaderHeight = () => {
   useEffect(() => {
     let isInitialized = false
@@ -42,11 +42,20 @@ const useHeaderHeight = () => {
       }
     }
 
-    // On mobile, capture initial viewport height and lock it
-    const isMobile = window.innerWidth <= 768
+    // Detect touch device instead of relying on width
+    const isMobile = window.matchMedia('(pointer: coarse)').matches
+    
+    const setHeroHeight = () => {
+      if (isMobile) {
+        const currentHeight = window.innerHeight
+        document.documentElement.style.setProperty('--fixed-vh', `${currentHeight}px`)
+        console.log(`Mobile hero height set to: ${currentHeight}px`)
+      }
+    }
+
+    // Set initial height for mobile devices
     if (isMobile) {
-      const initialHeight = window.innerHeight
-      document.documentElement.style.setProperty('--fixed-vh', `${initialHeight}px`)
+      setHeroHeight()
     }
 
     // Initial calculation with a small delay to ensure DOM is ready
@@ -69,11 +78,23 @@ const useHeaderHeight = () => {
       }
     }
 
+    // Reapply hero height only when orientation changes (mobile devices)
+    const handleOrientationChange = () => {
+      if (isMobile) {
+        // Small delay to ensure viewport has updated after rotation
+        setTimeout(() => {
+          setHeroHeight()
+        }, 100)
+      }
+    }
+
     window.addEventListener('resize', handleResize)
+    window.addEventListener('orientationchange', handleOrientationChange)
 
     return () => {
       clearTimeout(timeoutId)
       window.removeEventListener('resize', handleResize)
+      window.removeEventListener('orientationchange', handleOrientationChange)
     }
   }, [])
 }
@@ -93,7 +114,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
   const [isMobile, setIsMobile] = useState(false)
   
   useEffect(() => {
-    setIsMobile(window.innerWidth <= 768)
+    setIsMobile(window.matchMedia('(pointer: coarse)').matches)
   }, [])
   
   // Fetch recently added listings
