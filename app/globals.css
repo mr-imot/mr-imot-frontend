@@ -690,11 +690,8 @@ picture:not(.cursor-pointer):not([class*="cursor-"]) {
   user-select: none !important;
 }
 
-/* Ensure images/SVGs and any descendants inside links/buttons show hand pointer */
-a, button, [role="button"], [data-clickable="true"] {
-  cursor: pointer !important;
-}
-a *, button *, [role="button"] *, [data-clickable="true"] * {
+/* Ensure media inside anchors show hand pointer */
+a img, a svg {
   cursor: pointer !important;
 }
 
@@ -832,11 +829,6 @@ textarea,
 }
 
 .gm-style .gm-style-iw-d {
-  cursor: pointer !important;
-}
-
-/* Ensure all interactive elements inside Google Maps show pointer */
-.gm-style a, .gm-style button {
   cursor: pointer !important;
 }
 
