@@ -838,7 +838,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
               </div>
             ) : recentListings.length > 0 ? (
               <div className="flex gap-6 lg:gap-8 overflow-x-auto snap-x snap-mandatory pb-2 edge-fade-l edge-fade-r scrollbar-thin" style={{ scrollSnapType: 'x mandatory' }}>
-                {recentListings.map((listing) => (
+                {(recentListings.slice(0, 5)).map((listing) => (
                   <Link 
                     key={listing.id} 
                     href={`/${lang}/listings/${listing.id}`}
@@ -893,6 +893,23 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                     </article>
                   </Link>
                 ))}
+                {/* View more tile as last item (6th) */}
+                <Link
+                  href={`/${lang}/listings`}
+                  className="min-w-[340px] max-w-[360px] lg:min-w-[400px] lg:max-w-[400px] snap-start"
+                >
+                  <article className="card p-6 h-full flex flex-col items-center justify-center text-center hover:-translate-y-1 transition-transform cursor-pointer">
+                    <div className="w-full h-48 md:h-56 lg:h-64 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl mb-4 grid place-items-center">
+                      <ExternalLink className="w-10 h-10 text-gray-500" />
+                    </div>
+                    <h4 className="font-semibold text-lg mb-1">
+                      {lang === 'bg' ? 'Виж повече' : 'View more'}
+                    </h4>
+                    <p className="text-muted-foreground text-sm">
+                      {lang === 'bg' ? 'Разгледай всички имоти' : 'Browse all properties'}
+                    </p>
+                  </article>
+                </Link>
               </div>
             ) : (
               <div className="text-center py-12">
