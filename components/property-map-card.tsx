@@ -160,7 +160,7 @@ export function PropertyMapCard({
           onClick={(e) => { e.stopPropagation(); handleClose() }}
           className="absolute top-2 right-2 z-10 w-7 h-7 rounded-full bg-white/90 hover:bg-white text-[#222222] flex items-center justify-center shadow-sm cursor-pointer"
         >
-          <X className="h-4 w-4" />
+          <X className="h-4 w-4 cursor-pointer" />
         </button>
 
         {/* Image Carousel */}
@@ -218,7 +218,7 @@ export function PropertyMapCard({
                 onClick={(e) => { e.stopPropagation(); setCurrentImageIndex((prev) => (prev - 1 + imageUrls.length) % imageUrls.length) }}
                 className="absolute left-2 top-1/2 -translate-y-1/2 grid place-items-center h-8 w-8 rounded-full bg-white/95 hover:bg-white shadow-md text-[#222222] z-10 cursor-pointer"
               >
-                <svg width="12" height="12" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <svg className="cursor-pointer" width="12" height="12" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </button>
@@ -227,7 +227,7 @@ export function PropertyMapCard({
                 onClick={(e) => { e.stopPropagation(); setCurrentImageIndex((prev) => (prev + 1) % imageUrls.length) }}
                 className="absolute right-2 top-1/2 -translate-y-1/2 grid place-items-center h-8 w-8 rounded-full bg-white/95 hover:bg-white shadow-md text-[#222222] z-10 cursor-pointer"
               >
-                <svg width="12" height="12" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <svg className="cursor-pointer" width="12" height="12" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path d="M9 6l6 6-6 6" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </button>
