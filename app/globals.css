@@ -741,10 +741,10 @@ svg.cursor-pointer {
 button, 
 [role="button"],
 [data-clickable="true"],
-.clickable {
+.clickable,
+.cursor-pointer,
+a, a * {
   cursor: pointer !important;
-  caret-color: transparent !important;
-  user-select: none !important;
 }
 
 /* Override for text inside clickable elements */

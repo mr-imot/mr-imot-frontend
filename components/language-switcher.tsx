@@ -87,12 +87,12 @@ export function LanguageSwitcher() {
         <Button 
           variant="ghost" 
           size="sm"
-          className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-white/10 transition-all duration-200 text-white/80 hover:text-white"
+          className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-white/10 transition-all duration-200 text-white/80 hover:text-white cursor-pointer"
         >
           <img 
             src={currentLanguage.flag} 
             alt={currentLanguage.name}
-            className="w-6 h-4 rounded-sm object-cover"
+            className="w-6 h-4 rounded-sm object-cover cursor-pointer"
           />
         </Button>
       </DropdownMenuTrigger>
