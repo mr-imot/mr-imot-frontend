@@ -690,8 +690,8 @@ picture:not(.cursor-pointer):not([class*="cursor-"]) {
   user-select: none !important;
 }
 
-/* Ensure media inside anchors show hand pointer */
-a img, a svg {
+/* Ensure media inside anchors and buttons show hand pointer */
+a img, a svg, button img, button svg, [role="button"] img, [role="button"] svg {
   cursor: pointer !important;
 }
 

@@ -175,7 +175,7 @@ export function PropertyMapCard({
             target={`listing_${String(property.id)}`}
             rel="noopener noreferrer nofollow"
             aria-labelledby={`map_title_${String(property.id)}`}
-            className="block w-full h-full"
+            className="block w-full h-full cursor-pointer"
           >
             {imageUrls.length > 0 ? (
               <Image
@@ -183,7 +183,7 @@ export function PropertyMapCard({
                 src={imageUrls[currentImageIndex]}
                 alt={property.title}
                 fill
-                className="object-cover transition-transform duration-500 ease-out hover:scale-105"
+                className="object-cover transition-transform duration-500 ease-out hover:scale-105 cursor-pointer"
                 sizes="(max-width: 64em) 100vw, 20.4375rem"
                 priority={false}
               />
