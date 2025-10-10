@@ -30,7 +30,7 @@ export function PlanCard({ plan, cycle, lang, popularText, registerHref }: PlanC
         </div>
       )}
 
-      <div className="text-center flex-1 flex flex-col">
+      <div className="text-center flex flex-col h-full">
         <h4 className="text-xl font-bold text-gray-900 mb-2">
           {lang === 'bg' ? plan.name.bg : plan.name.en}
         </h4>
@@ -51,7 +51,7 @@ export function PlanCard({ plan, cycle, lang, popularText, registerHref }: PlanC
           {lang === 'bg' ? plan.description.bg : plan.description.en}
         </p>
 
-        <div className="flex-1">
+        <div className="flex-1 flex flex-col justify-between">
           <TooltipProvider delayDuration={150}>
             <ul className="text-left space-y-3 mb-6">
               {(plan.features || []).map((f, i) => {
@@ -81,14 +81,14 @@ export function PlanCard({ plan, cycle, lang, popularText, registerHref }: PlanC
               })}
             </ul>
           </TooltipProvider>
-        </div>
-
-        <div className="mt-auto">
-          <Link href={registerHref}>
-            <button className={`w-full px-6 py-3 rounded-lg font-semibold transition-colors ${plan.highlight ? 'bg-primary text-white hover:bg-primary/90' : 'bg-gray-900 text-white hover:bg-gray-800'}`}>
-              {lang === 'bg' ? plan.cta.bg : plan.cta.en}
-            </button>
-          </Link>
+          
+          <div className="mt-auto">
+            <Link href={registerHref}>
+              <button className={`w-full px-6 py-3 rounded-lg font-semibold transition-colors ${plan.highlight ? 'bg-primary text-white hover:bg-primary/90' : 'bg-gray-900 text-white hover:bg-gray-800'}`}>
+                {lang === 'bg' ? plan.cta.bg : plan.cta.en}
+              </button>
+            </Link>
+          </div>
         </div>
       </div>
     </div>

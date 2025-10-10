@@ -38,7 +38,7 @@ export function PricingSection({ lang }: PricingSectionProps) {
 
       <div className="text-center mt-8">
         <p className="text-gray-500 text-xs">
-          {lang === 'bg' ? 'Цените са без ДДС.' : 'Prices are without VAT.'}
+          {lang === 'bg' ? '*Цените са без ДДС.' : '*Prices are without VAT.'}
         </p>
       </div>
     </section>
