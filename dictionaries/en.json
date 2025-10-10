@@ -12,16 +12,16 @@
       "noBrokers": "with no brokers and no commissions"
     },
     "promises": {
-      "heading": "Mr imot Promises:",
+      "heading": "Mister Imot Promises:",
       "noFakeListings": "No fake listings",
       "noWastedTime": "No wasted time"
     },
     "cta": "Explore Properties",
-    "imageAlt": "MR-IMOT Logo - No Brokers, No Commissions"
+    "imageAlt": "Mister Imot mascot promoting 0% commissions – no brokers"
   },
   "threeSteps": {
         "badge": "FROM SEARCH TO DEAL<br />IN 3 EASY STEPS",
-    "heading": "How does Mr imot work?",
+    "heading": "How does Mister Imot work?",
     "step1": {
       "number": "01",
       "label": "Browse the map",
@@ -102,11 +102,11 @@
       "heading": "Become part of a trusted platform",
       "button": "Register for Free"
     },
-    "imageAlt": "Join Mr. Imot - Developer Registration"
+    "imageAlt": "Join Mister Imot – Developer Registration"
   },
   "faq": {
     "heading": "Frequently asked questions",
-    "subheading": "Everything you need to know about using Mr. imot Platform",
+    "subheading": "Everything you need to know about using Mister Imot Platform",
     "question1": {
       "question": "How can I find new apartments or houses in my city?",
       "answer": "Open the map at mrimot.com/listings and explore projects in your city. Each project is posted by a verified developer, not a broker. You can view location details, visit sites in person, and contact developers directly. No registration is required to browse and explore all listings."
@@ -157,7 +157,7 @@
     "connectDirectly": "Connect directly with developers"
   },
   "footer": {
-    "description": "Mr. imot Platform launched in 2025 to simplify off-plan property discovery in Bulgaria. Making new construction accessible to everyone.",
+    "description": "Mister Imot launched in 2025 to simplify off‑plan property discovery in Bulgaria. Making new construction accessible to everyone.",
     "explore": "Explore",
     "forDevelopers": "For Developers",
     "social": "Social",
@@ -166,12 +166,12 @@
     "privacyPolicy": "Privacy Policy",
     "termsOfService": "Terms of Service",
     "cookiePolicy": "Cookie Policy",
-    "copyright": "© 2025 Mr. imot. All rights reserved."
+    "copyright": "© 2025 Mister Imot. All rights reserved."
   },
   "feedback": {
     "button": "Feedback",
     "title": "Send Feedback",
-    "introMessage": "Hey there - Mr imot is still in beta and we are working everyday to improve your experience! I would LOVE your feedback. What you type in this box will go directly to my inbox :)",
+    "introMessage": "Hey there - Mister Imot is still in beta and we are working everyday to improve your experience! I would LOVE your feedback. What you type in this box will go directly to my inbox :)",
     "selectPlaceholder": "Select an issue type",
     "issueTypes": {
       "bugReport": "Bug Report",
@@ -260,7 +260,7 @@
   },
   "developers": {
     "pageTitle": "Verified Developers",
-    "pageDescription": "Discover Bulgaria's leading real estate developers, all verified and trusted by the Mr. Imot community.",
+    "pageDescription": "Discover Bulgaria's leading real estate developers, all verified and trusted by the Mister Imot community.",
     "loading": "Loading developers...",
     "errorTitle": "Error Loading Developers",
     "errorMessage": "Unable to load developer information. Please try again later.",
@@ -275,13 +275,13 @@
   },
   "login": {
     "welcomeBack": "Welcome back",
-    "signInToAccount": "Sign in to your Mr imot developer account",
+    "signInToAccount": "Sign in to your developer account",
     "emailAddress": "Email Address",
     "password": "Password",
     "forgotPassword": "Forgot password?",
     "signIn": "Sign In",
     "signingIn": "Signing in...",
-    "newToMrImot": "New to Mr imot?",
+    "newToMrImot": "New to Mister Imot?",
     "createAccount": "Create Account",
     "bySigningIn": "By signing in, you agree to our",
     "termsOfService": "Terms of Service",
@@ -443,17 +443,17 @@
   },
   "about": {
     "pageTitle": "About Us",
-    "pageDescription": "Learn about Mr. Imot's mission to revolutionize real estate in Bulgaria through verified developers and transparent property listings.",
+    "pageDescription": "Learn about Mister Imot's mission to revolutionize real estate in Bulgaria through verified developers and transparent property listings.",
     "ourStory": "Our Story",
-    "storyDescription": "Founded with a vision to transform Bulgaria's real estate market, Mr. Imot has become the trusted platform for property buyers and developers alike.",
+    "storyDescription": "Founded with a vision to transform Bulgaria's real estate market, Mister Imot has become the trusted platform for property buyers and developers alike.",
     "ourMission": "Our Mission",
     "revolutionizing": "Revolutionizing Real Estate",
-    "missionDescription": "At Mr imot, our mission is to revolutionize the real estate market by creating a transparent and direct connection between property buyers and real estate developers. We believe in cutting out unnecessary intermediaries, reducing costs, and providing direct access to verified, under-construction projects.",
+    "missionDescription": "At Mister Imot, our mission is to revolutionize the real estate market by creating a transparent and direct connection between property buyers and real estate developers. We believe in cutting out unnecessary intermediaries, reducing costs, and providing direct access to verified, under-construction projects.",
     "missionDescription2": "We empower buyers to make informed decisions and help developers showcase their work efficiently to a targeted audience.",
     "missionImageAlt": "Our Mission - Modern Construction",
     "vision": "Vision",
     "buildingTomorrow": "Building Tomorrow's Marketplace",
-    "visionDescription": "We envision a world where finding and investing in new real estate is simple, direct, and trustworthy. Mr imot aims to be the go-to platform for anyone seeking new construction properties and for developers looking to list their projects with confidence and ease.",
+    "visionDescription": "We envision a world where finding and investing in new real estate is simple, direct, and trustworthy. Mister Imot aims to be the go-to platform for anyone seeking new construction properties and for developers looking to list their projects with confidence and ease.",
     "visionDescription2": "We are committed to fostering a community where quality projects meet genuine demand, creating value for everyone involved.",
     "visionImageAlt": "Our Vision - Future of Real Estate",
     "ourValues": "Our Values",
@@ -467,9 +467,9 @@
     "innovationDesc": "Leveraging cutting-edge technology to make real estate discovery simple and efficient.",
     "customerFirst": "Customer First",
     "customerFirstDesc": "Your success is our success. We're committed to providing exceptional service at every step.",
-    "whyChooseUs": "Why Choose Mr imot?",
+    "whyChooseUs": "Why Choose Mister Imot?",
     "successPriority": "Your Success is Our Priority",
-    "builtWithGoal": "We've built Mr imot with one goal in mind: making real estate investment simple, transparent, and profitable for everyone involved.",
+    "builtWithGoal": "We've built Mister Imot with one goal in mind: making real estate investment simple, transparent, and profitable for everyone involved.",
     "directAccess": "Direct access to developers, no brokers involved",
     "verifiedListings": "100% verified listings of projects under construction",
     "transparentInfo": "Transparent information and direct communication",

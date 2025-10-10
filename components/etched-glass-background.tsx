@@ -36,22 +36,22 @@ export function EtchedGlassBackground() {
     <div 
       style={{
         position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
+        inset: 0,
+        width: '100vw',
+        height: '100dvh',
         background: 'linear-gradient(135deg, #eaf0f2 0%, #f0f4f6 50%, #e8edf0 100%)',
         zIndex: -2,
+        backfaceVisibility: 'hidden',
+        willChange: 'opacity',
       }}
     >
       {/* CSS-only etched lines effect */}
       <div
         style={{
           position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
+          inset: 0,
+          width: '100vw',
+          height: '100dvh',
           backgroundImage: `
             linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.03) 50%, transparent 100%),
             linear-gradient(0deg, transparent 0%, rgba(255,255,255,0.02) 50%, transparent 100%),
@@ -75,14 +75,16 @@ export function EtchedGlassBackground() {
       <div 
         style={{
           position: 'fixed',
-          top: 0,
-          left: 0,
+          inset: 0,
           width: '100vw',
-          height: 'calc(var(--vh, 1vh) * 100)',
+          // Prefer modern dynamic viewport unit with fallback via CSS var
+          height: '100dvh',
           backgroundColor: '#e8edf0', // A cool, professional light gray
           overflow: 'hidden',
           zIndex: -2,
-          pointerEvents: 'none'
+          pointerEvents: 'none',
+          backfaceVisibility: 'hidden',
+          willChange: 'opacity'
         }}
       >
         {/* Base Layer: The frosted glass pane */}
@@ -90,10 +92,9 @@ export function EtchedGlassBackground() {
           colors={['#eaf0f2', '#f0f4f6', '#e8edf0']}
           style={{ 
             position: 'absolute', 
-            top: 0,
-            left: 0,
+            inset: 0,
             width: '100vw', 
-            height: 'calc(var(--vh, 1vh) * 100)'
+            height: '100dvh'
           }}
           onError={() => {
             console.warn('StaticMeshGradient error, falling back to CSS')
@@ -108,10 +109,9 @@ export function EtchedGlassBackground() {
           speed={0} // Completely static
           style={{ 
             position: 'absolute', 
-            top: 0,
-            left: 0,
+            inset: 0,
             width: '100vw', 
-            height: 'calc(var(--vh, 1vh) * 100)', 
+            height: '100dvh', 
             opacity: 0.05 
           }}
           onError={() => {

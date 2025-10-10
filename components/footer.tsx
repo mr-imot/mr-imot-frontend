@@ -60,7 +60,7 @@ export function Footer() {
           <div className="lg:col-span-1">
             <div className="flex items-center space-x-3">
               <div className="h-8 w-8 rounded bg-foreground/90" />
-              <span className="text-lg font-semibold">Mr imot</span>
+              <span className="text-lg font-semibold">{locale === 'bg' ? 'Мистър Имот' : 'Mister Imot'}</span>
             </div>
             <p className="mt-6 text-muted-foreground leading-relaxed">
               {t.description}

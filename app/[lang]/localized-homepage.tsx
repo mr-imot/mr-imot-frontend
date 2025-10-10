@@ -182,6 +182,41 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
       {/* JSON-LD Schema for SEO */}
       <script
         type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            name: lang === 'bg' ? 'Мистър Имот' : 'Mister Imot',
+            url: lang === 'bg' ? 'https://mrimot.com/bg' : 'https://mrimot.com/en',
+            inLanguage: lang === 'bg' ? 'bg' : 'en',
+            logo: 'https://ik.imagekit.io/ts59gf2ul/Logo/mr-imot-logo.png',
+            sameAs: [
+              'https://facebook.com/mrimot',
+              'https://www.linkedin.com/company/mrimot',
+              'https://instagram.com/mrimot'
+            ]
+          })
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            name: lang === 'bg' ? 'Мистър Имот' : 'Mister Imot',
+            url: lang === 'bg' ? 'https://mrimot.com/bg' : 'https://mrimot.com/en',
+            inLanguage: lang === 'bg' ? 'bg' : 'en',
+            potentialAction: {
+              "@type": "SearchAction",
+              target: 'https://mrimot.com/{lang}/listings?query={search_term_string}',
+              "query-input": "required name=search_term_string"
+            }
+          })
+        }}
+      />
+      <script
+        type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
       
@@ -195,9 +230,11 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
           <div className="hero-grid grid grid-rows-[auto_1fr] lg:grid-cols-2 lg:grid-rows-none gap-2 sm:gap-4 md:gap-6 lg:gap-8 items-center w-full">
             {/* Left Column - Content */}
             <div className="hero-content order-2 lg:order-none flex flex-col" style={{ 
-              minHeight: 'calc(100vh - 80px)', // Use min-height instead of height
+              // Use small-viewport units to avoid address-bar resize jumps on mobile
+              minHeight: 'calc(100svh - var(--header-height, 80px))',
               paddingTop: 'clamp(60px, 15vh, 120px)', 
-              paddingBottom: 'clamp(60px, 12vh, 100px)', // Increased bottom padding
+              // Slightly reduced to tighten white gap on mobile while keeping breathing room on desktop
+              paddingBottom: 'clamp(40px, 8vh, 80px)',
               justifyContent: 'space-between'
             }}>
               {/* Top Section - Title + Subtitle */}
@@ -298,15 +335,19 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
               {/* Hero Image - Original Size + Dynamic Scaling */}
               <div className="w-full flex justify-center lg:justify-end">
                 <img
-                  src="https://ik.imagekit.io/ts59gf2ul/Logo/Generated%20Image%20September%2012,%202025%20-%205_13PM.png?updatedAt=1757686598043"
-                  alt={dict.hero.imageAlt}
+                  src={lang === 'bg' 
+                    ? "https://ik.imagekit.io/ts59gf2ul/Logo/0_-komisionna-mr-imot.png?updatedAt=1760104535412&tr=f-auto,q-90"
+                    : "https://ik.imagekit.io/ts59gf2ul/Logo/0_-commissions-mr-imot.png?updatedAt=1760108287952&tr=f-auto,q-90"
+                  }
+                  alt={lang === 'bg' ? dict.hero.imageAlt : 'Mister Imot mascot holding flag with 0% commissions message for real estate platform'}
                   className="w-auto h-auto transition-all duration-700 hover:scale-105 hover:rotate-1"
                   style={{
                     willChange: 'transform',
                     transform: 'translateZ(0)',
                     filter: 'drop-shadow(0 4px 15px rgba(0, 0, 0, 0.1))',
-                    maxWidth: 'clamp(900px, 40vw, 1200px)',
-                    maxHeight: 'clamp(800px, 35vw, 1000px)',
+                    // Responsive width to scale proportionally across desktop/laptop
+                    width: 'clamp(1250px, 60vw, 1800px)',
+                    height: 'auto',
                     animation: 'float 6s ease-in-out infinite'
                   }}
                 />
@@ -322,19 +363,22 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
       </section>
 
       {/* Mobile Mascot Section - Below Hero */}
-      <section className="lg:hidden py-12">
+      <section className="lg:hidden py-8">
         <div className="container mx-auto px-3 sm:px-6 md:px-8 w-full">
           <div className="flex justify-center">
             <img
-              src="https://ik.imagekit.io/ts59gf2ul/Logo/Generated%20Image%20September%2012,%202025%20-%205_13PM.png?updatedAt=1757686598043"
-              alt={dict.hero.imageAlt}
+              src={lang === 'bg' 
+                ? "https://ik.imagekit.io/ts59gf2ul/Logo/0_-komisionna-mr-imot.png?updatedAt=1760104535412&tr=f-auto,q-90"
+                : "https://ik.imagekit.io/ts59gf2ul/Logo/0_-commissions-mr-imot.png?updatedAt=1760108287952&tr=f-auto,q-90"
+              }
+              alt={lang === 'bg' ? dict.hero.imageAlt : 'Mister Imot mascot holding flag with 0% commissions message for real estate platform'}
               className="w-auto h-auto transition-all duration-700 hover:scale-105 hover:rotate-1 drop-shadow-xl"
               style={{
                 willChange: 'transform',
                 transform: 'translateZ(0)',
                 filter: 'drop-shadow(0 4px 15px rgba(0, 0, 0, 0.1))',
-                maxWidth: 'clamp(300px, 70vw, 500px)',
-                maxHeight: 'clamp(250px, 60vw, 400px)',
+                width: 'clamp(480px, 90vw, 900px)',
+                height: 'auto',
                 animation: 'float 6s ease-in-out infinite'
               }}
             />
@@ -567,8 +611,6 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
 
       {/* Platform Principles Section - Why We're Different */}
       <section className="py-16 sm:py-20 md:py-24 lg:py-32 relative overflow-hidden">
-        {/* Paper Shaders Background */}
-        <EtchedGlassBackground />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 relative">
           {/* Section Header */}
@@ -966,13 +1008,18 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                 {/* Mascot Section */}
                 <div className="flex justify-center">
                   <img
-                    src="https://ik.imagekit.io/ts59gf2ul/Logo/join-us-mr-imot-no-bg?updatedAt=1757692449277"
-                    alt={dict.developerJoin.imageAlt}
-                    className="w-auto h-auto max-w-[280px] sm:max-w-[320px] lg:max-w-[300px] xl:max-w-[350px] mx-auto transition-all duration-700 hover:scale-110 hover:rotate-2"
+                    src={lang === 'bg' 
+                      ? "https://ik.imagekit.io/ts59gf2ul/Logo/stani-chats-ot-nas-mr-imot.png?updatedAt=1760104490964&tr=f-auto,q-90"
+                      : "https://ik.imagekit.io/ts59gf2ul/Logo/join-us-mr-imot.png?updatedAt=1760105808199&tr=f-auto,q-90"
+                    }
+                    alt={lang === 'bg' ? dict.developerJoin.imageAlt : 'Mister Imot mascot inviting developers to join real estate platform with join us flag'}
+                    className="w-auto h-auto mx-auto transition-all duration-700 hover:scale-110 hover:rotate-2"
                     style={{
                       willChange: 'transform',
                       transform: 'translateZ(0)',
-                      filter: 'drop-shadow(0 20px 40px rgba(0, 0, 0, 0.15))'
+                      filter: 'drop-shadow(0 20px 40px rgba(0, 0, 0, 0.15))',
+                      width: 'clamp(260px, 28vw, 420px)',
+                      height: 'auto'
                     }}
                   />
                 </div>

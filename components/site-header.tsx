@@ -29,7 +29,7 @@ export function SiteHeader() {
             <div className="relative w-14 h-14 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-200 border border-white/20 cursor-pointer">
               <Image
                 src="/images/mr-imot-logo-no-background.png"
-                alt="Mr. Imot Logo"
+                alt={locale === 'bg' ? 'Лого на Мистър Имот' : 'Mister Imot Logo'}
                 width={56}
                 height={56}
                 className="object-contain drop-shadow-lg cursor-pointer"

@@ -61,8 +61,8 @@ const inter = Inter({
 // Geist fonts are configured via CSS variables in globals.css
 
 export const metadata: Metadata = {
-  title: "Mr imot - Real Estate Development Directory",
-  description: "Find and connect with real estate developers directly. No brokers, no BS.",
+  title: "Real Estate Development Directory",
+  description: "Find and connect with real estate developers directly. No brokers, no commissions.",
   generator: 'v0.dev',
   manifest: '/manifest.json',
   icons: {
@@ -81,8 +81,7 @@ export const metadata: Metadata = {
   },
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'black-translucent', // Changed to prevent blue background
-    title: 'Mr. Imot'
+    statusBarStyle: 'black-translucent'
   }
 }
 
