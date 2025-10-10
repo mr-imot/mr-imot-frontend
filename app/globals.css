@@ -286,8 +286,9 @@
 }
 
 @layer base {
-  html {
-    scroll-behavior: smooth;
+  /* Enable smooth scroll only on tablet/desktop to avoid mobile chrome jitter */
+  @media (min-width: 768px) {
+    html { scroll-behavior: smooth; }
   }
   body {
     @apply bg-background text-foreground;
@@ -295,6 +296,7 @@
     user-select: text; /* Allow text selection by default */
     line-height: 1.5; /* Ensure adequate line height for descenders */
     overflow-x: hidden; /* Prevent horizontal overflow but allow vertical */
+    overscroll-behavior-y: contain; /* prevent rubber-band from re-triggering layout */
   }
 }
 
@@ -860,18 +862,15 @@ textarea,
 
 /* ===== HERO SECTION: PERMANENT, DEVICE-AGNOSTIC LAYOUT ===== */
 .hero-section {
-  /* Use JS-updated --vh as primary fallback to avoid mobile URL bar issues */
-  height: calc(var(--vh, 1vh) * 100 - var(--header-height, 0px));
+  /* Stable mobile viewport: prefer svh; use d for fallback via supports */
+  min-height: calc(100svh - var(--header-height, 0px));
   position: relative;
   overflow: visible; /* Ensure text descenders are not clipped */
 }
 
-/* Prefer modern dynamic viewport units when available */
+/* Fallback if svh unsupported */
 @supports (height: 100dvh) {
-  .hero-section {
-    height: calc(100dvh - var(--header-height, 0px));
-    overflow: visible; /* Ensure text descenders are not clipped */
-  }
+  .hero-section { min-height: calc(100dvh - var(--header-height, 0px)); }
 }
 
 /* ===== LISTINGS MAP: PERMANENT, DEVICE-AGNOSTIC LAYOUT ===== */
@@ -946,6 +945,11 @@ textarea,
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
   }
+}
+
+/* Disable heavy animation on mobile mascot */
+@media (max-width: 640px) {
+  .mobile-mascot-no-anim { animation: none !important; }
 }
 
 /* Tablet adjustments */

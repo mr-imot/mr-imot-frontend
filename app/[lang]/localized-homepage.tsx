@@ -21,44 +21,25 @@ import { PricingSection } from "@/components/pricing/PricingSection"
 import { TestimonialsSection } from "@/components/TestimonialsSection"
 import { getProjects } from "@/lib/api"
 
-// Dynamic header height calculation + robust viewport unit fallback
+// Lightweight header height set once + debounced resize; no MutationObserver to avoid thrash
 const useHeaderHeight = () => {
   useEffect(() => {
-    const setVhUnit = () => {
-      const vh = window.innerHeight * 0.01
-      document.documentElement.style.setProperty('--vh', `${vh}px`)
-    }
-
     const updateHeaderHeight = () => {
-      const header = document.querySelector('header')
+      const header = document.querySelector('header') as HTMLElement | null
       if (header) {
-        const height = header.offsetHeight
-        document.documentElement.style.setProperty('--header-height', `${height}px`)
-        
-        // Debug: Log the calculated height for verification
-        console.log(`Header height calculated: ${height}px`)
+        document.documentElement.style.setProperty('--header-height', `${header.offsetHeight}px`)
       }
     }
-
-    // Initial calculation with a small delay to ensure DOM is ready
-    const timeoutId = setTimeout(() => {
-      setVhUnit()
-      updateHeaderHeight()
-    }, 100)
-
-    // Recalculate on resize
-    window.addEventListener('resize', setVhUnit)
-    window.addEventListener('resize', updateHeaderHeight)
-    
-    // Recalculate when DOM changes
-    const observer = new MutationObserver(updateHeaderHeight)
-    observer.observe(document.body, { childList: true, subtree: true })
-
+    updateHeaderHeight()
+    let raf: number | null = null
+    const onResize = () => {
+      if (raf) cancelAnimationFrame(raf)
+      raf = requestAnimationFrame(updateHeaderHeight)
+    }
+    window.addEventListener('resize', onResize)
     return () => {
-      clearTimeout(timeoutId)
-      window.removeEventListener('resize', setVhUnit)
-      window.removeEventListener('resize', updateHeaderHeight)
-      observer.disconnect()
+      if (raf) cancelAnimationFrame(raf)
+      window.removeEventListener('resize', onResize)
     }
   }, [])
 }
@@ -378,8 +359,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                 transform: 'translateZ(0)',
                 filter: 'drop-shadow(0 4px 15px rgba(0, 0, 0, 0.1))',
                 width: 'clamp(480px, 90vw, 900px)',
-                height: 'auto',
-                animation: 'float 6s ease-in-out infinite'
+                height: 'auto'
               }}
             />
           </div>

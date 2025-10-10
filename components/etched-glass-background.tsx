@@ -77,14 +77,15 @@ export function EtchedGlassBackground() {
           position: 'fixed',
           inset: 0,
           width: '100vw',
-          // Prefer modern dynamic viewport unit with fallback via CSS var
-          height: '100dvh',
+          height: '100svh',
           backgroundColor: '#e8edf0', // A cool, professional light gray
           overflow: 'hidden',
           zIndex: -2,
           pointerEvents: 'none',
           backfaceVisibility: 'hidden',
-          willChange: 'opacity'
+          willChange: 'transform, opacity',
+          contain: 'layout paint',
+          transform: 'translateZ(0)'
         }}
       >
         {/* Base Layer: The frosted glass pane */}
@@ -94,7 +95,7 @@ export function EtchedGlassBackground() {
             position: 'absolute', 
             inset: 0,
             width: '100vw', 
-            height: '100dvh'
+            height: '100svh'
           }}
           onError={() => {
             console.warn('StaticMeshGradient error, falling back to CSS')
@@ -111,7 +112,7 @@ export function EtchedGlassBackground() {
             position: 'absolute', 
             inset: 0,
             width: '100vw', 
-            height: '100dvh', 
+            height: '100svh', 
             opacity: 0.05 
           }}
           onError={() => {
