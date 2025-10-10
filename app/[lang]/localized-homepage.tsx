@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
@@ -75,6 +75,12 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
   // State for recently added listings
   const [recentListings, setRecentListings] = useState<any[]>([])
   const [isLoadingListings, setIsLoadingListings] = useState(true)
+  
+  // Drag-to-scroll state for desktop carousel
+  const sliderRef = useRef<HTMLDivElement | null>(null)
+  const isDraggingRef = useRef(false)
+  const startXRef = useRef(0)
+  const scrollLeftRef = useRef(0)
   
   // Fetch recently added listings
   useEffect(() => {
@@ -829,23 +835,42 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
             {isLoadingListings ? (
               <div className="flex gap-6 overflow-x-auto pb-2">
                 {[1,2,3,4,5,6].map((i) => (
-                  <div key={i} className="min-w-[280px] max-w-[320px] card p-4 animate-pulse">
-                    <div className="h-40 bg-gray-200 rounded-xl mb-4" />
+                  <div key={i} className="min-w-[320px] max-w-[320px] lg:min-w-[360px] lg:max-w-[360px] card p-4 animate-pulse">
+                    <div className="h-48 md:h-56 lg:h-64 bg-gray-200 rounded-xl mb-4" />
                     <div className="h-6 bg-gray-200 rounded mb-2" />
                     <div className="h-4 bg-gray-200 rounded w-2/3" />
                   </div>
                 ))}
               </div>
             ) : recentListings.length > 0 ? (
-              <div className="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-2 edge-fade-l edge-fade-r scrollbar-thin" style={{ scrollSnapType: 'x mandatory' }}>
-                {recentListings.map((listing) => (
+              <div
+                ref={sliderRef}
+                className="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-2 edge-fade-l edge-fade-r scrollbar-thin select-none cursor-grab active:cursor-grabbing"
+                style={{ scrollSnapType: 'x mandatory' }}
+                onMouseDown={(e) => {
+                  if (!sliderRef.current) return
+                  isDraggingRef.current = true
+                  startXRef.current = e.pageX - sliderRef.current.offsetLeft
+                  scrollLeftRef.current = sliderRef.current.scrollLeft
+                }}
+                onMouseLeave={() => { isDraggingRef.current = false }}
+                onMouseUp={() => { isDraggingRef.current = false }}
+                onMouseMove={(e) => {
+                  if (!isDraggingRef.current || !sliderRef.current) return
+                  e.preventDefault()
+                  const x = e.pageX - sliderRef.current.offsetLeft
+                  const walk = (x - startXRef.current)
+                  sliderRef.current.scrollLeft = scrollLeftRef.current - walk
+                }}
+              >
+                {(recentListings.slice(0, 6)).map((listing) => (
                   <Link 
                     key={listing.id} 
                     href={`/${lang}/listings/${listing.id}`}
-                    className="min-w-[280px] max-w-[320px] snap-start"
+                    className="min-w-[320px] max-w-[320px] lg:min-w-[360px] lg:max-w-[360px] snap-start"
                   >
                     <article className="card p-4 hover:-translate-y-1 transition-transform cursor-pointer h-full">
-                      <div className="relative h-40 bg-muted rounded-xl mb-4 overflow-hidden">
+                      <div className="relative h-48 md:h-56 lg:h-64 bg-muted rounded-xl mb-4 overflow-hidden">
                         {(() => {
                           // Try to get the best available image URL
                           const imageUrl = listing.cover_image_url || 
@@ -893,6 +918,23 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                     </article>
                   </Link>
                 ))}
+                {/* View all tile */}
+                <Link
+                  href={`/${lang}/listings`}
+                  className="min-w-[320px] max-w-[320px] lg:min-w-[360px] lg:max-w-[360px] snap-start"
+                >
+                  <article className="card p-6 h-full flex flex-col items-center justify-center text-center hover:-translate-y-1 transition-transform cursor-pointer">
+                    <div className="w-full h-48 md:h-56 lg:h-64 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl mb-4 grid place-items-center">
+                      <ExternalLink className="w-10 h-10 text-gray-500" />
+                    </div>
+                    <h4 className="font-semibold text-lg mb-1">
+                      {lang === 'bg' ? 'Виж всички имоти' : 'Browse all properties'}
+                    </h4>
+                    <p className="text-muted-foreground text-sm">
+                      {lang === 'bg' ? 'Открийте още нови проекти' : 'Discover more new projects'}
+                    </p>
+                  </article>
+                </Link>
               </div>
             ) : (
               <div className="text-center py-12">

@@ -172,7 +172,7 @@ export function PropertyMapCard({
             target={`listing_${String(property.id)}`}
             rel="noopener noreferrer nofollow"
             aria-labelledby={`map_title_${String(property.id)}`}
-            className="block w-full h-full"
+            className="block w-full h-full cursor-pointer"
           >
             {imageUrls.length > 0 ? (
               <Image

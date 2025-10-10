@@ -690,6 +690,11 @@ picture:not(.cursor-pointer):not([class*="cursor-"]) {
   user-select: none !important;
 }
 
+/* Ensure images/SVGs inside links and buttons show hand pointer */
+a img, a svg, button img, button svg {
+  cursor: pointer !important;
+}
+
 /* Allow pointer cursor on interactive media elements */
 img.cursor-pointer, 
 svg.cursor-pointer, 
@@ -824,6 +829,11 @@ textarea,
 }
 
 .gm-style .gm-style-iw-d {
+  cursor: pointer !important;
+}
+
+/* Ensure all interactive elements inside Google Maps show pointer */
+.gm-style a, .gm-style button {
   cursor: pointer !important;
 }
 
