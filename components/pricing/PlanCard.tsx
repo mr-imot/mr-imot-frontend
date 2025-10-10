@@ -54,23 +54,31 @@ export function PlanCard({ plan, cycle, lang, popularText, registerHref }: PlanC
         <div className="flex-1">
           <TooltipProvider delayDuration={150}>
             <ul className="text-left space-y-3 mb-6">
-              {(plan.features || []).map((f, i) => (
-                <li key={i} className="flex items-center gap-3 text-gray-700">
-                  <CheckCircle className={`w-5 h-5 ${plan.highlight ? 'text-indigo-600' : 'text-emerald-600'}`} />
-                  {f.tooltip ? (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span className="text-sm underline decoration-dotted cursor-help">{lang === 'bg' ? f.label.bg : f.label.en}</span>
-                      </TooltipTrigger>
-                      <TooltipContent className="max-w-xs text-sm leading-relaxed">
-                        {lang === 'bg' ? f.tooltip.bg : f.tooltip.en}
-                      </TooltipContent>
-                    </Tooltip>
-                  ) : (
-                    <span className="text-sm">{lang === 'bg' ? f.label.bg : f.label.en}</span>
-                  )}
-                </li>
-              ))}
+              {(plan.features || []).map((f, i) => {
+                const isBonus = (lang === 'bg' ? f.label.bg : f.label.en).includes('БОНУС:') || (lang === 'bg' ? f.label.bg : f.label.en).includes('BONUS:')
+                
+                return (
+                  <li key={i} className={`flex items-center gap-3 ${isBonus ? 'bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-lg p-3 -mx-1' : 'text-gray-700'}`}>
+                    <CheckCircle className={`w-5 h-5 ${isBonus ? 'text-orange-500' : plan.highlight ? 'text-indigo-600' : 'text-emerald-600'}`} />
+                    {f.tooltip ? (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className={`text-sm underline decoration-dotted cursor-help ${isBonus ? 'font-semibold text-orange-800' : ''}`}>
+                            {lang === 'bg' ? f.label.bg : f.label.en}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs text-sm leading-relaxed">
+                          {lang === 'bg' ? f.tooltip.bg : f.tooltip.en}
+                        </TooltipContent>
+                      </Tooltip>
+                    ) : (
+                      <span className={`text-sm ${isBonus ? 'font-semibold text-orange-800' : ''}`}>
+                        {lang === 'bg' ? f.label.bg : f.label.en}
+                      </span>
+                    )}
+                  </li>
+                )
+              })}
             </ul>
           </TooltipProvider>
         </div>

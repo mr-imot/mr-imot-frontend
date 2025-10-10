@@ -7,9 +7,17 @@ export function EtchedGlassBackground() {
   const [mounted, setMounted] = useState(false)
   const [hasError, setHasError] = useState(false)
   const [webglSupported, setWebglSupported] = useState(true)
+  const [fixedHeight, setFixedHeight] = useState<number | null>(null)
 
   useEffect(() => {
     setMounted(true)
+    
+    // On mobile, capture initial viewport height and lock it
+    const isMobile = window.innerWidth <= 768
+    if (isMobile) {
+      const initialHeight = window.innerHeight
+      setFixedHeight(initialHeight)
+    }
     
     // Check WebGL support
     const checkWebGLSupport = () => {
@@ -38,7 +46,7 @@ export function EtchedGlassBackground() {
         position: 'fixed',
         inset: 0,
         width: '100vw',
-        height: '100dvh',
+        height: fixedHeight ? `${fixedHeight}px` : '100dvh',
         background: 'linear-gradient(135deg, #eaf0f2 0%, #f0f4f6 50%, #e8edf0 100%)',
         zIndex: -2,
         backfaceVisibility: 'hidden',
@@ -51,7 +59,7 @@ export function EtchedGlassBackground() {
           position: 'absolute',
           inset: 0,
           width: '100vw',
-          height: '100dvh',
+          height: fixedHeight ? `${fixedHeight}px` : '100dvh',
           backgroundImage: `
             linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.03) 50%, transparent 100%),
             linear-gradient(0deg, transparent 0%, rgba(255,255,255,0.02) 50%, transparent 100%),
@@ -77,8 +85,7 @@ export function EtchedGlassBackground() {
           position: 'fixed',
           inset: 0,
           width: '100vw',
-          // Prefer modern dynamic viewport unit with fallback via CSS var
-          height: '100dvh',
+          height: fixedHeight ? `${fixedHeight}px` : '100dvh',
           backgroundColor: '#e8edf0', // A cool, professional light gray
           overflow: 'hidden',
           zIndex: -2,
@@ -94,7 +101,7 @@ export function EtchedGlassBackground() {
             position: 'absolute', 
             inset: 0,
             width: '100vw', 
-            height: '100dvh'
+            height: fixedHeight ? `${fixedHeight}px` : '100dvh'
           }}
           onError={() => {
             console.warn('StaticMeshGradient error, falling back to CSS')
@@ -111,7 +118,7 @@ export function EtchedGlassBackground() {
             position: 'absolute', 
             inset: 0,
             width: '100vw', 
-            height: '100dvh', 
+            height: fixedHeight ? `${fixedHeight}px` : '100dvh', 
             opacity: 0.05 
           }}
           onError={() => {

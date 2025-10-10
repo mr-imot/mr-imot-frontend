@@ -83,14 +83,14 @@
       "freePlan": {
         "name": "Free Registration",
         "description": "Start free and test the platform",
-        "cta": "Create Profile"
+        "cta": "START NOW"
       },
       "standardPlan": {
         "name": "Standard Plan",
         "price": "€25/month",
         "description": "Perfect for active developers",
         "note": "First month — €25 Facebook advertising from us",
-        "cta": "Choose Plan"
+        "cta": "START NOW"
       },
       "cancelAnytime": "Cancel your subscription anytime."
     },

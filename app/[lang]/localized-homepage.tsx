@@ -21,7 +21,7 @@ import { PricingSection } from "@/components/pricing/PricingSection"
 import { TestimonialsSection } from "@/components/TestimonialsSection"
 import { getProjects } from "@/lib/api"
 
-// Dynamic header height calculation + robust viewport unit fallback
+// Dynamic header height calculation + mobile height locking
 const useHeaderHeight = () => {
   useEffect(() => {
     let isInitialized = false
@@ -40,6 +40,13 @@ const useHeaderHeight = () => {
         // Debug: Log the calculated height for verification
         console.log(`Header height calculated: ${height}px`)
       }
+    }
+
+    // On mobile, capture initial viewport height and lock it
+    const isMobile = window.innerWidth <= 768
+    if (isMobile) {
+      const initialHeight = window.innerHeight
+      document.documentElement.style.setProperty('--fixed-vh', `${initialHeight}px`)
     }
 
     // Initial calculation with a small delay to ensure DOM is ready
@@ -83,6 +90,11 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
   // State for recently added listings
   const [recentListings, setRecentListings] = useState<any[]>([])
   const [isLoadingListings, setIsLoadingListings] = useState(true)
+  const [isMobile, setIsMobile] = useState(false)
+  
+  useEffect(() => {
+    setIsMobile(window.innerWidth <= 768)
+  }, [])
   
   // Fetch recently added listings
   useEffect(() => {
@@ -238,8 +250,10 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
           <div className="hero-grid grid grid-rows-[auto_1fr] lg:grid-cols-2 lg:grid-rows-none gap-2 sm:gap-4 md:gap-6 lg:gap-8 items-center w-full">
             {/* Left Column - Content */}
             <div className="hero-content order-2 lg:order-none flex flex-col" style={{ 
-              // Use small-viewport units to avoid address-bar resize jumps on mobile
-              minHeight: 'calc(100svh - var(--header-height, 80px))',
+              // Use fixed height on mobile to prevent address-bar resize jumps
+              minHeight: isMobile 
+                ? 'calc(var(--fixed-vh, 100vh) - var(--header-height, 80px))'
+                : 'calc(100svh - var(--header-height, 80px))',
               paddingTop: 'clamp(60px, 15vh, 120px)', 
               // Slightly reduced to tighten white gap on mobile while keeping breathing room on desktop
               paddingBottom: 'clamp(40px, 8vh, 80px)',
@@ -1072,7 +1086,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                 fontFamily: 'Playfair Display, serif',
                 color: 'var(--brand-text-primary)'
               }}>
-                {lang === 'bg' ? 'Присъединете се към надеждна платформа' : 'Join a trusted platform'}
+                {dict.developerJoin.finalCta.heading}
               </h3>
               <Link href={`/${lang}/register?type=developer`}>
                 <button className="group relative px-10 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-700 text-white font-bold tracking-wider uppercase hover:from-blue-700 hover:to-indigo-800 transition-all duration-300 shadow-xl hover:shadow-2xl active:scale-95 overflow-hidden">

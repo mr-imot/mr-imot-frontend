@@ -885,6 +885,13 @@ textarea,
   }
 }
 
+/* On mobile, use fixed height to prevent address bar resize issues */
+@media (max-width: 768px) {
+  .hero-height-locked .hero-section {
+    height: calc(var(--fixed-vh, 100vh) - var(--header-height, 0px)) !important;
+  }
+}
+
 /* ===== LISTINGS MAP: PERMANENT, DEVICE-AGNOSTIC LAYOUT ===== */
 .listings-map-container {
   /* Use JS-updated --vh as primary fallback to avoid mobile URL bar issues */

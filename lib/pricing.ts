@@ -38,7 +38,7 @@ const pricingData: PricingData = {
   plans: [
     {
       id: 'lite',
-      name: { en: 'Lite', bg: 'Лайт' },
+      name: { en: 'Lite', bg: 'Lite' },
       description: {
         en: 'Perfect for testing the platform with a single active project',
         bg: 'Подходящ за тестване на платформата с един активен проект',
@@ -67,15 +67,22 @@ const pricingData: PricingData = {
             en: 'Need 2+ active listings? Add-ons are priced at your current monthly plan per extra active listing (Lite: €39/extra active listing).',
             bg: 'Нужни са ви 2+ активни обяви? Добавяйте допълнителни активни обяви на цена, равна на месечния ви план за всяка допълнителна активна обява (Лайт: €39/допълнителна активна обява).'
           }
+        },
+        {
+          label: { en: 'BONUS: Meta advertising on your 1 listing in the amount of your monthly subscription', bg: 'БОНУС: Meta реклама на вашата 1 обява в размер на месечния абонамент' },
+          tooltip: {
+            en: 'First month only, instant bonus - our advertising team will manage your ads and polish copy.',
+            bg: 'Само първия месец, мигновен бонус - нашият рекламен екип ще управлява вашите реклами и ще подобри текста.'
+          }
         }
       ],
-      cta: { en: 'Create Profile', bg: 'Създай профил' },
+      cta: { en: 'START NOW', bg: 'ЗАПОЧНИ СЕГА' },
     },
     {
       id: 'pro',
       highlight: true,
       badge: { en: 'Popular', bg: 'Популярен' },
-      name: { en: 'Pro', bg: 'Про' },
+      name: { en: 'Pro', bg: 'Pro' },
       description: {
         en: 'For growing teams managing multiple active projects',
         bg: 'За развиващи се екипи с няколко активни проекта',
@@ -104,13 +111,20 @@ const pricingData: PricingData = {
             en: 'Need more than 3 active listings? Add extras at a pro‑rated price: €33/month per extra active listing (example for Pro €99).',
             bg: 'Нужни са ви повече от 3 активни обяви? Добавяйте на про‑рейт цена: €33/месец за допълнителна активна обява (пример за Про €99).'
           }
+        },
+        {
+          label: { en: 'BONUS: Meta advertising on your 3 listings in the amount of your monthly subscription', bg: 'БОНУС: Meta реклама на вашите 3 обяви в размер на месечния абонамент' },
+          tooltip: {
+            en: 'First month only, instant bonus - our advertising team will manage your ads and polish copy.',
+            bg: 'Само първия месец, мигновен бонус - нашият рекламен екип ще управлява вашите реклами и ще подобри текста.'
+          }
         }
       ],
-      cta: { en: 'Choose Plan', bg: 'Избери план' },
+      cta: { en: 'START NOW', bg: 'ЗАПОЧНИ СЕГА' },
     },
     {
       id: 'proPlus',
-      name: { en: 'Pro Plus', bg: 'Про Плюс' },
+      name: { en: 'Pro Plus', bg: 'Pro Plus' },
       description: {
         en: 'For large companies that need unlimited scale and control',
         bg: 'За големи компании с нужда от неограничена скала и контрол',
@@ -129,6 +143,13 @@ const pricingData: PricingData = {
         },
         { label: { en: 'Market insights & guidance', bg: 'Пазарни прозрения и насоки' } },
         { label: { en: 'Dedicated account manager', bg: 'Личен акаунт мениджър' } },
+        {
+          label: { en: 'BONUS: Meta advertising on your unlimited listings in the amount of your monthly subscription', bg: 'БОНУС: Meta реклама на вашите неограничени обяви в размер на месечния абонамент' },
+          tooltip: {
+            en: 'First month only, instant bonus - our advertising team will manage your ads and polish copy.',
+            bg: 'Само първия месец, мигновен бонус - нашият рекламен екип ще управлява вашите реклами и ще подобри текста.'
+          }
+        }
       ],
       cta: { en: 'Contact Sales', bg: 'Свържи се с продажби' },
     },

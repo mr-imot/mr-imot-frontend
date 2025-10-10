@@ -30,23 +30,6 @@ export function PricingSection({ lang }: PricingSectionProps) {
 
       <BillingToggle lang={lang} onChange={setCycle} />
 
-      {/* Promo note replaces banner */}
-      <div className="max-w-3xl mx-auto mb-6">
-        <div className="flex items-center justify-center gap-3 rounded-xl border border-blue-200/70 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-800 px-4 sm:px-6 py-3 shadow-sm">
-          <span className="text-sm sm:text-base">
-            {lang === 'bg' ? 'Използвайте промо код' : 'Use promo code'}
-          </span>
-          <span className="px-2 py-1 rounded-md bg-white border border-blue-200 font-mono text-xs font-semibold tracking-wider">
-            EARLYBIRD
-          </span>
-          <span className="text-sm sm:text-base">
-            {lang === 'bg'
-              ? '— за първия месец ще рекламираме вашите обяви във Facebook със сума, равна на стойността на абонамента ви.'
-              : '— for your first month we will promote your listings on Facebook with a budget equal to your subscription price.'}
-          </span>
-        </div>
-      </div>
-
       <div className="grid grid-cols-1 md:grid-cols-3 items-stretch gap-8 max-w-6xl mx-auto">
         {pricing.plans.map((p) => (
           <PlanCard key={p.id} plan={p} cycle={cycle} lang={lang} registerHref={registerHref} />
