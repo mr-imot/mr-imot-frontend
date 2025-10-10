@@ -7,6 +7,7 @@ import { X, Phone, Globe } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { recordProjectView, recordProjectPhoneClick, recordProjectWebsiteClick } from '@/lib/api'
 import { translatePrice, PriceTranslations } from '@/lib/price-translator'
+import { useRouter } from 'next/navigation'
 
 interface PropertyData {
   id: string | number
@@ -48,6 +49,7 @@ export function PropertyMapCard({
   forceMobile = false,
   priceTranslations
 }: PropertyMapCardProps) {
+  const router = useRouter()
   const [isClosing, setIsClosing] = useState(false)
   const [hasTrackedView, setHasTrackedView] = useState(false)
   if (!property) return null
@@ -132,7 +134,7 @@ export function PropertyMapCard({
     <WrapperTag
       className={cn(
         floating ? 'relative' : 'fixed z-50',
-        'pointer-events-auto transition-transform duration-200 ease-out',
+        'pointer-events-auto transition-transform duration-200 ease-out cursor-pointer',
         isClosing && 'opacity-0 scale-95',
         className
       )}
@@ -140,7 +142,7 @@ export function PropertyMapCard({
     >
       <div
         className={cn(
-          "relative bg-white rounded-[20px] overflow-hidden hover:translate-y-[-2px]",
+          "relative bg-white rounded-[20px] overflow-hidden hover:translate-y-[-2px] cursor-pointer",
           // Mobile: full width, 1/2 screen height | Desktop: fixed width
           forceMobile 
             ? "w-full h-[50vh]" 
@@ -150,11 +152,12 @@ export function PropertyMapCard({
           boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
           fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
         }}
+        onClick={() => router.push(`/listing/${String(property.id)}`)}
       >
         {/* Close Button */}
         <button
           aria-label="Close"
-          onClick={handleClose}
+          onClick={(e) => { e.stopPropagation(); handleClose() }}
           className="absolute top-2 right-2 z-10 w-7 h-7 rounded-full bg-white/90 hover:bg-white text-[#222222] flex items-center justify-center shadow-sm cursor-pointer"
         >
           <X className="h-4 w-4" />
