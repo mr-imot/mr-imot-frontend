@@ -24,6 +24,8 @@ import { getProjects } from "@/lib/api"
 // Dynamic header height calculation + robust viewport unit fallback
 const useHeaderHeight = () => {
   useEffect(() => {
+    let isInitialized = false
+    
     const setVhUnit = () => {
       const vh = window.innerHeight * 0.01
       document.documentElement.style.setProperty('--vh', `${vh}px`)
@@ -44,21 +46,27 @@ const useHeaderHeight = () => {
     const timeoutId = setTimeout(() => {
       setVhUnit()
       updateHeaderHeight()
+      isInitialized = true
+      
+      // After initial load, add CSS class to lock the hero height
+      setTimeout(() => {
+        document.documentElement.classList.add('hero-height-locked')
+      }, 500)
     }, 100)
 
-    // Recalculate on resize
-    window.addEventListener('resize', setVhUnit)
-    window.addEventListener('resize', updateHeaderHeight)
-    
-    // Recalculate when DOM changes
-    const observer = new MutationObserver(updateHeaderHeight)
-    observer.observe(document.body, { childList: true, subtree: true })
+    // Only recalculate on resize if not initialized yet
+    const handleResize = () => {
+      if (!isInitialized) {
+        setVhUnit()
+        updateHeaderHeight()
+      }
+    }
+
+    window.addEventListener('resize', handleResize)
 
     return () => {
       clearTimeout(timeoutId)
-      window.removeEventListener('resize', setVhUnit)
-      window.removeEventListener('resize', updateHeaderHeight)
-      observer.disconnect()
+      window.removeEventListener('resize', handleResize)
     }
   }, [])
 }

@@ -874,6 +874,17 @@ textarea,
   }
 }
 
+/* Lock hero height after initial load to prevent re-rendering */
+.hero-height-locked .hero-section {
+  height: calc(var(--vh, 1vh) * 100 - var(--header-height, 0px)) !important;
+}
+
+@supports (height: 100dvh) {
+  .hero-height-locked .hero-section {
+    height: calc(100dvh - var(--header-height, 0px)) !important;
+  }
+}
+
 /* ===== LISTINGS MAP: PERMANENT, DEVICE-AGNOSTIC LAYOUT ===== */
 .listings-map-container {
   /* Use JS-updated --vh as primary fallback to avoid mobile URL bar issues */
