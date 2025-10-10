@@ -51,19 +51,22 @@ export function PlanCard({ plan, cycle, lang, popularText, registerHref }: PlanC
           {lang === 'bg' ? plan.description.bg : plan.description.en}
         </p>
 
-        <div className="flex-1 flex flex-col justify-between">
+        <div className="flex-1 flex flex-col">
           <TooltipProvider delayDuration={150}>
             <ul className="text-left space-y-3 mb-6">
               {(plan.features || []).map((f, i) => {
                 const isBonus = (lang === 'bg' ? f.label.bg : f.label.en).includes('БОНУС:') || (lang === 'bg' ? f.label.bg : f.label.en).includes('BONUS:')
                 
+                // Skip bonus features here - they'll be rendered separately
+                if (isBonus) return null
+                
                 return (
-                  <li key={i} className={`flex items-center gap-3 ${isBonus ? 'bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-lg p-3 -mx-1' : 'text-gray-700'}`}>
-                    <CheckCircle className={`w-5 h-5 ${isBonus ? 'text-orange-500' : plan.highlight ? 'text-indigo-600' : 'text-emerald-600'}`} />
+                  <li key={i} className="flex items-center gap-3 text-gray-700">
+                    <CheckCircle className={`w-5 h-5 ${plan.highlight ? 'text-indigo-600' : 'text-emerald-600'}`} />
                     {f.tooltip ? (
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <span className={`text-sm underline decoration-dotted cursor-help ${isBonus ? 'font-semibold text-orange-800' : ''}`}>
+                          <span className="text-sm underline decoration-dotted cursor-help">
                             {lang === 'bg' ? f.label.bg : f.label.en}
                           </span>
                         </TooltipTrigger>
@@ -72,7 +75,7 @@ export function PlanCard({ plan, cycle, lang, popularText, registerHref }: PlanC
                         </TooltipContent>
                       </Tooltip>
                     ) : (
-                      <span className={`text-sm ${isBonus ? 'font-semibold text-orange-800' : ''}`}>
+                      <span className="text-sm">
                         {lang === 'bg' ? f.label.bg : f.label.en}
                       </span>
                     )}
@@ -81,6 +84,41 @@ export function PlanCard({ plan, cycle, lang, popularText, registerHref }: PlanC
               })}
             </ul>
           </TooltipProvider>
+          
+          {/* Bonus section - positioned consistently across all cards */}
+          <div className="mb-6">
+            <TooltipProvider delayDuration={150}>
+              {(plan.features || []).map((f, i) => {
+                const isBonus = (lang === 'bg' ? f.label.bg : f.label.en).includes('БОНУС:') || (lang === 'bg' ? f.label.bg : f.label.en).includes('BONUS:')
+                
+                if (!isBonus) return null
+                
+                return (
+                  <div key={i} className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-lg p-3">
+                    <div className="flex items-center gap-3">
+                      <CheckCircle className="w-5 h-5 text-orange-500" />
+                      {f.tooltip ? (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="text-sm font-semibold text-orange-800 underline decoration-dotted cursor-help">
+                              {lang === 'bg' ? f.label.bg : f.label.en}
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs text-sm leading-relaxed">
+                            {lang === 'bg' ? f.tooltip.bg : f.tooltip.en}
+                          </TooltipContent>
+                        </Tooltip>
+                      ) : (
+                        <span className="text-sm font-semibold text-orange-800">
+                          {lang === 'bg' ? f.label.bg : f.label.en}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
+            </TooltipProvider>
+          </div>
           
           <div className="mt-auto">
             <Link href={registerHref}>
