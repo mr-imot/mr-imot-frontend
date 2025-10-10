@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils"
 import GlobalMaintenanceWrapper from "@/components/maintenance/global-maintenance-wrapper"
 import { AuthProvider } from "@/lib/auth-context"
 import { SpeedInsights } from "@vercel/speed-insights/next"
+import { ViewportLock } from "@/components/ViewportLock"
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme-provider"
 
@@ -131,6 +132,9 @@ html {
         `}</style>
       </head>
       <body className={cn("min-h-screen font-sans antialiased", figtree.variable, instrumentSerif.variable, outfit.variable, sourceSans.variable, playfairDisplay.variable, inter.variable)}>      
+        {/* Global viewport fixes: mobile height lock and header height sync */}
+        {/* @ts-expect-error Server Components wrapper will ignore this client child at build */}
+        <ViewportLock />
         <ThemeProvider>
         <GlobalMaintenanceWrapper>
           <AuthProvider>
