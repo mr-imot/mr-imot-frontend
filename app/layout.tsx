@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils"
 import GlobalMaintenanceWrapper from "@/components/maintenance/global-maintenance-wrapper"
 import { AuthProvider } from "@/lib/auth-context"
 import { SpeedInsights } from "@vercel/speed-insights/next"
-import { ViewportLock } from "@/components/ViewportLock"
+import ViewportLock from "@/components/ViewportLock"
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme-provider"
 

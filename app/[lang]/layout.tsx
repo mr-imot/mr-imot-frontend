@@ -4,7 +4,7 @@ import { SiteHeader } from "@/components/site-header"
 import { Footer } from "@/components/footer"
 import { FeedbackButton } from "@/components/feedback-button"
 import type { Metadata } from "next"
-import { ViewportLock } from "@/components/ViewportLock"
+import ViewportLock from "@/components/ViewportLock"
 
 export async function generateStaticParams() {
   return [{ lang: 'en' }, { lang: 'bg' }]

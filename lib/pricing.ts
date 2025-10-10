@@ -113,7 +113,7 @@ const pricingData: PricingData = {
           }
         },
         {
-          label: { en: 'BONUS: Meta advertising on your 3 listings in the amount of your monthly subscription', bg: 'БОНУС: Meta реклама на вашите 3 обяви в размер на месечния абонамент' },
+          label: { en: 'BONUS: Meta advertising on your 3 listings in the amount of your monthly subscription', bg: 'БОНУС: Meta реклами на вашите 3 обяви в размер на месечния абонамент' },
           tooltip: {
             en: 'First month only, instant bonus - our advertising team will manage your ads and polish copy.',
             bg: 'Само първия месец, мигновен бонус - нашият рекламен екип ще управлява вашите реклами и ще подобри текста.'
@@ -144,7 +144,7 @@ const pricingData: PricingData = {
         { label: { en: 'Market insights & guidance', bg: 'Пазарни прозрения и насоки' } },
         { label: { en: 'Dedicated account manager', bg: 'Личен акаунт мениджър' } },
         {
-          label: { en: 'BONUS: Meta advertising on your unlimited listings in the amount of your monthly subscription', bg: 'БОНУС: Meta реклама на вашите неограничени обяви в размер на месечния абонамент' },
+          label: { en: 'BONUS: Meta advertising on your listings in the amount of your monthly subscription', bg: 'БОНУС: Meta реклами на вашите обяви в размер на месечния абонамент' },
           tooltip: {
             en: 'First month only, instant bonus - our advertising team will manage your ads and polish copy.',
             bg: 'Само първия месец, мигновен бонус - нашият рекламен екип ще управлява вашите реклами и ще подобри текста.'

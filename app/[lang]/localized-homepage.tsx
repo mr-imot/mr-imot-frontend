@@ -21,93 +21,12 @@ import { PricingSection } from "@/components/pricing/PricingSection"
 import { TestimonialsSection } from "@/components/TestimonialsSection"
 import { getProjects } from "@/lib/api"
 
-// Dynamic header height calculation + mobile height locking with touch device detection
-const useHeaderHeight = () => {
-  useEffect(() => {
-    let isInitialized = false
-    
-    const setVhUnit = () => {
-      const vh = window.innerHeight * 0.01
-      document.documentElement.style.setProperty('--vh', `${vh}px`)
-    }
-
-    const updateHeaderHeight = () => {
-      const header = document.querySelector('header')
-      if (header) {
-        const height = header.offsetHeight
-        document.documentElement.style.setProperty('--header-height', `${height}px`)
-        
-        // Debug: Log the calculated height for verification
-        console.log(`Header height calculated: ${height}px`)
-      }
-    }
-
-    // Detect touch device instead of relying on width
-    const isMobile = window.matchMedia('(pointer: coarse)').matches
-    
-    const setHeroHeight = () => {
-      if (isMobile) {
-        const currentHeight = window.innerHeight
-        document.documentElement.style.setProperty('--fixed-vh', `${currentHeight}px`)
-        console.log(`Mobile hero height set to: ${currentHeight}px`)
-      }
-    }
-
-    // Set initial height for mobile devices
-    if (isMobile) {
-      setHeroHeight()
-    }
-
-    // Initial calculation with a small delay to ensure DOM is ready
-    const timeoutId = setTimeout(() => {
-      setVhUnit()
-      updateHeaderHeight()
-      isInitialized = true
-      
-      // After initial load, add CSS class to lock the hero height
-      setTimeout(() => {
-        document.documentElement.classList.add('hero-height-locked')
-      }, 500)
-    }, 100)
-
-    // Only recalculate on resize if not initialized yet
-    const handleResize = () => {
-      if (!isInitialized) {
-        setVhUnit()
-        updateHeaderHeight()
-      }
-    }
-
-    // Reapply hero height only when orientation changes (mobile devices)
-    const handleOrientationChange = () => {
-      if (isMobile) {
-        // Small delay to ensure viewport has updated after rotation
-        setTimeout(() => {
-          setHeroHeight()
-        }, 100)
-      }
-    }
-
-    window.addEventListener('resize', handleResize)
-    window.addEventListener('orientationchange', handleOrientationChange)
-
-    return () => {
-      clearTimeout(timeoutId)
-      window.removeEventListener('resize', handleResize)
-      window.removeEventListener('orientationchange', handleOrientationChange)
-    }
-  }, [])
-}
-
 interface LocalizedHomePageProps {
   dict: any
   lang: string
 }
 
 export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
-  // Dynamic header height calculation
-  useHeaderHeight()
-  
   // State for recently added listings
   const [recentListings, setRecentListings] = useState<any[]>([])
   const [isLoadingListings, setIsLoadingListings] = useState(true)

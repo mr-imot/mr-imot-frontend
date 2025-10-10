@@ -2,6 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Etched glass background sizing */
+.etched-glass-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--fixed-vh, 100vh);
+  overflow: hidden;
+  pointer-events: none;
+  z-index: -2;
+}
+
 /* Liquid Glass CTA Animations */
 @keyframes liquidFlow {
   0%, 100% {

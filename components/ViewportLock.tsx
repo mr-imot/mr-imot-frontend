@@ -1,56 +1,60 @@
 'use client'
 
-import { useEffect } from 'react'
-import { isTouchPointerDevice } from '@/lib/device-detection'
+import { useEffect, useRef } from 'react'
 
-export function ViewportLock() {
+export default function ViewportLock(): null {
+  const lockedHeightRef = useRef<number | null>(null)
+  const lockedOrientationRef = useRef<number | null>(null)
+
+  const getOrientation = () => {
+    const so = (window.screen as any)?.orientation
+    if (so && typeof so.angle === 'number') return so.angle
+    return window.innerWidth > window.innerHeight ? 90 : 0
+  }
+
+  const measureHeight = () => {
+    const vv = (window as any).visualViewport
+    return vv && typeof vv.height === 'number'
+      ? Math.round(vv.height)
+      : window.innerHeight
+  }
+
+  const lockViewportHeight = (force = false) => {
+    const orientation = getOrientation()
+    const h = measureHeight()
+
+    if (!force && lockedOrientationRef.current === orientation && lockedHeightRef.current != null) {
+      if (Math.abs((lockedHeightRef.current || 0) - h) < 120) return
+    }
+
+    lockedHeightRef.current = h
+    lockedOrientationRef.current = orientation
+    document.documentElement.style.setProperty('--fixed-vh', `${h}px`)
+
+    const header = document.querySelector('header')
+    if (header) {
+      const hh = Math.round((header as HTMLElement).getBoundingClientRect().height)
+      document.documentElement.style.setProperty('--header-height', `${hh}px`)
+    }
+  }
+
   useEffect(() => {
-    const setVhUnit = () => {
-      const vh = window.innerHeight * 0.01
-      document.documentElement.style.setProperty('--vh', `${vh}px`)
-    }
-
-    const setHeaderHeight = () => {
-      const header = document.querySelector('header') as HTMLElement | null
-      if (header) {
-        document.documentElement.style.setProperty('--header-height', `${header.offsetHeight}px`)
-      }
-    }
-
-    const lockViewportHeight = () => {
-      if (!isTouchPointerDevice()) return
-      const h = window.innerHeight
-      document.documentElement.style.setProperty('--fixed-vh', `${h}px`)
-      document.documentElement.classList.add('hero-height-locked')
-    }
-
-    // Initial
-    setVhUnit()
-    setHeaderHeight()
-    lockViewportHeight()
-
-    // Re-apply on orientation change (and as a safety, debounced resize for touch devices)
-    let resizeTimeout: number | undefined
-    const onResize = () => {
-      if (!isTouchPointerDevice()) return
-      if (resizeTimeout) window.clearTimeout(resizeTimeout)
-      resizeTimeout = window.setTimeout(() => {
-        lockViewportHeight()
-      }, 120)
-    }
+    lockViewportHeight(true)
 
     const onOrientation = () => {
-      window.setTimeout(() => {
-        lockViewportHeight()
-      }, 100)
+      setTimeout(() => lockViewportHeight(true), 180)
+    }
+
+    const onVisibility = () => {
+      if (!document.hidden) lockViewportHeight(true)
     }
 
     window.addEventListener('orientationchange', onOrientation)
-    window.addEventListener('resize', onResize)
+    document.addEventListener('visibilitychange', onVisibility)
 
     return () => {
       window.removeEventListener('orientationchange', onOrientation)
-      window.removeEventListener('resize', onResize)
+      document.removeEventListener('visibilitychange', onVisibility)
     }
   }, [])
 
