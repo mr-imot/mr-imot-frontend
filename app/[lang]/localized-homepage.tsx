@@ -845,7 +845,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
             ) : recentListings.length > 0 ? (
               <div
                 ref={sliderRef}
-                className="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-2 edge-fade-l edge-fade-r scrollbar-thin select-none cursor-grab active:cursor-grabbing"
+                className="flex gap-6 lg:gap-8 overflow-x-auto snap-x snap-mandatory pb-2 edge-fade-l edge-fade-r scrollbar-thin select-none cursor-grab active:cursor-grabbing"
                 style={{ scrollSnapType: 'x mandatory' }}
                 onMouseDown={(e) => {
                   if (!sliderRef.current) return
@@ -867,10 +867,10 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                   <Link 
                     key={listing.id} 
                     href={`/${lang}/listings/${listing.id}`}
-                    className="min-w-[320px] max-w-[320px] lg:min-w-[360px] lg:max-w-[360px] snap-start"
+                    className="min-w-[360px] max-w-[360px] lg:min-w-[420px] lg:max-w-[420px] snap-start"
                   >
                     <article className="card p-4 hover:-translate-y-1 transition-transform cursor-pointer h-full">
-                      <div className="relative h-48 md:h-56 lg:h-64 bg-muted rounded-xl mb-4 overflow-hidden">
+                      <div className="relative h-56 md:h-64 lg:h-72 bg-muted rounded-xl mb-4 overflow-hidden">
                         {(() => {
                           // Try to get the best available image URL
                           const imageUrl = listing.cover_image_url || 
@@ -921,10 +921,10 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                 {/* View all tile */}
                 <Link
                   href={`/${lang}/listings`}
-                  className="min-w-[320px] max-w-[320px] lg:min-w-[360px] lg:max-w-[360px] snap-start"
+                  className="min-w-[360px] max-w-[360px] lg:min-w-[420px] lg:max-w-[420px] snap-start"
                 >
                   <article className="card p-6 h-full flex flex-col items-center justify-center text-center hover:-translate-y-1 transition-transform cursor-pointer">
-                    <div className="w-full h-48 md:h-56 lg:h-64 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl mb-4 grid place-items-center">
+                    <div className="w-full h-56 md:h-64 lg:h-72 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl mb-4 grid place-items-center">
                       <ExternalLink className="w-10 h-10 text-gray-500" />
                     </div>
                     <h4 className="font-semibold text-lg mb-1">

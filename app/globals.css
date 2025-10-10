@@ -690,8 +690,11 @@ picture:not(.cursor-pointer):not([class*="cursor-"]) {
   user-select: none !important;
 }
 
-/* Ensure images/SVGs inside links and buttons show hand pointer */
-a img, a svg, button img, button svg {
+/* Ensure images/SVGs and any descendants inside links/buttons show hand pointer */
+a, button, [role="button"], [data-clickable="true"] {
+  cursor: pointer !important;
+}
+a *, button *, [role="button"] *, [data-clickable="true"] * {
   cursor: pointer !important;
 }
 
