@@ -202,7 +202,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
               {/* Main Headline - premium gradient text */}
               <div className="space-y-1">
                 <h1 className="headline-gradient hero-title leading-[0.72] tracking-tight font-serif" style={{
-                  fontSize: 'clamp(2.25rem, 5vw, 4.75rem)'
+                  fontSize: 'clamp(2.75rem, 6vw, 4.75rem)'
                 }}>
                   <span className="font-normal italic text-slate-900/70 drop-shadow-sm mr-2">
                     {dict.hero.title.find}
@@ -218,7 +218,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                 {/* Combined Subtitle + Promise */}
                 <div className="space-y-2" style={{ marginTop: 'clamp(16px, 4vh, 32px)' }}>
                 <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-normal text-gray-600 leading-relaxed font-sans" style={{
-                    fontSize: 'clamp(1rem, 2.5vw, 1.25rem)',
+                    fontSize: 'clamp(1.2rem, 3vw, 1.25rem)',
                     lineHeight: '1.6',
                     maxWidth: 'clamp(320px, 90%, 520px)'
                   }}>
@@ -228,7 +228,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                   {/* Promise - Separate line like CloudCart */}
                   <div style={{ marginTop: 'clamp(16px, 4vh, 32px)' }}>
                     <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-normal text-gray-600 leading-relaxed font-sans" style={{
-                      fontSize: 'clamp(1rem, 2.5vw, 1.25rem)',
+                      fontSize: 'clamp(1.2rem, 3vw, 1.25rem)',
                       lineHeight: '1.6',
                       maxWidth: 'clamp(320px, 90%, 520px)'
                     }}>
@@ -262,7 +262,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                 marginBottom: '0' // Remove bottom margin since we have paddingBottom on container
               }}>
                 <Link href={`/${lang}/listings`}>
-                  <button className="w-full sm:w-auto px-10 py-5 rounded-2xl text-white font-bold uppercase transition-all duration-300 ease-in-out hover:shadow-2xl hover:scale-105 active:scale-[0.98] cursor-pointer tracking-wider relative overflow-hidden group bg-charcoal-700 hover:bg-charcoal-800 focus:ring-2 focus:ring-charcoal-300 font-sans" style={{ fontSize: 'clamp(0.875rem, 2vw, 1.25rem)', padding: 'clamp(0.75rem, 2vw, 1.25rem) clamp(1.5rem, 4vw, 2.5rem)' }}>
+                  <button className="w-full sm:w-auto px-10 py-5 rounded-2xl text-white font-bold uppercase transition-all duration-300 ease-in-out hover:shadow-2xl hover:scale-105 active:scale-[0.98] cursor-pointer tracking-wider relative overflow-hidden group bg-charcoal-700 hover:bg-charcoal-800 focus:ring-2 focus:ring-charcoal-300 font-sans" style={{ fontSize: 'clamp(1rem, 2.5vw, 1.25rem)', padding: 'clamp(0.75rem, 2vw, 1.25rem) clamp(1.5rem, 4vw, 2.5rem)' }}>
                     {/* Liquid Glass Overlay - Always Visible */}
                     <div className="absolute inset-0 opacity-100 transition-opacity duration-300 ease-out" style={{
                       background: 'linear-gradient(135deg, rgba(38, 70, 83, 0.1) 0%, rgba(38, 70, 83, 0.2) 25%, rgba(38, 70, 83, 0.1) 50%, rgba(38, 70, 83, 0.05) 75%, rgba(38, 70, 83, 0.1) 100%)',

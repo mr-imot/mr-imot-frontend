@@ -82,8 +82,8 @@ export function SiteHeader() {
             <UserAuthNav />
           </div>
           
-          {/* Mobile Navigation - Only visible on mobile */}
-          <div className="md:hidden">
+          {/* Mobile Navigation - Only visible on mobile, positioned at far right */}
+          <div className="md:hidden flex justify-end">
             <MobileNav />
           </div>
         </div>
