@@ -40,9 +40,9 @@ export function TestimonialsSection({ lang, heading, subheading, items }: Testim
     <section className="py-16 sm:py-20 md:py-24" style={{ backgroundColor: 'var(--brand-glass-primary)' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
         <div className="text-center mb-12">
-          <p className="text-xs font-semibold tracking-widest text-blue-700 mb-2">{lang === 'bg' ? 'ОТЗИВИ' : 'TESTIMONIALS'}</p>
+          <p className="text-xs font-semibold tracking-widest text-blue-700 mb-2">{lang === 'bg' ? 'ОТЗИВ' : 'TESTIMONIALS'}</p>
           <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold" style={{ fontFamily: 'Playfair Display, serif' }}>
-            {heading || (lang === 'bg' ? 'Не вярвайте само на нас' : "Don't just take our word for it")}
+            {heading || (lang === 'bg' ? 'Не вярвай само на нас' : "Don't just take our word for it")}
           </h3>
           {subheading && (
             <p className="text-gray-600 mt-2">{subheading}</p>

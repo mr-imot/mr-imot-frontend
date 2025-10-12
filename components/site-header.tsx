@@ -68,7 +68,7 @@ export function SiteHeader() {
         <div className="flex items-center justify-end space-x-6">
           {/* Primary CTA - List Project */}
           <div className="hidden md:block">
-            <Link href={href('register?type=developer', 'register?type=developer')} className="btn-shine inline-flex items-center px-6 py-2.5 rounded-full bg-charcoal-500 text-white text-sm font-semibold hover:bg-charcoal-600 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-charcoal-300">
+            <Link href={href('register?type=developer', 'register?type=developer')} className="btn-shine inline-flex items-center px-6 py-2 rounded-full bg-charcoal-500 text-white text-xs font-semibold hover:bg-charcoal-600 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-charcoal-300 h-8 w-40 justify-center whitespace-nowrap">
               {t.listYourProject}
             </Link>
           </div>

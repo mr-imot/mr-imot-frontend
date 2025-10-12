@@ -21,10 +21,10 @@ export function PricingSection({ lang }: PricingSectionProps) {
         <h3 className="headline-gradient text-4xl sm:text-5xl md:text-6xl font-bold" style={{
           fontFamily: 'Playfair Display, serif'
         }}>
-          {lang === 'bg' ? 'Изберете вашия план' : 'Choose Your Plan'}
+          {lang === 'bg' ? 'Избери своя план' : 'Choose Your Plan'}
         </h3>
         <p className="mt-3 text-base sm:text-lg md:text-xl text-gray-700">
-          {lang === 'bg' ? 'Изберете перфектния план според нуждите ви. Отменете или надградете по всяко време.' : 'Select the perfect plan for your needs. Cancel or upgrade anytime.'}
+          {lang === 'bg' ? 'Стартирай с плана, който ти подхожда днес. Можеш да го надградиш или отмениш по всяко време.' : 'Select the perfect plan for your needs. Cancel or upgrade anytime.'}
         </p>
       </div>
 

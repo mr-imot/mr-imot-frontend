@@ -71,12 +71,16 @@
   },
   "developerJoin": {
     "heading": "Why Join as a Developer?",
-    "subheading": "Stop wasting time with low-quality leads and brokers. Get direct contact with serious buyers for your projects.",
+    "subheading": "Stop spending on billboards and radio ads that reach everyone except your real clients. On Mister Imot you'll find quality leads – people actively looking for a new home directly from developers.",
+    "description": "We are Bulgaria's leading platform for new construction, created specifically for you – the developer who wants control, transparency, and real results.",
     "benefits": {
-      "directContact": "Direct contact with buyers, no brokers",
-      "quickPublishing": "Publish new projects in minutes",
-      "fullControl": "Full control and statistics for your listings",
-      "flexibleCommitment": "No long-term commitment – pay month by month"
+      "qualityLeads": "Quality leads – you reach only people who are really looking for a new property",
+      "directContact": "Direct contact, no brokers and commissions",
+      "fullControl": "Statistics and full control over your project presentations",
+      "protectedListings": "Protected listings – no one will upload your photos or fake offers",
+      "monthlySubscription": "Monthly subscription, no long-term contracts",
+      "growthTogether": "Grow with us – we develop the platform so you can develop your business together with it",
+      "competitiveAdvantage": "Don't fall behind – your competitors are already here"
     },
     "pricing": {
       "heading": "Choose Your Plan",
@@ -95,12 +99,12 @@
       "cancelAnytime": "Cancel your subscription anytime."
     },
     "specialOffer": {
-      "heading": "🎁 Special offer for early developers",
-      "description": "Your first month is returned as Facebook advertising."
+      "heading": "🎯 What You Get",
+      "description": "High-quality leads, direct connection, full control, and transparent results — everything in one platform."
     },
     "finalCta": {
-      "heading": "Become part of a trusted platform",
-      "button": "Register for Free"
+      "heading": "Become part of a platform that works for you",
+      "button": "REGISTER FOR FREE"
     },
     "imageAlt": "Join Mister Imot – Developer Registration"
   },

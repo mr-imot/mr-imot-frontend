@@ -146,8 +146,6 @@ html {
         <ThemeProvider>
         <GlobalMaintenanceWrapper>
           <AuthProvider>
-            {/* NEW: Header Fade Overlay */}
-            <div className="header-fade-overlay" />
             
             <div className="relative flex min-h-screen flex-col">
               <main className="flex-1">{children}</main>

@@ -892,74 +892,116 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                   {dict.developerJoin.heading}
                 </h2>
                 
-                <p className="text-xl sm:text-2xl md:text-3xl text-gray-700 mb-16 leading-relaxed max-w-5xl mx-auto font-medium font-sans">
+                <p className="text-xl sm:text-2xl md:text-3xl text-gray-700 mb-8 leading-relaxed max-w-5xl mx-auto font-medium font-sans">
                   {dict.developerJoin.subheading}
                 </p>
 
-                {/* 4 Key Benefits with Enhanced Icons */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-                  <div className="group flex flex-col items-center text-center p-8 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 hover:shadow-2xl hover:scale-105 transition-all duration-300 hover:bg-white">
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-accent to-accent/90 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-                      </svg>
-                    </div>
-                    <h3 className="text-xl font-bold text-gray-800 mb-3 group-hover:text-accent transition-colors">
-                      {dict.developerJoin.benefits.directContact}
-                    </h3>
-                  </div>
-                  
-                  <div className="group flex flex-col items-center text-center p-8 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 hover:shadow-2xl hover:scale-105 transition-all duration-300 hover:bg-white">
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary/90 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                      </svg>
-                    </div>
-                    <h3 className="text-xl font-bold text-gray-800 mb-3 group-hover:text-primary transition-colors">
-                      {dict.developerJoin.benefits.quickPublishing}
-                    </h3>
-                  </div>
-                  
-                  <div className="group flex flex-col items-center text-center p-8 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 hover:shadow-2xl hover:scale-105 transition-all duration-300 hover:bg-white">
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary/90 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                      </svg>
-                    </div>
-                    <h3 className="text-xl font-bold text-gray-800 mb-3 group-hover:text-primary transition-colors">
-                      {dict.developerJoin.benefits.fullControl}
-                    </h3>
-                  </div>
-                  
-                  <div className="group flex flex-col items-center text-center p-8 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 hover:shadow-2xl hover:scale-105 transition-all duration-300 hover:bg-white">
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-accent to-accent/90 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
-                      </svg>
-                    </div>
-                    <h3 className="text-xl font-bold text-gray-800 mb-3 group-hover:text-accent transition-colors">
-                      {dict.developerJoin.benefits.flexibleCommitment}
-                    </h3>
-                  </div>
-                </div>
+                <p className="text-lg sm:text-xl text-gray-600 mb-16 leading-relaxed max-w-4xl mx-auto font-sans">
+                  {dict.developerJoin.description}
+                </p>
 
-                {/* Mascot Section */}
-                <div className="flex justify-center">
-                  <img
-                    src={lang === 'bg' 
-                      ? "https://ik.imagekit.io/ts59gf2ul/Logo/stani-chats-ot-nas-mr-imot.png?updatedAt=1760104490964&tr=f-auto,q-90"
-                      : "https://ik.imagekit.io/ts59gf2ul/Logo/join-us-mr-imot.png?updatedAt=1760105808199&tr=f-auto,q-90"
-                    }
-                    alt={lang === 'bg' ? dict.developerJoin.imageAlt : 'Mister Imot mascot inviting developers to join real estate platform with join us flag'}
-                    className="w-auto h-auto mx-auto transition-all duration-700 hover:scale-110 hover:rotate-2"
-                    style={{
-                      willChange: 'transform',
-                      transform: 'translateZ(0)',
-                      filter: 'drop-shadow(0 20px 40px rgba(0, 0, 0, 0.15))',
-                      width: 'clamp(260px, 28vw, 420px)',
-                      height: 'auto'
-                    }}
-                  />
+                {/* Enhanced Benefits as Bullet List + Mascot Layout */}
+                <div className="max-w-6xl mx-auto">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
+                    {/* Left Side - Mascot */}
+                    <div className="flex justify-center lg:justify-start order-2 lg:order-1">
+                      <img
+                        src={lang === 'bg' 
+                          ? "https://ik.imagekit.io/ts59gf2ul/Logo/stani-chats-ot-nas-mr-imot.png?updatedAt=1760104490964&tr=f-auto,q-90"
+                          : "https://ik.imagekit.io/ts59gf2ul/Logo/join-us-mr-imot.png?updatedAt=1760105808199&tr=f-auto,q-90"
+                        }
+                        alt={lang === 'bg' ? dict.developerJoin.imageAlt : 'Mister Imot mascot inviting developers to join real estate platform with join us flag'}
+                        className="w-auto h-auto mx-auto transition-all duration-700 hover:scale-110 hover:rotate-2"
+                        style={{
+                          willChange: 'transform',
+                          transform: 'translateZ(0)',
+                          filter: 'drop-shadow(0 20px 40px rgba(0, 0, 0, 0.15))',
+                          width: 'clamp(200px, 20vw, 320px)',
+                          height: 'auto'
+                        }}
+                      />
+                    </div>
+
+                    {/* Right Side - Benefits List */}
+                    <div className="space-y-6 order-1 lg:order-2">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-charcoal-500 to-charcoal-600 flex items-center justify-center flex-shrink-0 mt-1">
+                          <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                          </svg>
+                        </div>
+                        <p className="text-lg text-gray-700 font-medium leading-tight text-left">
+                          {dict.developerJoin.benefits.qualityLeads}
+                        </p>
+                      </div>
+                      
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-persian-green-500 to-persian-green-600 flex items-center justify-center flex-shrink-0 mt-1">
+                          <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                          </svg>
+                        </div>
+                        <p className="text-lg text-gray-700 font-medium leading-tight text-left">
+                          {dict.developerJoin.benefits.directContact}
+                        </p>
+                      </div>
+                      
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-saffron-500 to-saffron-600 flex items-center justify-center flex-shrink-0 mt-1">
+                          <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                          </svg>
+                        </div>
+                        <p className="text-lg text-gray-700 font-medium leading-tight text-left">
+                          {dict.developerJoin.benefits.fullControl}
+                        </p>
+                      </div>
+                      
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-sandy-brown-500 to-sandy-brown-600 flex items-center justify-center flex-shrink-0 mt-1">
+                          <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                          </svg>
+                        </div>
+                        <p className="text-lg text-gray-700 font-medium leading-tight text-left">
+                          {dict.developerJoin.benefits.protectedListings}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-burnt-sienna-500 to-burnt-sienna-600 flex items-center justify-center flex-shrink-0 mt-1">
+                          <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+                          </svg>
+                        </div>
+                        <p className="text-lg text-gray-700 font-medium leading-tight text-left">
+                          {dict.developerJoin.benefits.monthlySubscription}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-charcoal-500 to-charcoal-600 flex items-center justify-center flex-shrink-0 mt-1">
+                          <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                          </svg>
+                        </div>
+                        <p className="text-lg text-gray-700 font-medium leading-tight text-left">
+                          {dict.developerJoin.benefits.growthTogether}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-persian-green-500 to-persian-green-600 flex items-center justify-center flex-shrink-0 mt-1">
+                          <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                          </svg>
+                        </div>
+                        <p className="text-lg text-gray-700 font-medium leading-tight text-left">
+                          {dict.developerJoin.benefits.competitiveAdvantage}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -989,8 +1031,21 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                 {dict.developerJoin.finalCta.heading}
               </h3>
               <Link href={`/${lang}/register?type=developer`}>
-                <button className="group relative px-10 py-4 rounded-xl bg-gradient-to-r from-primary to-accent text-white font-bold tracking-wider uppercase hover:from-primary/90 hover:to-accent/90 transition-all duration-300 shadow-xl hover:shadow-2xl active:scale-95 overflow-hidden">
-                  <div className="absolute inset-0 -skew-x-12 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+                <button className="group relative px-10 py-4 rounded-2xl bg-charcoal-500 text-white font-bold tracking-wider uppercase hover:bg-charcoal-600 transition-all duration-300 shadow-xl hover:shadow-2xl active:scale-95 overflow-hidden">
+                  {/* Liquid Glass Overlay - Always Visible */}
+                  <div className="absolute inset-0 opacity-100 transition-opacity duration-300 ease-out" style={{
+                    background: 'linear-gradient(135deg, rgba(38, 70, 83, 0.1) 0%, rgba(38, 70, 83, 0.2) 25%, rgba(38, 70, 83, 0.1) 50%, rgba(38, 70, 83, 0.05) 75%, rgba(38, 70, 83, 0.1) 100%)',
+                    borderRadius: '16px',
+                    animation: 'liquidFlow 2s ease-in-out infinite'
+                  }} />
+
+                  {/* Shimmer Effect - Always Visible */}
+                  <div className="absolute inset-0 opacity-100 transition-opacity duration-500 ease-out" style={{
+                    background: 'linear-gradient(90deg, transparent 0%, rgba(38, 70, 83, 0.4) 50%, transparent 100%)',
+                    transform: 'translateX(-100%)',
+                    animation: 'shimmer 1.5s ease-in-out infinite'
+                  }} />
+
                   <span className="relative z-10">{dict.developerJoin.finalCta.button}</span>
                 </button>
               </Link>

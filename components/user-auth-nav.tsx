@@ -64,7 +64,7 @@ export function UserAuthNav() {
   // Not authenticated - show the branded login button
   return (
     <Link href={href('login', 'login')}>
-      <button className="group relative overflow-hidden px-6 py-2 rounded-full bg-white text-black font-normal text-xs transition-colors duration-300 hover:bg-white/90 cursor-pointer h-8 flex items-center justify-between w-24">
+      <button className="group relative overflow-hidden px-6 py-2 rounded-full bg-white text-black font-semibold text-xs transition-all duration-300 hover:bg-gray-50 cursor-pointer h-8 flex items-center justify-between w-24 border border-gray-200 shadow-sm hover:shadow-md">
         <span className="transition-transform duration-300 ease-out group-hover:-translate-x-1 cursor-pointer">
           {t.login}
         </span>

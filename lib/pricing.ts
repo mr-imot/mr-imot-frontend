@@ -151,7 +151,7 @@ const pricingData: PricingData = {
           }
         }
       ],
-      cta: { en: 'Contact Sales', bg: 'Свържи се с продажби' },
+      cta: { en: 'CONTACT SALES', bg: 'СВЪРЖИ СЕ С ПРОДАЖБИ' },
     },
   ],
   savingsNote: { en: 'Save 17%', bg: 'Спестявате 17%' },

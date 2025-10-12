@@ -23,7 +23,7 @@ export function BillingToggle({ lang, defaultCycle = 'monthly', onChange }: Bill
         role="switch"
         aria-checked={cycle === 'yearly'}
         onClick={() => setCycle(cycle === 'monthly' ? 'yearly' : 'monthly')}
-        className={`relative w-16 h-8 rounded-full transition-colors focus-ring ${cycle === 'yearly' ? 'bg-indigo-600' : 'bg-gray-300'}`}
+        className={`relative w-16 h-8 rounded-full transition-colors focus-ring ${cycle === 'yearly' ? 'bg-green-600' : 'bg-gray-300'}`}
       >
         <span
           className={`absolute top-1 left-1 h-6 w-6 rounded-full bg-white shadow transition-transform ${cycle === 'yearly' ? 'translate-x-8' : 'translate-x-0'}`}
