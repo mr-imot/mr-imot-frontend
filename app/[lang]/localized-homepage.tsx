@@ -190,17 +190,15 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
           <div className="hero-grid grid grid-rows-[auto_1fr] lg:grid-cols-2 lg:grid-rows-none gap-2 sm:gap-4 md:gap-6 lg:gap-8 items-center w-full">
             {/* Left Column - Content */}
             <div className="hero-content order-2 lg:order-none flex flex-col" style={{ 
-              // Use fixed height on mobile to prevent address-bar resize jumps
-              minHeight: isMobile 
+              // Ensure entire hero fits in viewport with proper CTA spacing
+              height: isMobile 
                 ? 'calc(var(--fixed-vh, 100vh) - var(--header-height, 80px))'
-                : 'calc(100svh - var(--header-height, 80px))',
-              paddingTop: 'clamp(60px, 15vh, 120px)', 
-              // Slightly reduced to tighten white gap on mobile while keeping breathing room on desktop
-              paddingBottom: 'clamp(40px, 8vh, 80px)',
+                : 'calc(100vh - var(--header-height, 80px))',
+              paddingBottom: 'clamp(1.5rem, 6vh, 3rem)', // Consistent bottom padding for CTA
               justifyContent: 'space-between'
             }}>
               {/* Top Section - Title + Subtitle */}
-              <div className="flex-1 flex flex-col justify-center">
+              <div className="flex-1 flex flex-col justify-center" style={{ paddingTop: 'clamp(1rem, 4vh, 2rem)' }}>
               {/* Main Headline - premium gradient text */}
               <div className="space-y-1">
                 <h1 className="headline-gradient hero-title leading-[0.72] tracking-tight font-serif" style={{
@@ -220,9 +218,9 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                 {/* Combined Subtitle + Promise */}
                 <div className="space-y-2" style={{ marginTop: 'clamp(16px, 4vh, 32px)' }}>
                 <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-normal text-gray-600 leading-relaxed font-sans" style={{
-                    fontSize: '20px',
+                    fontSize: 'clamp(1rem, 2.5vw, 1.25rem)',
                     lineHeight: '1.6',
-                    maxWidth: '520px'
+                    maxWidth: 'clamp(320px, 90%, 520px)'
                   }}>
                     <span className="font-semibold text-gray-800">{dict.hero.description.intro}</span> {dict.hero.description.platform} <span className="font-semibold text-gray-800">{dict.hero.description.noBrokers}</span>.
                   </p>
@@ -230,14 +228,14 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                   {/* Promise - Separate line like CloudCart */}
                   <div style={{ marginTop: 'clamp(16px, 4vh, 32px)' }}>
                     <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-normal text-gray-600 leading-relaxed font-sans" style={{
-                      fontSize: '20px',
+                      fontSize: 'clamp(1rem, 2.5vw, 1.25rem)',
                       lineHeight: '1.6',
-                      maxWidth: '520px'
+                      maxWidth: 'clamp(320px, 90%, 520px)'
                     }}>
                       <p className="font-semibold text-gray-800 mb-3">{dict.hero.promises.heading}</p>
                       <div className="space-y-2">
                         <div className="flex items-center gap-3">
-                          <div className="w-5 h-5 rounded-full bg-green-600 flex items-center justify-center flex-shrink-0">
+                          <div className="rounded-full bg-green-600 flex items-center justify-center flex-shrink-0" style={{ width: 'clamp(1rem, 2vw, 1.25rem)', height: 'clamp(1rem, 2vw, 1.25rem)' }}>
                             <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
                             </svg>
@@ -245,7 +243,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                           <span>{dict.hero.promises.noFakeListings}</span>
                         </div>
                         <div className="flex items-center gap-3">
-                          <div className="w-5 h-5 rounded-full bg-green-600 flex items-center justify-center flex-shrink-0">
+                          <div className="rounded-full bg-green-600 flex items-center justify-center flex-shrink-0" style={{ width: 'clamp(1rem, 2vw, 1.25rem)', height: 'clamp(1rem, 2vw, 1.25rem)' }}>
                             <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
                             </svg>
@@ -259,12 +257,12 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
               </div>
 
               {/* Bottom Section - CTA Button */}
-              <div className="flex-shrink-0" style={{ 
-                marginTop: 'clamp(20px, 5vh, 40px)',
-                marginBottom: 'clamp(40px, 8vh, 80px)' // Add bottom margin to CTA container
+              <div className="flex-shrink-0 hero-cta" style={{ 
+                marginTop: 'clamp(0.75rem, 3vh, 1.5rem)',
+                marginBottom: '0' // Remove bottom margin since we have paddingBottom on container
               }}>
                 <Link href={`/${lang}/listings`}>
-                  <button className="w-full sm:w-auto px-10 py-5 rounded-2xl text-white font-bold text-xl uppercase transition-all duration-300 ease-in-out hover:shadow-2xl hover:scale-105 active:scale-[0.98] cursor-pointer tracking-wider relative overflow-hidden group bg-charcoal-700 hover:bg-charcoal-800 focus:ring-2 focus:ring-charcoal-300 font-sans">
+                  <button className="w-full sm:w-auto px-10 py-5 rounded-2xl text-white font-bold uppercase transition-all duration-300 ease-in-out hover:shadow-2xl hover:scale-105 active:scale-[0.98] cursor-pointer tracking-wider relative overflow-hidden group bg-charcoal-700 hover:bg-charcoal-800 focus:ring-2 focus:ring-charcoal-300 font-sans" style={{ fontSize: 'clamp(0.875rem, 2vw, 1.25rem)', padding: 'clamp(0.75rem, 2vw, 1.25rem) clamp(1.5rem, 4vw, 2.5rem)' }}>
                     {/* Liquid Glass Overlay - Always Visible */}
                     <div className="absolute inset-0 opacity-100 transition-opacity duration-300 ease-out" style={{
                       background: 'linear-gradient(135deg, rgba(38, 70, 83, 0.1) 0%, rgba(38, 70, 83, 0.2) 25%, rgba(38, 70, 83, 0.1) 50%, rgba(38, 70, 83, 0.05) 75%, rgba(38, 70, 83, 0.1) 100%)',
@@ -334,9 +332,10 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                 willChange: 'transform',
                 transform: 'translateZ(0)',
                 filter: 'drop-shadow(0 4px 15px rgba(0, 0, 0, 0.1))',
-                width: 'clamp(480px, 90vw, 900px)',
+                width: 'clamp(180px, 68vw, 320px)',
                 height: 'auto',
-                animation: 'float 6s ease-in-out infinite'
+                animation: 'float 6s ease-in-out infinite',
+                marginTop: 'clamp(8px, 2vh, 16px)'
               }}
             />
           </div>

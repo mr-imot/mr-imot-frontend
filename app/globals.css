@@ -627,7 +627,8 @@ h1, h2, h3, h4, h5, h6, p, span, div, section, article {
   top: 0;
   left: 0;
   width: 100vw;
-  height: 100vh;
+  height: 100vh; /* Use 100vh for consistent viewport coverage */
+  min-height: 100vh; /* Ensure it never gets smaller than viewport */
   z-index: -2;
 }
 
@@ -880,11 +881,11 @@ textarea,
 }
 
 /* ===== HERO SECTION: PERMANENT, DEVICE-AGNOSTIC LAYOUT ===== */
+/* Default hero height uses viewport height for consistent sizing */
 .hero-section {
-  /* Use JS-updated --vh as primary fallback to avoid mobile URL bar issues */
-  height: calc(var(--vh, 1vh) * 100 - var(--header-height, 0px));
   position: relative;
   overflow: visible; /* Ensure text descenders are not clipped */
+  height: calc(100vh - var(--header-height, 0px));
 }
 
 /* Prefer modern dynamic viewport units when available */
@@ -897,12 +898,13 @@ textarea,
 
 /* Lock hero height after initial load to prevent re-rendering */
 .hero-height-locked .hero-section {
-  height: calc(var(--vh, 1vh) * 100 - var(--header-height, 0px)) !important;
+  /* When locked on mobile, use fixed innerHeight captured via JS */
+  height: calc(var(--fixed-vh, 100vh) - var(--header-height, 0px)) !important;
 }
 
 @supports (height: 100dvh) {
   .hero-height-locked .hero-section {
-    height: calc(100dvh - var(--header-height, 0px)) !important;
+    height: calc(var(--fixed-vh, 100dvh) - var(--header-height, 0px)) !important;
   }
 }
 
@@ -1005,6 +1007,53 @@ textarea,
   }
 }
 
+/* Low-height viewport compact modes to keep CTA visible */
+@media (max-height: 820px) {
+  .hero-title {
+    font-size: clamp(1.75rem, 3.5vw, 3.25rem) !important;
+  }
+  .hero-content {
+    padding-top: clamp(0.75rem, 3vh, 1.5rem) !important;
+    padding-bottom: clamp(1rem, 4vh, 2rem) !important;
+  }
+  .hero-cta {
+    margin-top: clamp(0.5rem, 2vh, 1rem) !important;
+  }
+}
+
+@media (max-height: 700px) {
+  .hero-title {
+    font-size: clamp(1.5rem, 3vw, 2.75rem) !important;
+  }
+  .hero-content {
+    padding-top: clamp(0.5rem, 2vh, 1rem) !important;
+    padding-bottom: clamp(0.75rem, 3vh, 1.5rem) !important;
+  }
+  .hero-cta {
+    margin-top: clamp(0.25rem, 1vh, 0.5rem) !important;
+  }
+  .hero-cta button {
+    font-size: clamp(0.85rem, 1.6vw, 1rem) !important;
+    padding: 0.6rem 1.25rem !important;
+  }
+}
+
+/* Compact header pills on short heights */
+@media (max-height: 700px) {
+  .header-glass nav a {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+  }
+  .header-glass .btn-shine {
+    padding-inline: 0.75rem;
+    font-size: 0.85rem;
+  }
+  .header-glass .logo-circle {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+}
+
 /* Tablet adjustments */
 @media (min-width: 641px) and (max-width: 1024px) {
   .hero-section > .container {
@@ -1035,7 +1084,19 @@ textarea,
   width: 100%;
 }
 
-/* Debug helper: Uncomment during layout checks */
-/*
-.hero-section { border: 2px solid red !important; }
-*/
+/* Hamburger menu optimization for small screens */
+@media (max-width: 768px) {
+  .header-glass {
+    padding: 0.75rem 1rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .header-glass {
+    padding: 0.5rem 0.75rem;
+  }
+  .header-glass .logo-circle {
+    width: 2rem;
+    height: 2rem;
+  }
+}
