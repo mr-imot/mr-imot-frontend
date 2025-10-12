@@ -21,8 +21,8 @@ export function SiteHeader() {
   return (
     <>
       
-      <header className={`header-glass flex items-center pl-4 pr-0 sm:pl-6 sm:pr-6 md:px-8 py-4 ${isListingsPage ? 'hidden xl:flex' : ''}`}>
-        <div className="w-full grid grid-cols-3 items-center">
+      <header className={`header-glass flex items-center justify-between pl-4 pr-0 sm:pl-6 sm:pr-6 md:px-8 py-4 ${isListingsPage ? 'hidden xl:flex' : ''}`}>
+        <div className="w-full flex items-center justify-between md:grid md:grid-cols-3">
         {/* Logo (always visible) */}
         <div className={`flex items-center justify-start`}>
           <Link href="/" className="flex items-center space-x-3 group clickable cursor-pointer">
@@ -83,7 +83,7 @@ export function SiteHeader() {
           </div>
           
           {/* Mobile Navigation - Only visible on mobile, positioned at far right */}
-          <div className="md:hidden ml-auto">
+          <div className="md:hidden flex items-center justify-end">
             <MobileNav />
           </div>
         </div>
