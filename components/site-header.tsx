@@ -83,7 +83,7 @@ export function SiteHeader() {
           </div>
           
           {/* Mobile Navigation - Only visible on mobile, positioned at far right */}
-          <div className="md:hidden">
+          <div className="md:hidden ml-auto">
             <MobileNav />
           </div>
         </div>
