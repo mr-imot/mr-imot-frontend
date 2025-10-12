@@ -39,6 +39,66 @@ const config = {
   			ring: 'var(--ring)',
   			background: 'var(--background)',
   			foreground: 'var(--foreground)',
+			'charcoal': {
+				'100': '#080e11',
+				'200': '#0f1c22',
+				'300': '#172b32',
+				'400': '#1f3943',
+				'500': '#264653',
+				'600': '#3f7489',
+				'700': '#609db6',
+				'800': '#95bece',
+				'900': '#cadee7',
+				DEFAULT: '#264653'
+			},
+			'persian-green': {
+				'100': '#081f1d',
+				'200': '#113f39',
+				'300': '#195e56',
+				'400': '#217e73',
+				'500': '#2a9d8f',
+				'600': '#3acbba',
+				'700': '#6cd8cb',
+				'800': '#9de5dc',
+				'900': '#cef2ee',
+				DEFAULT: '#2a9d8f'
+			},
+			'saffron': {
+				'100': '#3b2c09',
+				'200': '#755912',
+				'300': '#b0851a',
+				'400': '#e0ad2e',
+				'500': '#e9c46a',
+				'600': '#edd086',
+				'700': '#f1dca4',
+				'800': '#f6e7c3',
+				'900': '#faf3e1',
+				DEFAULT: '#e9c46a'
+			},
+			'sandy-brown': {
+				'100': '#401f04',
+				'200': '#803e09',
+				'300': '#c05e0d',
+				'400': '#f07e22',
+				'500': '#f4a261',
+				'600': '#f6b681',
+				'700': '#f8c8a1',
+				'800': '#fbdac0',
+				'900': '#fdede0',
+				DEFAULT: '#f4a261'
+			},
+			'burnt-sienna': {
+				'100': '#371107',
+				'200': '#6e220f',
+				'300': '#a43316',
+				'400': '#db441e',
+				'500': '#e76f51',
+				'600': '#ec8b73',
+				'700': '#f1a896',
+				'800': '#f5c5b9',
+				'900': '#fae2dc',
+				DEFAULT: '#e76f51'
+			},
   			primary: {
   				DEFAULT: 'var(--primary)',
   				foreground: 'var(--primary-foreground)'
@@ -202,65 +262,47 @@ const config = {
   			soft: 'cubic-bezier(.2,.8,.2,1)'
   		},
   		keyframes: {
-  			'accordion-down': {
-  				from: {
-  					height: '0'
-  				},
-  				to: {
-  					height: 'var(--radix-accordion-content-height)'
-  				}
-  			},
-  			'accordion-up': {
-  				from: {
-  					height: 'var(--radix-accordion-content-height)'
-  				},
-  				to: {
-  					height: '0'
-  				}
-  			},
-  			'pulse-marker': {
-  				'0%, 100%': {
-  					transform: 'scale(0.8)',
-  					opacity: '0.7'
-  				},
-  				'50%': {
-  					transform: 'scale(1.2)',
-  					opacity: '0.3'
-  				}
-  			},
-  			float: {
-  				'0%, 100%': {
-  					transform: 'translateY(0px)'
-  				},
-  				'50%': {
-  					transform: 'translateY(-8px)'
-  				}
-  			},
-  			'accordion-down': {
-  				from: {
-  					height: '0'
-  				},
-  				to: {
-  					height: 'var(--radix-accordion-content-height)'
-  				}
-  			},
-  			'accordion-up': {
-  				from: {
-  					height: 'var(--radix-accordion-content-height)'
-  				},
-  				to: {
-  					height: '0'
-  				}
-  			}
+			'accordion-down': {
+				from: {
+					height: '0'
+				},
+				to: {
+					height: 'var(--radix-accordion-content-height)'
+				}
+			},
+			'accordion-up': {
+				from: {
+					height: 'var(--radix-accordion-content-height)'
+				},
+				to: {
+					height: '0'
+				}
+			},
+			'pulse-marker': {
+				'0%, 100%': {
+					transform: 'scale(0.8)',
+					opacity: '0.7'
+				},
+				'50%': {
+					transform: 'scale(1.2)',
+					opacity: '0.3'
+				}
+			},
+			float: {
+				'0%, 100%': {
+					transform: 'translateY(0px)'
+				},
+				'50%': {
+					transform: 'translateY(-8px)'
+				}
+			}
   		},
-  		animation: {
-  			'accordion-down': 'accordion-down 0.2s ease-out',
-  			'accordion-up': 'accordion-up 0.2s ease-out',
-  			'pulse-marker': 'pulse-marker 2s infinite ease-in-out',
-  			float: 'float 3s ease-in-out infinite',
-  			'accordion-down': 'accordion-down 0.2s ease-out',
-  			'accordion-up': 'accordion-up 0.2s ease-out'
-  		}
+		animation: {
+			'accordion-down': 'accordion-down 0.2s ease-out',
+			'accordion-up': 'accordion-up 0.2s ease-out',
+			'pulse-marker': 'pulse-marker 2s infinite ease-in-out',
+			float: 'float 3s ease-in-out infinite'
+		}
   	}
   },
   plugins: [require("tailwindcss-animate")],

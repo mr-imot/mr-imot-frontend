@@ -2,7 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 import { GeistSans } from "geist/font/sans"
 import { GeistMono } from "geist/font/mono"
-import { Figtree, Instrument_Serif, Outfit, Source_Sans_3, Playfair_Display, Inter } from "next/font/google"
+import { Figtree, Instrument_Serif, Outfit, Source_Sans_3, Playfair_Display, Inter, Lora } from "next/font/google"
 import "./globals.css"
 import "../styles/mobile-optimizations.css"
 import { cn } from "@/lib/utils"
@@ -53,9 +53,16 @@ const playfairDisplay = Playfair_Display({
 })
 
 const inter = Inter({
-  subsets: ["latin"],
+  subsets: ["latin", "cyrillic"],
   weight: ["300", "400", "500", "600", "700", "800", "900"],
   variable: "--font-inter",
+  display: "swap",
+})
+
+const lora = Lora({
+  subsets: ["latin", "cyrillic"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-lora",
   display: "swap",
 })
 
@@ -103,7 +110,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning className={cn(GeistSans.variable, GeistMono.variable, figtree.variable, instrumentSerif.variable, playfairDisplay.variable, inter.variable)}>
+    <html lang="en" suppressHydrationWarning className={cn(GeistSans.variable, GeistMono.variable, figtree.variable, instrumentSerif.variable, playfairDisplay.variable, inter.variable, lora.variable)}>
       <head>
         {/* Mobile Viewport Meta Tags */}
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes, viewport-fit=cover" />
@@ -119,8 +126,9 @@ export default function RootLayout({
         
         <style>{`
 html {
-  font-family: ${figtree.style.fontFamily};
-  --font-sans: ${figtree.variable};
+  font-family: ${inter.style.fontFamily};
+  --font-sans: ${inter.variable};
+  --font-serif: ${lora.variable};
   --font-mono: ${GeistMono.variable};
   --font-figtree: ${figtree.variable};
   --font-instrument-serif: ${instrumentSerif.variable};
@@ -128,12 +136,12 @@ html {
   --font-source-sans: ${sourceSans.variable};
   --font-playfair-display: ${playfairDisplay.variable};
   --font-inter: ${inter.variable};
+  --font-lora: ${lora.variable};
 }
         `}</style>
       </head>
-      <body className={cn("min-h-screen font-sans antialiased", figtree.variable, instrumentSerif.variable, outfit.variable, sourceSans.variable, playfairDisplay.variable, inter.variable)}>      
+      <body className={cn("min-h-screen font-sans antialiased", inter.variable, lora.variable, outfit.variable, sourceSans.variable, playfairDisplay.variable)}>      
         {/* Global viewport fixes: mobile height lock and header height sync */}
-        {/* @ts-expect-error Server Components wrapper will ignore this client child at build */}
         <ViewportLock />
         <ThemeProvider>
         <GlobalMaintenanceWrapper>

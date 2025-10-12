@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import { applyPalette } from '../theme/applyPalette'
 
 export default function ViewportLock(): null {
   const lockedHeightRef = useRef<number | null>(null)
@@ -39,6 +40,8 @@ export default function ViewportLock(): null {
   }
 
   useEffect(() => {
+    // Ensure Oxford Blue / Orange palette is applied
+    applyPalette()
     lockViewportHeight(true)
 
     const onOrientation = () => {

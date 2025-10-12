@@ -186,7 +186,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
       
       {/* Hero Section */}
       <section className="hero-section">
-        <div className="container mx-auto px-3 sm:px-6 md:px-8 w-full">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
           <div className="hero-grid grid grid-rows-[auto_1fr] lg:grid-cols-2 lg:grid-rows-none gap-2 sm:gap-4 md:gap-6 lg:gap-8 items-center w-full">
             {/* Left Column - Content */}
             <div className="hero-content order-2 lg:order-none flex flex-col" style={{ 
@@ -203,8 +203,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
               <div className="flex-1 flex flex-col justify-center">
               {/* Main Headline - premium gradient text */}
               <div className="space-y-1">
-                <h1 className="headline-gradient hero-title leading-[0.72] tracking-tight" style={{
-                  fontFamily: 'Playfair Display, serif',
+                <h1 className="headline-gradient hero-title leading-[0.72] tracking-tight font-serif" style={{
                   fontSize: 'clamp(2.25rem, 5vw, 4.75rem)'
                 }}>
                   <span className="font-normal italic text-slate-900/70 drop-shadow-sm mr-2">
@@ -220,8 +219,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
               
                 {/* Combined Subtitle + Promise */}
                 <div className="space-y-2" style={{ marginTop: 'clamp(16px, 4vh, 32px)' }}>
-                <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-normal text-gray-600 leading-relaxed" style={{
-                    fontFamily: 'Inter, system-ui, sans-serif',
+                <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-normal text-gray-600 leading-relaxed font-sans" style={{
                     fontSize: '20px',
                     lineHeight: '1.6',
                     maxWidth: '520px'
@@ -231,8 +229,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                   
                   {/* Promise - Separate line like CloudCart */}
                   <div style={{ marginTop: 'clamp(16px, 4vh, 32px)' }}>
-                    <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-normal text-gray-600 leading-relaxed" style={{
-                      fontFamily: 'Inter, system-ui, sans-serif',
+                    <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-normal text-gray-600 leading-relaxed font-sans" style={{
                       fontSize: '20px',
                       lineHeight: '1.6',
                       maxWidth: '520px'
@@ -240,7 +237,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                       <p className="font-semibold text-gray-800 mb-3">{dict.hero.promises.heading}</p>
                       <div className="space-y-2">
                         <div className="flex items-center gap-3">
-                          <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0">
+                          <div className="w-5 h-5 rounded-full bg-green-600 flex items-center justify-center flex-shrink-0">
                             <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
                             </svg>
@@ -248,7 +245,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                           <span>{dict.hero.promises.noFakeListings}</span>
                         </div>
                         <div className="flex items-center gap-3">
-                          <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0">
+                          <div className="w-5 h-5 rounded-full bg-green-600 flex items-center justify-center flex-shrink-0">
                             <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
                             </svg>
@@ -267,19 +264,17 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                 marginBottom: 'clamp(40px, 8vh, 80px)' // Add bottom margin to CTA container
               }}>
                 <Link href={`/${lang}/listings`}>
-                  <button className="w-full sm:w-auto px-10 py-5 rounded-2xl text-white font-bold text-xl uppercase transition-all duration-300 ease-in-out hover:shadow-2xl hover:scale-105 active:scale-[0.98] cursor-pointer tracking-wider relative overflow-hidden group bg-gradient-to-r from-slate-900 to-slate-800" style={{
-                    fontFamily: 'Playfair Display, serif'
-                  }}>
+                  <button className="w-full sm:w-auto px-10 py-5 rounded-2xl text-white font-bold text-xl uppercase transition-all duration-300 ease-in-out hover:shadow-2xl hover:scale-105 active:scale-[0.98] cursor-pointer tracking-wider relative overflow-hidden group bg-charcoal-700 hover:bg-charcoal-800 focus:ring-2 focus:ring-charcoal-300 font-sans">
                     {/* Liquid Glass Overlay - Always Visible */}
                     <div className="absolute inset-0 opacity-100 transition-opacity duration-300 ease-out" style={{
-                      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.2) 25%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.1) 100%)',
+                      background: 'linear-gradient(135deg, rgba(38, 70, 83, 0.1) 0%, rgba(38, 70, 83, 0.2) 25%, rgba(38, 70, 83, 0.1) 50%, rgba(38, 70, 83, 0.05) 75%, rgba(38, 70, 83, 0.1) 100%)',
                       borderRadius: '16px',
                       animation: 'liquidFlow 2s ease-in-out infinite'
                     }} />
 
                     {/* Shimmer Effect - Always Visible */}
                     <div className="absolute inset-0 opacity-100 transition-opacity duration-500 ease-out" style={{
-                      background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%)',
+                      background: 'linear-gradient(90deg, transparent 0%, rgba(38, 70, 83, 0.4) 50%, transparent 100%)',
                       transform: 'translateX(-100%)',
                       animation: 'shimmer 1.5s ease-in-out infinite'
                     }} />
@@ -349,21 +344,16 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
       </section>
 
              {/* 3-Step Process Section - Premium Design */}
-       <section className="relative overflow-hidden py-16 sm:py-20 md:py-24 lg:py-32" style={{backgroundColor: '#f9fafb'}}>
+       <section className="relative overflow-hidden py-16 sm:py-20 md:py-24 lg:py-32 bg-gray-50">
          <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 relative">
            {/* Section Header */}
            <div className="text-center mb-12 sm:mb-16 md:mb-20 lg:mb-24">
-             <div className="inline-block px-4 py-2 rounded-full text-sm font-medium mb-8 uppercase tracking-wide border-2" style={{
-               backgroundColor: 'rgba(15, 23, 42, 0.05)',
-               color: '#64748b',
-               borderColor: 'rgba(15, 23, 42, 0.1)'
-             }} dangerouslySetInnerHTML={{ __html: dict.threeSteps.badge }}>
+             <div className="inline-block px-4 py-2 rounded-full text-sm font-medium mb-8 uppercase tracking-wide border-2 bg-slate-900/5 text-slate-500 border-slate-900/10" dangerouslySetInnerHTML={{ __html: dict.threeSteps.badge }}>
              </div>
-             <h2 className="headline-gradient text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6" style={{
-               fontFamily: 'Playfair Display, serif',
-               lineHeight: '1.1',
-               fontSize: 'clamp(2.5rem, 5vw, 4.5rem)'
-             }}>
+            <h2 className="headline-gradient text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 font-serif" style={{
+              lineHeight: '1.1',
+              fontSize: 'clamp(2.5rem, 5vw, 4.5rem)'
+            }}>
                {dict.threeSteps.heading}
               </h2>
            </div>
@@ -378,13 +368,13 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                      {/* Number + Icon Container */}
                      <div className="flex items-center justify-center gap-4 mb-6">
                  {/* Number */}
-                       <div className="inline-flex items-center justify-center w-12 h-12 rounded-full text-xl font-bold text-white bg-emerald-700">
+                       <div className="inline-flex items-center justify-center w-12 h-12 rounded-full text-xl font-bold text-white bg-accent">
                    {dict.threeSteps.step1.number}
                  </div>
                  
                        {/* Icon with Liquid Glass Effect */}
                        <div className="relative">
-                         <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300 bg-emerald-700 relative overflow-hidden">
+                         <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300 bg-accent relative overflow-hidden">
                            {/* Liquid Glass Overlay */}
                            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out" style={{
                              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.2) 25%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.1) 100%)',
@@ -400,23 +390,20 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                            }} />
                            
                            {/* Original Map SVG with White Color */}
-                           <svg className="w-10 h-10 text-white relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           <svg className="w-10 h-10 text-charcoal-500 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
                            </svg>
                          </div>
                        </div>
                      </div>
                      
-                     <h3 className="text-2xl font-bold text-gray-900 mb-4" style={{
-                       fontFamily: 'Playfair Display, serif'
-                  }}>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-4 font-serif">
                     {dict.threeSteps.step1.label}
                      </h3>
-                     <p className="text-gray-600 leading-relaxed" style={{
-                       fontFamily: 'Inter, system-ui, sans-serif',
-                       fontSize: '16px',
-                       lineHeight: '1.6'
-                   }} dangerouslySetInnerHTML={{ __html: dict.threeSteps.step1.content }}>
+                    <p className="text-gray-600 leading-relaxed font-sans" style={{
+                      fontSize: '16px',
+                      lineHeight: '1.6'
+                  }} dangerouslySetInnerHTML={{ __html: dict.threeSteps.step1.content }}>
                      </p>
                    </div>
                    </div>
@@ -429,13 +416,13 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                      {/* Number + Icon Container */}
                      <div className="flex items-center justify-center gap-4 mb-6">
                        {/* Number */}
-                       <div className="inline-flex items-center justify-center w-12 h-12 rounded-full text-xl font-bold text-white bg-blue-700">
+                       <div className="inline-flex items-center justify-center w-12 h-12 rounded-full text-xl font-bold text-white bg-accent">
                          {dict.threeSteps.step2.number}
                        </div>
                        
                        {/* Icon with Liquid Glass Effect */}
                        <div className="relative">
-                         <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300 bg-blue-700 relative overflow-hidden">
+                         <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300 bg-accent relative overflow-hidden">
                            {/* Liquid Glass Overlay */}
                            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out" style={{
                              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.2) 25%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.1) 100%)',
@@ -451,23 +438,20 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                            }} />
                            
                            {/* SVG Icon */}
-                           <svg className="w-10 h-10 text-white relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           <svg className="w-10 h-10 text-charcoal-500 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
                  </svg>
                </div>
              </div>
                  </div>
                  
-                     <h3 className="text-2xl font-bold text-gray-900 mb-4" style={{
-                       fontFamily: 'Playfair Display, serif'
-                  }}>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-4 font-serif">
                     {dict.threeSteps.step2.label}
                      </h3>
-                     <p className="text-gray-600 leading-relaxed" style={{
-                       fontFamily: 'Inter, system-ui, sans-serif',
-                       fontSize: '16px',
-                       lineHeight: '1.6'
-                   }} dangerouslySetInnerHTML={{ __html: dict.threeSteps.step2.content }}>
+                    <p className="text-gray-600 leading-relaxed font-sans" style={{
+                      fontSize: '16px',
+                      lineHeight: '1.6'
+                  }} dangerouslySetInnerHTML={{ __html: dict.threeSteps.step2.content }}>
                      </p>
                    </div>
                    </div>
@@ -480,13 +464,13 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                      {/* Number + Icon Container */}
                      <div className="flex items-center justify-center gap-4 mb-6">
                        {/* Number */}
-                       <div className="inline-flex items-center justify-center w-12 h-12 rounded-full text-xl font-bold text-white bg-indigo-600">
+                       <div className="inline-flex items-center justify-center w-12 h-12 rounded-full text-xl font-bold text-white bg-accent">
                          {dict.threeSteps.step3.number}
                        </div>
                        
                        {/* Icon with Liquid Glass Effect */}
                        <div className="relative">
-                         <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300 bg-indigo-600 relative overflow-hidden">
+                         <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300 bg-accent relative overflow-hidden">
                            {/* Liquid Glass Overlay */}
                            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out" style={{
                              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.2) 25%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.1) 100%)',
@@ -502,23 +486,20 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                            }} />
                            
                            {/* SVG Icon */}
-                           <svg className="w-10 h-10 text-white relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           <svg className="w-10 h-10 text-charcoal-500 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1 1 21 9z"/>
                  </svg>
                </div>
              </div>
                  </div>
                  
-                     <h3 className="text-2xl font-bold text-gray-900 mb-4" style={{
-                       fontFamily: 'Playfair Display, serif'
-                  }}>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-4 font-serif">
                     {dict.threeSteps.step3.label}
                      </h3>
-                     <p className="text-gray-600 leading-relaxed" style={{
-                       fontFamily: 'Inter, system-ui, sans-serif',
-                       fontSize: '16px',
-                       lineHeight: '1.6'
-                     }} dangerouslySetInnerHTML={{ __html: dict.threeSteps.step3.content }}>
+                    <p className="text-gray-600 leading-relaxed font-sans" style={{
+                      fontSize: '16px',
+                      lineHeight: '1.6'
+                    }} dangerouslySetInnerHTML={{ __html: dict.threeSteps.step3.content }}>
                      </p>
                    </div>
                </div>
@@ -528,17 +509,16 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
            {/* Bottom Tagline */}
            <div className="text-center mt-16 sm:mt-20 md:mt-24 lg:mt-28">
              <div className="max-w-4xl mx-auto">
-               <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-6" style={{
-                 fontFamily: 'Playfair Display, serif',
-                 lineHeight: '1.2',
-                 letterSpacing: '-0.02em'
-               }}>
+              <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-6 font-serif" style={{
+                lineHeight: '1.2',
+                letterSpacing: '-0.02em'
+              }}>
                 {dict.threeSteps.mvp.heading}
                </h3>
                
                <div className="flex justify-center">
                  <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-4 sm:flex sm:flex-row sm:items-center sm:gap-8">
-                   <div className="w-6 h-6 rounded-full bg-emerald-600 flex items-center justify-center">
+                   <div className="w-6 h-6 rounded-full bg-green-600 flex items-center justify-center">
                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/>
                      </svg>
@@ -547,7 +527,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                      {dict.threeSteps.mvp.benefits.fast}
                    </span>
                    
-                   <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center">
+                   <div className="w-6 h-6 rounded-full bg-green-600 flex items-center justify-center">
                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/>
                      </svg>
@@ -556,7 +536,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                      {dict.threeSteps.mvp.benefits.easy}
                    </span>
                    
-                   <div className="w-6 h-6 rounded-full bg-indigo-600 flex items-center justify-center">
+                   <div className="w-6 h-6 rounded-full bg-green-600 flex items-center justify-center">
                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/>
                      </svg>
@@ -577,15 +557,13 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 relative">
           {/* Section Header */}
           <div className="text-center mb-12 sm:mb-16 md:mb-20 lg:mb-24">
-            <h2 className="headline-gradient text-4xl sm:text-5xl md:text-6xl lg:mb-6 lg:text-7xl font-bold mb-6" style={{
-              fontFamily: 'Playfair Display, serif',
+            <h2 className="headline-gradient text-4xl sm:text-5xl md:text-6xl lg:mb-6 lg:text-7xl font-bold mb-6 font-serif" style={{
               lineHeight: '1.1',
               fontSize: 'clamp(2.5rem, 5vw, 4.5rem)'
             }}>
                {dict.whatMakesDifferent.heading}
              </h2>
-            <p className="text-xl sm:text-2xl md:text-3xl font-medium text-gray-700 max-w-4xl mx-auto leading-relaxed" style={{
-              fontFamily: 'Inter, system-ui, sans-serif',
+            <p className="text-xl sm:text-2xl md:text-3xl font-medium text-gray-700 max-w-4xl mx-auto leading-relaxed font-sans" style={{
               fontSize: 'clamp(1.25rem, 3vw, 2rem)'
             }}>
                {dict.whatMakesDifferent.subheading}
@@ -600,7 +578,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
               <div className="bg-white rounded-3xl p-8 lg:p-10 shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 hover:border-gray-300 group-hover:-translate-y-2 h-full">
                 <div className="text-center h-full flex flex-col">
                   {/* Icon */}
-                  <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300 bg-emerald-700 relative overflow-hidden">
+                  <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300 bg-charcoal-500 relative overflow-hidden">
                     {/* Liquid Glass Overlay */}
                     <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out" style={{
                       background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.2) 25%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.1) 100%)',
@@ -623,13 +601,10 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
 
                   {/* Content */}
                   <div className="flex-1 flex flex-col justify-center">
-                    <h3 className="text-2xl font-bold text-gray-900 mb-4" style={{
-                      fontFamily: 'Playfair Display, serif'
-                    }}>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-4 font-serif">
                       {dict.whatMakesDifferent.principles.verifiedDevelopers.title}
                     </h3>
-                    <p className="text-gray-600 leading-relaxed" style={{
-                      fontFamily: 'Inter, system-ui, sans-serif',
+                    <p className="text-gray-600 leading-relaxed font-sans" style={{
                       fontSize: '16px',
                       lineHeight: '1.6'
                     }}>
@@ -645,7 +620,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
               <div className="bg-white rounded-3xl p-8 lg:p-10 shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 hover:border-gray-300 group-hover:-translate-y-2 h-full">
                 <div className="text-center h-full flex flex-col">
                   {/* Icon */}
-                  <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300 bg-blue-700 relative overflow-hidden">
+                  <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300 bg-accent relative overflow-hidden">
                     {/* Liquid Glass Overlay */}
                     <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out" style={{
                       background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.2) 25%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.1) 100%)',
@@ -668,13 +643,10 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
 
                   {/* Content */}
                   <div className="flex-1 flex flex-col justify-center">
-                    <h3 className="text-2xl font-bold text-gray-900 mb-4" style={{
-                      fontFamily: 'Playfair Display, serif'
-                    }}>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-4 font-serif">
                       {dict.whatMakesDifferent.principles.noFinancialBias.title}
                     </h3>
-                    <p className="text-gray-600 leading-relaxed" style={{
-                      fontFamily: 'Inter, system-ui, sans-serif',
+                    <p className="text-gray-600 leading-relaxed font-sans" style={{
                       fontSize: '16px',
                       lineHeight: '1.6'
                     }}>
@@ -690,7 +662,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
               <div className="bg-white rounded-3xl p-8 lg:p-10 shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 hover:border-gray-300 group-hover:-translate-y-2 h-full">
                 <div className="text-center h-full flex flex-col">
                   {/* Icon */}
-                  <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300 bg-white border-2 border-indigo-200 relative overflow-hidden">
+                  <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300 bg-accent relative overflow-hidden">
                     {/* Liquid Glass Overlay */}
                     <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out" style={{
                       background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.2) 25%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.1) 100%)',
@@ -706,20 +678,17 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                     }} />
                     
                     {/* Sparkles Icon */}
-                    <svg className="w-10 h-10 text-indigo-600 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-10 h-10 text-white relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
                     </svg>
                   </div>
 
                   {/* Content */}
                   <div className="flex-1 flex flex-col justify-center">
-                    <h3 className="text-2xl font-bold text-gray-900 mb-4" style={{
-                      fontFamily: 'Playfair Display, serif'
-                    }}>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-4 font-serif">
                       {dict.whatMakesDifferent.principles.cleanExperience.title}
                     </h3>
-                    <p className="text-gray-600 leading-relaxed" style={{
-                      fontFamily: 'Inter, system-ui, sans-serif',
+                    <p className="text-gray-600 leading-relaxed font-sans" style={{
                       fontSize: '16px',
                       lineHeight: '1.6'
                     }}>
@@ -735,7 +704,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
               <div className="bg-white rounded-3xl p-8 lg:p-10 shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 hover:border-gray-300 group-hover:-translate-y-2 h-full">
                 <div className="text-center h-full flex flex-col">
                   {/* Icon */}
-                  <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300 bg-indigo-600 relative overflow-hidden">
+                  <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300 bg-charcoal-500 relative overflow-hidden">
                     {/* Liquid Glass Overlay */}
                     <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out" style={{
                       background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.2) 25%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.1) 100%)',
@@ -758,13 +727,10 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
 
                   {/* Content */}
                   <div className="flex-1 flex flex-col justify-center">
-                    <h3 className="text-2xl font-bold text-gray-900 mb-4" style={{
-                      fontFamily: 'Playfair Display, serif'
-                    }}>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-4 font-serif">
                       {dict.whatMakesDifferent.principles.honestBrokers.title}
                     </h3>
-                    <p className="text-gray-600 leading-relaxed" style={{
-                      fontFamily: 'Inter, system-ui, sans-serif',
+                    <p className="text-gray-600 leading-relaxed font-sans" style={{
                       fontSize: '16px',
                       lineHeight: '1.6'
                     }}>
@@ -783,7 +749,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
       <section className="py-16 sm:py-20 md:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
           <div className="text-center mb-10">
-            <h3 className="headline-gradient text-4xl sm:text-5xl font-bold" style={{ fontFamily: 'Playfair Display, serif' }}>
+            <h3 className="headline-gradient text-4xl sm:text-5xl font-bold font-serif">
               {lang === 'bg' ? 'Наскоро добавени' : 'Recently added'}
             </h3>
           </div>
@@ -885,10 +851,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
           {/* CTA moved here below cards */}
           <div className="mt-10 flex justify-center">
             <Link href={`/${lang}/listings`}>
-              <button className="w-full sm:w-auto px-8 py-4 rounded-2xl text-white font-bold text-lg transition-all duration-300 ease-in-out hover:shadow-2xl hover:scale-105 active:scale-[0.98] cursor-pointer uppercase tracking-wide relative overflow-hidden group" style={{
-                fontFamily: 'Playfair Display, serif',
-                backgroundColor: '#0f172a'
-              }}>
+              <button className="w-full sm:w-auto px-8 py-4 rounded-2xl text-white font-bold text-lg transition-all duration-300 ease-in-out hover:shadow-2xl hover:scale-105 active:scale-[0.98] cursor-pointer uppercase tracking-wide relative overflow-hidden group bg-charcoal-700 hover:bg-charcoal-800 focus:ring-2 focus:ring-charcoal-300 font-sans">
                 {/* Liquid Glass Overlay - Always Visible */}
                 <div className="absolute inset-0 opacity-100 transition-opacity duration-300 ease-out" style={{
                   background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.2) 25%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.1) 100%)',
@@ -925,60 +888,56 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
             
             <div className="relative z-10 px-8 py-16 sm:px-12 sm:py-20">
               <div className="text-center mb-16">
-                <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-8 bg-gradient-to-r from-gray-900 via-blue-900 to-indigo-900 bg-clip-text text-transparent leading-tight" style={{
-                  fontFamily: 'Playfair Display, serif'
-                }}>
+                <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-8 bg-gradient-to-r from-gray-900 via-blue-900 to-indigo-900 bg-clip-text text-transparent leading-tight font-serif">
                   {dict.developerJoin.heading}
                 </h2>
                 
-                <p className="text-xl sm:text-2xl md:text-3xl text-gray-700 mb-16 leading-relaxed max-w-5xl mx-auto font-medium" style={{
-                  fontFamily: 'Inter, system-ui, sans-serif'
-                }}>
+                <p className="text-xl sm:text-2xl md:text-3xl text-gray-700 mb-16 leading-relaxed max-w-5xl mx-auto font-medium font-sans">
                   {dict.developerJoin.subheading}
                 </p>
 
                 {/* 4 Key Benefits with Enhanced Icons */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
                   <div className="group flex flex-col items-center text-center p-8 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 hover:shadow-2xl hover:scale-105 transition-all duration-300 hover:bg-white">
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-accent to-accent/90 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
                       <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
                       </svg>
                     </div>
-                    <h3 className="text-xl font-bold text-gray-800 mb-3 group-hover:text-emerald-700 transition-colors">
+                    <h3 className="text-xl font-bold text-gray-800 mb-3 group-hover:text-accent transition-colors">
                       {dict.developerJoin.benefits.directContact}
                     </h3>
                   </div>
                   
                   <div className="group flex flex-col items-center text-center p-8 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 hover:shadow-2xl hover:scale-105 transition-all duration-300 hover:bg-white">
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary/90 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
                       <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                       </svg>
                     </div>
-                    <h3 className="text-xl font-bold text-gray-800 mb-3 group-hover:text-blue-700 transition-colors">
+                    <h3 className="text-xl font-bold text-gray-800 mb-3 group-hover:text-primary transition-colors">
                       {dict.developerJoin.benefits.quickPublishing}
                     </h3>
                   </div>
                   
                   <div className="group flex flex-col items-center text-center p-8 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 hover:shadow-2xl hover:scale-105 transition-all duration-300 hover:bg-white">
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary/90 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
                       <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                       </svg>
                     </div>
-                    <h3 className="text-xl font-bold text-gray-800 mb-3 group-hover:text-indigo-700 transition-colors">
+                    <h3 className="text-xl font-bold text-gray-800 mb-3 group-hover:text-primary transition-colors">
                       {dict.developerJoin.benefits.fullControl}
                     </h3>
                   </div>
                   
                   <div className="group flex flex-col items-center text-center p-8 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 hover:shadow-2xl hover:scale-105 transition-all duration-300 hover:bg-white">
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-accent to-accent/90 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
                       <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
                       </svg>
                     </div>
-                    <h3 className="text-xl font-bold text-gray-800 mb-3 group-hover:text-purple-700 transition-colors">
+                    <h3 className="text-xl font-bold text-gray-800 mb-3 group-hover:text-accent transition-colors">
                       {dict.developerJoin.benefits.flexibleCommitment}
                     </h3>
                   </div>
@@ -1024,14 +983,13 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
           <div className="text-center">
             <div className="bg-gray-50 rounded-2xl p-12">
-              <h3 className="text-2xl sm:text-3xl font-bold mb-6" style={{
-                fontFamily: 'Playfair Display, serif',
+              <h3 className="text-2xl sm:text-3xl font-bold mb-6 font-serif" style={{
                 color: 'var(--brand-text-primary)'
               }}>
                 {dict.developerJoin.finalCta.heading}
               </h3>
               <Link href={`/${lang}/register?type=developer`}>
-                <button className="group relative px-10 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-700 text-white font-bold tracking-wider uppercase hover:from-blue-700 hover:to-indigo-800 transition-all duration-300 shadow-xl hover:shadow-2xl active:scale-95 overflow-hidden">
+                <button className="group relative px-10 py-4 rounded-xl bg-gradient-to-r from-primary to-accent text-white font-bold tracking-wider uppercase hover:from-primary/90 hover:to-accent/90 transition-all duration-300 shadow-xl hover:shadow-2xl active:scale-95 overflow-hidden">
                   <div className="absolute inset-0 -skew-x-12 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
                   <span className="relative z-10">{dict.developerJoin.finalCta.button}</span>
                 </button>

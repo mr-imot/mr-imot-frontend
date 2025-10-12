@@ -5,7 +5,7 @@
  * navigation, and buttons. This is the ONLY brand color system to use.
  * 
  * Key Brand Identity:
- * - Primary: Conservative Gray (#111827) - Professional real estate
+ * - Primary: Oxford Blue (#14213d) - Professional, trustworthy
  * - Typography: Figtree (main) + Instrument Serif (accents)  
  * - Background: Etched glass effect with subtle gray tones
  * - Navigation: White/transparent for header overlay
@@ -14,16 +14,16 @@
 export const brandColors = {
   // Primary Grays - Main brand colors
   primary: {
-    900: '#111827',     // text-gray-900 - Primary text, main buttons
-    800: '#1f2937',     // text-gray-800 - Secondary text, hover states  
-    700: '#374151',     // border-gray-700 - Button borders, strong accents
-    600: '#4b5563',     // Medium gray for subtle elements
-    500: '#6b7280',     // Mid-tone gray
-    400: '#9ca3af',     // Light gray for disabled states
-    300: '#d1d5db',     // Very light gray
-    200: '#e5e7eb',     // border-gray-200 - Light borders, subtle dividers
-    100: '#f3f4f6',     // bg-gray-100 - Light backgrounds, badges
-    50: '#f9fafb',      // Lightest gray for backgrounds
+    900: '#14213d',     // Oxford Blue - Primary brand
+    800: '#0c1425',     // Darker Oxford for hover
+    700: '#101b31',     // Deep accent
+    600: '#29447e',     // Medium accent
+    500: '#3e67bf',     // Lighter accent
+    400: '#7e99d5',     // Muted light
+    300: '#beccea',     // Pale
+    200: '#e5e7eb',     // Neutral divider
+    100: '#f3f4f6',     // Light backgrounds
+    50: '#f9fafb',      // Lightest background
   },
 
   // Background Glass Tones - From Etched Glass Background
@@ -48,9 +48,9 @@ export const brandColors = {
   buttons: {
     // Primary Button (List Your Project)
     primary: {
-      background: '#111827',    // bg-gray-900
-      backgroundHover: '#1f2937', // hover:bg-gray-800
-      text: '#ffffff',          // text-white
+      background: '#14213d',    // Oxford Blue
+      backgroundHover: '#0c1425', // Darker Oxford
+      text: '#ffffff',          // White on brand
       shadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)', // shadow-lg
       shadowHover: '0 20px 25px -5px rgba(0, 0, 0, 0.1)', // hover:shadow-xl
     },
@@ -58,11 +58,11 @@ export const brandColors = {
     // Secondary Button (Browse Properties)
     secondary: {
       background: 'transparent',
-      border: '#374151',        // border-gray-700
+      border: '#14213d',        // Border in brand color
       borderWidth: '2px',
-      text: '#111827',          // text-gray-900
-      backgroundHover: '#111827', // hover:bg-gray-900
-      textHover: '#ffffff',     // hover:text-white
+      text: '#14213d',          // Brand text
+      backgroundHover: '#14213d', // Solid brand on hover
+      textHover: '#ffffff',     // White on hover
       shadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)', // shadow-lg
       shadowHover: '0 20px 25px -5px rgba(0, 0, 0, 0.1)', // hover:shadow-xl
     },

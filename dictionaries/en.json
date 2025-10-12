@@ -1,9 +1,9 @@
 {
   "hero": {
     "title": {
-      "find": "Find",
-      "your": "Your",
-      "perfectProperty": "Perfect Property",
+      "find": "Apartments",
+      "your": "&",
+      "perfectProperty": "Houses",
       "directlyFromDevelopers": "Directly from Developers"
     },
     "description": {

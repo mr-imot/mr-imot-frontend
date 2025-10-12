@@ -7,14 +7,15 @@
 
 Mr. Imot is a **conservative, professional real estate platform** that connects buyers directly with developers. Our brand reflects trustworthiness, sophistication, and transparency.
 
-## Primary Brand Colors
+## Primary Brand Colors (Earth‑tone)
 
-### Conservative Gray System
-- **Primary Brand**: `#111827` (Gray-900) - Main brand color for buttons, text, accents
-- **Secondary**: `#1f2937` (Gray-800) - Hover states, secondary text  
-- **Tertiary**: `#374151` (Gray-700) - Borders, subtle accents
-- **Light Gray**: `#e5e7eb` (Gray-200) - Light borders, dividers
-- **Background**: `#f3f4f6` (Gray-100) - Light backgrounds, badges
+- **Primary (Charcoal)**: `#264653` — buttons, primary UI, headings on dark bg
+- **Accent (Saffron)**: `#e9c46a` — accents, badges, highlights (avoid as text on white)
+- **Supporting**: 
+  - Persian Green `#2a9d8f` (sparingly for charts/highlights)
+  - Sandy Brown `#f4a261` (marketing badges)
+  - Burnt Sienna `#e76f51` (warnings/marketing)
+  - Backgrounds remain neutral white/gray for readability
 
 ### Glass Background System
 - **Primary Glass**: `#e8edf0` - Main etched glass background
@@ -22,27 +23,25 @@ Mr. Imot is a **conservative, professional real estate platform** that connects 
 - **Lighter Glass**: `#eaf0f2` - Lightest glass tone
 
 ### Status Colors (Complementary)
-- **Success**: `#10b981` (Emerald-500) - Verification, positive states
-- **Warning**: `#f59e0b` (Amber-500) - Pending states, alerts
-- **Error**: `#ef4444` (Red-500) - Errors, negative states
-- **Info**: `#3b82f6` (Blue-500) - Information, neutral actions
+- Success: `#10b981` (Emerald-500)
+- Warning: `#f59e0b` (Amber-500)
+- Error: `#ef4444` (Red-500)
+- Info: `#3b82f6` (Blue-500)
 
 ## Typography System
 
-### Primary Font: **Figtree**
-- **Usage**: Body text, navigation, UI elements
-- **Weights**: 300 (Light), 400 (Regular), 500 (Medium), 600 (Semi-bold), 700 (Bold)
-- **Variable**: `--font-figtree`
+### Primary Sans: Inter (with Cyrillic)
+- Usage: Body text, navigation, UI, buttons
+- Weights: 400, 500, 600, 700
+- Variable: `--font-inter` → mapped to `--font-sans`
 
-### Accent Font: **Instrument Serif**
-- **Usage**: Headlines, hero text, elegant accents
-- **Weights**: 400 (Regular)
-- **Styles**: Normal, Italic
-- **Variable**: `--font-instrument-serif`
+### Headline Serif: Lora (with Cyrillic)
+- Usage: Headlines (H1–H3), hero, key accents
+- Weights: 500, 600, 700
+- Variable: `--font-lora` → mapped to `--font-serif`
 
 ### Supporting Fonts
-- **GeistSans**: `--font-sans` - System fallback
-- **GeistMono**: `--font-mono` - Code, monospace text
+- Geist Sans/Mono remain fallbacks (`--font-sans`, `--font-mono`)
 
 ## Button System
 
@@ -67,11 +66,10 @@ Mr. Imot is a **conservative, professional real estate platform** that connects 
 
 ## Navigation System
 
-### Header Navigation (Overlay Style)
-- **Text**: `rgba(255, 255, 255, 0.8)` (White/80)
-- **Text Hover**: `rgba(255, 255, 255, 1)` (White)
-- **Background Hover**: `rgba(255, 255, 255, 0.1)` (White/10)
-- **Logo Background**: `rgba(255, 255, 255, 0.1)` (White/10)
+### Header Navigation
+- Text: White/90 on Charcoal backgrounds
+- Buttons: Charcoal 700 → hover Charcoal 800 → focus ring Charcoal 300, text white
+- Avoid Saffron as foreground on white backgrounds; use as outlines/badges
 
 ## Background System
 
@@ -97,33 +95,35 @@ Mr. Imot is a **conservative, professional real estate platform** that connects 
 ## Implementation
 
 ### CSS Custom Properties
-All colors are available as CSS variables:
+Core variables set in `/app/globals.css`:
 ```css
-/* Primary brand colors */
-var(--brand-gray-900)     /* #111827 */
-var(--brand-gray-800)     /* #1f2937 */
-var(--brand-gray-700)     /* #374151 */
-
-/* Buttons */
-var(--brand-btn-primary-bg)       /* #111827 */
-var(--brand-btn-primary-text)     /* #ffffff */
-
-/* Glass backgrounds */
-var(--brand-glass-primary)        /* #e8edf0 */
-var(--brand-glass-light)          /* #f0f4f6 */
-
-/* Status colors */
-var(--brand-success)              /* #10b981 */
-var(--brand-warning)              /* #f59e0b */
-var(--brand-error)                /* #ef4444 */
+/* Brand */
+--brand: #264653;         /* Charcoal */
+--accent: #e9c46a;        /* Saffron */
+/* Fonts */
+--font-sans: var(--font-inter);
+--font-serif: var(--font-lora);
+/* shadcn tokens mapped to brand */
+--primary: var(--brand);
+--primary-foreground: #ffffff;
 ```
 
-### TypeScript Utilities
-```typescript
-import { brandColors } from '@/lib/brand-colors'
-
-const primaryColor = brandColors.primary[900]  // #111827
-const buttonBg = brandColors.buttons.primary.background
+### Tailwind Mapping
+Use Tailwind utilities tied to CSS variables and extended palette:
+```ts
+// tailwind.config.ts
+extend: {
+  colors: {
+    brand: 'var(--brand)',
+    accent: 'var(--accent)',
+    charcoal: {/* ... */},
+    saffron: {/* ... */}
+  },
+  fontFamily: {
+    sans: 'var(--font-sans)',
+    serif: 'var(--font-serif)'
+  }
+}
 ```
 
 ## File Locations
@@ -133,4 +133,4 @@ const buttonBg = brandColors.buttons.primary.background
 
 ---
 
-**Remember**: This is a **conservative, professional real estate brand**. All design decisions should reflect trustworthiness, sophistication, and clarity. No bright colors, no trendy styles - just clean, professional design that builds confidence.
+**Remember**: Focus on legibility in Bulgarian. Use Inter for UI text, Lora for headlines, maintain AA contrast (≥4.5:1). Saffron is accent-only.

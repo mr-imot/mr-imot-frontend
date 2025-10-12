@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import palette CSS variables */
+@import '../styles/colors.css';
+
 /* Etched glass background sizing */
 .etched-glass-bg {
   position: fixed;
@@ -86,13 +89,13 @@
   --brand-nav-logo-border: rgba(255, 255, 255, 0.2);
   
   /* Button Colors */
-  --brand-btn-primary-bg: #111827;
-  --brand-btn-primary-bg-hover: #1f2937;
+  --brand-btn-primary-bg: #14213d; /* Oxford Blue */
+  --brand-btn-primary-bg-hover: #0c1425; /* Oxford darker */
   --brand-btn-primary-text: #ffffff;
   --brand-btn-secondary-bg: transparent;
   --brand-btn-secondary-border: #374151;
-  --brand-btn-secondary-text: #111827;
-  --brand-btn-secondary-bg-hover: #111827;
+  --brand-btn-secondary-text: #14213d;
+  --brand-btn-secondary-bg-hover: #14213d;
   --brand-btn-secondary-text-hover: #ffffff;
   --brand-btn-login-bg: #ffffff;
   --brand-btn-login-bg-hover: rgba(255, 255, 255, 0.9);
@@ -210,8 +213,8 @@
 
 @layer base {
   :root {
-    /* Brand design tokens - Mr. Imot Conservative Style */
-    --brand: #111827;        /* Primary brand color (Conservative Gray) */
+    /* Brand design tokens - Mr. Imot with Oxford Blue primary */
+    --brand: #264653;        /* Primary brand color (Charcoal) */
     --brand-ink: #ffffff;    /* Text on brand surfaces */
     --ink: #111111;          /* Primary text color */
     --subtle: #6B7280;       /* Secondary text color */
@@ -238,8 +241,8 @@
     --secondary-foreground: oklch(0 0 0);
     --muted: var(--muted);
     --muted-foreground: var(--subtle);
-    --accent: oklch(0.9400 0 0);
-    --accent-foreground: oklch(0 0 0);
+    --accent: #e9c46a;       /* Saffron */
+    --accent-foreground: #000000;
     --destructive: oklch(0.6300 0.1900 23.0300);
     --destructive-foreground: oklch(1 0 0);
     --border: oklch(0.9200 0 0);
@@ -258,8 +261,8 @@
     --sidebar-accent-foreground: oklch(0 0 0);
     --sidebar-border: oklch(0.9400 0 0);
     --sidebar-ring: oklch(0 0 0);
-    --font-sans: Geist, sans-serif;
-    --font-serif: Georgia, serif;
+    --font-sans: var(--font-inter), system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    --font-serif: var(--font-lora), Georgia, serif;
     --font-mono: Geist Mono, monospace;
     --radius: 0.5rem;
     --shadow-2xs: 0px 1px 2px 0px hsl(0 0% 0% / 0.09);
@@ -304,6 +307,9 @@
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-sans);
+    font-feature-settings: "calt" 1, "kern" 1, "liga" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     user-select: text; /* Allow text selection by default */
     line-height: 1.5; /* Ensure adequate line height for descenders */
     overflow-x: hidden; /* Prevent horizontal overflow but allow vertical */
@@ -419,10 +425,10 @@ h1, h2, h3, h4, h5, h6, p, span, div, section, article {
   }
 
   /* Gradient headline text helper */
-  .headline-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-blue-900 to-indigo-900;
-    padding-bottom: 0.06em; /* Small padding to prevent clipping without affecting leading */
-  }
+.headline-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-charcoal-200 via-charcoal-600 to-charcoal-800;
+  padding-bottom: 0.06em; /* Small padding to prevent clipping without affecting leading */
+}
 
   /* Button shine sweep */
   .btn-shine {

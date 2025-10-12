@@ -21,10 +21,10 @@ export function SiteHeader() {
   return (
     <>
       
-      <header className={`header-glass flex items-center justify-between px-4 sm:px-6 md:px-8 py-4 ${isListingsPage ? 'hidden xl:flex' : ''}`}>
-        <div className="w-full flex items-center justify-between">
+      <header className={`header-glass flex items-center px-4 sm:px-6 md:px-8 py-4 ${isListingsPage ? 'hidden xl:flex' : ''}`}>
+        <div className="w-full grid grid-cols-3 items-center">
         {/* Logo (always visible) */}
-        <div className={`flex items-center`}>
+        <div className={`flex items-center justify-start`}>
           <Link href="/" className="flex items-center space-x-3 group clickable cursor-pointer">
             <div className="relative w-14 h-14 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-200 border border-white/20 cursor-pointer">
               <Image
@@ -43,32 +43,32 @@ export function SiteHeader() {
         </div>
 
         {/* Desktop Navigation - Visible from md and up */}
-        <nav className="hidden md:flex items-center space-x-3">
+        <nav className="hidden md:flex items-center justify-center space-x-4">
           <a
             href={href('listings', 'obiavi')}
-            className="text-slate-800/80 hover:text-slate-900 text-sm font-medium px-4 py-2 rounded-full bg-white/60 border border-slate-200 shadow-sm hover:bg-white transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/30 active:scale-95"
+            className="text-white hover:text-white text-sm font-medium px-5 py-2.5 rounded-full bg-charcoal-500 border border-charcoal-600 shadow-sm hover:bg-charcoal-600 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-charcoal-300 active:scale-95"
           >
             {t.listings}
           </a>
           <a
             href={href('developers', 'stroiteli')}
-            className="text-slate-800/80 hover:text-slate-900 text-sm font-medium px-4 py-2 rounded-full bg-white/60 border border-slate-200 shadow-sm hover:bg-white transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/30 active:scale-95"
+            className="text-white hover:text-white text-sm font-medium px-5 py-2.5 rounded-full bg-charcoal-500 border border-charcoal-600 shadow-sm hover:bg-charcoal-600 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-charcoal-300 active:scale-95"
           >
             {t.developers}
           </a>
           <a
             href={href('about-us', 'za-nas')}
-            className="text-slate-800/80 hover:text-slate-900 text-sm font-medium px-4 py-2 rounded-full bg-white/60 border border-slate-200 shadow-sm hover:bg-white transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/30 active:scale-95"
+            className="text-white hover:text-white text-sm font-medium px-5 py-2.5 rounded-full bg-charcoal-500 border border-charcoal-600 shadow-sm hover:bg-charcoal-600 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-charcoal-300 active:scale-95"
           >
             {t.aboutUs}
           </a>
         </nav>
 
         {/* Right Side - Language Switcher + Auth + Mobile Nav */}
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center justify-end space-x-6">
           {/* Primary CTA - List Project */}
           <div className="hidden md:block">
-            <Link href={href('register?type=developer', 'register?type=developer')} className="btn-shine inline-flex items-center px-5 py-2 rounded-full bg-gradient-to-r from-blue-600 to-indigo-700 text-white text-sm font-semibold hover:from-blue-700 hover:to-indigo-800 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            <Link href={href('register?type=developer', 'register?type=developer')} className="btn-shine inline-flex items-center px-6 py-2.5 rounded-full bg-charcoal-500 text-white text-sm font-semibold hover:bg-charcoal-600 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-charcoal-300">
               {t.listYourProject}
             </Link>
           </div>

@@ -15,13 +15,11 @@ export interface EnhancedButtonProps extends React.ButtonHTMLAttributes<HTMLButt
 
 const buttonVariants = {
   primary: [
-    "bg-gradient-to-r from-blue-600 to-blue-700",
-    "hover:from-blue-700 hover:to-blue-800",
-    "active:from-blue-800 active:to-blue-900",
-    "text-white shadow-lg shadow-blue-500/25",
-    "hover:shadow-xl hover:shadow-blue-500/30",
+    "bg-primary text-primary-foreground",
+    "hover:bg-primary/90 active:bg-primary/95",
+    "shadow-lg shadow-primary/25 hover:shadow-xl",
     "border-transparent",
-    "focus:ring-4 focus:ring-blue-100"
+    "focus:ring-4 focus:ring-primary/20"
   ],
   secondary: [
     "bg-gradient-to-r from-gray-100 to-gray-200",
@@ -31,20 +29,20 @@ const buttonVariants = {
     "focus:ring-4 focus:ring-gray-100"
   ],
   outline: [
-    "bg-white/80 backdrop-blur-sm",
-    "hover:bg-gray-50",
-    "text-gray-700 shadow-sm",
-    "border-2 border-gray-300",
-    "hover:border-gray-400",
-    "focus:ring-4 focus:ring-gray-100"
+    "bg-background/80 backdrop-blur-sm",
+    "hover:bg-background",
+    "text-foreground/80 shadow-sm",
+    "border-2 border-border",
+    "hover:border-foreground/30",
+    "focus:ring-4 focus:ring-accent/20"
   ],
   ghost: [
     "bg-transparent",
-    "hover:bg-gray-100",
-    "text-gray-700",
+    "hover:bg-accent/10",
+    "text-foreground",
     "border-transparent",
     "shadow-none",
-    "focus:ring-4 focus:ring-gray-100"
+    "focus:ring-4 focus:ring-accent/20"
   ]
 };
 

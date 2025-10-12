@@ -37,10 +37,10 @@ export function MainNav() {
               className={cn(
                 navigationMenuTriggerStyle(),
                 "bg-transparent font-semibold transition-all duration-200",
-                "hover:bg-white/60 hover:backdrop-blur-sm",
+                "hover:bg-accent/20 hover:backdrop-blur-sm",
                 pathname === item.href
-                  ? "text-gray-900 bg-white/40"
-                  : "text-gray-700 hover:text-gray-900"
+                  ? "text-foreground bg-accent/10"
+                  : "text-foreground/80 hover:text-foreground"
               )}
               style={{
                 textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
