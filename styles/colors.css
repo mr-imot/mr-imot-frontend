@@ -1,0 +1,31 @@
+/* CSS variables mapped to the mr-imot--frontend palette */
+
+:root {
+  /* Primary and accent */
+  --color-primary: #14213d; /* Oxford Blue */
+  --color-primary-foreground: #ffffff;
+  --color-accent: #fca311; /* Orange (web) */
+  --color-accent-foreground: #000000;
+
+  /* Neutral surfaces and text */
+  --color-background: #ffffff;
+  --color-surface: #e5e5e5; /* Platinum */
+  --color-border: #e5e5e5;
+  --color-text: #000000;
+  --color-text-subtle: #666666;
+
+  /* Semantic (baseline; adjust if needed) */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-info: #3b82f6;
+  --color-destructive: #ef4444;
+}
+
+/* Example helpers (optional) */
+.bg-primary { background-color: var(--color-primary); }
+.text-primary { color: var(--color-primary); }
+.bg-accent { background-color: var(--color-accent); }
+.text-accent { color: var(--color-accent); }
+.text-subtle { color: var(--color-text-subtle); }
+
+
