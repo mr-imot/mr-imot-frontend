@@ -21,7 +21,7 @@ export function SiteHeader() {
   return (
     <>
       
-      <header className={`header-glass flex items-center px-4 sm:px-6 md:px-8 py-4 ${isListingsPage ? 'hidden xl:flex' : ''}`}>
+      <header className={`header-glass flex items-center pl-4 pr-0 sm:pl-6 sm:pr-6 md:px-8 py-4 ${isListingsPage ? 'hidden xl:flex' : ''}`}>
         <div className="w-full grid grid-cols-3 items-center">
         {/* Logo (always visible) */}
         <div className={`flex items-center justify-start`}>
