@@ -21,6 +21,7 @@ export function DraggableSheet({
   const [currentY, setCurrentY] = useState(0)
   const sheetRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
+  const dragFromHandleRef = useRef(false)
 
   const handleStart = useCallback((clientY: number) => {
     setIsDragging(true)
@@ -57,6 +58,7 @@ export function DraggableSheet({
   // Mouse events
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault()
+    dragFromHandleRef.current = true
     handleStart(e.clientY)
   }
 
@@ -89,6 +91,7 @@ export function DraggableSheet({
       // Always capture drag from handle area
       if (target.closest('[data-drag-handle]')) {
         e.preventDefault()
+        dragFromHandleRef.current = true
         handleStart(touchY)
         return
       }
@@ -96,6 +99,7 @@ export function DraggableSheet({
       // If at scroll boundary, prepare to capture drag on move
       if (isAtTop || isAtBottom) {
         // Don't prevent default yet, wait for move direction
+        dragFromHandleRef.current = false
         handleStart(touchY)
         return
       }
@@ -105,6 +109,7 @@ export function DraggableSheet({
     } else {
       // Sheet is collapsed or content not scrollable, always capture for drag
       // Only prevent default if we're actually going to handle the drag
+      dragFromHandleRef.current = true
       handleStart(touchY)
     }
   }
@@ -124,9 +129,16 @@ export function DraggableSheet({
     const isAtTop = scrollTop <= 0
     const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1
 
+    // If drag started from the handle or when sheet isn't scrollable, always capture drag
+    if (dragFromHandleRef.current || !(isScrollable && scrollHeight > clientHeight)) {
+      e.preventDefault()
+      handleMove(touchY)
+      return
+    }
+
     // If expanded and scrollable, only prevent if at boundary
     if (isScrollable && scrollHeight > clientHeight) {
-      if ((isAtTop && deltaY < 0) || (isAtBottom && deltaY > 0)) {
+      if ((isAtTop) || (isAtBottom)) {
         // At boundary, prevent and allow drag
         e.preventDefault()
         handleMove(touchY)
@@ -141,7 +153,10 @@ export function DraggableSheet({
     }
   }, [isDragging, startY, currentSnap, handleMove])
 
-  const handleTouchEnd = useCallback(() => handleEnd(), [handleEnd])
+  const handleTouchEnd = useCallback(() => {
+    dragFromHandleRef.current = false
+    handleEnd()
+  }, [handleEnd])
 
   useEffect(() => {
     if (isDragging) {
@@ -175,7 +190,7 @@ export function DraggableSheet({
   return (
     <div
       ref={sheetRef}
-      className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl transition-all duration-300 ease-out z-50"
+      className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl transition-all duration-300 ease-out z-40"
       style={{
         height: `${Math.min(height + dragOffset, 100)}vh`,
         touchAction: 'none',
@@ -186,17 +201,17 @@ export function DraggableSheet({
       {/* Drag Handle */}
       <div
         data-drag-handle
-        className="absolute top-0 left-0 right-0 h-16 flex items-center justify-center cursor-grab active:cursor-grabbing z-10"
+        className="absolute top-0 left-0 right-0 h-20 flex items-center justify-center cursor-grab active:cursor-grabbing z-10"
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
       >
-        <div className="w-14 h-2 bg-gray-300 rounded-full" />
+        <div className="w-16 h-2 bg-gray-300 rounded-full" />
       </div>
 
       {/* Content */}
       <div 
         ref={contentRef}
-        className="h-full pt-16 overscroll-contain"
+        className="h-full pt-20 overscroll-contain"
         style={{ 
           overflowY: canScroll ? 'auto' as const : 'hidden' as const, 
           WebkitOverflowScrolling: 'touch' 

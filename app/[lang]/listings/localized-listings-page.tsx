@@ -128,8 +128,10 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
   const [mobileSheetSnap, setMobileSheetSnap] = useState(0) // 0 = collapsed, 1 = expanded
   const [mobileBounds, setMobileBounds] = useState<google.maps.LatLngBounds | null>(null)
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false)
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [isMobileModalOpen, setIsMobileModalOpen] = useState(false)
   const [selectedModalProperty, setSelectedModalProperty] = useState<any>(null)
+  const searchButtonRef = useRef<HTMLButtonElement | null>(null)
   const [cardPosition, setCardPosition] = useState<{
     top?: number
     left?: number
@@ -140,6 +142,7 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
   const [isInitialLoading, setIsInitialLoading] = useState(true)
   const [isProgrammaticMove, setIsProgrammaticMove] = useState(false)
   // const [advancedMapGestures, setAdvancedMapGestures] = useState<AdvancedMapGestures | null>(null)
+  const [headerSnapPct, setHeaderSnapPct] = useState<number>(90)
   
   // Track current fetch request to prevent race conditions
   const currentFetchRef = useRef<number>(0)
@@ -202,6 +205,28 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
       // if (advancedMapGestures) {
       //   advancedMapGestures.disable()
       // }
+    }
+  }, [])
+
+  // Compute dynamic final snap that stops right below the mobile header
+  useEffect(() => {
+    const computeHeaderSnap = () => {
+      const header = document.getElementById('mobile-map-header')
+      if (!header) return setHeaderSnapPct(90)
+      const rect = header.getBoundingClientRect()
+      const gap = 8
+      const viewportH = window.innerHeight || document.documentElement.clientHeight
+      let pct = ((viewportH - (rect.bottom + gap)) / viewportH) * 100
+      pct = Math.max(70, Math.min(95, Math.round(pct)))
+      setHeaderSnapPct(pct)
+    }
+    computeHeaderSnap()
+    window.addEventListener('resize', computeHeaderSnap)
+    const mo = new MutationObserver(computeHeaderSnap)
+    mo.observe(document.body, { childList: true, subtree: true, attributes: true })
+    return () => {
+      window.removeEventListener('resize', computeHeaderSnap)
+      mo.disconnect()
     }
   }, [])
 
@@ -1024,7 +1049,7 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
             <div ref={mobileMapRef} className="w-full h-full" />
             
             {/* In-map header: Logo + Search + Filter + Hamburger on one line */}
-            <div className="absolute top-4 left-4 right-4 z-40">
+            <div id="mobile-map-header" className="absolute top-4 left-4 right-4 z-40">
               <div className="flex items-center gap-3">
                 {/* Logo: match homepage size (56x56) but keep compact padding */}
                 <Link href="/" className="flex-shrink-0">
@@ -1035,12 +1060,9 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
 
                 {/* Search Field */}
                 <button
+                  ref={searchButtonRef}
                   onClick={() => {
-                    // Trigger AirbnbSearch expansion
-                    const searchContainer = document.getElementById('mobile-search-expanded')
-                    if (searchContainer) {
-                      searchContainer.style.display = 'block'
-                    }
+                    setIsSearchOpen(true)
                   }}
                   className="flex-1 flex items-center gap-3 px-5 py-4 bg-white/95 backdrop-blur-md rounded-2xl shadow-lg hover:shadow-xl transition-all touch-manipulation"
                 >
@@ -1065,55 +1087,50 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
               </div>
             </div>
             
-            {/* Expanded Search Overlay (hidden by default) */}
-            <div id="mobile-search-expanded" className="hidden absolute top-0 left-0 right-0 bottom-0 z-50 bg-white">
-              <div className="flex flex-col h-full">
-                {/* Header with back button */}
-                <div className="flex items-center gap-3 px-3 py-3 border-b border-gray-200">
-                  <button
-                    onClick={() => {
-                      const searchContainer = document.getElementById('mobile-search-expanded')
-                      if (searchContainer) {
-                        searchContainer.style.display = 'none'
-                      }
-                    }}
-                    className="flex items-center justify-center w-10 h-10 hover:bg-gray-100 rounded-full transition-colors"
-                  >
-                    <X className="w-5 h-5 text-gray-700" />
-                  </button>
-                  <h2 className="text-lg font-semibold text-gray-900">
-                    {lang === 'bg' ? 'Търси локация' : 'Search location'}
-                  </h2>
-                </div>
-                
-                {/* Search content */}
-                <div className="flex-1 overflow-y-auto p-4">
-                  <AirbnbSearch
-                    onPlaceSelected={({ lat, lng, zoom }) => {
-                      if (mobileGoogleMapRef.current) {
-                        mobileGoogleMapRef.current.panTo({ lat, lng })
-                        mobileGoogleMapRef.current.setZoom(zoom)
-                      }
-                      // Hide expanded search
-                      const searchContainer = document.getElementById('mobile-search-expanded')
-                      if (searchContainer) {
-                        searchContainer.style.display = 'none'
-                      }
-                    }}
-                    onFilterClick={() => {
-                      setIsFilterModalOpen(true)
-                      // Hide expanded search
-                      const searchContainer = document.getElementById('mobile-search-expanded')
-                      if (searchContainer) {
-                        searchContainer.style.display = 'none'
-                      }
-                    }}
-                    placeholder={lang === 'bg' ? 'Търси София, Пловдив, Варна...' : 'Search Sofia, Plovdiv, Varna...'}
-                    locale={lang}
-                  />
+            {/* Expanded Search Overlay */}
+            {isSearchOpen && (
+              <div className="absolute top-0 left-0 right-0 bottom-0 z-50 bg-white" role="dialog" aria-modal="true">
+                <div className="flex flex-col h-full">
+                  {/* Header with back button */}
+                  <div className="flex items-center gap-3 px-3 py-3 border-b border-gray-200">
+                    <button
+                      onClick={() => {
+                        setIsSearchOpen(false)
+                        searchButtonRef.current?.focus()
+                      }}
+                      className="flex items-center justify-center w-10 h-10 hover:bg-gray-100 rounded-full transition-colors"
+                      aria-label={lang === 'bg' ? 'Затвори търсенето' : 'Close search'}
+                    >
+                      <X className="w-5 h-5 text-gray-700" />
+                    </button>
+                    <h2 className="text-lg font-semibold text-gray-900">
+                      {lang === 'bg' ? 'Търси локация' : 'Search location'}
+                    </h2>
+                  </div>
+                  
+                  {/* Search content */}
+                  <div className="flex-1 overflow-y-auto p-4">
+                    <AirbnbSearch
+                      defaultExpanded
+                      onPlaceSelected={({ lat, lng, zoom }) => {
+                        if (mobileGoogleMapRef.current) {
+                          mobileGoogleMapRef.current.panTo({ lat, lng })
+                          mobileGoogleMapRef.current.setZoom(zoom)
+                        }
+                        setIsSearchOpen(false)
+                        searchButtonRef.current?.focus()
+                      }}
+                      onFilterClick={() => {
+                        setIsSearchOpen(false)
+                        setIsFilterModalOpen(true)
+                      }}
+                      placeholder={lang === 'bg' ? 'Търси София, Пловдив, Варна...' : 'Search Sofia, Plovdiv, Varna...'}
+                      locale={lang}
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
             
             {/* Filter Modal */}
             {isFilterModalOpen && (
@@ -1196,8 +1213,9 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
             <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40" style={{ height: '50vh' }} />
 
             {/* Draggable bottom sheet with listings */}
+            {!isSearchOpen && !isFilterModalOpen && (
             <DraggableSheet 
-              snapPoints={[40, 70, 95]}
+              snapPoints={[16, 40, headerSnapPct]}
               initialSnap={0}
               onSnapChange={setMobileSheetSnap}
             >
@@ -1249,6 +1267,7 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
                 )}
               </div>
             </DraggableSheet>
+            )}
             
             {/* Selected property card (when marker tapped) */}
             {selectedProperty && (

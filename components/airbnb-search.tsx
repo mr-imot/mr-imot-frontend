@@ -58,18 +58,20 @@ interface AirbnbSearchProps {
   onFilterClick: () => void
   placeholder?: string
   locale: 'en' | 'bg'
+  defaultExpanded?: boolean
 }
 
 export function AirbnbSearch({
   onPlaceSelected,
   onFilterClick,
   placeholder = "Where?",
-  locale
+  locale,
+  defaultExpanded
 }: AirbnbSearchProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const [value, setValue] = useState("")
-  const [isExpanded, setIsExpanded] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(!!defaultExpanded)
   const [isTyping, setIsTyping] = useState(false)
   const [filteredCities, setFilteredCities] = useState<CityOption[]>(SUGGESTED_CITIES)
 
@@ -218,6 +220,13 @@ export function AirbnbSearch({
     // New token for a new session
     sessionTokenRef.current = new google.maps.places.AutocompleteSessionToken()
   }
+
+  // Auto-focus input when defaultExpanded is true on mount
+  useEffect(() => {
+    if (defaultExpanded) {
+      setTimeout(() => inputRef.current?.focus(), 100)
+    }
+  }, [defaultExpanded])
 
   const nearbyText = {
     en: {
