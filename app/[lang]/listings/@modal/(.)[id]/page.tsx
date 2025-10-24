@@ -55,9 +55,9 @@ export default function InterceptedListingModal({ params }: PageProps) {
   }
 
   return (
-    <div className="fixed inset-0 z-[100] bg-white">
+    <div className="fixed inset-0 z-[100] bg-white flex flex-col">
       {/* Modal Header with Back Button */}
-      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b border-gray-200 px-4 py-3 flex items-center justify-between flex-shrink-0">
         <button
           onClick={() => router.back()}
           className="flex items-center justify-center w-11 h-11 hover:bg-gray-100 active:bg-gray-200 rounded-full transition-colors touch-manipulation"
@@ -82,9 +82,11 @@ export default function InterceptedListingModal({ params }: PageProps) {
         </div>
       </div>
 
-      {/* Existing Listing Page Content */}
+      {/* Existing Listing Page Content - Scrollable */}
       <div className="flex-1 overflow-y-auto">
-        <ListingPage params={params} />
+        <div className="w-full">
+          <ListingPage params={params} />
+        </div>
       </div>
     </div>
   )
