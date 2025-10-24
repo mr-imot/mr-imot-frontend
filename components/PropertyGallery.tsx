@@ -12,9 +12,9 @@ interface PropertyGalleryProps {
 }
 
 // Enhanced ImageKit transformation function - PROPER FULLSCREEN HANDLING
-const getImageKitUrl = (originalUrl: string, width: number, height: number, quality: number = 90, imageType: 'main' | 'thumbnail' | 'fullscreen' = 'main') => {
-  if (!originalUrl || !originalUrl.includes('imagekit.io')) {
-    return originalUrl
+const getImageKitUrl = (originalUrl: string | undefined | null, width: number, height: number, quality: number = 90, imageType: 'main' | 'thumbnail' | 'fullscreen' = 'main') => {
+  if (!originalUrl || typeof originalUrl !== 'string' || !originalUrl.includes('imagekit.io')) {
+    return originalUrl || ''
   }
   
   // Extract the base path from the original URL
@@ -40,6 +40,9 @@ const getImageKitUrl = (originalUrl: string, width: number, height: number, qual
 }
 
 export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
+  // Filter out non-string values and ensure we have valid images
+  const validImages = images.filter((img): img is string => typeof img === 'string' && img.length > 0)
+  
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -61,14 +64,14 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
   }, []);
 
   const nextImage = useCallback(() => {
-    setCurrentIndex((prev) => (prev + 1) % images.length);
+    setCurrentIndex((prev) => (prev + 1) % validImages.length);
     setImageDimensions(null); // Reset dimensions for new image
-  }, [images.length]);
+  }, [validImages.length]);
 
   const prevImage = useCallback(() => {
-    setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
+    setCurrentIndex((prev) => (prev - 1 + validImages.length) % validImages.length);
     setImageDimensions(null); // Reset dimensions for new image
-  }, [images.length]);
+  }, [validImages.length]);
 
   const openFullscreen = (index: number) => {
     setCurrentIndex(index);
@@ -118,10 +121,10 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
     const isLeftSwipe = distance > minSwipeDistance;
     const isRightSwipe = distance < -minSwipeDistance;
     
-    if (isLeftSwipe && images.length > 1) {
+    if (isLeftSwipe && validImages.length > 1) {
       nextImage();
     }
-    if (isRightSwipe && images.length > 1) {
+    if (isRightSwipe && validImages.length > 1) {
       prevImage();
     }
   };
@@ -155,7 +158,7 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
           case '9':
             event.preventDefault();
             const num = parseInt(event.key) - 1;
-            if (num < images.length) {
+            if (num < validImages.length) {
               setCurrentIndex(num);
             }
             break;
@@ -165,7 +168,7 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isFullscreen, nextImage, prevImage, images.length]);
+  }, [isFullscreen, nextImage, prevImage, validImages.length]);
 
   // Cleanup effect to restore body styles when component unmounts
   useEffect(() => {
@@ -178,7 +181,7 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
     };
   }, []);
 
-  if (!images || images.length === 0) {
+  if (!validImages || validImages.length === 0) {
     return (
       <div className="relative h-[60vh] md:h-[70vh] bg-muted rounded-2xl overflow-hidden flex items-center justify-center">
         <span className="text-muted-foreground text-lg">No images available</span>
@@ -198,7 +201,7 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
           onTouchEnd={onTouchEnd}
         >
           <Image
-            src={getImageKitUrl(images[0], isMobile ? 800 : 1200, isMobile ? 600 : 800, 90, 'main')}
+            src={getImageKitUrl(validImages[0], isMobile ? 800 : 1200, isMobile ? 600 : 800, 90, 'main')}
             alt={`${title} - Main view`}
             fill
             className="object-cover transition-all duration-500 group-hover:scale-110 cursor-pointer"
@@ -217,7 +220,7 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
           {/* Enhanced photo counter */}
           <div className="absolute bottom-4 md:bottom-6 right-4 md:right-6 bg-black/70 text-white px-3 md:px-4 py-1 md:py-2 rounded-full backdrop-blur-md flex items-center gap-2">
             <Grid3X3 className="h-3 w-3 md:h-4 md:w-4" />
-            <span className="font-medium text-sm md:text-base">{images.length} photos</span>
+            <span className="font-medium text-sm md:text-base">{validImages.length} photos</span>
           </div>
 
           {/* Keyboard hint - Hidden on mobile */}
@@ -279,7 +282,7 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
                 </div>
                 <div className="min-w-0 flex-1">
                   <h2 className="text-white font-semibold text-sm sm:text-lg truncate">{title}</h2>
-                  <p className="text-white/70 text-xs sm:text-sm">Property Gallery • {currentIndex + 1} of {images.length}</p>
+                  <p className="text-white/70 text-xs sm:text-sm">Property Gallery • {currentIndex + 1} of {validImages.length}</p>
                 </div>
               </div>
               
@@ -313,7 +316,7 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
               size="icon"
               className="absolute left-2 sm:left-4 md:left-8 top-1/2 -translate-y-1/2 z-40 w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 text-white hover:bg-white/20 transition-all duration-300 rounded-full backdrop-blur-md border border-white/20 shadow-2xl disabled:opacity-30 disabled:cursor-not-allowed"
               onClick={prevImage}
-              disabled={images.length <= 1}
+              disabled={validImages.length <= 1}
             >
               <ChevronLeft className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8" />
             </Button>
@@ -323,7 +326,7 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
               size="icon"
               className="absolute right-2 sm:right-4 md:right-8 top-1/2 -translate-y-1/2 z-40 w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 text-white hover:bg-white/20 transition-all duration-300 rounded-full backdrop-blur-md border border-white/20 shadow-2xl disabled:opacity-30 disabled:cursor-not-allowed"
               onClick={nextImage}
-              disabled={images.length <= 1}
+              disabled={validImages.length <= 1}
             >
               <ChevronRight className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8" />
             </Button>
@@ -331,7 +334,7 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
             {/* PERFECT FULLSCREEN IMAGE - NO CROPPING, FULL IMAGE VISIBLE */}
             <div className="absolute inset-0 w-full h-full flex items-center justify-center">
               <Image
-                src={getImageKitUrl(images[currentIndex], 1920, 1080, 95, 'fullscreen')}
+                src={getImageKitUrl(validImages[currentIndex], 1920, 1080, 95, 'fullscreen')}
                 alt={`${title} - View ${currentIndex + 1}`}
                 width={1920}
                 height={1080}

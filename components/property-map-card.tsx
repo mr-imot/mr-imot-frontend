@@ -182,7 +182,7 @@ export function PropertyMapCard({
             : "h-[60%] lg:w-[20.4375rem] lg:h-[13.25rem]"
         )}>
           <Link 
-            href={`/listing/${String(property.id)}`} 
+            href={`/listings/${String(property.id)}`} 
             target={`listing_${String(property.id)}`}
             rel="noopener noreferrer nofollow"
             aria-labelledby={`map_title_${String(property.id)}`}
@@ -252,7 +252,7 @@ export function PropertyMapCard({
           <div className="flex items-start justify-between">
             <div className="min-w-0 flex-1">
               <Link 
-                href={`/listing/${String(property.id)}`}
+                href={`/listings/${String(property.id)}`}
                 target={`listing_${String(property.id)}`}
                 rel="noopener noreferrer nofollow"
               >

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { Home, Building, ExternalLink } from 'lucide-react'
 import { recordProjectView } from '@/lib/api'
@@ -38,6 +39,7 @@ function summarize(text: string | null | undefined, max = 100) {
 }
 
 export function ListingCard({ listing, isActive, onCardClick, onCardHover, priority = false, priceTranslations }: ListingCardProps) {
+  const router = useRouter()
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [hasTrackedView, setHasTrackedView] = useState(false)
   const hasMultipleImages = listing.images?.length > 1
@@ -58,8 +60,11 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover, prior
       // Desktop: open in new tab
       e.preventDefault()
       window.open(`/listings/${listing.id}`, '_blank')
+    } else {
+      // Mobile: use router.push for intercepting route
+      e.preventDefault()
+      router.push(`/listings/${listing.id}`)
     }
-    // Mobile: let Link component handle navigation (will be intercepted)
   }
 
   const handleMouseEnter = () => {
