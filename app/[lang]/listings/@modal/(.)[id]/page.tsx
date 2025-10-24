@@ -14,7 +14,7 @@ interface PageProps {
 export default function InterceptedListingModal({ params }: PageProps) {
   const router = useRouter()
   const resolvedParams = use(params)
-  const [property, setProperty] = useState(null)
+  const [property, setProperty] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [isMobile, setIsMobile] = useState(false)
 
