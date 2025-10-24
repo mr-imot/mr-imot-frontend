@@ -2,7 +2,7 @@
 
 import { useEffect, useState, use, useRef } from "react"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, Heart, Share2 } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
 import ListingPage from "../../[id]/page"
 
 interface PageProps {
@@ -56,8 +56,8 @@ export default function InterceptedListingModal({ params }: PageProps) {
 
   return (
     <div className="fixed inset-0 z-[100] bg-white flex flex-col">
-      {/* Modal Header with Back Button */}
-      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b border-gray-200 px-4 py-3 flex items-center justify-between flex-shrink-0">
+      {/* Modal Header with Back Button Only */}
+      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b border-gray-200 px-4 py-3 flex items-center justify-start flex-shrink-0">
         <button
           onClick={() => router.back()}
           className="flex items-center justify-center w-11 h-11 hover:bg-gray-100 active:bg-gray-200 rounded-full transition-colors touch-manipulation"
@@ -65,21 +65,6 @@ export default function InterceptedListingModal({ params }: PageProps) {
         >
           <ArrowLeft className="w-6 h-6 text-gray-700" />
         </button>
-        
-        <div className="flex items-center gap-1">
-          <button 
-            className="flex items-center justify-center w-11 h-11 hover:bg-gray-100 active:bg-gray-200 rounded-full transition-colors touch-manipulation"
-            aria-label="Save to favorites"
-          >
-            <Heart className="w-5 h-5 text-gray-700" />
-          </button>
-          <button 
-            className="flex items-center justify-center w-11 h-11 hover:bg-gray-100 active:bg-gray-200 rounded-full transition-colors touch-manipulation"
-            aria-label="Share"
-          >
-            <Share2 className="w-5 h-5 text-gray-700" />
-          </button>
-        </div>
       </div>
 
       {/* Existing Listing Page Content - Scrollable */}
