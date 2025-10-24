@@ -2,7 +2,8 @@
 
 import { useEffect, useState, use, useRef } from "react"
 import { useRouter } from "next/navigation"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, Share2 } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import ListingPage from "../../[id]/page"
 
 interface PageProps {
@@ -15,6 +16,28 @@ export default function InterceptedListingModal({ params }: PageProps) {
   const router = useRouter()
   const [isMobile, setIsMobile] = useState(false)
   const scrollPositionRef = useRef<number>(0)
+
+  // Share functionality
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Property Listing',
+          url: window.location.href,
+        })
+      } catch (error) {
+        console.log('Error sharing:', error)
+      }
+    } else {
+      // Fallback: copy to clipboard
+      try {
+        await navigator.clipboard.writeText(window.location.href)
+        // You could add a toast notification here
+      } catch (error) {
+        console.log('Error copying to clipboard:', error)
+      }
+    }
+  }
 
   // Mobile detection
   useEffect(() => {
@@ -56,8 +79,8 @@ export default function InterceptedListingModal({ params }: PageProps) {
 
   return (
     <div className="fixed inset-0 z-[100] bg-white flex flex-col">
-      {/* Modal Header with Back Button Only */}
-      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b border-gray-200 px-4 py-3 flex items-center justify-start flex-shrink-0">
+      {/* Modal Header with Back Button and Share Button */}
+      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b border-gray-200 px-4 py-3 flex items-center justify-between flex-shrink-0">
         <button
           onClick={() => router.back()}
           className="flex items-center justify-center w-11 h-11 hover:bg-gray-100 active:bg-gray-200 rounded-full transition-colors touch-manipulation"
@@ -65,6 +88,11 @@ export default function InterceptedListingModal({ params }: PageProps) {
         >
           <ArrowLeft className="w-6 h-6 text-gray-700" />
         </button>
+        
+        <Button variant="outline" size="sm" onClick={handleShare}>
+          <Share2 className="h-4 w-4" />
+          Share
+        </Button>
       </div>
 
       {/* Existing Listing Page Content - Scrollable */}

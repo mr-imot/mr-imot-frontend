@@ -364,9 +364,14 @@ export default function ListingPage({ params }: PageProps) {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
-      {/* Header */}
+      {/* Header - Hide share button on mobile when in modal context */}
       <div className="flex justify-end mb-6">
-        <Button variant="outline" size="sm" onClick={handleShare}>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={handleShare}
+          className="hidden md:flex"
+        >
           <Share2 className="h-4 w-4" />
           {t.listingDetail?.share || "Share"}
         </Button>
