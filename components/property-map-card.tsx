@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
-import Link from 'next/link'
 import { X, Phone, Globe } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { recordProjectView, recordProjectPhoneClick, recordProjectWebsiteClick } from '@/lib/api'
@@ -181,13 +180,7 @@ export function PropertyMapCard({
             ? "h-[60%]" 
             : "h-[60%] lg:w-[20.4375rem] lg:h-[13.25rem]"
         )}>
-          <Link 
-            href={`/listings/${String(property.id)}`} 
-            target={`listing_${String(property.id)}`}
-            rel="noopener noreferrer nofollow"
-            aria-labelledby={`map_title_${String(property.id)}`}
-            className="block w-full h-full cursor-pointer"
-          >
+          <div className="block w-full h-full cursor-pointer">
             {imageUrls.length > 0 ? (
               <Image
                 key={currentImageIndex}
@@ -201,7 +194,7 @@ export function PropertyMapCard({
             ) : (
               <div className="w-full h-full bg-gray-200" />
             )}
-          </Link>
+          </div>
 
           {/* Dots */}
           {imageUrls.length > 1 && (
@@ -251,18 +244,12 @@ export function PropertyMapCard({
         <div className="px-4 py-4">
           <div className="flex items-start justify-between">
             <div className="min-w-0 flex-1">
-              <Link 
-                href={`/listings/${String(property.id)}`}
-                target={`listing_${String(property.id)}`}
-                rel="noopener noreferrer nofollow"
+              <h3 
+                id={`map_title_${String(property.id)}`}
+                className="font-outfit text-[#222222] text-[16px] font-semibold leading-snug line-clamp-2 tracking-[-0.01em] hover:text-blue-600 transition-colors cursor-pointer"
               >
-                <h3 
-                  id={`map_title_${String(property.id)}`}
-                  className="font-outfit text-[#222222] text-[16px] font-semibold leading-snug line-clamp-2 tracking-[-0.01em] hover:text-blue-600 transition-colors cursor-pointer"
-                >
-                  {property.title}
-                </h3>
-              </Link>
+                {property.title}
+              </h3>
               <p className="font-source-sans text-[#717171] text-[14px] font-normal leading-relaxed mt-1.5 truncate">
                 {property.location}
               </p>
