@@ -1,9 +1,9 @@
 "use client"
 
-import { useEffect, useState, use } from "react"
+import { useEffect, useState, use, useRef } from "react"
 import { useRouter } from "next/navigation"
-import { getProject } from "@/lib/api"
-import { MobileListingModal } from "@/components/MobileListingModal"
+import { ArrowLeft, Heart, Share2 } from "lucide-react"
+import ListingPage from "../[id]/page"
 
 interface PageProps {
   params: Promise<{
@@ -13,10 +13,8 @@ interface PageProps {
 
 export default function InterceptedListingModal({ params }: PageProps) {
   const router = useRouter()
-  const resolvedParams = use(params)
-  const [property, setProperty] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
   const [isMobile, setIsMobile] = useState(false)
+  const scrollPositionRef = useRef<number>(0)
 
   // Mobile detection
   useEffect(() => {
@@ -28,57 +26,66 @@ export default function InterceptedListingModal({ params }: PageProps) {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  // Load property data
+  // Handle modal open/close animations and scroll preservation
   useEffect(() => {
-    async function loadProperty() {
-      try {
-        const data = await getProject(resolvedParams.id)
-        setProperty(data)
-      } catch (error) {
-        console.error('Failed to load property:', error)
-      } finally {
-        setLoading(false)
-      }
+    if (isMobile) {
+      // Store current scroll position
+      scrollPositionRef.current = window.scrollY
+      // Prevent body scroll
+      document.body.style.overflow = 'hidden'
+      document.body.style.position = 'fixed'
+      document.body.style.top = `-${scrollPositionRef.current}px`
+      document.body.style.width = '100%'
     }
-    loadProperty()
-  }, [resolvedParams.id])
+
+    return () => {
+      // Restore body scroll
+      document.body.style.overflow = ''
+      document.body.style.position = ''
+      document.body.style.top = ''
+      document.body.style.width = ''
+      // Restore scroll position
+      window.scrollTo(0, scrollPositionRef.current)
+    }
+  }, [isMobile])
 
   // Only show modal on mobile
   if (!isMobile) {
     return null
   }
 
-  if (loading) {
-    return (
-      <MobileListingModal
-        property={null}
-        isOpen={true}
-        onClose={() => router.back()}
-        priceTranslations={{
-          requestPrice: 'Request Price',
-          fromPrice: 'From',
-          contactForPrice: 'Contact for Price',
-          priceOnRequest: 'Price on Request',
-          na: 'N/A'
-        }}
-        lang="en"
-      />
-    )
-  }
-
   return (
-    <MobileListingModal
-      property={property}
-      isOpen={true}
-      onClose={() => router.back()}
-      priceTranslations={{
-        requestPrice: 'Request Price',
-        fromPrice: 'From',
-        contactForPrice: 'Contact for Price',
-        priceOnRequest: 'Price on Request',
-        na: 'N/A'
-      }}
-      lang="en"
-    />
+    <div className="fixed inset-0 z-[100] bg-white">
+      {/* Modal Header with Back Button */}
+      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+        <button
+          onClick={() => router.back()}
+          className="flex items-center justify-center w-11 h-11 hover:bg-gray-100 active:bg-gray-200 rounded-full transition-colors touch-manipulation"
+          aria-label="Back"
+        >
+          <ArrowLeft className="w-6 h-6 text-gray-700" />
+        </button>
+        
+        <div className="flex items-center gap-1">
+          <button 
+            className="flex items-center justify-center w-11 h-11 hover:bg-gray-100 active:bg-gray-200 rounded-full transition-colors touch-manipulation"
+            aria-label="Save to favorites"
+          >
+            <Heart className="w-5 h-5 text-gray-700" />
+          </button>
+          <button 
+            className="flex items-center justify-center w-11 h-11 hover:bg-gray-100 active:bg-gray-200 rounded-full transition-colors touch-manipulation"
+            aria-label="Share"
+          >
+            <Share2 className="w-5 h-5 text-gray-700" />
+          </button>
+        </div>
+      </div>
+
+      {/* Existing Listing Page Content */}
+      <div className="flex-1 overflow-y-auto">
+        <ListingPage params={params} />
+      </div>
+    </div>
   )
 }
