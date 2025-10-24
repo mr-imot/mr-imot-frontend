@@ -27,7 +27,6 @@ interface ListingCardProps {
   onCardHover?: (listingId: string | null) => void
   priority?: boolean
   priceTranslations?: PriceTranslations
-  onMobileModalOpen?: (listing: Listing) => void
 }
 
 // Format price using Intl.NumberFormat
@@ -38,7 +37,7 @@ function summarize(text: string | null | undefined, max = 100) {
   return normalized.slice(0, max - 1) + '…'
 }
 
-export function ListingCard({ listing, isActive, onCardClick, onCardHover, priority = false, priceTranslations, onMobileModalOpen }: ListingCardProps) {
+export function ListingCard({ listing, isActive, onCardClick, onCardHover, priority = false, priceTranslations }: ListingCardProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [hasTrackedView, setHasTrackedView] = useState(false)
   const hasMultipleImages = listing.images?.length > 1
@@ -55,14 +54,12 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover, prior
     // Check if this is a mobile device or if we're in a mobile context
     const isMobile = window.innerWidth < 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
     
-    if (isMobile) {
-      // On mobile, open modal instead of navigating
+    if (!isMobile) {
+      // Desktop: open in new tab
       e.preventDefault()
-      onMobileModalOpen?.(listing)
-    } else {
-      // On desktop, let the link handle navigation naturally (new tab)
-      // Don't call onCardClick to avoid interference
+      window.open(`/listing/${listing.id}`, '_blank')
     }
+    // Mobile: let Link component handle navigation (will be intercepted)
   }
 
   const handleMouseEnter = () => {
@@ -151,7 +148,6 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover, prior
     return (
     <a
       href={`/listing/${listing.id}`}
-      target={`listing_${listing.id}`}
       rel="noopener noreferrer nofollow"
       aria-labelledby={`title_${listing.id}`}
       className="block clickable"

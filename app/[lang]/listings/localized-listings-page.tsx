@@ -26,7 +26,6 @@ import { LocationSearch } from "@/components/location-search"
 import { DraggableSheet } from "@/components/draggable-sheet"
 import { AirbnbSearch } from "@/components/airbnb-search"
 import { MobileNav } from "@/components/mobile-nav"
-import { MobileListingModal } from "@/components/MobileListingModal"
 
 // import { AdvancedMapGestures } from "@/lib/advanced-map-gestures"
 import { haptic } from "@/lib/haptic-feedback"
@@ -129,8 +128,6 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
   const [mobileBounds, setMobileBounds] = useState<google.maps.LatLngBounds | null>(null)
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
-  const [isMobileModalOpen, setIsMobileModalOpen] = useState(false)
-  const [selectedModalProperty, setSelectedModalProperty] = useState<any>(null)
   const searchButtonRef = useRef<HTMLButtonElement | null>(null)
   const [cardPosition, setCardPosition] = useState<{
     top?: number
@@ -169,20 +166,6 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
     }, delay)
   }
 
-  // Mobile modal handlers
-  const handleMobileModalOpen = (listing: any) => {
-    // Find the full property data from the filtered properties
-    const fullProperty = filteredProperties.find((p: any) => p.id === listing.id)
-    if (fullProperty) {
-      setSelectedModalProperty(fullProperty)
-      setIsMobileModalOpen(true)
-    }
-  }
-
-  const handleMobileModalClose = () => {
-    setIsMobileModalOpen(false)
-    setSelectedModalProperty(null)
-  }
 
   // Clear aria live messages after announcement
   useEffect(() => {
@@ -1260,7 +1243,6 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
                         onCardHover={() => {}}
                         priority={index < 4}
                         priceTranslations={dict.price}
-                        onMobileModalOpen={handleMobileModalOpen}
                       />
                     ))}
                   </div>
@@ -1493,15 +1475,6 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
             priceTranslations={dict.price}
           />
         )}
-        
-        {/* Mobile Listing Modal */}
-        <MobileListingModal
-          property={selectedModalProperty}
-          isOpen={isMobileModalOpen}
-          onClose={handleMobileModalClose}
-          priceTranslations={dict.price}
-          lang={lang}
-        />
       </div>
     </div>
   )

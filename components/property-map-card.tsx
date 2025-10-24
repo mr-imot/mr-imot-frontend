@@ -152,7 +152,18 @@ export function PropertyMapCard({
           boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
           fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
         }}
-        onClick={() => router.push(`/listing/${String(property.id)}`)}
+        onClick={() => {
+          // Check if this is desktop (screen width >= 768px)
+          const isDesktop = window.innerWidth >= 768
+          
+          if (isDesktop) {
+            // On desktop, open in new tab
+            window.open(`/listing/${String(property.id)}`, '_blank')
+          } else {
+            // On mobile, use router.push (will be intercepted by modal)
+            router.push(`/listing/${String(property.id)}`)
+          }
+        }}
       >
         {/* Close Button */}
         <button
