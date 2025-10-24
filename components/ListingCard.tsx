@@ -57,7 +57,7 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover, prior
     if (!isMobile) {
       // Desktop: open in new tab
       e.preventDefault()
-      window.open(`/listing/${listing.id}`, '_blank')
+      window.open(`/listings/${listing.id}`, '_blank')
     }
     // Mobile: let Link component handle navigation (will be intercepted)
   }
@@ -147,7 +147,7 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover, prior
 
     return (
     <a
-      href={`/listing/${listing.id}`}
+      href={`/listings/${listing.id}`}
       rel="noopener noreferrer nofollow"
       aria-labelledby={`title_${listing.id}`}
       className="block clickable"

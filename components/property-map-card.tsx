@@ -158,10 +158,10 @@ export function PropertyMapCard({
           
           if (isDesktop) {
             // On desktop, open in new tab
-            window.open(`/listing/${String(property.id)}`, '_blank')
+            window.open(`/listings/${String(property.id)}`, '_blank')
           } else {
             // On mobile, use router.push (will be intercepted by modal)
-            router.push(`/listing/${String(property.id)}`)
+            router.push(`/listings/${String(property.id)}`)
           }
         }}
       >
