@@ -231,7 +231,7 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
 
         {/* Enhanced thumbnail grid - Mobile Optimized */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mt-4 md:mt-6">
-          {images.slice(1, 5).map((image, index) => (
+          {validImages.slice(1, 5).map((image, index) => (
             <div
               key={index + 1}
               className="relative h-20 md:h-24 lg:h-32 bg-muted rounded-xl overflow-hidden cursor-pointer group shadow-sm hover:shadow-lg transition-all duration-300"
@@ -266,7 +266,6 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
             right: 0,
             bottom: 0,
             width: '100vw',
-            height: '100vh',
             height: '100dvh', // Dynamic viewport height for mobile
             margin: 0,
             padding: 0,
@@ -306,7 +305,6 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
               right: 0,
               bottom: 0,
               width: '100%',
-              height: 'calc(100vh - 80px)',
               height: 'calc(100dvh - 80px)', // Dynamic viewport height for mobile
             }}
           >
