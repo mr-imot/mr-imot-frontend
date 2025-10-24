@@ -3,7 +3,7 @@
 import { useEffect, useState, use, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { ArrowLeft, Heart, Share2 } from "lucide-react"
-import ListingPage from "../[id]/page"
+import ListingPage from "../../[id]/page"
 
 interface PageProps {
   params: Promise<{
