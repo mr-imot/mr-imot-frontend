@@ -291,7 +291,7 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
         >
           {/* Mobile-Optimized Header Bar */}
           <div className="absolute top-0 left-0 right-0 z-50 bg-gradient-to-b from-black/90 via-black/50 to-transparent backdrop-blur-xl">
-            <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4">
+            <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4" style={{ paddingTop: 'max(12px, env(safe-area-inset-top, 12px))' }}>
               <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
                 <div className="bg-white/10 backdrop-blur-md rounded-full p-1.5 sm:p-2 flex-shrink-0">
                   <Grid3X3 className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
@@ -317,12 +317,12 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
           <div 
             className="absolute inset-0 w-full h-full"
             style={{
-              top: '80px', // Space for header
+              top: 'max(80px, calc(env(safe-area-inset-top, 0px) + 60px))', // Dynamic space for header
               left: 0,
               right: 0,
               bottom: 0,
               width: '100%',
-              height: 'calc(100dvh - 80px)', // Dynamic viewport height for mobile
+              height: 'calc(100dvh - max(80px, calc(env(safe-area-inset-top, 0px) + 60px)))', // Dynamic viewport height for mobile
             }}
           >
             {/* Mobile-Optimized Navigation Arrows */}
