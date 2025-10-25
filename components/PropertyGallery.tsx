@@ -203,17 +203,17 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
           className="relative h-[50vh] sm:h-[55vh] md:h-[60vh] lg:h-[70vh] bg-muted rounded-xl sm:rounded-2xl overflow-hidden cursor-pointer group shadow-lg sm:shadow-elegant"
           onClick={() => openFullscreen(mainSelectedIndex)}
         >
-          <div className="embla" ref={mainEmblaRef}>
-            <div className="embla__container flex">
+          <div className="embla h-full" ref={mainEmblaRef}>
+            <div className="embla__container flex h-full">
               {validImages.map((image, index) => (
-                <div key={index} className="embla__slide flex-[0_0_100%] min-w-0">
+                <div key={index} className="embla__slide flex-[0_0_100%] min-w-0 h-full">
                   <div className="relative w-full h-full">
                     <Image
-                      src={getImageKitUrl(image, isMobile ? 800 : 1200, isMobile ? 600 : 800, 90, 'main')}
+                      src={getImageKitUrl(image, isMobile ? 800 : 1400, isMobile ? 600 : 900, 95, 'main')}
                       alt={`${title} - View ${index + 1}`}
                       fill
                       className="object-cover transition-all duration-500 group-hover:scale-110 cursor-pointer"
-                      sizes="100vw"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
                       priority={index === 0}
                     />
                   </div>
@@ -255,11 +255,11 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
               onClick={() => mainScrollTo(index)}
             >
               <Image
-                src={getImageKitUrl(image, 400, 300, 85, 'thumbnail')}
+                src={getImageKitUrl(image, 500, 400, 90, 'thumbnail')}
                 alt={`${title} - View ${index + 1}`}
                 fill
                 className="object-cover transition-all duration-300 group-hover:scale-110 cursor-pointer"
-                sizes="(max-width: 64em) 25vw, 16vw"
+                sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw"
               />
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
               <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -354,10 +354,10 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
                     <div key={index} className="embla__slide flex-[0_0_100%] min-w-0">
                       <div className="w-full h-full flex items-center justify-center">
                         <Image
-                          src={getImageKitUrl(image, 1920, 1080, 95, 'fullscreen')}
+                          src={getImageKitUrl(image, 2560, 1440, 98, 'fullscreen')}
                           alt={`${title} - View ${index + 1}`}
-                          width={1920}
-                          height={1080}
+                          width={2560}
+                          height={1440}
                           className="transition-all duration-500 ease-out max-w-full max-h-full"
                           style={{
                             objectFit: 'contain',
