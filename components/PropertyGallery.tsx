@@ -348,28 +348,19 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
 
             {/* PERFECT FULLSCREEN IMAGE CAROUSEL - NO CROPPING, FULL IMAGE VISIBLE */}
             <div className="absolute inset-0 w-full h-full">
-              <div className="embla" ref={fullscreenEmblaRef}>
-                <div className="embla__container flex">
+              <div className="embla h-full" ref={fullscreenEmblaRef}>
+                <div className="embla__container flex h-full">
                   {validImages.map((image, index) => (
-                    <div key={index} className="embla__slide flex-[0_0_100%] min-w-0">
-                      <div className="w-full h-full flex items-center justify-center">
+                    <div key={index} className="embla__slide flex-[0_0_100%] min-w-0 h-full">
+                      <div className="relative w-full h-full">
                         <Image
                           src={getImageKitUrl(image, 2560, 1440, 98, 'fullscreen')}
                           alt={`${title} - View ${index + 1}`}
-                          width={2560}
-                          height={1440}
-                          className="transition-all duration-500 ease-out max-w-full max-h-full"
-                          style={{
-                            objectFit: 'contain',
-                            objectPosition: 'center',
-                            width: 'auto',
-                            height: 'auto',
-                            maxWidth: '100%',
-                            maxHeight: '100%'
-                          }}
+                          fill
+                          className="object-contain object-center transition-all duration-500 ease-out"
                           onLoad={handleImageLoad}
                           onLoadStart={() => setIsLoading(true)}
-                          priority={index === 0}
+                          priority={index === fullscreenSelectedIndex}
                           sizes="100vw"
                         />
                       </div>
