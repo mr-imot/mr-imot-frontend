@@ -194,15 +194,15 @@ export function PropertyMapCard({
 
         {/* Image Carousel */}
         <div className={cn(
-          "relative w-full",
+          "relative w-full overflow-hidden",
           forceMobile 
             ? "h-[60%]" 
             : "h-[60%] lg:w-[20.4375rem] lg:h-[13.25rem]"
         )}>
-          <div className="embla" ref={emblaRef}>
-            <div className="embla__container flex">
+          <div className="embla h-full" ref={emblaRef}>
+            <div className="embla__container flex h-full">
               {imageUrls.map((image, index) => (
-                <div key={index} className="embla__slide flex-[0_0_100%] min-w-0">
+                <div key={index} className="embla__slide flex-[0_0_100%] min-w-0 h-full">
                   <div className="relative w-full h-full">
                     <Image
                       src={image}
@@ -236,14 +236,14 @@ export function PropertyMapCard({
             </div>
           )}
 
-          {/* Arrows */}
+          {/* Arrows - Hidden on mobile, visible on desktop */}
           {hasMultipleImages && (
             <>
               <button
                 aria-label="Previous image"
                 onClick={(e) => { e.stopPropagation(); scrollPrev() }}
                 disabled={!canScrollPrev}
-                className="absolute left-2 top-1/2 -translate-y-1/2 grid place-items-center h-8 w-8 rounded-full bg-white/95 hover:bg-white shadow-md text-[#222222] z-10 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+                className="hidden md:grid absolute left-2 top-1/2 -translate-y-1/2 place-items-center h-8 w-8 rounded-full bg-white/95 hover:bg-white shadow-md text-[#222222] z-10 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 <svg className="cursor-pointer" width="12" height="12" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
@@ -253,7 +253,7 @@ export function PropertyMapCard({
                 aria-label="Next image"
                 onClick={(e) => { e.stopPropagation(); scrollNext() }}
                 disabled={!canScrollNext}
-                className="absolute right-2 top-1/2 -translate-y-1/2 grid place-items-center h-8 w-8 rounded-full bg-white/95 hover:bg-white shadow-md text-[#222222] z-10 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+                className="hidden md:grid absolute right-2 top-1/2 -translate-y-1/2 place-items-center h-8 w-8 rounded-full bg-white/95 hover:bg-white shadow-md text-[#222222] z-10 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 <svg className="cursor-pointer" width="12" height="12" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path d="M9 6l6 6-6 6" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
