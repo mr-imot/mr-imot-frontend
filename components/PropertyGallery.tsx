@@ -50,6 +50,10 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
   const [imageDimensions, setImageDimensions] = useState<{ width: number; height: number } | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   
+  // Swipe down gesture state for mobile fullscreen exit
+  const [swipeStart, setSwipeStart] = useState<{ y: number; time: number } | null>(null);
+  const [swipeCurrent, setSwipeCurrent] = useState<{ y: number; delta: number } | null>(null);
+  
   const hasMultipleImages = validImages.length > 1
   
   // Embla carousel hook for main gallery
@@ -125,6 +129,40 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
     document.body.style.position = '';
     document.body.style.width = '';
     document.body.style.height = '';
+    
+    // On mobile, redirect to listings page
+    if (isMobile) {
+      window.location.href = window.location.pathname;
+    }
+  };
+
+  // Swipe down gesture handlers for mobile fullscreen exit
+  const handleSwipeStart = (e: React.TouchEvent) => {
+    if (!isMobile || !isFullscreen) return;
+    setSwipeStart({ y: e.touches[0].clientY, time: Date.now() });
+    setSwipeCurrent({ y: e.touches[0].clientY, delta: 0 });
+  };
+
+  const handleSwipeMove = (e: React.TouchEvent) => {
+    if (!isMobile || !isFullscreen || !swipeStart) return;
+    const currentY = e.touches[0].clientY;
+    const delta = currentY - swipeStart.y;
+    setSwipeCurrent({ y: currentY, delta });
+  };
+
+  const handleSwipeEnd = () => {
+    if (!isMobile || !isFullscreen || !swipeStart || !swipeCurrent) return;
+    
+    const delta = swipeCurrent.delta;
+    const velocity = Math.abs(delta) / (Date.now() - swipeStart.time);
+    
+    // Exit fullscreen if swiped down more than 100px or with sufficient velocity
+    if (delta > 100 || (delta > 50 && velocity > 0.5)) {
+      closeFullscreen();
+    }
+    
+    setSwipeStart(null);
+    setSwipeCurrent(null);
   };
 
   // Image fitting is now handled by CSS classes directly
@@ -283,15 +321,20 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
             right: 0,
             bottom: 0,
             width: '100vw',
-            height: '100dvh', // Dynamic viewport height for mobile
+            height: '100vh', // Use 100vh for true fullscreen
             margin: 0,
             padding: 0,
-            overflow: 'hidden'
+            overflow: 'hidden',
+            transform: swipeCurrent ? `translateY(${Math.min(swipeCurrent.delta, 0)}px)` : 'translateY(0px)',
+            transition: swipeCurrent ? 'none' : 'transform 0.3s ease-out'
           }}
+          onTouchStart={handleSwipeStart}
+          onTouchMove={handleSwipeMove}
+          onTouchEnd={handleSwipeEnd}
         >
           {/* Mobile-Optimized Header Bar */}
           <div className="absolute top-0 left-0 right-0 z-50 bg-gradient-to-b from-black/90 via-black/50 to-transparent backdrop-blur-xl">
-            <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4" style={{ paddingTop: 'max(12px, env(safe-area-inset-top, 12px))' }}>
+            <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4" style={{ paddingTop: isMobile ? 'max(20px, env(safe-area-inset-top, 20px))' : '12px' }}>
               <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
                 <div className="bg-white/10 backdrop-blur-md rounded-full p-1.5 sm:p-2 flex-shrink-0">
                   <Grid3X3 className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
@@ -305,10 +348,15 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
               <Button
                 variant="ghost"
                 size="icon"
-                className="w-10 h-10 sm:w-12 sm:h-12 text-white hover:bg-white/20 transition-all duration-300 rounded-full backdrop-blur-md border border-white/20 flex-shrink-0 cursor-pointer"
+                className="w-12 h-12 sm:w-12 sm:h-12 text-white hover:bg-white/20 transition-all duration-300 rounded-full backdrop-blur-md border border-white/30 flex-shrink-0 cursor-pointer bg-black/50"
                 onClick={closeFullscreen}
+                style={{ 
+                  position: 'relative',
+                  zIndex: 1000,
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+                }}
               >
-                <X className="h-5 w-5 sm:h-6 sm:w-6 cursor-pointer" />
+                <X className="h-6 w-6 sm:h-6 sm:w-6 cursor-pointer" />
               </Button>
             </div>
           </div>
@@ -317,12 +365,12 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
           <div 
             className="absolute inset-0 w-full h-full"
             style={{
-              top: 'max(80px, calc(env(safe-area-inset-top, 0px) + 60px))', // Dynamic space for header
+              top: isMobile ? 'max(80px, calc(env(safe-area-inset-top, 0px) + 60px))' : '80px',
               left: 0,
               right: 0,
               bottom: 0,
               width: '100%',
-              height: 'calc(100dvh - max(80px, calc(env(safe-area-inset-top, 0px) + 60px)))', // Dynamic viewport height for mobile
+              height: isMobile ? 'calc(100vh - max(80px, calc(env(safe-area-inset-top, 0px) + 60px)))' : 'calc(100vh - 80px)',
             }}
           >
             {/* Mobile-Optimized Navigation Arrows */}
