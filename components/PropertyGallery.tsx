@@ -5,6 +5,8 @@ import { ChevronLeft, ChevronRight, X, Maximize2, Grid3X3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import Image from 'next/image';
+import { useEmblaCarouselWithPhysics } from '@/hooks/use-embla-carousel';
+import { cn } from '@/lib/utils';
 
 interface PropertyGalleryProps {
   images: string[];
@@ -43,15 +45,46 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
   // Filter out non-string values and ensure we have valid images
   const validImages = images.filter((img): img is string => typeof img === 'string' && img.length > 0)
   
-  const [currentIndex, setCurrentIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [imageDimensions, setImageDimensions] = useState<{ width: number; height: number } | null>(null);
-  
-  // Mobile touch state
-  const [touchStart, setTouchStart] = useState<number | null>(null);
-  const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const [isMobile, setIsMobile] = useState(false);
+  
+  const hasMultipleImages = validImages.length > 1
+  
+  // Embla carousel hook for main gallery
+  const {
+    emblaRef: mainEmblaRef,
+    selectedIndex: mainSelectedIndex,
+    scrollPrev: mainScrollPrev,
+    scrollNext: mainScrollNext,
+    scrollTo: mainScrollTo,
+    canScrollPrev: mainCanScrollPrev,
+    canScrollNext: mainCanScrollNext
+  } = useEmblaCarouselWithPhysics({
+    options: {
+      loop: hasMultipleImages,
+      dragFree: false,
+      containScroll: 'trimSnaps'
+    }
+  })
+  
+  // Embla carousel hook for fullscreen gallery
+  const {
+    emblaRef: fullscreenEmblaRef,
+    selectedIndex: fullscreenSelectedIndex,
+    scrollPrev: fullscreenScrollPrev,
+    scrollNext: fullscreenScrollNext,
+    scrollTo: fullscreenScrollTo,
+    canScrollPrev: fullscreenCanScrollPrev,
+    canScrollNext: fullscreenCanScrollNext
+  } = useEmblaCarouselWithPhysics({
+    options: {
+      loop: hasMultipleImages,
+      dragFree: false,
+      containScroll: 'trimSnaps'
+    }
+  })
   
   // Detect mobile device
   useEffect(() => {
@@ -64,17 +97,17 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
   }, []);
 
   const nextImage = useCallback(() => {
-    setCurrentIndex((prev) => (prev + 1) % validImages.length);
+    mainScrollNext();
     setImageDimensions(null); // Reset dimensions for new image
-  }, [validImages.length]);
+  }, [mainScrollNext]);
 
   const prevImage = useCallback(() => {
-    setCurrentIndex((prev) => (prev - 1 + validImages.length) % validImages.length);
+    mainScrollPrev();
     setImageDimensions(null); // Reset dimensions for new image
-  }, [validImages.length]);
+  }, [mainScrollPrev]);
 
   const openFullscreen = (index: number) => {
-    setCurrentIndex(index);
+    fullscreenScrollTo(index);
     setIsFullscreen(true);
     
     // Prevent body scrolling when in fullscreen
@@ -102,33 +135,6 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
     setIsLoading(false);
   };
 
-  // Mobile touch gesture handling
-  const minSwipeDistance = 50;
-  
-  const onTouchStart = (e: React.TouchEvent) => {
-    setTouchEnd(null);
-    setTouchStart(e.targetTouches[0].clientX);
-  };
-  
-  const onTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
-  };
-  
-  const onTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
-    
-    const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > minSwipeDistance;
-    const isRightSwipe = distance < -minSwipeDistance;
-    
-    if (isLeftSwipe && validImages.length > 1) {
-      nextImage();
-    }
-    if (isRightSwipe && validImages.length > 1) {
-      prevImage();
-    }
-  };
-
   // Enhanced keyboard navigation
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -137,11 +143,11 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
           case 'ArrowRight':
           case ' ':
             event.preventDefault();
-            nextImage();
+            fullscreenScrollNext();
             break;
           case 'ArrowLeft':
             event.preventDefault();
-            prevImage();
+            fullscreenScrollPrev();
             break;
           case 'Escape':
             event.preventDefault();
@@ -159,7 +165,7 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
             event.preventDefault();
             const num = parseInt(event.key) - 1;
             if (num < validImages.length) {
-              setCurrentIndex(num);
+              fullscreenScrollTo(num);
             }
             break;
         }
@@ -168,7 +174,7 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isFullscreen, nextImage, prevImage, validImages.length]);
+  }, [isFullscreen, fullscreenScrollNext, fullscreenScrollPrev, validImages.length, fullscreenScrollTo]);
 
   // Cleanup effect to restore body styles when component unmounts
   useEffect(() => {
@@ -192,22 +198,30 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
   return (
     <>
       <div className="relative animate-fade-in">
-        {/* Main large image with enhanced hover effects - Mobile Optimized */}
+        {/* Main large image with Embla carousel - Mobile Optimized */}
         <div 
           className="relative h-[50vh] sm:h-[55vh] md:h-[60vh] lg:h-[70vh] bg-muted rounded-xl sm:rounded-2xl overflow-hidden cursor-pointer group shadow-lg sm:shadow-elegant"
-          onClick={() => openFullscreen(0)}
-          onTouchStart={onTouchStart}
-          onTouchMove={onTouchMove}
-          onTouchEnd={onTouchEnd}
+          onClick={() => openFullscreen(mainSelectedIndex)}
         >
-          <Image
-            src={getImageKitUrl(validImages[0], isMobile ? 800 : 1200, isMobile ? 600 : 800, 90, 'main')}
-            alt={`${title} - Main view`}
-            fill
-            className="object-cover transition-all duration-500 group-hover:scale-110 cursor-pointer"
-            sizes="100vw"
-            priority
-          />
+          <div className="embla" ref={mainEmblaRef}>
+            <div className="embla__container flex">
+              {validImages.map((image, index) => (
+                <div key={index} className="embla__slide flex-[0_0_100%] min-w-0">
+                  <div className="relative w-full h-full">
+                    <Image
+                      src={getImageKitUrl(image, isMobile ? 800 : 1200, isMobile ? 600 : 800, 90, 'main')}
+                      alt={`${title} - View ${index + 1}`}
+                      fill
+                      className="object-cover transition-all duration-500 group-hover:scale-110 cursor-pointer"
+                      sizes="100vw"
+                      priority={index === 0}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          
           <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           
           {/* Enhanced overlay with expand icon */}
@@ -231,15 +245,18 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
 
         {/* Enhanced thumbnail grid - Mobile Optimized */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mt-4 md:mt-6">
-          {validImages.slice(1, 5).map((image, index) => (
+          {validImages.slice(0, 4).map((image, index) => (
             <div
-              key={index + 1}
-              className="relative h-20 md:h-24 lg:h-32 bg-muted rounded-xl overflow-hidden cursor-pointer group shadow-sm hover:shadow-lg transition-all duration-300"
-              onClick={() => openFullscreen(index + 1)}
+              key={index}
+              className={cn(
+                "relative h-20 md:h-24 lg:h-32 bg-muted rounded-xl overflow-hidden cursor-pointer group shadow-sm hover:shadow-lg transition-all duration-300",
+                index === mainSelectedIndex && "ring-2 ring-blue-500"
+              )}
+              onClick={() => mainScrollTo(index)}
             >
               <Image
                 src={getImageKitUrl(image, 400, 300, 85, 'thumbnail')}
-                alt={`${title} - View ${index + 2}`}
+                alt={`${title} - View ${index + 1}`}
                 fill
                 className="object-cover transition-all duration-300 group-hover:scale-110 cursor-pointer"
                 sizes="(max-width: 64em) 25vw, 16vw"
@@ -281,7 +298,7 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
                 </div>
                 <div className="min-w-0 flex-1">
                   <h2 className="text-white font-semibold text-sm sm:text-lg truncate">{title}</h2>
-                  <p className="text-white/70 text-xs sm:text-sm">Property Gallery • {currentIndex + 1} of {validImages.length}</p>
+                  <p className="text-white/70 text-xs sm:text-sm">Property Gallery • {fullscreenSelectedIndex + 1} of {validImages.length}</p>
                 </div>
               </div>
               
@@ -313,8 +330,8 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
               variant="ghost"
               size="icon"
               className="absolute left-2 sm:left-4 md:left-8 top-1/2 -translate-y-1/2 z-40 w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 text-white hover:bg-white/20 transition-all duration-300 rounded-full backdrop-blur-md border border-white/20 shadow-2xl disabled:opacity-30 disabled:cursor-not-allowed"
-              onClick={prevImage}
-              disabled={validImages.length <= 1}
+              onClick={fullscreenScrollPrev}
+              disabled={!fullscreenCanScrollPrev}
             >
               <ChevronLeft className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8" />
             </Button>
@@ -323,33 +340,43 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
               variant="ghost"
               size="icon"
               className="absolute right-2 sm:right-4 md:right-8 top-1/2 -translate-y-1/2 z-40 w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 text-white hover:bg-white/20 transition-all duration-300 rounded-full backdrop-blur-md border border-white/20 shadow-2xl disabled:opacity-30 disabled:cursor-not-allowed"
-              onClick={nextImage}
-              disabled={validImages.length <= 1}
+              onClick={fullscreenScrollNext}
+              disabled={!fullscreenCanScrollNext}
             >
               <ChevronRight className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8" />
             </Button>
 
-            {/* PERFECT FULLSCREEN IMAGE - NO CROPPING, FULL IMAGE VISIBLE */}
-            <div className="absolute inset-0 w-full h-full flex items-center justify-center">
-              <Image
-                src={getImageKitUrl(validImages[currentIndex], 1920, 1080, 95, 'fullscreen')}
-                alt={`${title} - View ${currentIndex + 1}`}
-                width={1920}
-                height={1080}
-                className="transition-all duration-500 ease-out max-w-full max-h-full"
-                style={{
-                  objectFit: 'contain',
-                  objectPosition: 'center',
-                  width: 'auto',
-                  height: 'auto',
-                  maxWidth: '100%',
-                  maxHeight: '100%'
-                }}
-                onLoad={handleImageLoad}
-                onLoadStart={() => setIsLoading(true)}
-                priority
-                sizes="100vw"
-              />
+            {/* PERFECT FULLSCREEN IMAGE CAROUSEL - NO CROPPING, FULL IMAGE VISIBLE */}
+            <div className="absolute inset-0 w-full h-full">
+              <div className="embla" ref={fullscreenEmblaRef}>
+                <div className="embla__container flex">
+                  {validImages.map((image, index) => (
+                    <div key={index} className="embla__slide flex-[0_0_100%] min-w-0">
+                      <div className="w-full h-full flex items-center justify-center">
+                        <Image
+                          src={getImageKitUrl(image, 1920, 1080, 95, 'fullscreen')}
+                          alt={`${title} - View ${index + 1}`}
+                          width={1920}
+                          height={1080}
+                          className="transition-all duration-500 ease-out max-w-full max-h-full"
+                          style={{
+                            objectFit: 'contain',
+                            objectPosition: 'center',
+                            width: 'auto',
+                            height: 'auto',
+                            maxWidth: '100%',
+                            maxHeight: '100%'
+                          }}
+                          onLoad={handleImageLoad}
+                          onLoadStart={() => setIsLoading(true)}
+                          priority={index === 0}
+                          sizes="100vw"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
               
               {/* Modern Loading State */}
               {isLoading && (

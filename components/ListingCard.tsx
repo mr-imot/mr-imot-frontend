@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils'
 import { Home, Building, ExternalLink } from 'lucide-react'
 import { recordProjectView } from '@/lib/api'
 import { translatePrice, PriceTranslations } from '@/lib/price-translator'
+import { useEmblaCarouselWithPhysics } from '@/hooks/use-embla-carousel'
 
 export interface Listing {
   id: string
@@ -40,17 +41,26 @@ function summarize(text: string | null | undefined, max = 100) {
 
 export function ListingCard({ listing, isActive, onCardClick, onCardHover, priority = false, priceTranslations }: ListingCardProps) {
   const router = useRouter()
-  const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [hasTrackedView, setHasTrackedView] = useState(false)
   const hasMultipleImages = listing.images?.length > 1
   const cardRef = useRef<HTMLElement>(null)
   
-  // Touch/swipe functionality for mobile
-  const [touchStart, setTouchStart] = useState<number | null>(null)
-  const [touchEnd, setTouchEnd] = useState<number | null>(null)
-  
-  // Minimum swipe distance
-  const minSwipeDistance = 50
+  // Embla carousel hook with physics-based configuration
+  const {
+    emblaRef,
+    selectedIndex,
+    scrollPrev,
+    scrollNext,
+    scrollTo,
+    canScrollPrev,
+    canScrollNext
+  } = useEmblaCarouselWithPhysics({
+    options: {
+      loop: hasMultipleImages,
+      dragFree: false,
+      containScroll: 'trimSnaps'
+    }
+  })
 
   const handleClick = (e: React.MouseEvent) => {
     // Check if this is a mobile device or if we're in a mobile context
@@ -78,44 +88,19 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover, prior
   const nextImage = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    setCurrentImageIndex((prev) => (prev + 1) % listing.images.length)
+    scrollNext()
   }
 
   const prevImage = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    setCurrentImageIndex((prev) => (prev - 1 + listing.images.length) % listing.images.length)
+    scrollPrev()
   }
 
   const goToImage = (index: number, e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    setCurrentImageIndex(index)
-  }
-  
-  // Touch event handlers for mobile swipe
-  const onTouchStart = (e: React.TouchEvent) => {
-    setTouchEnd(null)
-    setTouchStart(e.targetTouches[0].clientX)
-  }
-  
-  const onTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX)
-  }
-  
-  const onTouchEnd = () => {
-    if (!touchStart || !touchEnd) return
-    
-    const distance = touchStart - touchEnd
-    const isLeftSwipe = distance > minSwipeDistance
-    const isRightSwipe = distance < -minSwipeDistance
-    
-    if (isLeftSwipe && hasMultipleImages) {
-      setCurrentImageIndex((prev) => (prev + 1) % listing.images.length)
-    }
-    if (isRightSwipe && hasMultipleImages) {
-      setCurrentImageIndex((prev) => (prev - 1 + listing.images.length) % listing.images.length)
-    }
+    scrollTo(index)
   }
 
   // Track view when card becomes visible
@@ -174,7 +159,7 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover, prior
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-      {/* Image Container - Airbnb approach: container clips image with rounded corners */}
+      {/* Image Container - Embla Carousel with smooth transitions */}
       <div className="relative overflow-hidden h-[240px] w-full cursor-pointer" style={{ 
         borderRadius: '20px',
         WebkitBorderRadius: '20px',
@@ -183,62 +168,65 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover, prior
         isolation: 'isolate',
         cursor: 'pointer'
       }}>
-        <div 
-          className="relative w-full h-full cursor-pointer"
-          style={{ cursor: 'pointer' }}
-          onTouchStart={onTouchStart}
-          onTouchMove={onTouchMove}
-          onTouchEnd={onTouchEnd}
-        >
-          <Image
-            key={currentImageIndex}
-            src={listing.images[currentImageIndex] || '/placeholder.svg'}
-            alt={listing.title}
-            fill
-            className="object-cover cursor-pointer"
-            style={{ cursor: 'pointer' }}
-            sizes="(max-width: 40em) 100vw, (max-width: 64em) 50vw, 33vw"
-            loading={priority ? "eager" : "lazy"}
-            priority={priority}
-          />
+        <div className="embla" ref={emblaRef}>
+          <div className="embla__container flex">
+            {listing.images.map((image, index) => (
+              <div key={index} className="embla__slide flex-[0_0_100%] min-w-0">
+                <div className="relative w-full h-[240px]">
+                  <Image
+                    src={image || '/placeholder.svg'}
+                    alt={listing.title}
+                    fill
+                    className="object-cover cursor-pointer"
+                    style={{ cursor: 'pointer' }}
+                    sizes="(max-width: 40em) 100vw, (max-width: 64em) 50vw, 33vw"
+                    loading={priority ? "eager" : "lazy"}
+                    priority={priority}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Image Navigation (only if multiple images) */}
         {hasMultipleImages && (
           <>
-                         {/* Dots - Mobile-optimized positioning */}
-             <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 mobile-dots">
-               {listing.images.map((_, idx) => (
-                 <button
-                   key={idx}
-                   type="button"
-                   className={cn(
-                     "h-1 w-1 xs:h-1 xs:w-1 sm:h-1.5 sm:w-1.5 md:h-2 md:w-2 rounded-full transition-all duration-200 transform-none",
-                     idx === currentImageIndex ? "bg-white" : "bg-white/60 hover:bg-white/80"
-                   )}
-                   onClick={(e) => goToImage(idx, e)}
-                   aria-label={`Go to image ${idx + 1}`}
-                 />
-               ))}
-             </div>
+            {/* Dots - Mobile-optimized positioning */}
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 mobile-dots">
+              {listing.images.map((_, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  className={cn(
+                    "h-1 w-1 sm:h-1.5 sm:w-1.5 md:h-2 md:w-2 rounded-full transition-all duration-200 transform-none",
+                    idx === selectedIndex ? "bg-white" : "bg-white/60 hover:bg-white/80"
+                  )}
+                  onClick={(e) => goToImage(idx, e)}
+                  aria-label={`Go to image ${idx + 1}`}
+                />
+              ))}
+            </div>
 
-                                                  {/* Previous/Next Arrows - Hidden on mobile, visible on desktop */}
-                         <button
-                           type="button"
-                           aria-label="Previous image"
-                           onClick={prevImage}
-                           className="hidden sm:grid absolute left-2 top-1/2 -translate-y-1/2 place-items-center h-8 w-8 rounded-full bg-white/95 hover:bg-white shadow-md text-[#222222] font-bold text-base opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110"
-                         >
-                           ‹
-                         </button>
-                         <button
-                           type="button"
-                           aria-label="Next image"
-                           onClick={nextImage}
-                           className="hidden sm:grid absolute right-2 top-1/2 -translate-y-1/2 place-items-center h-8 w-8 rounded-full bg-white/95 hover:bg-white shadow-md text-[#222222] font-bold text-base opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110"
-                         >
-                           ›
-                         </button>
+            {/* Previous/Next Arrows - Hidden on mobile, visible on desktop */}
+            <button
+              type="button"
+              aria-label="Previous image"
+              onClick={prevImage}
+              disabled={!canScrollPrev}
+              className="hidden sm:grid absolute left-2 top-1/2 -translate-y-1/2 place-items-center h-8 w-8 rounded-full bg-white/95 hover:bg-white shadow-md text-[#222222] font-bold text-base opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110 disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              ‹
+            </button>
+            <button
+              type="button"
+              aria-label="Next image"
+              onClick={nextImage}
+              disabled={!canScrollNext}
+              className="hidden sm:grid absolute right-2 top-1/2 -translate-y-1/2 place-items-center h-8 w-8 rounded-full bg-white/95 hover:bg-white shadow-md text-[#222222] font-bold text-base opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110 disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              ›
+            </button>
           </>
         )}
       </div>

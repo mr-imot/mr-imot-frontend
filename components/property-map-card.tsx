@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils'
 import { recordProjectView, recordProjectPhoneClick, recordProjectWebsiteClick } from '@/lib/api'
 import { translatePrice, PriceTranslations } from '@/lib/price-translator'
 import { useRouter } from 'next/navigation'
+import { useEmblaCarouselWithPhysics } from '@/hooks/use-embla-carousel'
 
 interface PropertyData {
   id: string | number
@@ -55,7 +56,25 @@ export function PropertyMapCard({
   const imageUrls = (property.images && property.images.length > 0)
     ? property.images
     : (property.image ? [property.image] : [])
-  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  
+  const hasMultipleImages = imageUrls.length > 1
+  
+  // Embla carousel hook with physics-based configuration
+  const {
+    emblaRef,
+    selectedIndex,
+    scrollPrev,
+    scrollNext,
+    scrollTo,
+    canScrollPrev,
+    canScrollNext
+  } = useEmblaCarouselWithPhysics({
+    options: {
+      loop: hasMultipleImages,
+      dragFree: false,
+      containScroll: 'trimSnaps'
+    }
+  })
 
   const positionStyles = !floating && position ? {
     top: position.top,
@@ -180,31 +199,34 @@ export function PropertyMapCard({
             ? "h-[60%]" 
             : "h-[60%] lg:w-[20.4375rem] lg:h-[13.25rem]"
         )}>
-          <div className="block w-full h-full cursor-pointer">
-            {imageUrls.length > 0 ? (
-              <Image
-                key={currentImageIndex}
-                src={imageUrls[currentImageIndex]}
-                alt={property.title}
-                fill
-                className="object-cover transition-transform duration-500 ease-out hover:scale-105 cursor-pointer"
-                sizes="(max-width: 64em) 100vw, 20.4375rem"
-                priority={false}
-              />
-            ) : (
-              <div className="w-full h-full bg-gray-200" />
-            )}
+          <div className="embla" ref={emblaRef}>
+            <div className="embla__container flex">
+              {imageUrls.map((image, index) => (
+                <div key={index} className="embla__slide flex-[0_0_100%] min-w-0">
+                  <div className="relative w-full h-full">
+                    <Image
+                      src={image}
+                      alt={property.title}
+                      fill
+                      className="object-cover transition-transform duration-500 ease-out hover:scale-105 cursor-pointer"
+                      sizes="(max-width: 64em) 100vw, 20.4375rem"
+                      priority={false}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Dots */}
-          {imageUrls.length > 1 && (
+          {hasMultipleImages && (
             <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
               {imageUrls.map((_, idx) => (
                 <button
                   key={idx}
                   aria-label={`Go to image ${idx + 1}`}
-                  onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(idx) }}
-                  className={idx === currentImageIndex ? 'text-white' : 'text-white/70 hover:text-white'}
+                  onClick={(e) => { e.stopPropagation(); scrollTo(idx) }}
+                  className={idx === selectedIndex ? 'text-white' : 'text-white/70 hover:text-white'}
                 >
                   <svg width="6" height="6" viewBox="0 0 6 6" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="3" cy="3" r="3" fill="currentColor" />
@@ -215,12 +237,13 @@ export function PropertyMapCard({
           )}
 
           {/* Arrows */}
-          {imageUrls.length > 1 && (
+          {hasMultipleImages && (
             <>
               <button
                 aria-label="Previous image"
-                onClick={(e) => { e.stopPropagation(); setCurrentImageIndex((prev) => (prev - 1 + imageUrls.length) % imageUrls.length) }}
-                className="absolute left-2 top-1/2 -translate-y-1/2 grid place-items-center h-8 w-8 rounded-full bg-white/95 hover:bg-white shadow-md text-[#222222] z-10 cursor-pointer"
+                onClick={(e) => { e.stopPropagation(); scrollPrev() }}
+                disabled={!canScrollPrev}
+                className="absolute left-2 top-1/2 -translate-y-1/2 grid place-items-center h-8 w-8 rounded-full bg-white/95 hover:bg-white shadow-md text-[#222222] z-10 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 <svg className="cursor-pointer" width="12" height="12" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
@@ -228,8 +251,9 @@ export function PropertyMapCard({
               </button>
               <button
                 aria-label="Next image"
-                onClick={(e) => { e.stopPropagation(); setCurrentImageIndex((prev) => (prev + 1) % imageUrls.length) }}
-                className="absolute right-2 top-1/2 -translate-y-1/2 grid place-items-center h-8 w-8 rounded-full bg-white/95 hover:bg-white shadow-md text-[#222222] z-10 cursor-pointer"
+                onClick={(e) => { e.stopPropagation(); scrollNext() }}
+                disabled={!canScrollNext}
+                className="absolute right-2 top-1/2 -translate-y-1/2 grid place-items-center h-8 w-8 rounded-full bg-white/95 hover:bg-white shadow-md text-[#222222] z-10 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 <svg className="cursor-pointer" width="12" height="12" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path d="M9 6l6 6-6 6" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
