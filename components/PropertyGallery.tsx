@@ -129,11 +129,6 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
     document.body.style.position = '';
     document.body.style.width = '';
     document.body.style.height = '';
-    
-    // On mobile, redirect to listings page
-    if (isMobile) {
-      window.location.href = window.location.pathname;
-    }
   };
 
   // Swipe down gesture handlers for mobile fullscreen exit
@@ -156,8 +151,8 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
     const delta = swipeCurrent.delta;
     const velocity = Math.abs(delta) / (Date.now() - swipeStart.time);
     
-    // Exit fullscreen if swiped down more than 100px or with sufficient velocity
-    if (delta > 100 || (delta > 50 && velocity > 0.5)) {
+    // Exit fullscreen if swiped down more than 80px or with sufficient velocity
+    if (delta > 80 || (delta > 40 && velocity > 0.3)) {
       closeFullscreen();
     }
     
@@ -313,7 +308,7 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
       {/* TRUE FULLSCREEN GALLERY - BYPASSES BROWSER UI */}
       {isFullscreen && (
         <div 
-          className="fixed inset-0 z-[9999] bg-black"
+          className="fixed inset-0 bg-black"
           style={{
             position: 'fixed',
             top: 0,
@@ -321,19 +316,21 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
             right: 0,
             bottom: 0,
             width: '100vw',
-            height: '100vh', // Use 100vh for true fullscreen
+            height: '100vh',
             margin: 0,
             padding: 0,
             overflow: 'hidden',
+            zIndex: 2147483647, // Maximum z-index to override browser UI
             transform: swipeCurrent ? `translateY(${Math.min(swipeCurrent.delta, 0)}px)` : 'translateY(0px)',
-            transition: swipeCurrent ? 'none' : 'transform 0.3s ease-out'
+            transition: swipeCurrent ? 'none' : 'transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+            opacity: swipeCurrent ? Math.max(0.3, 1 - Math.abs(swipeCurrent.delta) / 300) : 1
           }}
           onTouchStart={handleSwipeStart}
           onTouchMove={handleSwipeMove}
           onTouchEnd={handleSwipeEnd}
         >
           {/* Mobile-Optimized Header Bar */}
-          <div className="absolute top-0 left-0 right-0 z-50 bg-gradient-to-b from-black/90 via-black/50 to-transparent backdrop-blur-xl">
+          <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/90 via-black/50 to-transparent backdrop-blur-xl" style={{ zIndex: 2147483646 }}>
             <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4" style={{ paddingTop: isMobile ? 'max(20px, env(safe-area-inset-top, 20px))' : '12px' }}>
               <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
                 <div className="bg-white/10 backdrop-blur-md rounded-full p-1.5 sm:p-2 flex-shrink-0">
@@ -352,7 +349,7 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
                 onClick={closeFullscreen}
                 style={{ 
                   position: 'relative',
-                  zIndex: 1000,
+                  zIndex: 2147483645,
                   boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
                 }}
               >
