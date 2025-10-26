@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { ChevronLeft, ChevronRight, X, Maximize2, Grid3X3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
@@ -49,6 +50,7 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [imageDimensions, setImageDimensions] = useState<{ width: number; height: number } | null>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [mounted, setMounted] = useState(false);
   
   // Swipe down gesture state for mobile fullscreen exit
   const [swipeStart, setSwipeStart] = useState<{ y: number; time: number } | null>(null);
@@ -90,6 +92,11 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
     }
   })
   
+  // Set mounted state for client-side rendering
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Detect mobile device
   useEffect(() => {
     const checkMobile = () => {
@@ -305,8 +312,8 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
         </div>
       </div>
 
-      {/* TRUE FULLSCREEN GALLERY - BYPASSES BROWSER UI */}
-      {isFullscreen && (
+      {/* TRUE FULLSCREEN GALLERY - RENDERED VIA PORTAL TO APPEAR ABOVE MODAL */}
+      {isFullscreen && mounted && createPortal(
         <div 
           className="fixed inset-0 bg-black"
           style={{
@@ -320,7 +327,7 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
             margin: 0,
             padding: 0,
             overflow: 'hidden',
-            zIndex: 2147483647, // Maximum z-index to override browser UI
+            zIndex: 2147483647, // Maximum z-index to override browser UI and modal header
             transform: swipeCurrent ? `translateY(${Math.min(swipeCurrent.delta, 0)}px)` : 'translateY(0px)',
             transition: swipeCurrent ? 'none' : 'transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
             opacity: swipeCurrent ? Math.max(0.3, 1 - Math.abs(swipeCurrent.delta) / 300) : 1
@@ -428,7 +435,8 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
               )}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );

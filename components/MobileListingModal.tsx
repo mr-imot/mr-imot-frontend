@@ -35,7 +35,7 @@ interface Property {
     id: string
     name: string
     display_name: string
-    category: string
+    category: 'building_infrastructure' | 'security_access' | 'amenities' | 'modern_features'
   }>
   developer?: {
     id: string
@@ -187,9 +187,7 @@ export function MobileListingModal({
           {property.images && property.images.length > 0 ? (
             <PropertyGallery 
               images={property.images}
-              propertyId={property.id}
-              showThumbnails={false}
-              isMobile={true}
+              title={property.title}
             />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
@@ -309,8 +307,7 @@ export function MobileListingModal({
               <div className="bg-white border border-gray-200 rounded-xl p-5">
                 <FeaturesDisplay 
                   features={property.features}
-                  maxFeatures={20}
-                  showAll={true}
+                  showCategories={true}
                 />
               </div>
             </div>

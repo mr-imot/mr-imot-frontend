@@ -110,8 +110,12 @@ function MobileLanguageSwitcher({ onLinkClick }: { onLinkClick: () => void }) {
         '/kontakt': '/contact'
       }
       
-      if (prettyUrlMap[pathWithoutLocale]) {
-        pathWithoutLocale = prettyUrlMap[pathWithoutLocale]
+      // Check if path starts with any mapped route (handles dynamic segments)
+      for (const [from, to] of Object.entries(prettyUrlMap)) {
+        if (pathWithoutLocale === from || pathWithoutLocale.startsWith(from + '/')) {
+          pathWithoutLocale = pathWithoutLocale.replace(from, to)
+          break
+        }
       }
     } else if (newLocale === 'bg') {
       // Map English canonical paths to Bulgarian pretty URLs
@@ -122,8 +126,12 @@ function MobileLanguageSwitcher({ onLinkClick }: { onLinkClick: () => void }) {
         '/contact': '/kontakt'
       }
       
-      if (canonicalUrlMap[pathWithoutLocale]) {
-        pathWithoutLocale = canonicalUrlMap[pathWithoutLocale]
+      // Check if path starts with any mapped route (handles dynamic segments)
+      for (const [from, to] of Object.entries(canonicalUrlMap)) {
+        if (pathWithoutLocale === from || pathWithoutLocale.startsWith(from + '/')) {
+          pathWithoutLocale = pathWithoutLocale.replace(from, to)
+          break
+        }
       }
     }
 

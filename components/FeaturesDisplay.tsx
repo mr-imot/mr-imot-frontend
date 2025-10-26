@@ -132,14 +132,14 @@ export function FeaturesDisplay({ features, title, compact = false, showCategori
               <span className={`w-3 h-3 rounded-full ${getCategoryDotColor(categoryKey)}`}></span>
               {getCategoryLabel(categoryKey)}
             </h4>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 gap-3">
               {categoryFeatures.map((feature, index) => (
                 <div
                   key={feature.id || `feature-${index}`}
-                  className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${getCategoryBoxStyle(categoryKey)}`}
+                  className={`flex items-center gap-3 p-3 rounded-lg border transition-colors h-12 ${getCategoryBoxStyle(categoryKey)}`}
                 >
-                  <div className={`w-2 h-2 rounded-full ${getCategoryDotColor(categoryKey)}`}></div>
-                  <span className="font-medium text-gray-900">{getFeatureName(feature)}</span>
+                  <div className={`w-2 h-2 rounded-full flex-shrink-0 ${getCategoryDotColor(categoryKey)}`}></div>
+                  <span className="font-medium text-gray-900 text-sm line-clamp-2">{getFeatureName(feature)}</span>
                 </div>
               ))}
             </div>
