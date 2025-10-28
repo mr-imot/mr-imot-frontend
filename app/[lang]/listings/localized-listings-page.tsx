@@ -140,6 +140,8 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
   const [isProgrammaticMove, setIsProgrammaticMove] = useState(false)
   // const [advancedMapGestures, setAdvancedMapGestures] = useState<AdvancedMapGestures | null>(null)
   const [headerSnapPct, setHeaderSnapPct] = useState<number>(90)
+  const [desktopMapReady, setDesktopMapReady] = useState(false)
+  const [mobileMapReady, setMobileMapReady] = useState(false)
   
   // Track current fetch request to prevent race conditions
   const currentFetchRef = useRef<number>(0)
@@ -238,7 +240,7 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
         markerManagerRef.current.renderMarkers()
       }
     }
-  }, [mobileGoogleMapRef.current, googleMapRef.current])
+  }, [desktopMapReady, mobileMapReady])
   // Map refs
   const markerManagerRef = useRef<MarkerManager | null>(null)
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null)
@@ -455,6 +457,7 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
           draggingCursor: 'grabbing',
         })
                  googleMapRef.current = map
+         setDesktopMapReady(true)
          
          // Add cursor behavior to desktop map container only
          const mapContainer = mapRef.current
@@ -560,6 +563,7 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
           // Note: styles removed when mapId is present to avoid Google Maps warning
         })
         mobileGoogleMapRef.current = mobileMap
+        setMobileMapReady(true)
         
         // MOBILE: Bounds-based data fetching (like Airbnb)
         mobileMap.addListener('idle', () => {
@@ -707,7 +711,12 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
 
   // Render/update markers when data changes (visibility mode)
   useEffect(() => {
-    if (!googleMapRef.current || !memoizedProperties) return
+    // Check if we have a map available (desktop or mobile)
+    const hasDesktopMap = typeof window !== 'undefined' && window.innerWidth >= 1024 && googleMapRef.current
+    const hasMobileMap = typeof window !== 'undefined' && window.innerWidth < 1024 && mobileGoogleMapRef.current
+    const hasMap = hasDesktopMap || hasMobileMap
+    
+    if (!hasMap || !memoizedProperties) return
 
     const list = memoizedProperties
 
@@ -778,7 +787,7 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
       // Update properties efficiently without recreating markers
       markerManagerRef.current.updateProperties(list)
     }
-  }, [memoizedProperties, mapBounds])
+  }, [memoizedProperties, mapBounds, mobileBounds])
 
 
 
