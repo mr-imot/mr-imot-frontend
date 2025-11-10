@@ -59,8 +59,10 @@ export default function ListingImageCarousel({
               <button
                 key={idx}
                 className={cn(
-                  "h-0.5 w-0.5 xs:h-1 xs:w-1 sm:h-1.5 sm:w-1.5 rounded-full bg-white/60 transition-colors",
-                  idx === currentIndex && "bg-white"
+                  "h-0.5 w-0.5 xs:h-1 xs:w-1 sm:h-1.5 sm:w-1.5 rounded-full transition-colors",
+                  idx === currentIndex 
+                    ? "bg-white ring-2 ring-black/30 shadow-lg" 
+                    : "bg-white/60 ring-2 ring-black/30 shadow-md"
                 )}
                 onClick={(e) => goToImage(idx, e)}
                 aria-label={`Go to image ${idx + 1}`}
@@ -72,14 +74,14 @@ export default function ListingImageCarousel({
           <button
             aria-label="Previous image"
             onClick={prevImage}
-            className="hidden sm:grid absolute left-3 top-1/2 -translate-y-1/2 place-items-center h-8 w-8 rounded-full bg-white/90 hover:bg-white shadow-md text-ink font-bold text-lg opacity-0 group-hover:opacity-100 transition-opacity"
+            className="hidden sm:grid absolute left-3 top-1/2 -translate-y-1/2 place-items-center h-8 w-8 rounded-full bg-white/90 hover:bg-white shadow-xl ring-2 ring-black/30 backdrop-blur-sm text-ink font-bold text-lg opacity-0 group-hover:opacity-100 transition-opacity"
           >
             ‹
           </button>
           <button
             aria-label="Next image"
             onClick={nextImage}
-            className="hidden sm:grid absolute right-3 top-1/2 -translate-y-1/2 place-items-center h-8 w-8 rounded-full bg-white/90 hover:bg-white shadow-md text-ink font-bold text-lg opacity-0 group-hover:opacity-100 transition-opacity"
+            className="hidden sm:grid absolute right-3 top-1/2 -translate-y-1/2 place-items-center h-8 w-8 rounded-full bg-white/90 hover:bg-white shadow-xl ring-2 ring-black/30 backdrop-blur-sm text-ink font-bold text-lg opacity-0 group-hover:opacity-100 transition-opacity"
           >
             ›
           </button>

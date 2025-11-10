@@ -200,7 +200,7 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover, prior
                   type="button"
                   className={cn(
                     "h-1 w-1 sm:h-1.5 sm:w-1.5 md:h-2 md:w-2 rounded-full transition-all duration-200 transform-none",
-                    idx === selectedIndex ? "bg-white" : "bg-white/60 hover:bg-white/80"
+                    idx === selectedIndex ? "bg-white ring-2 ring-black/30 shadow-lg" : "bg-white/60 hover:bg-white/80 ring-2 ring-black/30 shadow-md"
                   )}
                   onClick={(e) => goToImage(idx, e)}
                   aria-label={`Go to image ${idx + 1}`}
@@ -214,7 +214,7 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover, prior
               aria-label="Previous image"
               onClick={prevImage}
               disabled={!canScrollPrev}
-              className="hidden sm:grid absolute left-2 top-1/2 -translate-y-1/2 place-items-center h-8 w-8 rounded-full bg-white/95 hover:bg-white shadow-md text-[#222222] font-bold text-base opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110 disabled:opacity-30 disabled:cursor-not-allowed"
+              className="hidden sm:grid absolute left-2 top-1/2 -translate-y-1/2 place-items-center h-8 w-8 rounded-full bg-white/95 hover:bg-white shadow-xl ring-2 ring-black/30 backdrop-blur-sm text-[#222222] font-bold text-base opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110 disabled:opacity-30 disabled:cursor-not-allowed"
             >
               ‹
             </button>
@@ -223,7 +223,7 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover, prior
               aria-label="Next image"
               onClick={nextImage}
               disabled={!canScrollNext}
-              className="hidden sm:grid absolute right-2 top-1/2 -translate-y-1/2 place-items-center h-8 w-8 rounded-full bg-white/95 hover:bg-white shadow-md text-[#222222] font-bold text-base opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110 disabled:opacity-30 disabled:cursor-not-allowed"
+              className="hidden sm:grid absolute right-2 top-1/2 -translate-y-1/2 place-items-center h-8 w-8 rounded-full bg-white/95 hover:bg-white shadow-xl ring-2 ring-black/30 backdrop-blur-sm text-[#222222] font-bold text-base opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110 disabled:opacity-30 disabled:cursor-not-allowed"
             >
               ›
             </button>
