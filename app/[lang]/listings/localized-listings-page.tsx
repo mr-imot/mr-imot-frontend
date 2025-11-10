@@ -831,13 +831,6 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
             if (property) {
               setCardPosition(calculateCardPosition(property))
             }
-            // Scroll to card
-            const card = listContainerRef.current?.querySelector(
-              `[data-prop-id="${propertyId}"]`
-            ) as HTMLElement | null
-            if (card) {
-              card.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" })
-            }
           }
         },
         onPropertyHover: (propertyId) => setDebouncedHover(propertyId, 50),
@@ -859,12 +852,6 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
             const property = filteredProperties.find(p => p.id === propertyId)
             if (property) {
               setCardPosition(calculateCardPosition(property))
-            }
-            const card = listContainerRef.current?.querySelector(
-              `[data-prop-id="${propertyId}"]`
-            ) as HTMLElement | null
-            if (card) {
-              card.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" })
             }
           }
         },
@@ -1018,15 +1005,16 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
       top = markerScreenY + 60
     }
     
-    // Ensure card stays within screen bounds
-    if (left < padding) left = padding
-    if (left + cardWidth > window.innerWidth - padding) {
-      left = window.innerWidth - cardWidth - padding
-    }
-    if (top < padding) top = padding
-    if (top + cardHeight > window.innerHeight - padding) {
-      top = window.innerHeight - cardHeight - padding
-    }
+    // Ensure card stays within map container bounds
+    const minLeft = mapBounds.left + padding
+    const maxLeft = mapBounds.left + mapBounds.width - cardWidth - padding
+    const minTop = mapBounds.top + padding
+    const maxTop = mapBounds.top + mapBounds.height - cardHeight - padding
+    
+    if (left < minLeft) left = minLeft
+    if (left > maxLeft) left = maxLeft
+    if (top < minTop) top = minTop
+    if (top > maxTop) top = maxTop
     
     return { top, left }
   }

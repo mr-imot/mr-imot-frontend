@@ -462,23 +462,6 @@ export class MarkerManager {
       } else {
         this.config.onPropertySelect(property.id)
         this.config.onAriaAnnouncement(`Selected property: ${property.title} - ${property.shortPrice || 'Contact for price'}`)
-
-        // Airbnb-style: Only pan/zoom if marker is not visible in current viewport
-        const bounds = this.config.maps[0]?.getBounds()
-        if (bounds && this.config.maps[0]) {
-          const markerLatLng = new google.maps.LatLng(property.lat, property.lng)
-          const isVisible = bounds.contains(markerLatLng)
-          const currentZoom = this.config.maps[0].getZoom() || 10
-
-          // Only move map if marker is outside viewport OR zoom is too low
-          if (!isVisible || currentZoom < 12) {
-            const targetZoom = Math.max(currentZoom, 14)
-            this.config.maps[0].panTo({ lat: property.lat, lng: property.lng })
-            if (targetZoom > currentZoom) {
-              this.config.maps[0].setZoom(targetZoom)
-            }
-          }
-        }
       }
     })
 
@@ -534,23 +517,6 @@ export class MarkerManager {
             } else {
               this.config.onPropertySelect(property.id)
               this.config.onAriaAnnouncement(`Selected property: ${property.title} - ${property.shortPrice || 'Contact for price'}`)
-
-              // Airbnb-style: Only pan/zoom if marker is not visible in current viewport
-              const bounds = this.config.maps[0]?.getBounds()
-              if (bounds && this.config.maps[0]) {
-                const markerLatLng = new google.maps.LatLng(property.lat, property.lng)
-                const isVisible = bounds.contains(markerLatLng)
-                const currentZoom = this.config.maps[0].getZoom() || 10
-
-                // Only move map if marker is outside viewport OR zoom is too low
-                if (!isVisible || currentZoom < 12) {
-                  const targetZoom = Math.max(currentZoom, 14)
-                  this.config.maps[0].panTo({ lat: property.lat, lng: property.lng })
-                  if (targetZoom > currentZoom) {
-                    this.config.maps[0].setZoom(targetZoom)
-                  }
-                }
-              }
             }
           } else {
             console.log('📱 TOUCH MOVEMENT TOO LARGE')
