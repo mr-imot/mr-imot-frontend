@@ -1,11 +1,13 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import { usePathname } from 'next/navigation'
 import { applyPalette } from '../theme/applyPalette'
 
 export default function ViewportLock(): null {
   const lockedHeightRef = useRef<number | null>(null)
   const lockedOrientationRef = useRef<number | null>(null)
+  const pathname = usePathname()
 
   const getOrientation = () => {
     const so = (window.screen as any)?.orientation
@@ -83,7 +85,15 @@ export default function ViewportLock(): null {
     }
   }, [])
 
+  // Re-lock height when pathname changes (handles navigation back to homepage)
+  useEffect(() => {
+    // Add a small delay to ensure page transition is complete
+    const timeoutId = setTimeout(() => {
+      lockViewportHeight(true)
+    }, 100)
+
+    return () => clearTimeout(timeoutId)
+  }, [pathname])
+
   return null
 }
-
-
