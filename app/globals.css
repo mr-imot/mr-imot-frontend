@@ -1107,14 +1107,14 @@ textarea,
 
 @media (max-width: 640px) {
   .header-glass {
-    padding: 0.75rem 0rem 0.75rem 1rem;
+    padding: 1rem 0rem 1rem 1rem;
   }
   .header-glass .logo-circle {
-    width: 2.5rem;
-    height: 2.5rem;
+    width: 3.5rem;
+    height: 3.5rem;
   }
   .header-glass button {
-    width: 2.5rem !important;
-    height: 2.5rem !important;
+    width: 3.5rem !important;
+    height: 3.5rem !important;
   }
 }
