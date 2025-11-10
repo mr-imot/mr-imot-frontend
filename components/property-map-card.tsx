@@ -160,7 +160,7 @@ export function PropertyMapCard({
     >
       <div
         className={cn(
-          "relative bg-white rounded-[20px] overflow-hidden hover:translate-y-[-2px] cursor-pointer",
+          "relative bg-white rounded-[20px] overflow-hidden cursor-pointer",
           // Mobile: full width, 1/2 screen height | Desktop: fixed width
           forceMobile 
             ? "w-full h-[50vh]" 
@@ -243,7 +243,7 @@ export function PropertyMapCard({
                 aria-label="Previous image"
                 onClick={(e) => { e.stopPropagation(); scrollPrev() }}
                 disabled={!canScrollPrev}
-                className="hidden md:grid absolute left-2 top-1/2 -translate-y-1/2 place-items-center h-8 w-8 rounded-full bg-white/95 hover:bg-white shadow-md text-[#222222] z-10 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+                className="hidden md:grid absolute left-2 top-1/2 -translate-y-1/2 place-items-center h-8 w-8 rounded-full bg-white/95 hover:bg-white shadow-xl ring-2 ring-black/30 backdrop-blur-sm text-[#222222] z-10 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 <svg className="cursor-pointer" width="12" height="12" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
@@ -253,7 +253,7 @@ export function PropertyMapCard({
                 aria-label="Next image"
                 onClick={(e) => { e.stopPropagation(); scrollNext() }}
                 disabled={!canScrollNext}
-                className="hidden md:grid absolute right-2 top-1/2 -translate-y-1/2 place-items-center h-8 w-8 rounded-full bg-white/95 hover:bg-white shadow-md text-[#222222] z-10 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+                className="hidden md:grid absolute right-2 top-1/2 -translate-y-1/2 place-items-center h-8 w-8 rounded-full bg-white/95 hover:bg-white shadow-xl ring-2 ring-black/30 backdrop-blur-sm text-[#222222] z-10 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 <svg className="cursor-pointer" width="12" height="12" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path d="M9 6l6 6-6 6" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
