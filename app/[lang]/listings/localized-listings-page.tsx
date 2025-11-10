@@ -5,7 +5,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { useSearchParams } from "next/navigation"
 
-import { ensureGoogleMaps } from "@/lib/google-maps"
+import { ensureGoogleMaps, getAirbnbStyleMapConfig } from "@/lib/google-maps"
 import { MarkerManager, PropertyData } from "@/lib/marker-manager"
 import { ListingCard } from "@/components/ListingCard"
 import { propertyToListing } from "@/lib/listing-adapter"
@@ -443,6 +443,18 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
       if (!mapRef.current) return
       try {
         await ensureGoogleMaps()
+        
+        // CRITICAL: When using mapId, the 'styles' property in code is IGNORED by Google Maps
+        // Styles MUST be configured in Google Cloud Console for the Map ID
+        // 
+        // To configure styles:
+        // 1. Go to https://console.cloud.google.com/google/maps-apis
+        // 2. Navigate to "Map Styles" or "Map Management"
+        // 3. Create/edit a map style with the Airbnb-style configuration
+        // 4. Associate it with Map ID: 'e1ea25ce333a0b0deb34ff54'
+        // 5. Publish the style (may take a few hours to propagate)
+        //
+        // For now, we keep mapId for AdvancedMarkerElement support
         const map = new google.maps.Map(mapRef.current, {
           center: CITY_COORDINATES[selectedCity],
           zoom: CITY_COORDINATES[selectedCity].zoom,
@@ -452,12 +464,15 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
           zoomControl: true,
           scrollwheel: true,
           gestureHandling: 'greedy',
-          mapId: 'DEMO_MAP_ID', // Required for AdvancedMarkerElement
+          mapId: 'e1ea25ce333a0b0deb34ff54', // Required for AdvancedMarkerElement - Airbnb-style muted colors
           draggableCursor: 'grab',
           draggingCursor: 'grabbing',
+          // styles: getAirbnbStyleMapConfig(), // This is ignored when mapId is present
         })
-                 googleMapRef.current = map
-         setDesktopMapReady(true)
+        
+        googleMapRef.current = map
+        
+        setDesktopMapReady(true)
          
          // Add cursor behavior to desktop map container only
          const mapContainer = mapRef.current
@@ -552,6 +567,10 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
       
       try {
         await ensureGoogleMaps()
+        
+        // CRITICAL: When using mapId, the 'styles' property in code is IGNORED by Google Maps
+        // Styles MUST be configured in Google Cloud Console for the Map ID
+        // See desktop map initialization above for instructions
         const mobileMap = new google.maps.Map(mobileMapRef.current, {
           center: CITY_COORDINATES[selectedCity],
           zoom: CITY_COORDINATES[selectedCity].zoom,
@@ -561,12 +580,14 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
           zoomControl: false, // Hide zoom controls for cleaner UI
           scrollwheel: true,
           gestureHandling: 'greedy',
-          mapId: 'DEMO_MAP_ID',
+          mapId: 'e1ea25ce333a0b0deb34ff54', // Required for AdvancedMarkerElement - Airbnb-style muted colors
           draggableCursor: 'grab',
-          draggingCursor: 'grabbing'
-          // Note: styles removed when mapId is present to avoid Google Maps warning
+          draggingCursor: 'grabbing',
+          // styles: getAirbnbStyleMapConfig(), // This is ignored when mapId is present
         })
+        
         mobileGoogleMapRef.current = mobileMap
+        
         setMobileMapReady(true)
         
         // MOBILE: Bounds-based data fetching (like Airbnb)

@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { ensureGoogleMaps } from "@/lib/google-maps"
+import { ensureGoogleMaps, getAirbnbStyleMapConfig } from "@/lib/google-maps"
 import { PropertyData } from "@/lib/marker-manager"
 import { Loader2, MapPin } from "lucide-react"
 
@@ -41,7 +41,7 @@ export function MobileSimpleMap({
         setIsLoading(true)
         await ensureGoogleMaps()
         
-        // Create mobile-optimized map
+        // Create mobile-optimized map with Airbnb-style styling
         const map = new google.maps.Map(mapRef.current, {
           center,
           zoom,
@@ -53,19 +53,7 @@ export function MobileSimpleMap({
           gestureHandling: 'greedy', // 1-finger scrolling on mobile
           disableDefaultUI: false,
           mapTypeId: google.maps.MapTypeId.ROADMAP,
-          // Mobile-optimized styling
-          styles: [
-            {
-              featureType: "poi",
-              elementType: "labels",
-              stylers: [{ visibility: "off" }]
-            },
-            {
-              featureType: "transit",
-              elementType: "labels",
-              stylers: [{ visibility: "off" }]
-            }
-          ]
+          styles: getAirbnbStyleMapConfig(), // Airbnb-style muted colors for easier viewing
         })
         
         googleMapRef.current = map

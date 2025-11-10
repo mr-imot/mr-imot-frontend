@@ -220,6 +220,191 @@ export function clusterProperties(
   return clusters
 }
 
+/**
+ * Airbnb-style map configuration - muted, softer colors for easier viewing
+ * 
+ * IMPORTANT: When using mapId, this function's return value is IGNORED by Google Maps.
+ * Styles must be configured in Google Cloud Console for the Map ID.
+ * 
+ * To use this configuration:
+ * 1. Copy the JSON from getAirbnbStyleMapConfigJSON()
+ * 2. Go to Google Cloud Console > Maps > Map Styles
+ * 3. Create/edit a style and paste the JSON
+ * 4. Associate with Map ID: 'DEMO_MAP_ID'
+ * 5. Publish the style
+ * 
+ * @returns Array of Google Maps style objects (only works without mapId)
+ */
+export function getAirbnbStyleMapConfig(): google.maps.MapTypeStyle[] {
+  return [
+    // Hide POI labels and business labels
+    {
+      featureType: "poi",
+      elementType: "labels",
+      stylers: [{ visibility: "off" }]
+    },
+    {
+      featureType: "poi.business",
+      elementType: "labels",
+      stylers: [{ visibility: "off" }]
+    },
+    {
+      featureType: "poi.attraction",
+      elementType: "labels",
+      stylers: [{ visibility: "off" }]
+    },
+    {
+      featureType: "poi.park",
+      elementType: "labels",
+      stylers: [{ visibility: "off" }]
+    },
+    // Hide transit labels
+    {
+      featureType: "transit",
+      elementType: "labels",
+      stylers: [{ visibility: "off" }]
+    },
+    {
+      featureType: "transit.station",
+      elementType: "labels",
+      stylers: [{ visibility: "off" }]
+    },
+    // Lighten and desaturate water - more noticeable
+    {
+      featureType: "water",
+      elementType: "geometry",
+      stylers: [
+        { color: "#a8d5e2" }, // Light blue
+        { saturation: -50 },
+        { lightness: 30 }
+      ]
+    },
+    {
+      featureType: "water",
+      elementType: "labels",
+      stylers: [
+        { visibility: "on" },
+        { color: "#7a9ba8" }, // Muted blue-gray
+        { lightness: 40 }
+      ]
+    },
+    // Mute road colors - more dramatic
+    {
+      featureType: "road",
+      elementType: "geometry",
+      stylers: [
+        { saturation: -70 },
+        { lightness: 20 }
+      ]
+    },
+    {
+      featureType: "road.highway",
+      elementType: "geometry",
+      stylers: [
+        { saturation: -60 },
+        { lightness: 15 }
+      ]
+    },
+    {
+      featureType: "road.arterial",
+      elementType: "geometry",
+      stylers: [
+        { saturation: -70 },
+        { lightness: 25 }
+      ]
+    },
+    {
+      featureType: "road.local",
+      elementType: "geometry",
+      stylers: [
+        { saturation: -80 },
+        { lightness: 30 }
+      ]
+    },
+    // Lighten landscape and natural features - more visible
+    {
+      featureType: "landscape",
+      elementType: "geometry",
+      stylers: [
+        { color: "#f5f5f0" }, // Very light beige
+        { saturation: -60 },
+        { lightness: 25 }
+      ]
+    },
+    {
+      featureType: "landscape.natural",
+      elementType: "geometry",
+      stylers: [
+        { color: "#e8f0e8" }, // Light green
+        { saturation: -70 },
+        { lightness: 35 }
+      ]
+    },
+    {
+      featureType: "landscape.natural.terrain",
+      elementType: "geometry",
+      stylers: [
+        { saturation: -70 },
+        { lightness: 30 }
+      ]
+    },
+    // Lighten administrative boundaries
+    {
+      featureType: "administrative",
+      elementType: "geometry",
+      stylers: [
+        { color: "#e0e0e0" }, // Light gray
+        { saturation: -80 },
+        { lightness: 40 }
+      ]
+    },
+    {
+      featureType: "administrative",
+      elementType: "labels.text",
+      stylers: [
+        { color: "#666666" }, // Muted gray text
+        { lightness: 30 }
+      ]
+    },
+    {
+      featureType: "administrative",
+      elementType: "labels.text.stroke",
+      stylers: [
+        { color: "#ffffff" },
+        { visibility: "on" },
+        { weight: 2 }
+      ]
+    },
+    // Overall desaturation for a softer look - more dramatic
+    {
+      featureType: "all",
+      elementType: "geometry",
+      stylers: [
+        { saturation: -40 },
+        { lightness: 10 }
+      ]
+    },
+    {
+      featureType: "all",
+      elementType: "labels.text.fill",
+      stylers: [
+        { saturation: -30 },
+        { lightness: 10 }
+      ]
+    }
+  ]
+}
+
+/**
+ * Export Airbnb-style map configuration as JSON string for Google Cloud Console
+ * Use this to copy-paste into Google Cloud Console Map Style editor
+ * 
+ * @returns JSON string ready for Google Cloud Console
+ */
+export function getAirbnbStyleMapConfigJSON(): string {
+  return JSON.stringify(getAirbnbStyleMapConfig(), null, 2)
+}
+
 // Create cluster marker
 export function createClusterMarkerIcon(
   count: number,
