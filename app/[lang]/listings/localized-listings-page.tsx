@@ -528,6 +528,10 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
               if (bounds) {
                 setMapBounds(bounds)
               }
+              // Re-render markers to switch between cluster and individual mode
+              if (markerManagerRef.current) {
+                markerManagerRef.current.renderMarkers()
+              }
             }
           }, 300)
         })
@@ -593,6 +597,23 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
           if (selectedPropertyId) {
             setSelectedPropertyId(null)
           }
+        })
+        
+        // Listen for zoom changes to re-cluster markers on mobile
+        google.maps.event.addListener(mobileMap, "zoom_changed", () => {
+          // Debounce zoom change to avoid excessive re-clustering
+          setTimeout(() => {
+            if (mobileGoogleMapRef.current) {
+              const bounds = mobileGoogleMapRef.current.getBounds()
+              if (bounds) {
+                setMobileBounds(bounds)
+              }
+              // Re-render markers to switch between cluster and individual mode
+              if (markerManagerRef.current) {
+                markerManagerRef.current.renderMarkers()
+              }
+            }
+          }, 300)
         })
         
         // Trigger initial fetch after map first idle (ensures bounds are ready)
