@@ -446,45 +446,94 @@
     "registrationFailed": "Registration failed"
   },
   "about": {
-    "pageTitle": "About Us",
+    "pageTitle": "About Mister Imot",
     "pageDescription": "Learn about Mister Imot's mission to revolutionize real estate in Bulgaria through verified developers and transparent property listings.",
-    "ourStory": "Our Story",
-    "storyDescription": "Founded with a vision to transform Bulgaria's real estate market, Mister Imot has become the trusted platform for property buyers and developers alike.",
-    "ourMission": "Our Mission",
-    "revolutionizing": "Revolutionizing Real Estate",
-    "missionDescription": "At Mister Imot, our mission is to revolutionize the real estate market by creating a transparent and direct connection between property buyers and real estate developers. We believe in cutting out unnecessary intermediaries, reducing costs, and providing direct access to verified, under-construction projects.",
-    "missionDescription2": "We empower buyers to make informed decisions and help developers showcase their work efficiently to a targeted audience.",
-    "missionImageAlt": "Our Mission - Modern Construction",
-    "vision": "Vision",
-    "buildingTomorrow": "Building Tomorrow's Marketplace",
-    "visionDescription": "We envision a world where finding and investing in new real estate is simple, direct, and trustworthy. Mister Imot aims to be the go-to platform for anyone seeking new construction properties and for developers looking to list their projects with confidence and ease.",
-    "visionDescription2": "We are committed to fostering a community where quality projects meet genuine demand, creating value for everyone involved.",
-    "visionImageAlt": "Our Vision - Future of Real Estate",
-    "ourValues": "Our Values",
-    "whatDrivesUs": "What Drives Us Forward",
-    "valuesDescription": "Our core values guide every decision we make and every feature we build",
-    "trustTransparency": "Trust & Transparency",
-    "trustTransparencyDesc": "Every listing is verified and every developer is authenticated to ensure complete transparency.",
-    "directConnection": "Direct Connection",
-    "directConnectionDesc": "We eliminate intermediaries, connecting buyers directly with developers for honest communication.",
-    "innovation": "Innovation",
-    "innovationDesc": "Leveraging cutting-edge technology to make real estate discovery simple and efficient.",
-    "customerFirst": "Customer First",
-    "customerFirstDesc": "Your success is our success. We're committed to providing exceptional service at every step.",
-    "whyChooseUs": "Why Choose Mister Imot?",
-    "successPriority": "Your Success is Our Priority",
-    "builtWithGoal": "We've built Mister Imot with one goal in mind: making real estate investment simple, transparent, and profitable for everyone involved.",
-    "directAccess": "Direct access to developers, no brokers involved",
-    "verifiedListings": "100% verified listings of projects under construction",
-    "transparentInfo": "Transparent information and direct communication",
-    "saveCommissions": "Save on commissions and avoid fake listings",
-    "userFriendly": "User-friendly platform with powerful search and map features",
-    "realtimeUpdates": "Real-time project updates and progress tracking",
-    "successImageAlt": "Happy customers with their new home",
-    "readyToFind": "Ready to Find Your Perfect Property?",
-    "dontWait": "Don't wait! Start exploring verified projects and connect directly with developers today.",
-    "browseProperties": "Browse Properties",
-    "meetDevelopers": "Meet Developers"
+    "hero": {
+      "title": "About Mister Imot",
+      "subtitle": "Modernizing Bulgaria's new construction market"
+    },
+    "aboutMisterImot": {
+      "title": "What is Mister Imot?",
+      "description": "Mister Imot is a platform created with a vision to modernize the new construction market in Bulgaria and make it transparent, direct, and accessible.",
+      "point1": "We connect buyers directly with investors and builders — without brokers, hidden commissions, or fake listings.",
+      "point2": "We verify the builders and investors who publish their projects.",
+      "point3": "Each of them is responsible for the accuracy of their listings, and our team monitors and responds to user reports to maintain a high level of trust and quality."
+    },
+    "mission": {
+      "title": "Our Mission",
+      "description": "To create the most reliable and modern ecosystem for new construction in Bulgaria.",
+      "point1": "We work daily to improve the platform, listen to users, and implement their ideas.",
+      "point2": "We invest in technology, security, and marketing, because we believe that good projects deserve real visibility.",
+      "goal": "Our goal is clear — to become the largest platform for new construction in Bulgaria and one of the leaders on a global scale."
+    },
+    "roadmap": {
+      "title": "Roadmap",
+      "subtitle": "Our journey from concept to global platform",
+      "items": [
+        {
+          "date": "July 2025",
+          "title": "Project Start",
+          "description": "Platform creation and initial feature development"
+        },
+        {
+          "date": "November 2025",
+          "title": "Beta Launch",
+          "description": "Public testing with selected builders and investors"
+        },
+        {
+          "date": "December 2025",
+          "title": "Official Launch",
+          "description": "Official launch and addition of Russian language"
+        },
+        {
+          "date": "January 2026",
+          "title": "Greek Market Expansion",
+          "description": "First steps in international market with focus on Greece"
+        },
+        {
+          "date": "February 2026",
+          "title": "Turkish Language & New Market",
+          "description": "Expanding language support and new markets"
+        },
+        {
+          "date": "April 2026",
+          "title": "UAE Market Entry",
+          "description": "Strategic entry into Middle Eastern market"
+        },
+        {
+          "date": "November 2026",
+          "title": "Additional Statistics",
+          "description": "Enhanced analytics tools for builders and investors"
+        },
+        {
+          "date": "January 2027",
+          "title": "Land Portal Launch",
+          "description": "New platform for land search and sales"
+        }
+      ]
+    },
+    "ourApproach": {
+      "title": "Our Approach",
+      "point1": {
+        "title": "Continuous Improvements",
+        "description": "We continuously develop features and UX design."
+      },
+      "point2": {
+        "title": "Feedback",
+        "description": "We listen to the community and implement their ideas."
+      },
+      "point3": {
+        "title": "Growth Investments",
+        "description": "We build strong marketing and partnerships with real builders."
+      },
+      "closing": "Mister Imot is not just a real estate website — it is the new standard for transparency and accessibility in the new construction market."
+    },
+    "cta": {
+      "title": "Ready to Find Your Perfect Property?",
+      "description": "Don't wait! Start exploring verified projects and connect directly with developers today.",
+      "browseProperties": "Browse Properties",
+      "meetDevelopers": "Meet Developers"
+    }
   },
   "developersDetail": {
     "loading": "Loading developer details...",
