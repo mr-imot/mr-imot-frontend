@@ -41,6 +41,7 @@ export class MarkerManager {
   private clusters: PropertyCluster[] = []
   private markerCache: Record<string, google.maps.marker.AdvancedMarkerElement> = {}
   private isInitialized: boolean = false
+  private previousShouldCluster: boolean | null = null
 
   constructor(config: MarkerManagerConfig) {
     this.config = config
@@ -49,20 +50,27 @@ export class MarkerManager {
   }
 
   // Main method to render all markers with clustering
-  renderMarkers() {
-    // Always re-render when called (for map switching)
-    this.clearAllMarkers()
-    this.isInitialized = false
-
-    if (this.isInitialized) {
-      return
-    }
-
-    this.clearAllMarkers()
-
+  renderMarkers(force: boolean = false) {
     // Get zoom from the first available map
     const currentZoom = this.config.maps[0]?.getZoom() || 10
     const shouldCluster = currentZoom < 12 && this.config.properties.length > 3
+
+    // Skip re-render if clustering state hasn't changed and not forced
+    if (!force && this.previousShouldCluster === shouldCluster && this.isInitialized) {
+      return
+    }
+
+    // Only clear markers if clustering state is actually changing
+    if (this.previousShouldCluster !== shouldCluster && this.previousShouldCluster !== null) {
+      // Clustering state changed - need to transition
+      this.clearAllMarkers()
+    } else if (!this.isInitialized || force) {
+      // First render or forced - clear everything
+      this.clearAllMarkers()
+    }
+
+    // Update clustering state
+    this.previousShouldCluster = shouldCluster
 
     if (shouldCluster) {
       this.renderClustered()
@@ -179,6 +187,7 @@ export class MarkerManager {
     })
     this.markerCache = {}
     this.isInitialized = false
+    this.previousShouldCluster = null // Reset clustering state
   }
 
   // Check if markers already exist

@@ -535,20 +535,43 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
         })
         
         // Listen for zoom changes to re-cluster markers
+        let zoomDebounceTimeout: NodeJS.Timeout | null = null
+        let lastZoomLevel: number | null = null
         google.maps.event.addListener(map, "zoom_changed", () => {
-          // Debounce zoom change to avoid excessive re-clustering
-          setTimeout(() => {
+          // Clear previous timeout
+          if (zoomDebounceTimeout) {
+            clearTimeout(zoomDebounceTimeout)
+          }
+          
+          // Debounce zoom change with longer delay for smoother experience
+          zoomDebounceTimeout = setTimeout(() => {
             if (googleMapRef.current) {
+              const currentZoom = googleMapRef.current.getZoom() || 10
               const bounds = googleMapRef.current.getBounds()
+              
+              // Only trigger re-render if zoom crossed the clustering threshold (zoom 12)
+              // or if this is the first zoom event
+              const shouldTrigger = lastZoomLevel === null || 
+                (lastZoomLevel < 12 && currentZoom >= 12) || 
+                (lastZoomLevel >= 12 && currentZoom < 12)
+              
               if (bounds) {
                 setMapBounds(bounds)
               }
-              // Re-render markers to switch between cluster and individual mode
-              if (markerManagerRef.current) {
-                markerManagerRef.current.renderMarkers()
+              
+              // Only re-render if clustering state might have changed
+              if (shouldTrigger && markerManagerRef.current) {
+                // Use requestAnimationFrame for smoother updates
+                requestAnimationFrame(() => {
+                  if (markerManagerRef.current) {
+                    markerManagerRef.current.renderMarkers()
+                  }
+                })
               }
+              
+              lastZoomLevel = currentZoom
             }
-          }, 300)
+          }, 500) // Increased from 300ms to 500ms for smoother experience
         })
       } catch (e) {
         console.error("Error initializing Google Maps:", e)
@@ -621,20 +644,43 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
         })
         
         // Listen for zoom changes to re-cluster markers on mobile
+        let mobileZoomDebounceTimeout: NodeJS.Timeout | null = null
+        let lastMobileZoomLevel: number | null = null
         google.maps.event.addListener(mobileMap, "zoom_changed", () => {
-          // Debounce zoom change to avoid excessive re-clustering
-          setTimeout(() => {
+          // Clear previous timeout
+          if (mobileZoomDebounceTimeout) {
+            clearTimeout(mobileZoomDebounceTimeout)
+          }
+          
+          // Debounce zoom change with longer delay for smoother experience
+          mobileZoomDebounceTimeout = setTimeout(() => {
             if (mobileGoogleMapRef.current) {
+              const currentZoom = mobileGoogleMapRef.current.getZoom() || 10
               const bounds = mobileGoogleMapRef.current.getBounds()
+              
+              // Only trigger re-render if zoom crossed the clustering threshold (zoom 12)
+              // or if this is the first zoom event
+              const shouldTrigger = lastMobileZoomLevel === null || 
+                (lastMobileZoomLevel < 12 && currentZoom >= 12) || 
+                (lastMobileZoomLevel >= 12 && currentZoom < 12)
+              
               if (bounds) {
                 setMobileBounds(bounds)
               }
-              // Re-render markers to switch between cluster and individual mode
-              if (markerManagerRef.current) {
-                markerManagerRef.current.renderMarkers()
+              
+              // Only re-render if clustering state might have changed
+              if (shouldTrigger && markerManagerRef.current) {
+                // Use requestAnimationFrame for smoother updates
+                requestAnimationFrame(() => {
+                  if (markerManagerRef.current) {
+                    markerManagerRef.current.renderMarkers()
+                  }
+                })
               }
+              
+              lastMobileZoomLevel = currentZoom
             }
-          }, 300)
+          }, 500) // Increased from 300ms to 500ms for smoother experience
         })
         
         // Trigger initial fetch after map first idle (ensures bounds are ready)
@@ -849,10 +895,10 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
 
   // Map structural changes are now handled in the earlier useEffect
 
-  // Structural: city change → re-render
+  // Structural: city change → re-render (force to clear previous state)
   useEffect(() => {
     if (markerManagerRef.current) {
-      markerManagerRef.current.renderMarkers()
+      markerManagerRef.current.renderMarkers(true) // Force render on city change
     }
   }, [selectedCity])
 
