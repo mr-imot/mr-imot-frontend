@@ -32,7 +32,7 @@ export function Footer() {
         { href: href('register?type=developer', 'register?type=developer'), label: tNav.listYourProject },
         { href: href('developer/dashboard', 'developer/dashboard'), label: tNav.developerDashboard },
         { href: href('login', 'login'), label: tNav.login },
-        { href: href('register', 'register'), label: tNav.register },
+        { href: href('register?type=developer', 'register?type=developer'), label: tNav.register },
       ],
     },
   ]

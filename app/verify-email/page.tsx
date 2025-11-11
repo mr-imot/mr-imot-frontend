@@ -159,7 +159,7 @@ function VerifyEmailContent() {
                     </Button>
                   )}
                   
-                  <Link href="/register">
+                  <Link href="/register?type=developer">
                     <Button variant="ghost" className="w-full">
                       Back to Registration
                     </Button>

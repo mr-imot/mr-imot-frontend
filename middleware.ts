@@ -28,18 +28,25 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   
   // Skip static files and special paths immediately (before any processing)
+  // Also skip not-found pages and 404 trigger routes to prevent middleware interference
   if (
     pathname.includes('.') || // Any file with extension (.txt, .xml, .ico, etc.)
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api') ||
-    pathname.startsWith('/images')
+    pathname.startsWith('/images') ||
+    pathname === '/not-found' ||
+    pathname === '/en/not-found' ||
+    pathname === '/bg/not-found' ||
+    pathname === '/en/__404__' ||
+    pathname === '/bg/__404__'
   ) {
     return NextResponse.next()
   }
   
 
   // Handle explicit /en/ paths - redirect to root (English default)
-  if (pathname.startsWith('/en/')) {
+  // BUT exclude not-found pages to prevent redirect loops
+  if (pathname.startsWith('/en/') && pathname !== '/en/not-found') {
     const newPath = pathname.replace('/en', '') || '/'
     return NextResponse.redirect(new URL(newPath, request.url))
   }
@@ -72,9 +79,20 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL(`/en/listings/${listingId}`, request.url))
   }
 
-  // Handle /register route specially - needs locale prefix first
+  // Handle /register route - block access without type=developer
   if (pathname === '/register') {
     const url = request.nextUrl.clone()
+    const type = url.searchParams.get('type')
+    
+    // Only allow developer registration - redirect others to a non-existent route
+    // This will trigger Next.js not-found handler naturally
+    if (type !== 'developer') {
+      // Check cookie preference for locale
+      const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value
+      const locale = cookieLocale === 'bg' ? 'bg' : 'en'
+      // Redirect to a route that doesn't exist to trigger not-found naturally
+      return NextResponse.redirect(new URL(`/${locale}/__404__`, request.url))
+    }
     
     // Check cookie preference first
     const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value
@@ -83,11 +101,6 @@ export function middleware(request: NextRequest) {
     } else {
       // Rewrite to /en/register internally
       url.pathname = '/en/register'
-    }
-    
-    // Add default query param if not present
-    if (!url.searchParams.has('type')) {
-      url.searchParams.set('type', 'developer')
     }
     
     return NextResponse.rewrite(url)
@@ -109,12 +122,27 @@ export function middleware(request: NextRequest) {
     return NextResponse.rewrite(url)
   }
   
-  // Handle /bg/register with query param
+  // Handle /bg/register - block access without type=developer
   if (pathname === '/bg/register') {
     const url = request.nextUrl.clone()
-    if (!url.searchParams.has('type')) {
-      url.searchParams.set('type', 'developer')
-      return NextResponse.redirect(url, 308)
+    const type = url.searchParams.get('type')
+    
+    // Only allow developer registration - redirect others to trigger not-found
+    if (type !== 'developer') {
+      // Redirect to non-existent route to trigger not-found naturally
+      return NextResponse.redirect(new URL('/bg/__404__', request.url))
+    }
+  }
+
+  // Handle /en/register - block access without type=developer
+  if (pathname === '/en/register') {
+    const url = request.nextUrl.clone()
+    const type = url.searchParams.get('type')
+    
+    // Only allow developer registration - redirect others to trigger not-found
+    if (type !== 'developer') {
+      // Redirect to non-existent route to trigger not-found naturally
+      return NextResponse.redirect(new URL('/en/__404__', request.url))
     }
   }
 
@@ -181,22 +209,28 @@ export function middleware(request: NextRequest) {
   }
 
   // Check if pathname already includes a locale (only for non-default locales)
+  // Also allow /en/not-found and /bg/not-found to pass through
   const pathnameHasLocale = pathname.startsWith('/bg/') || pathname === '/bg'
+  const isNotFoundPage = pathname === '/not-found' || pathname === '/en/not-found' || pathname === '/bg/not-found'
 
-  if (pathnameHasLocale) {
+  if (pathnameHasLocale || isNotFoundPage) {
     return NextResponse.next()
   }
 
   // 1. Check cookie preference (user override) - HIGHEST PRIORITY
+  // BUT exclude not-found pages to prevent redirect loops
   const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value
-  if (cookieLocale && SUPPORTED_LOCALES.includes(cookieLocale)) {
+  if (cookieLocale && SUPPORTED_LOCALES.includes(cookieLocale) && pathname !== '/not-found' && !pathname.startsWith('/en/not-found') && !pathname.startsWith('/bg/not-found')) {
     if (cookieLocale === 'bg') {
       return NextResponse.redirect(new URL(`/bg${pathname}`, request.url))
     }
     // For English (default), rewrite internally to /en for [lang] route handling
-    const url = request.nextUrl.clone()
-    url.pathname = `/en${pathname}`
-    return NextResponse.rewrite(url)
+    // But skip if pathname already starts with /en/
+    if (!pathname.startsWith('/en/')) {
+      const url = request.nextUrl.clone()
+      url.pathname = `/en${pathname}`
+      return NextResponse.rewrite(url)
+    }
   }
 
   // 2. Check Vercel geo header (IP-based detection)
@@ -222,15 +256,22 @@ export function middleware(request: NextRequest) {
   }
 
   // 3. Check Accept-Language header
+  // BUT exclude not-found pages to prevent redirect loops
   const negotiated = getLocale(request)
-  if (negotiated && negotiated !== DEFAULT_LOCALE) {
+  if (negotiated && negotiated !== DEFAULT_LOCALE && !isNotFoundPage) {
     return NextResponse.redirect(new URL(`/${negotiated}${pathname}`, request.url))
   }
 
   // 4. Fallback to default locale (English) - rewrite internally to /en
-  const url = request.nextUrl.clone()
-  url.pathname = `/en${pathname}`
-  return NextResponse.rewrite(url)
+  // BUT exclude not-found pages and paths that already start with /en/
+  if (!isNotFoundPage && !pathname.startsWith('/en/')) {
+    const url = request.nextUrl.clone()
+    url.pathname = `/en${pathname}`
+    return NextResponse.rewrite(url)
+  }
+  
+  // If it's a not-found page or already has /en/, just pass through
+  return NextResponse.next()
 }
 
 export const config = {

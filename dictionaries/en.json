@@ -952,5 +952,16 @@
     "requiresAccess": "This page requires {{role}} access.",
     "switchAccount": "Switch Account",
     "goBack": "Go Back"
+  },
+  "notFound": {
+    "title": "Page Not Found",
+    "description": "The page you are looking for could not be found.",
+    "message": "The page you are looking for could not be found.",
+    "suggestion": "It may have been moved, deleted, or the URL might be incorrect.",
+    "goHome": "Go to Homepage",
+    "browseListings": "Browse Listings",
+    "goBack": "Go Back",
+    "helpText": "Need help?",
+    "contactUs": "Contact us"
   }
 }

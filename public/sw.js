@@ -10,7 +10,7 @@ const STATIC_FILES = [
   '/about-us',
   '/contact',
   '/login',
-  '/register',
+  '/register?type=developer',
   '/manifest.json',
   '/offline.html'
 ]

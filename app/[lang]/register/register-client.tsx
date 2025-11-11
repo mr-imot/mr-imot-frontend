@@ -48,6 +48,14 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
   const router = useRouter()
   const { isAuthenticated, isLoading: authLoading, getDashboardUrl } = useAuth()
 
+  // Block access if type is not developer - redirect to trigger not-found
+  useEffect(() => {
+    if (userType !== "developer") {
+      // Redirect to non-existent route to trigger Next.js not-found handler
+      router.replace(`/${lang}/__404__`)
+    }
+  }, [userType, router, lang])
+
   // Redirect if already authenticated
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
@@ -98,11 +106,10 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
     return locale === 'bg' ? `/bg/${bg}` : `/${en}`
   }
 
+  // Only developer registration is allowed
   const isDeveloper = userType === "developer"
-  const title = isDeveloper ? (dict.register?.registerAsDeveloper || "Register as Developer") : (dict.register?.registerAsBuyer || "Register as Buyer")
-  const description = isDeveloper
-      ? (dict.register?.createDeveloperAccount || "Create your developer account to list projects.")
-      : (dict.register?.createBuyerAccount || "Create your buyer account to find projects.")
+  const title = dict.register?.registerAsDeveloper || "Register as Developer"
+  const description = dict.register?.createDeveloperAccount || "Create your developer account to list projects."
 
   // Google Maps initialization
   useEffectHook(() => {
@@ -219,7 +226,7 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
     }
 
     initAutocomplete()
-  }, [isDeveloper, mapInstanceRef.current, addressInputRef.current, placesBlocked])
+  }, [isDeveloper, placesBlocked])
 
   // Reverse geocode function
   const reverseGeocode = async (lat: number, lng: number) => {
@@ -352,9 +359,13 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
 
 
 
+  // Only developer registration is allowed - return null if not developer
+  if (!isDeveloper) {
+    return null
+  }
+
   // Developer-specific layout with informative left column
-  if (isDeveloper) {
-    return (
+  return (
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
         <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-6 lg:gap-8 items-start">
           {/* Info column */}
@@ -684,254 +695,6 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
         </div>
       </div>
     )
-  }
-
-  // Default (buyer or no type) layout — keep existing form styling
-  return (
-    <div className="w-full max-w-lg mx-auto">
-      {/* Brand Header */}
-      <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl shadow-xl shadow-blue-500/25 mb-6">
-          <UserPlus className="w-8 h-8 text-white" />
-        </div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          {title}
-        </h1>
-        <p className="text-gray-600 text-lg">
-          {description}
-        </p>
-      </div>
-
-      {/* Main Card */}
-      <div className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl shadow-blue-500/10 border border-white/20 overflow-hidden">
-        <div className="p-6 sm:p-8">
-          {submitStatus.type === "success" ? (
-            <EmailVerificationSent
-              email={formData.email}
-              onResend={async () => {
-                // Resend verification email using the dedicated endpoint
-                const { resendVerification } = await import('@/lib/api')
-                await resendVerification(formData.email.trim())
-              }}
-              className="mb-6"
-            />
-          ) : submitStatus.type === "error" ? (
-            <div className="mb-6">
-              <AuthError 
-                error={submitStatus.message}
-                onRetry={() => setSubmitStatus({ type: null, message: "" })}
-                retryLabel="Try Again"
-              />
-            </div>
-          ) : null}
-
-          {/* Hide form when showing email verification */}
-          {submitStatus.type !== "success" && (
-            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-            {/* Company Information */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <FloatingInput
-                label={dict.register?.companyName || "Company Name"}
-                type="text"
-                value={formData.companyName}
-                onChange={(e) => handleInputChange("companyName", e.target.value)}
-                error={getFieldError(errors, "companyName")}
-                disabled={isLoading}
-                required
-              />
-              <FloatingInput
-                label={dict.register?.contactPerson || "Contact Person"}
-                type="text"
-                value={formData.contactPerson}
-                onChange={(e) => handleInputChange("contactPerson", e.target.value)}
-                error={getFieldError(errors, "contactPerson")}
-                disabled={isLoading}
-                required
-              />
-            </div>
-
-            {/* Contact Information */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <FloatingInput
-                label={dict.register?.emailAddress || "Email Address"}
-                type="email"
-                value={formData.email}
-                onChange={(e) => handleInputChange("email", e.target.value)}
-                error={getFieldError(errors, "email")}
-                disabled={isLoading}
-                required
-              />
-              <InternationalPhoneInput
-                label={dict.register?.phoneNumber || "Phone Number"}
-                value={formData.phone}
-                onChange={(phone) => handleInputChange("phone", phone)}
-                error={getFieldError(errors, "phone")}
-                disabled={isLoading}
-                required
-                defaultCountry="bg"
-                placeholder={dict.register?.enterPhoneNumber || "Enter your phone number"}
-              />
-            </div>
-
-            {/* Address */}
-            <FloatingInput
-              label={dict.register?.officeAddress || "Office Address"}
-              type="text"
-              value={formData.officeAddress}
-              onChange={(e) => handleInputChange("officeAddress", e.target.value)}
-              error={getFieldError(errors, "officeAddress")}
-              disabled={isLoading}
-              required
-            />
-
-            {/* Website */}
-            <FloatingInput
-              label={dict.register?.websiteUrlOptional || "Website URL (Optional)"}
-              type="url"
-              value={formData.website}
-              onChange={(e) => handleInputChange("website", e.target.value)}
-              error={getFieldError(errors, "website")}
-              disabled={isLoading}
-            />
-
-            {/* Password */}
-            <div className="space-y-4">
-            <FloatingInput
-              label={dict.register?.password || "Password"}
-              type="password"
-              value={formData.password}
-              onChange={(e) => handleInputChange("password", e.target.value)}
-              showPasswordToggle={true}
-              error={getFieldError(errors, "password")}
-              disabled={isLoading}
-              required
-              maxLength={72}
-            />
-              <PasswordStrength password={formData.password} />
-            </div>
-
-            {/* Confirm Password */}
-            <FloatingInput
-              label={dict.register?.confirmPassword || "Confirm Password"}
-              type="password"
-              value={formData.confirmPassword}
-              onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
-              showPasswordToggle={true}
-              error={getFieldError(errors, "confirmPassword")}
-              disabled={isLoading}
-              required
-              maxLength={72}
-            />
-
-            {/* Terms Checkbox */}
-            <div className="bg-gray-50 rounded-2xl p-4 border border-gray-200">
-              <div className="flex items-start gap-3">
-                <input
-                  type="checkbox"
-                  id="acceptTerms"
-                  checked={formData.acceptTerms}
-                  onChange={(e) => handleInputChange("acceptTerms", e.target.checked)}
-                  required
-                  className="mt-1 h-5 w-5 rounded border-2 border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
-                  disabled={isLoading}
-                />
-                <label htmlFor="acceptTerms" className="text-sm text-gray-700 leading-relaxed cursor-pointer flex-1">
-                  {dict.register?.iAgreeToThe || "I agree to the"}{' '}
-                  <a 
-                    href={href('terms-of-service.html', 'terms-of-service.html')} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-700 font-medium underline decoration-2 underline-offset-2 transition-colors"
-                  >
-                    {dict.register?.termsOfService || "Terms of Service"}
-                  </a>{' '}
-                  {dict.register?.and || "and"}{' '}
-                  <a 
-                    href={href('privacy-policy.html', 'privacy-policy.html')} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-700 font-medium underline decoration-2 underline-offset-2 transition-colors"
-                  >
-                    {dict.register?.privacyPolicy || "Privacy Policy"}
-                  </a>
-                  <span className="text-red-500 ml-1 font-bold">*</span>
-                </label>
-              </div>
-              {getFieldError(errors, "acceptTerms") && (
-                <div className="mt-3 ml-8 p-3 bg-red-50 border border-red-200 rounded-xl">
-                  <div className="flex items-start gap-2">
-                    <AlertCircle size={16} className="text-red-500 mt-0.5 flex-shrink-0" />
-                    <p className="text-sm text-red-700 font-medium">
-                      {getFieldError(errors, "acceptTerms")}
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Submit Button */}
-            <EnhancedButton
-              type="submit"
-              variant="primary"
-              size="lg"
-              fullWidth
-              loading={isLoading}
-              loadingText={dict.register?.creatingYourAccount || "Creating Your Account..."}
-              disabled={isLoading}
-              icon={!isLoading ? <Sparkles size={20} /> : undefined}
-            >
-              {dict.register?.createDeveloperAccount || "Create Developer Account"}
-            </EnhancedButton>
-          </form>
-          )}
-
-          {/* Sign In Link - hide when showing email verification */}
-          {submitStatus.type !== "success" && (
-          <div className="mt-8">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white text-gray-500 font-medium">
-                  {dict.register?.alreadyHaveAccount || "Already have an account?"}
-                </span>
-              </div>
-            </div>
-
-            <div className="mt-6">
-              <Link href={href('login', 'login')}>
-                <EnhancedButton
-                  variant="outline"
-                  size="lg"
-                  fullWidth
-                  className="group"
-                >
-                  <span>{dict.register?.signIn || "Sign In"}</span>
-                  <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
-                </EnhancedButton>
-              </Link>
-            </div>
-          </div>
-          )}
-        </div>
-      </div>
-
-      {/* Footer */}
-      <div className="mt-8 text-center">
-        <p className="text-sm text-gray-500">
-          {dict.register?.byCreatingAccount || "By creating an account, you agree to our"}{' '}
-          <Link href={href('terms-of-service.html', 'terms-of-service.html')} className="text-blue-600 hover:text-blue-700 font-medium">
-            {dict.register?.termsOfService || "Terms of Service"}
-          </Link>{' '}
-          {dict.register?.and || "and"}{' '}
-          <Link href={href('privacy-policy.html', 'privacy-policy.html')} className="text-blue-600 hover:text-blue-700 font-medium">
-            {dict.register?.privacyPolicy || "Privacy Policy"}
-          </Link>
-        </p>
-      </div>
-    </div>
-  )
 }
 
 export default function RegisterClient({ dict, lang }: RegisterClientProps) {
