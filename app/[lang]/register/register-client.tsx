@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useMemo, useEffect as useEffectHook } from "react"
+import React, { useState, useRef, useMemo, useEffect as useEffectHook, useEffect } from "react"
 import { Input } from "@/components/ui/input"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { PasswordStrength } from "@/components/ui/password-strength"
@@ -22,9 +22,12 @@ import { useAuth } from "@/lib/auth-context"
 import { ensureGoogleMaps } from "@/lib/google-maps"
 import { preventEnterSubmit } from "@/lib/form-utils"
 import Link from "next/link"
-import { Suspense, useEffect } from "react"
+import { Suspense } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
-import { Eye, EyeOff, CheckCircle, AlertCircle, Shield, Sparkles, UserPlus, ArrowLeft, Building2, Check, Clock, BarChart3, LayoutDashboard, Mail, PhoneCall, UserCheck, Loader2, MapPin } from "lucide-react"
+import { Eye, EyeOff, CheckCircle, AlertCircle, Shield, Sparkles, UserPlus, ArrowLeft, Building2, Check, Clock, BarChart3, LayoutDashboard, Mail, PhoneCall, UserCheck, Loader2, MapPin, Headphones } from "lucide-react"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { HybridTooltip } from "@/components/ui/hybrid-tooltip"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
@@ -41,6 +44,9 @@ interface RegisterClientProps {
   dict: any
   lang: 'en' | 'bg'
 }
+
+// Alias for backward compatibility - using HybridTooltip directly
+const WebsiteTooltip = HybridTooltip
 
 function RegisterFormContent({ dict, lang }: RegisterClientProps) {
   const searchParams = useSearchParams()
@@ -415,6 +421,13 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
                     <p className="text-sm text-muted-foreground">{dict.register?.createProfileInMinutes || "Create a profile in minutes; publish when you are ready."}</p>
                   </div>
                 </div>
+                <div className="flex items-start gap-3">
+                  <Headphones className="h-5 w-5 text-primary mt-0.5" />
+                  <div>
+                    <p className="font-medium">{dict.register?.dedicatedSupport || "100% Support"}</p>
+                    <p className="text-sm text-muted-foreground">{dict.register?.alwaysAvailableSupport || "We're always here for you. Contact us anytime."}</p>
+                  </div>
+                </div>
               </div>
               <Separator />
               <div className="space-y-3">
@@ -422,7 +435,29 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
                 <ul className="space-y-2 text-sm text-muted-foreground">
                   <li className="flex items-start gap-2"><Check className="h-4 w-4 text-primary mt-0.5" />{dict.register?.companyNameAndContact || "Company name and contact person"}</li>
                   <li className="flex items-start gap-2"><Check className="h-4 w-4 text-primary mt-0.5" />{dict.register?.companyEmailAndPhone || "Company email and phone"}</li>
-                  <li className="flex items-start gap-2"><Check className="h-4 w-4 text-primary mt-0.5" />{dict.register?.officeAddressAndWebsite || "Office address and optional website"}</li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-4 w-4 text-primary mt-0.5" />
+                    <div className="flex items-center gap-1 flex-wrap">
+                      <span>{dict.register?.officeAddress || "Office address"} {lang === 'bg' ? 'и' : 'and'}</span>
+                      <WebsiteTooltip 
+                        triggerText={dict.register?.optionalWebsite || "незадължително уебсайт"}
+                        content={
+                          <>
+                            {dict.register?.websiteOffer || "As our client, take advantage of the most competitive prices for website development from"}{" "}
+                            <a 
+                              href="https://www.prodigycorp.io/bg" 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-primary hover:underline font-medium"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              Prodigy Corp
+                            </a>
+                          </>
+                        }
+                      />
+                    </div>
+                  </li>
                   <li className="flex items-start gap-2"><Check className="h-4 w-4 text-primary mt-0.5" />{dict.register?.abilityToVerifyOwnership || "Ability to verify ownership when requested"}</li>
                 </ul>
               </div>
@@ -432,23 +467,23 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
                 <p className="font-medium">{dict.register?.verificationProcess || "Verification process"}</p>
                 <ol className="space-y-3 text-sm">
                   <li className="flex items-start gap-3">
-                    <Badge variant="secondary" className="mt-0.5">{dict.register?.step1 || "Step 1"}</Badge>
-                    <div className="flex items-start gap-2">
-                      <Mail className="h-4 w-4 text-primary mt-0.5" />
+                    <Badge variant="secondary" className="mt-0.5 w-16 flex-shrink-0">{dict.register?.step1 || "Step 1"}</Badge>
+                    <div className="flex items-start gap-2 flex-1">
+                      <Mail className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
                       <span className="text-muted-foreground">{dict.register?.emailVerification || "Email verification to secure your login."}</span>
                     </div>
                   </li>
                   <li className="flex items-start gap-3">
-                    <Badge variant="secondary" className="mt-0.5">{dict.register?.step2 || "Step 2"}</Badge>
-                    <div className="flex items-start gap-2">
-                      <PhoneCall className="h-4 w-4 text-primary mt-0.5" />
+                    <Badge variant="secondary" className="mt-0.5 w-16 flex-shrink-0">{dict.register?.step2 || "Step 2"}</Badge>
+                    <div className="flex items-start gap-2 flex-1">
+                      <PhoneCall className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
                       <span className="text-muted-foreground">{dict.register?.manualVerification || "Manual verification by phone or email for trust."}</span>
                     </div>
                   </li>
                   <li className="flex items-start gap-3">
-                    <Badge variant="secondary" className="mt-0.5">{dict.register?.step3 || "Step 3"}</Badge>
-                    <div className="flex items-start gap-2">
-                      <UserCheck className="h-4 w-4 text-primary mt-0.5" />
+                    <Badge variant="secondary" className="mt-0.5 w-16 flex-shrink-0">{dict.register?.step3 || "Step 3"}</Badge>
+                    <div className="flex items-start gap-2 flex-1">
+                      <UserCheck className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
                       <span className="text-muted-foreground">{dict.register?.inPersonVerification || "Optional in‑person verification for premium trust badge."}</span>
                     </div>
                   </li>
@@ -599,7 +634,25 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
 
                 {/* Website */}
                 <div className="space-y-2">
-                  <Label htmlFor="website">{dict.register?.websiteUrlOptional || "Website URL (Optional)"}</Label>
+                  <Label htmlFor="website">
+                    <WebsiteTooltip 
+                      triggerText={dict.register?.websiteUrlOptional || "Website URL (Optional)"}
+                      content={
+                        <>
+                          {dict.register?.websiteOffer || "As our client, take advantage of the most competitive prices for website development from"}{" "}
+                          <a 
+                            href="https://www.prodigycorp.io/bg" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-primary hover:underline font-medium"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            Prodigy Corp
+                          </a>
+                        </>
+                      }
+                    />
+                  </Label>
                   <Input id="website" type="url" placeholder="https://" value={formData.website} onChange={(e) => handleInputChange("website", e.target.value)} autoComplete="url" disabled={isLoading} />
                   {getFieldError(errors, "website") && (<p className="text-sm text-destructive">{getFieldError(errors, "website")}</p>)}
                 </div>
@@ -663,7 +716,7 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
 
                 {/* Submit Button */}
                 <Button type="submit" className="w-full h-12 sm:h-10" disabled={isLoading}>
-                  {isLoading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" /> {dict.register?.creatingYourAccount || "Creating Your Account..."}</>) : (<>{dict.register?.createDeveloperAccount || "Create Developer Account"}</>)}
+                  {isLoading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" /> {dict.register?.creatingAccount || "Creating Account..."}</>) : (<>{dict.register?.createAccount || "Create Account"}</>)}
                 </Button>
 
                 <p className="text-xs text-muted-foreground text-center">{dict.register?.weNeverShareInformation || "We never share your information. Used only for account and verification."}</p>
