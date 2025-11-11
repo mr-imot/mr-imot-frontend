@@ -120,12 +120,27 @@ export function middleware(request: NextRequest) {
 
   // Note: no pretty slug for register in BG; '/bg/register' is canonical
 
+  // English pretty slugs → internal canonical paths
+  if (pathname.startsWith('/en/') || (!pathname.startsWith('/bg/') && !pathname.startsWith('/en/'))) {
+    const englishMap: Record<string, string> = {
+      '/en/about-mister-imot': '/en/about-us',
+      '/about-mister-imot': '/en/about-us',
+    }
+    for (const [from, to] of Object.entries(englishMap)) {
+      if (pathname === from || pathname.startsWith(from + '/')) {
+        const url = request.nextUrl.clone()
+        url.pathname = pathname.replace(from, to)
+        return NextResponse.rewrite(url)
+      }
+    }
+  }
+
   // Bulgarian pretty slugs → internal canonical paths
   if (pathname.startsWith('/bg/')) {
     const map: Record<string, string> = {
       '/bg/obiavi': '/bg/listings',
       '/bg/stroiteli': '/bg/developers',
-      '/bg/za-nas': '/bg/about-us',
+      '/bg/za-mistar-imot': '/bg/about-us',
       '/bg/kontakt': '/bg/contact',
       '/bg/login': '/bg/login',
     }

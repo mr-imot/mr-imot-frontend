@@ -106,7 +106,7 @@ function MobileLanguageSwitcher({ onLinkClick }: { onLinkClick: () => void }) {
       const prettyUrlMap: Record<string, string> = {
         '/obiavi': '/listings',
         '/stroiteli': '/developers', 
-        '/za-nas': '/about-us',
+        '/za-mistar-imot': '/about-mister-imot',
         '/kontakt': '/contact'
       }
       
@@ -122,7 +122,7 @@ function MobileLanguageSwitcher({ onLinkClick }: { onLinkClick: () => void }) {
       const canonicalUrlMap: Record<string, string> = {
         '/listings': '/obiavi',
         '/developers': '/stroiteli',
-        '/about-us': '/za-nas',
+        '/about-mister-imot': '/za-mistar-imot',
         '/contact': '/kontakt'
       }
       
@@ -182,7 +182,7 @@ export function MobileNav() {
   const navItems = [
     { href: href('listings', 'obiavi'), label: t.listings },
     { href: href('developers', 'stroiteli'), label: t.developers },
-    { href: href('about-us', 'za-nas'), label: t.aboutUs },
+    { href: href('about-mister-imot', 'za-mistar-imot'), label: t.aboutUs },
   ]
 
   const handleLinkClick = () => {

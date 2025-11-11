@@ -22,7 +22,7 @@ export function Footer() {
       links: [
         { href: href('listings', 'obiavi'), label: tNav.listings },
         { href: href('developers', 'stroiteli'), label: tNav.developers },
-        { href: href('about-us', 'za-nas'), label: tNav.aboutUs },
+        { href: href('about-mister-imot', 'za-mistar-imot'), label: tNav.aboutUs },
         { href: href('contact', 'kontakt'), label: tNav.contact },
       ],
     },

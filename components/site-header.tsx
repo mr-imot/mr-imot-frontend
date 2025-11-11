@@ -57,7 +57,7 @@ export function SiteHeader() {
             {t.developers}
           </a>
           <a
-            href={href('about-us', 'za-nas')}
+            href={href('about-mister-imot', 'za-mistar-imot')}
             className="text-white hover:text-white text-sm font-medium px-5 py-2.5 rounded-full bg-charcoal-500 border border-charcoal-600 shadow-sm hover:bg-charcoal-600 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-charcoal-300 active:scale-95"
           >
             {t.aboutUs}

@@ -24,7 +24,7 @@ export function MainNav() {
   const navItems = [
     { href: href('listings', 'obiavi'), label: "Listings" },
     { href: href('developers', 'stroiteli'), label: "Developers" },
-    { href: href('about-us', 'za-nas'), label: "About Us" },
+    { href: href('about-mister-imot', 'za-mistar-imot'), label: "About Us" },
   ]
 
   return (

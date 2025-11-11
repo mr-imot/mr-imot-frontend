@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { CheckCircle, Target, TrendingUp, Users, Lightbulb } from "lucide-react"
 import { ScrollAnimationWrapper } from "@/components/scroll-animation-wrapper"
 import { AngledSeparator } from "@/components/angled-separator"
@@ -11,6 +12,25 @@ import { RoadmapTimeline } from "@/components/roadmap-timeline"
 interface AboutClientProps {
   dict: any
   lang: 'en' | 'bg'
+}
+
+// ImageKit URL helper with optimizations
+const getImageKitUrl = (originalUrl: string, width: number, height: number, quality: number = 95) => {
+  if (!originalUrl || !originalUrl.includes('imagekit.io')) {
+    return originalUrl
+  }
+  
+  const baseUrl = originalUrl.split('?')[0]
+  const transformations = [
+    `w-${width}`,
+    `h-${height}`,
+    'c-maintain_ratio',
+    `q-${quality}`,
+    'f-webp',
+    'pr-true'
+  ]
+  
+  return `${baseUrl}?tr=${transformations.join(',')}`
 }
 
 export default function AboutClient({ dict, lang }: AboutClientProps) {
@@ -42,50 +62,30 @@ export default function AboutClient({ dict, lang }: AboutClientProps) {
 
   return (
     <div className="min-h-screen" style={{backgroundColor: '#ffffff'}}>
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-[#e8edf0] via-[#f0f4f6] to-[#eaf0f2]">
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute top-0 left-0 w-full h-full">
-            <svg className="w-full h-full" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <pattern id="about-grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                  <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#111827" strokeWidth="0.5" opacity="0.3" />
-                </pattern>
-              </defs>
-              <rect width="100%" height="100%" fill="url(#about-grid)" />
-            </svg>
-          </div>
-        </div>
-
-        <div className="container relative py-28 md:py-40">
-          <ScrollAnimationWrapper>
-            <div className="text-center max-w-4xl mx-auto">
-              <div className="inline-flex items-center gap-2 bg-white text-[#111827] px-5 py-2.5 rounded-full text-sm font-semibold mb-8 shadow-lg border border-[#e5e7eb] hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-                <Target className="w-4 h-4" />
-                {dict.about?.hero?.subtitle || "Modernizing Bulgaria's new construction market"}
-              </div>
-              <h1 className="text-4xl md:text-6xl font-bold text-[#111827] mb-8 leading-tight font-serif">
-                {dict.about?.hero?.title || "About Mister Imot"}
-              </h1>
-            </div>
-          </ScrollAnimationWrapper>
-        </div>
-        <AngledSeparator />
-      </section>
-
-      {/* About Mister Imot Section */}
+      {/* About Mister Imot Section - First Section */}
       <section className="py-24 md:py-32 bg-white">
         <div className="container">
-          <ScrollAnimationWrapper>
-            <div className="max-w-5xl mx-auto">
-              <h2 className="text-3xl md:text-4xl font-bold text-[#111827] mb-6 text-center font-serif">
-                {dict.about?.aboutMisterImot?.title || "About Mister Imot"}
-              </h2>
-              <p className="text-lg md:text-xl text-[#374151] leading-relaxed mb-12 text-center max-w-3xl mx-auto font-sans">
-                {dict.about?.aboutMisterImot?.description || "Mister Imot is a platform created with a vision to modernize the new construction market in Bulgaria and make it transparent, direct, and accessible."}
-              </p>
-              
-              <div className="space-y-8">
+          <div className="max-w-7xl mx-auto">
+            {/* Header */}
+            <ScrollAnimationWrapper>
+              <div className="text-center mb-12 md:mb-16">
+                <div className="inline-flex items-center gap-2 bg-white text-[#111827] px-4 py-2 md:px-5 md:py-2.5 rounded-full text-xs md:text-sm font-semibold mb-6 md:mb-8 shadow-lg border border-[#e5e7eb] max-w-[90%] md:max-w-none">
+                  <Target className="w-3.5 h-3.5 md:w-4 md:h-4 flex-shrink-0" />
+                  <span className="text-center">{dict.about?.hero?.subtitle || "Modernizing Bulgaria's new construction market"}</span>
+                </div>
+                <h1 className="text-3xl md:text-4xl font-bold text-[#111827] mb-6 font-serif">
+                  {dict.about?.aboutMisterImot?.title || dict.about?.hero?.title || "About Mister Imot"}
+                </h1>
+                <p className="text-lg md:text-xl text-[#374151] leading-relaxed max-w-3xl mx-auto font-sans">
+                  {dict.about?.aboutMisterImot?.description || "Mister Imot is a platform created with a vision to modernize the new construction market in Bulgaria and make it transparent, direct, and accessible."}
+                </p>
+              </div>
+            </ScrollAnimationWrapper>
+
+            {/* Split Layout: Content on Left, Dashboard on Right */}
+            <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
+              {/* Left: Content Cards */}
+              <div className="space-y-6">
                 <ScrollAnimationWrapper delay={0.1}>
                   <div className="flex items-start gap-5 bg-gradient-to-br from-[#f0f4f6] to-[#e8edf0] rounded-2xl p-6 md:p-8 border border-[#e5e7eb] shadow-md hover:shadow-lg transition-all duration-300">
                     <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-[#111827] to-[#1f2937] rounded-full flex items-center justify-center mt-1 shadow-md">
@@ -119,63 +119,117 @@ export default function AboutClient({ dict, lang }: AboutClientProps) {
                   </div>
                 </ScrollAnimationWrapper>
               </div>
+
+              {/* Right: Desktop Dashboard Mockup */}
+              <ScrollAnimationWrapper delay={0.2}>
+                <div className="relative w-full md:max-w-[640px] ml-auto md:mt-2">
+                  <div className="relative aspect-[16/10] w-full rounded-2xl overflow-hidden ring-1 ring-black/10 shadow-[0_20px_60px_rgba(2,6,23,0.15)] bg-white">
+                    <Image
+                      src={getImageKitUrl("https://ik.imagekit.io/ts59gf2ul/about-us/372shots_so.png?updatedAt=1762858783236", 1920, 1200, 95)}
+                      alt="Mister Imot Dashboard - Property Management"
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 640px"
+                      priority
+                    />
+                  </div>
+                  {/* Decorative glow effect */}
+                  <div className="pointer-events-none absolute -inset-6 -z-10 rounded-[28px] bg-[radial-gradient(40%_40%_at_60%_40%,rgba(139,92,246,0.18),transparent_60%)]" />
+                </div>
+              </ScrollAnimationWrapper>
             </div>
-          </ScrollAnimationWrapper>
+          </div>
         </div>
       </section>
 
       {/* Mission Section */}
-      <section className="py-24 md:py-32 bg-gradient-to-br from-[#f0f4f6] to-[#e8edf0]">
-        <div className="container">
-          <ScrollAnimationWrapper>
-            <div className="max-w-5xl mx-auto text-center">
-              <h2 className="text-3xl md:text-4xl font-bold text-[#111827] mb-6 font-serif">
-                {dict.about?.mission?.title || "Our Mission"}
-              </h2>
-              <p className="text-xl md:text-2xl text-[#374151] leading-relaxed mb-12 font-medium font-sans">
-                {dict.about?.mission?.description || "To create the most reliable and modern ecosystem for new construction in Bulgaria."}
-              </p>
-              
-              <div className="space-y-8 text-left max-w-4xl mx-auto">
-                <ScrollAnimationWrapper delay={0.1}>
-                  <div className="bg-white rounded-2xl p-6 md:p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-[#e5e7eb] bg-gradient-to-br from-white to-[#f9fafb]">
+      <section className="py-24 md:py-32 bg-gradient-to-br from-[#f0f4f6] to-[#e8edf0] relative overflow-hidden">
+        {/* Subtle background SVG pattern */}
+        <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
+          <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="mission-grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#111827" strokeWidth="0.5" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#mission-grid)" />
+          </svg>
+        </div>
+
+        <div className="container relative">
+          <div className="max-w-7xl mx-auto">
+            {/* Header */}
+            <ScrollAnimationWrapper>
+              <div className="text-center mb-10 md:mb-12">
+                <h2 className="text-3xl md:text-4xl font-bold text-[#111827] mb-6 font-serif">
+                  {dict.about?.mission?.title || "Our Mission"}
+                </h2>
+                <p className="text-xl md:text-2xl text-[#374151] leading-relaxed font-medium font-sans max-w-3xl mx-auto">
+                  {dict.about?.mission?.description || "To create the most reliable and modern ecosystem for new construction in Bulgaria."}
+                </p>
+              </div>
+            </ScrollAnimationWrapper>
+
+            {/* Split Layout: Map Image on Left, Mission Content on Right */}
+            <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-start">
+              {/* Left: Map Image */}
+              <ScrollAnimationWrapper delay={0.1}>
+                <div className="relative w-full max-w-[320px] mx-auto md:mx-0 md:sticky md:top-24">
+                  <div className="relative aspect-[9/16] w-full rounded-[2rem] overflow-hidden ring-1 ring-black/10 shadow-[0_12px_40px_rgba(2,6,23,0.16)] bg-white">
+                    <Image
+                      src={getImageKitUrl("https://ik.imagekit.io/ts59gf2ul/about-us/108shots_so.png?updatedAt=1762858783223", 900, 1600, 95)}
+                      alt="Mister Imot Mobile - Map View"
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 80vw, 320px"
+                      loading="lazy"
+                    />
+                  </div>
+                </div>
+              </ScrollAnimationWrapper>
+
+              {/* Right: Mission Points + Goal */}
+              <div className="space-y-6 flex flex-col">
+                <ScrollAnimationWrapper delay={0.2}>
+                  <div className="bg-white rounded-2xl p-6 md:p-8 shadow-lg border border-[#e5e7eb]">
                     <p className="text-[#374151] leading-relaxed text-base md:text-lg font-sans">
                       {dict.about?.mission?.point1 || "We work daily to improve the platform, listen to users, and implement their ideas."}
                     </p>
                   </div>
                 </ScrollAnimationWrapper>
                 
-                <ScrollAnimationWrapper delay={0.2}>
-                  <div className="bg-white rounded-2xl p-6 md:p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-[#e5e7eb] bg-gradient-to-br from-white to-[#f9fafb]">
+                <ScrollAnimationWrapper delay={0.3}>
+                  <div className="bg-white rounded-2xl p-6 md:p-8 shadow-lg border border-[#e5e7eb]">
                     <p className="text-[#374151] leading-relaxed text-base md:text-lg font-sans">
                       {dict.about?.mission?.point2 || "We invest in technology, security, and marketing, because we believe that good projects deserve real visibility."}
                     </p>
                   </div>
                 </ScrollAnimationWrapper>
-                
-                <ScrollAnimationWrapper delay={0.3}>
-                  <div className="bg-gradient-to-br from-[#111827] to-[#1f2937] rounded-2xl p-8 md:p-10 shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-[1.02]">
-                    <p className="text-white text-lg md:text-xl leading-relaxed font-medium font-sans">
+
+                {/* Goal Card - Integrated in Right Column */}
+                <ScrollAnimationWrapper delay={0.4}>
+                  <div className="bg-gradient-to-br from-[#111827] to-[#1f2937] rounded-2xl p-6 md:p-8 shadow-2xl border border-[#374151] mt-2">
+                    <p className="text-white text-base md:text-lg leading-relaxed font-medium font-sans">
                       {dict.about?.mission?.goal || "Our goal is clear — to become the largest platform for new construction in Bulgaria and one of the leaders on a global scale."}
                     </p>
                   </div>
                 </ScrollAnimationWrapper>
               </div>
             </div>
-          </ScrollAnimationWrapper>
+          </div>
         </div>
       </section>
 
       {/* Roadmap Section */}
-      <section className="py-24 md:py-32 bg-white">
-        <div className="container">
+      <section className="py-24 md:py-32 bg-gradient-to-br from-[#f0f4f6] to-[#e8edf0] relative overflow-hidden">
+        <div className="container relative">
           <ScrollAnimationWrapper>
             <div className="text-center mb-16 max-w-3xl mx-auto">
-              <h2 className="text-3xl md:text-4xl font-bold text-[#111827] mb-4 font-serif">
+              <h2 className="text-3xl md:text-5xl font-bold text-[#111827] mb-6 font-serif">
                 {dict.about?.roadmap?.title || "Roadmap"}
               </h2>
-              <p className="text-lg text-[#374151] leading-relaxed font-sans">
-                {dict.about?.roadmap?.subtitle}
+              <p className="text-lg md:text-xl text-[#374151] leading-relaxed font-sans">
+                {dict.about?.roadmap?.subtitle || "Our journey from concept to global platform"}
               </p>
             </div>
           </ScrollAnimationWrapper>
@@ -189,37 +243,56 @@ export default function AboutClient({ dict, lang }: AboutClientProps) {
       {/* Our Approach Section */}
       <section className="py-24 md:py-32 bg-gradient-to-br from-[#f0f4f6] to-[#e8edf0]">
         <div className="container">
-          <ScrollAnimationWrapper>
-            <div className="text-center mb-16">
+          <div className="max-w-7xl mx-auto">
+            {/* Header */}
+            <div className="text-center mb-12 md:mb-16">
               <h2 className="text-3xl md:text-4xl font-bold text-[#111827] mb-4 font-serif">
                 {dict.about?.ourApproach?.title || "Our Approach"}
               </h2>
             </div>
-          </ScrollAnimationWrapper>
-          
-          <div className="grid md:grid-cols-3 gap-10 max-w-6xl mx-auto mb-16">
-            {approachPoints.map((point, index) => (
-              <ScrollAnimationWrapper key={index} delay={index * 0.1}>
-                <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 group h-full flex flex-col border border-[#e5e7eb] transform hover:scale-105">
-                  <div className="w-16 h-16 bg-gradient-to-br from-[#111827] to-[#1f2937] rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 flex-shrink-0 shadow-md">
-                    <point.icon className="w-8 h-8 text-white" />
+
+            {/* Unified White Container */}
+            <div className="bg-white rounded-2xl shadow-lg border border-[#e5e7eb] overflow-hidden">
+              {/* Top Section: Image and Cards */}
+              <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-stretch p-6 md:p-8 lg:p-10">
+                {/* Left: Mobile Location View */}
+                <div className="relative w-full max-w-[320px] mx-auto md:mx-0">
+                  <div className="relative aspect-[9/16] w-full rounded-[2rem] overflow-hidden ring-1 ring-black/10 shadow-[0_12px_40px_rgba(2,6,23,0.16)] bg-white">
+                    <Image
+                      src={getImageKitUrl("https://ik.imagekit.io/ts59gf2ul/about-us/701shots_so.png?updatedAt=1762858783237", 900, 1600, 95)}
+                      alt="Mister Imot Mobile - Location View"
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 80vw, 320px"
+                      loading="lazy"
+                    />
                   </div>
-                  <h3 className="text-xl font-bold text-[#111827] mb-4 font-serif">{point.title}</h3>
-                  <p className="text-[#374151] leading-relaxed flex-grow font-sans">{point.description}</p>
                 </div>
-              </ScrollAnimationWrapper>
-            ))}
-          </div>
-          
-          <ScrollAnimationWrapper delay={0.4}>
-            <div className="max-w-4xl mx-auto text-center">
-              <div className="bg-white rounded-2xl p-8 md:p-10 shadow-lg hover:shadow-xl transition-all duration-300 border border-[#e5e7eb] bg-gradient-to-br from-white to-[#f9fafb]">
-                <p className="text-lg md:text-xl text-[#111827] leading-relaxed font-medium font-sans">
+
+                {/* Right: Approach Cards - Stacked to match image height */}
+                <div className="flex flex-col h-full">
+                  <div className="space-y-4 flex flex-col h-full">
+                    {approachPoints.map((point, index) => (
+                      <div key={index} className="bg-gradient-to-br from-[#f9fafb] to-white rounded-xl p-6 md:p-7 border border-[#e5e7eb] flex-1 flex flex-col">
+                        <div className="w-12 h-12 bg-gradient-to-br from-[#111827] to-[#1f2937] rounded-xl flex items-center justify-center mb-4 flex-shrink-0 shadow-md">
+                          <point.icon className="w-6 h-6 text-white" />
+                        </div>
+                        <h3 className="text-lg md:text-xl font-bold text-[#111827] mb-2 font-serif">{point.title}</h3>
+                        <p className="text-[#374151] leading-relaxed text-sm md:text-base flex-grow font-sans">{point.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Bottom Section: Closing Statement - Integrated */}
+              <div className="border-t border-[#e5e7eb] bg-gradient-to-br from-[#f9fafb] to-white px-6 md:px-8 lg:px-10 py-6 md:py-8">
+                <p className="text-lg md:text-xl text-[#111827] leading-relaxed font-medium font-sans text-center">
                   {dict.about?.ourApproach?.closing || "Mister Imot is not just a real estate website — it is the new standard for transparency and accessibility in the new construction market."}
                 </p>
               </div>
             </div>
-          </ScrollAnimationWrapper>
+          </div>
         </div>
       </section>
 
