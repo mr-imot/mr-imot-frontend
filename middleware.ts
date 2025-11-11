@@ -45,13 +45,18 @@ export function middleware(request: NextRequest) {
   
 
   // Handle explicit /en/ paths - redirect to root (English default)
-  // BUT exclude not-found pages to prevent redirect loops
-  if (pathname.startsWith('/en/') && pathname !== '/en/not-found') {
+  // BUT exclude not-found pages and register to prevent redirect loops and preserve query params
+  if (pathname.startsWith('/en/') && pathname !== '/en/not-found' && pathname !== '/en/register') {
+    const url = request.nextUrl.clone()
     const newPath = pathname.replace('/en', '') || '/'
-    return NextResponse.redirect(new URL(newPath, request.url))
+    url.pathname = newPath
+    // Query params are automatically preserved in the cloned URL
+    return NextResponse.redirect(url)
   }
   if (pathname === '/en') {
-    return NextResponse.redirect(new URL('/', request.url))
+    const url = request.nextUrl.clone()
+    url.pathname = '/'
+    return NextResponse.redirect(url)
   }
 
   // Handle old /listing/ route - redirect to proper localized route

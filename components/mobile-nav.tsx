@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Menu, LogOut, User, Settings, Globe } from "lucide-react"
@@ -87,6 +87,7 @@ function AuthActionsSection({ onLinkClick, t }: { onLinkClick: () => void; t: an
 function MobileLanguageSwitcher({ onLinkClick }: { onLinkClick: () => void }) {
   const pathname = usePathname()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const currentLocale = useLocale()
 
   const languages = [
@@ -137,7 +138,12 @@ function MobileLanguageSwitcher({ onLinkClick }: { onLinkClick: () => void }) {
 
     // For English, navigate to root; for others, prefix
     const newPath = newLocale === 'en' ? pathWithoutLocale : `/${newLocale}${pathWithoutLocale}`
-    router.push(newPath)
+    
+    // Preserve query parameters (e.g., ?type=developer)
+    const queryString = searchParams.toString()
+    const finalPath = queryString ? `${newPath}?${queryString}` : newPath
+    
+    router.push(finalPath)
     // Persist preference so middleware honors it (standardized to NEXT_LOCALE)
     document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=${60 * 60 * 24 * 365}`
     onLinkClick()

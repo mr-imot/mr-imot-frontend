@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { 
   DropdownMenu, 
@@ -31,6 +31,7 @@ export function LanguageSwitcher() {
   const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const currentLocale = useLocale()
 
   const currentLanguage = languages.find(lang => lang.code === currentLocale) || languages[0]
@@ -82,8 +83,12 @@ export function LanguageSwitcher() {
     // 4. For English, navigate to root; for others, prefix
     const newPath = newLocale === 'en' ? pathWithoutLocale : `/${newLocale}${pathWithoutLocale}`
     
-    // 5. Navigate and force a full refresh to ensure cookie is picked up
-    router.push(newPath)
+    // 5. Preserve query parameters (e.g., ?type=developer)
+    const queryString = searchParams.toString()
+    const finalPath = queryString ? `${newPath}?${queryString}` : newPath
+    
+    // 6. Navigate and force a full refresh to ensure cookie is picked up
+    router.push(finalPath)
     router.refresh()
     
     setIsOpen(false)
