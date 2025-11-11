@@ -354,6 +354,12 @@ h1, h2, h3, h4, h5, h6, p, span, div, section, article {
   line-height: 1.0 !important; /* mobile-first: comfortable spacing for readability */
 }
 
+/* Ensure descenders (like р, g, p, q, y) are fully visible */
+.hero-title {
+  padding-bottom: 0.15em !important;
+  overflow: visible !important;
+}
+
 @media (min-width: 640px) { /* sm */
   .hero-title,
   .hero-title *,
