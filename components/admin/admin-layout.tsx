@@ -26,6 +26,7 @@ import {
   Activity,
   Bell,
   ChevronDown,
+  Building2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -54,6 +55,12 @@ const navigation: NavItem[] = [
     href: '/admin/developers',
     icon: Users,
     description: 'Verify and manage developers',
+  },
+  {
+    name: 'Manage Listings',
+    href: '/admin/listings',
+    icon: Building2,
+    description: 'View and manage all listings',
   },
   {
     name: 'System Activity',

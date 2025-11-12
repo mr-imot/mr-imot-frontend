@@ -119,6 +119,32 @@ export interface SystemHealth {
   lastChecked?: string;
 }
 
+export interface AdminProject {
+  id: string;
+  developer_id: string;
+  developer: {
+    id: string | null;
+    company_name: string | null;
+    email: string | null;
+  };
+  name: string;
+  description: string;
+  city: string;
+  country: string;
+  project_type: string;
+  is_active: boolean;
+  created_at: string;
+  images_count: number;
+}
+
+export interface AdminProjectsResponse {
+  projects: AdminProject[];
+  total: number;
+  page: number;
+  per_page: number;
+  total_pages: number;
+}
+
 // Error types for better error handling
 export class AdminApiError extends Error {
   constructor(
@@ -496,6 +522,35 @@ class AdminApiClient {
       body: JSON.stringify({ developer_ids: developerIds }),
     });
   }
+
+  // Project/Listing management endpoints
+  async getAllProjects(params?: {
+    search?: string;
+    project_id?: string;
+    page?: number;
+    per_page?: number;
+  }): Promise<AdminProjectsResponse> {
+    const queryParams = new URLSearchParams();
+    if (params?.search) queryParams.append('search', params.search);
+    if (params?.project_id) queryParams.append('project_id', params.project_id);
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.per_page) queryParams.append('per_page', params.per_page.toString());
+
+    const queryString = queryParams.toString();
+    const endpoint = `/api/v1/admin/projects${queryString ? `?${queryString}` : ''}`;
+    
+    return this.request<AdminProjectsResponse>(endpoint);
+  }
+
+  async getProjectById(projectId: string): Promise<any> {
+    return this.request<any>(`/api/v1/admin/projects/${projectId}`);
+  }
+
+  async deleteProject(projectId: string): Promise<ApiResponse<null>> {
+    return this.request<ApiResponse<null>>(`/api/v1/admin/projects/${projectId}`, {
+      method: 'DELETE',
+    });
+  }
 }
 
 // Export singleton instance
@@ -516,4 +571,14 @@ export const bulkRejectDevelopers = (developerIds: string[]) => adminApiClient.b
 export const getAdminStats = () => adminApiClient.getAdminStats();
 export const getAdminActivity = () => adminApiClient.getAdminActivity();
 export const getAdminAudit = () => adminApiClient.getAdminAudit();
-export const sendNotification = (request: NotificationRequest) => adminApiClient.sendNotification(request); 
+export const sendNotification = (request: NotificationRequest) => adminApiClient.sendNotification(request);
+
+// Project/Listing management functions
+export const getAllProjects = (params?: {
+  search?: string;
+  project_id?: string;
+  page?: number;
+  per_page?: number;
+}) => adminApiClient.getAllProjects(params);
+export const getProjectById = (projectId: string) => adminApiClient.getProjectById(projectId);
+export const deleteProject = (projectId: string) => adminApiClient.deleteProject(projectId); 
