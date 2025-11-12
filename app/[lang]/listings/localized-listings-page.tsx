@@ -416,7 +416,7 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
     }
   }, [apiProjects, loading])
 
-  // CHANGE 2: Subscribe to propertyCacheUpdated and merge only matching city/type
+  // CHANGE 2: Subscribe to propertyCacheUpdated and REPLACE cache (not merge) to ensure deleted listings are removed
   useEffect(() => {
     const handleCacheUpdate = (event: Event) => {
       const custom = event as CustomEvent<{ city: string; propertyType: string; data: PropertyData[] }>
@@ -424,7 +424,8 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
       if (!city || !propertyType || !Array.isArray(data)) return
       if (city !== selectedCity || propertyType !== propertyTypeFilter) return
 
-      const local = new Map<string, PropertyData>(propertyCacheRef.current)
+      // REPLACE the cache, don't merge - this ensures deleted listings are removed
+      const local = new Map<string, PropertyData>()
       data.forEach((p) => local.set(String((p as any).id || p.id), p))
       propertyCacheRef.current = local
       setCacheVersion((v) => v + 1)
