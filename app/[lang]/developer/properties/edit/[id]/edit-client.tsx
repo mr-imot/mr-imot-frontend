@@ -121,7 +121,7 @@ export default function EditProjectPage({ dict, lang, params }: EditPropertyClie
   }
 
   const mapRef = useRef<HTMLDivElement | null>(null)
-  const markerRef = useRef<google.maps.Marker | null>(null)
+  const markerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null)
   const mapInstanceRef = useRef<google.maps.Map | null>(null)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const addressInputRef = useRef<HTMLInputElement | null>(null)
@@ -254,14 +254,22 @@ export default function EditProjectPage({ dict, lang, params }: EditPropertyClie
             scrollwheel: true, // Enable scroll wheel zoom
             draggableCursor: "grab",
             draggingCursor: "grabbing",
+            mapId: 'e1ea25ce333a0b0deb34ff54', // Required for AdvancedMarkerElement
           })
 
-          const marker = new google.maps.Marker({
+          // Create marker pin element
+          const pinElement = document.createElement('div')
+          pinElement.innerHTML = '📍'
+          pinElement.style.cursor = 'grab'
+          pinElement.style.fontSize = '24px'
+          pinElement.style.textAlign = 'center'
+
+          const marker = new google.maps.marker.AdvancedMarkerElement({
             position: { lat, lng },
             map,
-            draggable: true,
+            content: pinElement,
             title: "Project Location",
-            cursor: "pointer"
+            gmpDraggable: true,
           })
 
           mapInstanceRef.current = map
@@ -315,22 +323,23 @@ export default function EditProjectPage({ dict, lang, params }: EditPropertyClie
           }
 
           // Marker drag end - update coordinates and reverse geocode
-          marker.addListener("dragend", () => {
-            const pos = marker.getPosition()
+          marker.addEventListener("dragend", (event) => {
+            const pos = event.target.position
             if (pos) {
-              form.setValue("latitude", pos.lat(), { shouldValidate: true })
-              form.setValue("longitude", pos.lng(), { shouldValidate: true })
-              reverseGeocode(pos.lat(), pos.lng())
+              form.setValue("latitude", pos.lat, { shouldValidate: true })
+              form.setValue("longitude", pos.lng, { shouldValidate: true })
+              reverseGeocode(pos.lat, pos.lng)
             }
           })
 
           // Map click - move marker and update coordinates
           map.addListener("click", (e: google.maps.MapMouseEvent) => {
             if (!e.latLng || !markerRef.current) return
-            markerRef.current.setPosition(e.latLng)
-            form.setValue("latitude", e.latLng.lat(), { shouldValidate: true })
-            form.setValue("longitude", e.latLng.lng(), { shouldValidate: true })
-            reverseGeocode(e.latLng.lat(), e.latLng.lng())
+            const newPosition = { lat: e.latLng.lat(), lng: e.latLng.lng() }
+            markerRef.current.position = newPosition
+            form.setValue("latitude", newPosition.lat, { shouldValidate: true })
+            form.setValue("longitude", newPosition.lng, { shouldValidate: true })
+            reverseGeocode(newPosition.lat, newPosition.lng)
           })
 
         } catch (error) {
@@ -371,7 +380,7 @@ export default function EditProjectPage({ dict, lang, params }: EditPropertyClie
             // Update map and marker
             mapInstanceRef.current.setCenter(newCenter)
             mapInstanceRef.current.setZoom(16)
-            markerRef.current.setPosition(newCenter)
+            markerRef.current.position = newCenter
             
             // Parse address components to fill city, country, and address fields
             let city = ''

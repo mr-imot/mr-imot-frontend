@@ -77,7 +77,7 @@ export default function DeveloperProfilePage({ dict, lang }: ProfileClientProps)
   
   // Refs for Google Maps
   const mapRef = useRef<HTMLDivElement | null>(null)
-  const markerRef = useRef<google.maps.Marker | null>(null)
+  const markerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null)
   const mapInstanceRef = useRef<google.maps.Map | null>(null)
   const addressInputRef = useRef<HTMLInputElement | null>(null)
 
@@ -200,27 +200,36 @@ export default function DeveloperProfilePage({ dict, lang }: ProfileClientProps)
           zoomControl: true,
           scrollwheel: true,
           gestureHandling: 'greedy',
+          mapId: 'e1ea25ce333a0b0deb34ff54', // Required for AdvancedMarkerElement
         })
 
         mapInstanceRef.current = map
 
+        // Create marker pin element
+        const pinElement = document.createElement('div')
+        pinElement.innerHTML = '📍'
+        pinElement.style.cursor = 'grab'
+        pinElement.style.fontSize = '24px'
+        pinElement.style.textAlign = 'center'
+
         // Create marker
-        const marker = new google.maps.Marker({
+        const marker = new google.maps.marker.AdvancedMarkerElement({
           position: profile?.office_latitude && profile?.office_longitude 
             ? { lat: profile.office_latitude, lng: profile.office_longitude }
             : defaultCenter,
           map: map,
-          draggable: true,
+          content: pinElement,
+          gmpDraggable: true,
         })
 
         markerRef.current = marker
 
         // Handle marker drag
-        marker.addListener('dragend', () => {
-          const position = marker.getPosition()
+        marker.addEventListener('dragend', (event) => {
+          const position = event.target.position
           if (position) {
-            const lat = position.lat()
-            const lng = position.lng()
+            const lat = position.lat
+            const lng = position.lng
             
             profileForm.setValue("office_latitude", lat, { shouldValidate: true })
             profileForm.setValue("office_longitude", lng, { shouldValidate: true })
@@ -233,10 +242,11 @@ export default function DeveloperProfilePage({ dict, lang }: ProfileClientProps)
         // Map click - move marker and update coordinates
         map.addListener("click", (e: google.maps.MapMouseEvent) => {
           if (!e.latLng || !markerRef.current) return
-          markerRef.current.setPosition(e.latLng)
-          profileForm.setValue("office_latitude", e.latLng.lat(), { shouldValidate: true })
-          profileForm.setValue("office_longitude", e.latLng.lng(), { shouldValidate: true })
-          reverseGeocode(e.latLng.lat(), e.latLng.lng())
+          const newPosition = { lat: e.latLng.lat(), lng: e.latLng.lng() }
+          markerRef.current.position = newPosition
+          profileForm.setValue("office_latitude", newPosition.lat, { shouldValidate: true })
+          profileForm.setValue("office_longitude", newPosition.lng, { shouldValidate: true })
+          reverseGeocode(newPosition.lat, newPosition.lng)
         })
 
         // If we have an address but no coordinates, geocode it after map is ready
@@ -286,7 +296,7 @@ export default function DeveloperProfilePage({ dict, lang }: ProfileClientProps)
             // Update map and marker
             mapInstanceRef.current.setCenter(newCenter)
             mapInstanceRef.current.setZoom(16)
-            markerRef.current.setPosition(newCenter)
+            markerRef.current.position = newCenter
             
             // Update form values
             profileForm.setValue("office_latitude", newCenter.lat, { shouldValidate: true })
@@ -336,7 +346,7 @@ export default function DeveloperProfilePage({ dict, lang }: ProfileClientProps)
           // Update map and marker
           mapInstanceRef.current.setCenter(newPosition)
           mapInstanceRef.current.setZoom(16)
-          markerRef.current.setPosition(newPosition)
+          markerRef.current.position = newPosition
           
           // Update form values
           profileForm.setValue("office_latitude", newPosition.lat, { shouldValidate: true })

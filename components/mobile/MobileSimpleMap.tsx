@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { ensureGoogleMaps, getAirbnbStyleMapConfig } from "@/lib/google-maps"
+import { ensureGoogleMaps } from "@/lib/google-maps"
 import { PropertyData } from "@/lib/marker-manager"
 import { Loader2, MapPin } from "lucide-react"
 
@@ -28,7 +28,8 @@ export function MobileSimpleMap({
 }: MobileSimpleMapProps) {
   const mapRef = useRef<HTMLDivElement>(null)
   const googleMapRef = useRef<google.maps.Map | null>(null)
-  const markersRef = useRef<Record<string, google.maps.Marker>>({})
+  const markersRef = useRef<Record<string, google.maps.marker.AdvancedMarkerElement>>({})
+  const markerElementsRef = useRef<Record<string, HTMLElement>>({})
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -53,7 +54,8 @@ export function MobileSimpleMap({
           gestureHandling: 'greedy', // 1-finger scrolling on mobile
           disableDefaultUI: false,
           mapTypeId: google.maps.MapTypeId.ROADMAP,
-          styles: getAirbnbStyleMapConfig(), // Airbnb-style muted colors for easier viewing
+          mapId: 'e1ea25ce333a0b0deb34ff54', // Required for AdvancedMarkerElement
+          // Note: styles are ignored when mapId is present - must be configured in Google Cloud Console
         })
         
         googleMapRef.current = map
@@ -88,8 +90,9 @@ export function MobileSimpleMap({
     if (!googleMapRef.current || !properties.length) return
 
     // Clear existing markers
-    Object.values(markersRef.current).forEach(marker => marker.setMap(null))
+    Object.values(markersRef.current).forEach(marker => marker.map = null)
     markersRef.current = {}
+    markerElementsRef.current = {}
 
     // Create simple markers for each property
     properties.forEach(property => {
@@ -98,30 +101,34 @@ export function MobileSimpleMap({
         return
       }
 
-      
+      // Create circle marker element with SVG
+      const circleElement = document.createElement('div')
+      circleElement.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="8" cy="8" r="6" fill="#FF385C" fill-opacity="0.9" 
+                  stroke="#FFFFFF" stroke-width="2"/>
+        </svg>
+      `
+      circleElement.style.cursor = 'pointer'
+      circleElement.style.display = 'flex'
+      circleElement.style.alignItems = 'center'
+      circleElement.style.justifyContent = 'center'
+      circleElement.setAttribute('title', property.title)
 
-      // Use simple circle markers for better mobile performance
-      const marker = new google.maps.Marker({
+      // Use AdvancedMarkerElement for better mobile performance
+      const marker = new google.maps.marker.AdvancedMarkerElement({
         position: { lat: property.lat, lng: property.lng },
         map: googleMapRef.current,
+        content: circleElement,
         title: property.title,
-        icon: {
-          path: google.maps.SymbolPath.CIRCLE,
-          scale: 8,
-          fillColor: "#FF385C",
-          fillOpacity: 0.9,
-          strokeColor: "#FFFFFF",
-          strokeWeight: 2
-        },
         zIndex: 1,
-        optimized: true, // Better performance on mobile
-        clickable: true
       })
 
       markersRef.current[property.id] = marker
+      markerElementsRef.current[property.id] = circleElement
 
       // Add click handler
-      marker.addListener('click', () => {
+      marker.addEventListener('click', () => {
         console.log('🔴 MOBILE MARKER CLICKED:', property.id, property.title)
         onPropertySelect(property.id)
       })
@@ -129,14 +136,14 @@ export function MobileSimpleMap({
       // Add touch-friendly hover handlers (with debouncing for mobile)
       let hoverTimeout: NodeJS.Timeout | null = null
       
-      marker.addListener('mouseover', () => {
+      marker.addEventListener('mouseover', () => {
         if (hoverTimeout) clearTimeout(hoverTimeout)
         hoverTimeout = setTimeout(() => {
           onPropertyHover(property.id)
         }, 150) // Slightly longer delay for mobile
       })
       
-      marker.addListener('mouseout', () => {
+      marker.addEventListener('mouseout', () => {
         if (hoverTimeout) {
           clearTimeout(hoverTimeout)
           hoverTimeout = null
@@ -150,40 +157,37 @@ export function MobileSimpleMap({
   useEffect(() => {
     Object.entries(markersRef.current).forEach(([id, marker]) => {
       const propertyId = id
+      const circleElement = markerElementsRef.current[propertyId]
+      
+      if (!circleElement) return
       
       if (selectedPropertyId === propertyId) {
         // Selected state - larger, darker red
-        marker.setIcon({
-          path: google.maps.SymbolPath.CIRCLE,
-          scale: 12,
-          fillColor: "#E00B41",
-          fillOpacity: 1,
-          strokeColor: "#FFFFFF",
-          strokeWeight: 3
-        })
-        marker.setZIndex(999)
+        circleElement.innerHTML = `
+          <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="9" fill="#E00B41" fill-opacity="1" 
+                    stroke="#FFFFFF" stroke-width="3"/>
+          </svg>
+        `
+        marker.zIndex = 999
       } else if (hoveredPropertyId === propertyId) {
         // Hovered state - slightly larger, bright red
-        marker.setIcon({
-          path: google.maps.SymbolPath.CIRCLE,
-          scale: 10,
-          fillColor: "#FF385C",
-          fillOpacity: 1,
-          strokeColor: "#FFFFFF",
-          strokeWeight: 2
-        })
-        marker.setZIndex(500)
+        circleElement.innerHTML = `
+          <svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="10" cy="10" r="7.5" fill="#FF385C" fill-opacity="1" 
+                    stroke="#FFFFFF" stroke-width="2"/>
+          </svg>
+        `
+        marker.zIndex = 500
       } else {
         // Default state
-        marker.setIcon({
-          path: google.maps.SymbolPath.CIRCLE,
-          scale: 8,
-          fillColor: "#FF385C",
-          fillOpacity: 0.9,
-          strokeColor: "#FFFFFF",
-          strokeWeight: 2
-        })
-        marker.setZIndex(1)
+        circleElement.innerHTML = `
+          <svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="8" cy="8" r="6" fill="#FF385C" fill-opacity="0.9" 
+                    stroke="#FFFFFF" stroke-width="2"/>
+          </svg>
+        `
+        marker.zIndex = 1
       }
     })
   }, [selectedPropertyId, hoveredPropertyId])

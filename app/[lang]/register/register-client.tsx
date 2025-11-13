@@ -71,7 +71,7 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
 
   // Google Maps refs and state
   const mapRef = useRef<HTMLDivElement | null>(null)
-  const markerRef = useRef<google.maps.Marker | null>(null)
+  const markerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null)
   const mapInstanceRef = useRef<google.maps.Map | null>(null)
   const addressInputRef = useRef<HTMLInputElement | null>(null)
   
@@ -133,24 +133,33 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
           scrollwheel: true,
           draggableCursor: "grab",
           draggingCursor: "grabbing",
+          mapId: 'e1ea25ce333a0b0deb34ff54', // Required for AdvancedMarkerElement
         })
 
-        const marker = new google.maps.Marker({
+        // Create marker pin element
+        const pinElement = document.createElement('div')
+        pinElement.innerHTML = '📍'
+        pinElement.style.cursor = 'grab'
+        pinElement.style.fontSize = '24px'
+        pinElement.style.textAlign = 'center'
+
+        const marker = new google.maps.marker.AdvancedMarkerElement({
           position: defaultCenter,
           map,
-          draggable: true,
+          content: pinElement,
           title: "Office Location",
+          gmpDraggable: true,
         })
 
         mapInstanceRef.current = map
         markerRef.current = marker
 
         // Handle marker drag
-        marker.addListener('dragend', () => {
-          const position = marker.getPosition()
+        marker.addEventListener('dragend', (event) => {
+          const position = event.target.position
           if (position) {
-            const lat = position.lat()
-            const lng = position.lng()
+            const lat = position.lat
+            const lng = position.lng
             
             setFormData(prev => ({
               ...prev,
@@ -166,13 +175,14 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
         // Map click - move marker and update coordinates
         map.addListener("click", (e: google.maps.MapMouseEvent) => {
           if (!e.latLng || !markerRef.current) return
-          markerRef.current.setPosition(e.latLng)
+          const newPosition = { lat: e.latLng.lat(), lng: e.latLng.lng() }
+          markerRef.current.position = newPosition
           setFormData(prev => ({
             ...prev,
-            officeLatitude: e.latLng!.lat(),
-            officeLongitude: e.latLng!.lng()
+            officeLatitude: newPosition.lat,
+            officeLongitude: newPosition.lng
           }))
-          reverseGeocode(e.latLng.lat(), e.latLng.lng())
+          reverseGeocode(newPosition.lat, newPosition.lng)
         })
 
       } catch (error) {
@@ -213,7 +223,7 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
             // Update map and marker
             mapInstanceRef.current.setCenter(newCenter)
             mapInstanceRef.current.setZoom(16)
-            markerRef.current.setPosition(newCenter)
+            markerRef.current.position = newCenter
             
             // Update form values
             setFormData(prev => ({
@@ -269,7 +279,7 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
           // Update map and marker
           mapInstanceRef.current.setCenter(newPosition)
           mapInstanceRef.current.setZoom(16)
-          markerRef.current.setPosition(newPosition)
+          markerRef.current.position = newPosition
           
           // Update form values
           setFormData(prev => ({

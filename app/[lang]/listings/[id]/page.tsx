@@ -109,13 +109,21 @@ const PropertyMap = ({ latitude, longitude, title }: { latitude: number, longitu
             draggingCursor: "grabbing",
             scrollwheel: true,
             gestureHandling: "greedy",
+            mapId: 'e1ea25ce333a0b0deb34ff54', // Required for AdvancedMarkerElement
           })
 
-          new window.google.maps.Marker({
+          // Create marker pin element
+          const pinElement = document.createElement('div')
+          pinElement.innerHTML = '📍'
+          pinElement.style.cursor = 'pointer'
+          pinElement.style.fontSize = '24px'
+          pinElement.style.textAlign = 'center'
+
+          new window.google.maps.marker.AdvancedMarkerElement({
             position: { lat: latitude, lng: longitude },
             map,
+            content: pinElement,
             title: title,
-            cursor: "pointer"
           })
         }
       } catch (error) {
@@ -152,13 +160,21 @@ const OfficeMap = ({ latitude, longitude, title }: { latitude: number, longitude
             draggingCursor: "grabbing",
             scrollwheel: true,
             gestureHandling: "greedy",
+            mapId: 'e1ea25ce333a0b0deb34ff54', // Required for AdvancedMarkerElement
           })
 
-          new window.google.maps.Marker({
+          // Create marker pin element
+          const pinElement = document.createElement('div')
+          pinElement.innerHTML = '📍'
+          pinElement.style.cursor = 'pointer'
+          pinElement.style.fontSize = '24px'
+          pinElement.style.textAlign = 'center'
+
+          new window.google.maps.marker.AdvancedMarkerElement({
             position: { lat: latitude, lng: longitude },
             map,
+            content: pinElement,
             title: title,
-            cursor: "pointer"
           })
         }
       } catch (error) {

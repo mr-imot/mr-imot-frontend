@@ -1,8 +1,7 @@
 'use client'
 
 import React, { useEffect, useMemo, useState, useRef } from 'react'
-import { GoogleMap, Marker, OverlayView, useJsApiLoader } from '@react-google-maps/api'
-import { createSvgMarkerIcon } from '@/lib/google-maps'
+import { ensureGoogleMaps, createSvgMarkerIcon } from '@/lib/google-maps'
 import { PropertyMapCard } from './property-map-card'
 
 interface PropertyData {
@@ -103,17 +102,12 @@ export function PropertyMapWithCards({
   height = '37.5rem',
   useRealData = true
 }: PropertyMapWithCardsProps) {
-  const { isLoaded } = useJsApiLoader({
-    id: 'google-map-script',
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
-    libraries: ['places']
-  })
-
   const [mapProperties, setMapProperties] = useState<PropertyData[]>(properties || [])
   const [selected, setSelected] = useState<PropertyData | null>(null)
   const [hoveredId, setHoveredId] = useState<string | number | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loadingData, setLoadingData] = useState(false)
+  const [isLoaded, setIsLoaded] = useState(false)
   const [cardPosition, setCardPosition] = useState<{
     top?: number
     left?: number
@@ -121,6 +115,8 @@ export function PropertyMapWithCards({
     bottom?: number
   }>({})
   const mapRef = useRef<google.maps.Map | null>(null)
+  const mapContainerRef = useRef<HTMLDivElement | null>(null)
+  const markersRef = useRef<Record<string | number, google.maps.marker.AdvancedMarkerElement>>({})
 
   useEffect(() => {
     if (!useRealData) {
@@ -153,130 +149,189 @@ export function PropertyMapWithCards({
   const containerStyle = useMemo(() => ({ width: '100%', height }), [height])
 
   // Calculate Airbnb-style intelligent card position based on marker location
-  const calculateCardPosition = (property: any, mapInstance: google.maps.Map) => {
-    const mapContainer = document.querySelector('.property-map-container')
-    if (!mapContainer || !mapInstance) return {}
-    
-    const mapBounds = mapContainer.getBoundingClientRect()
-    const cardWidth = 327
-    const cardHeight = 321
-    const padding = 20
-    
-    // Convert property lat/lng to screen coordinates
-    const projection = mapInstance.getProjection()
-    if (!projection) {
-      // Fallback to center positioning
-      return {
-        top: mapBounds.top + mapBounds.height * 0.3,
-        left: mapBounds.left + mapBounds.width * 0.6 - cardWidth / 2
+  const calculateCardPosition = useMemo(() => {
+    return (property: any, mapInstance: google.maps.Map) => {
+      const mapContainer = document.querySelector('.property-map-container')
+      if (!mapContainer || !mapInstance) return {}
+      
+      const mapBounds = mapContainer.getBoundingClientRect()
+      const cardWidth = 327
+      const cardHeight = 321
+      const padding = 20
+      
+      // Convert property lat/lng to screen coordinates
+      const projection = mapInstance.getProjection()
+      if (!projection) {
+        // Fallback to center positioning
+        return {
+          top: mapBounds.top + mapBounds.height * 0.3,
+          left: mapBounds.left + mapBounds.width * 0.6 - cardWidth / 2
+        }
+      }
+      
+      const markerLatLng = new google.maps.LatLng(property.lat, property.lng)
+      const markerPoint = projection.fromLatLngToPoint(markerLatLng)
+      const bounds = mapInstance.getBounds()
+      
+      if (!markerPoint || !bounds) {
+        return {
+          top: mapBounds.top + mapBounds.height * 0.3,
+          left: mapBounds.left + mapBounds.width * 0.6 - cardWidth / 2
+        }
+      }
+      
+      // Calculate marker's position within viewport
+      const sw = projection.fromLatLngToPoint(bounds.getSouthWest())
+      const ne = projection.fromLatLngToPoint(bounds.getNorthEast())
+      
+      if (!sw || !ne) return { top: mapBounds.top + 100, left: mapBounds.left + 100 }
+      
+      // Normalize marker position to 0-1 range within viewport
+      const markerX = (markerPoint.x - sw.x) / (ne.x - sw.x)
+      const markerY = (markerPoint.y - ne.y) / (sw.y - ne.y)
+      
+      // Convert to screen coordinates
+      const markerScreenX = mapBounds.left + markerX * mapBounds.width
+      const markerScreenY = mapBounds.top + markerY * mapBounds.height
+      
+      // Airbnb-style intelligent positioning
+      let left: number
+      let top: number
+      
+      // Horizontal positioning: avoid overlapping marker
+      if (markerScreenX < mapBounds.left + mapBounds.width / 2) {
+        // Marker on left side → place card on right
+        left = markerScreenX + 60
+      } else {
+        // Marker on right side → place card on left  
+        left = markerScreenX - cardWidth - 60
+      }
+      
+      // Vertical positioning: prefer above marker, adapt if needed
+      if (markerScreenY > mapBounds.top + cardHeight + 60) {
+        // Enough space above → place above marker
+        top = markerScreenY - cardHeight - 40
+      } else {
+        // Not enough space above → place below
+        top = markerScreenY + 60
+      }
+      
+      // Ensure card stays within screen bounds
+      if (left < padding) left = padding
+      if (left + cardWidth > window.innerWidth - padding) {
+        left = window.innerWidth - cardWidth - padding
+      }
+      if (top < padding) top = padding
+      if (top + cardHeight > window.innerHeight - padding) {
+        top = window.innerHeight - cardHeight - padding
+      }
+      
+      return { top, left }
+    }
+  }, [])
+
+  // Initialize Google Maps
+  useEffect(() => {
+    const initMap = async () => {
+      if (!mapContainerRef.current) return
+      
+      try {
+        await ensureGoogleMaps()
+        
+        const map = new google.maps.Map(mapContainerRef.current, {
+          center: defaultCenter,
+          zoom: defaultZoom,
+          mapTypeControl: false,
+          streetViewControl: false,
+          fullscreenControl: false,
+          zoomControl: true,
+          gestureHandling: 'greedy',
+          clickableIcons: false,
+          mapId: 'e1ea25ce333a0b0deb34ff54', // Required for AdvancedMarkerElement
+        })
+        
+        mapRef.current = map
+        setIsLoaded(true)
+        
+        // Handle map click to deselect
+        map.addListener('click', () => {
+          setSelected(null)
+        })
+      } catch (err) {
+        console.error('Failed to initialize map:', err)
+        setError('Failed to load map')
       }
     }
     
-    const markerLatLng = new google.maps.LatLng(property.lat, property.lng)
-    const markerPoint = projection.fromLatLngToPoint(markerLatLng)
-    const bounds = mapInstance.getBounds()
+    initMap()
+  }, [defaultCenter, defaultZoom])
+
+  // Create/update markers when properties or map state changes
+  useEffect(() => {
+    if (!isLoaded || !mapRef.current || !mapProperties.length) return
+
+    // Clear existing markers
+    Object.values(markersRef.current).forEach(marker => {
+      marker.map = null
+    })
+    markersRef.current = {}
+
+    // Create new markers
+    mapProperties.forEach((p) => {
+      const label = /request/i.test(p.priceLabel || '')
+        ? 'Request price'
+        : (p.price > 0 ? `${p.price.toLocaleString()} ${p.currency}` : 'Request price')
+      const state = selected?.id === p.id ? 'selected' : hoveredId === p.id ? 'hovered' : 'default'
+      
+      // Convert SVG icon to HTML element
+      const iconData = createSvgMarkerIcon(label, state as any)
+      const markerElement = document.createElement('div')
+      markerElement.innerHTML = `<img src="${iconData.url}" alt="${label}" style="width: ${iconData.scaledSize.width}px; height: ${iconData.scaledSize.height}px;" />`
+      markerElement.style.cursor = 'pointer'
+      
+      const marker = new google.maps.marker.AdvancedMarkerElement({
+        position: { lat: p.lat, lng: p.lng },
+        map: mapRef.current!,
+        content: markerElement,
+        title: p.title,
+        zIndex: state === 'selected' ? 999 : state === 'hovered' ? 500 : 1,
+      })
+      
+      markersRef.current[p.id] = marker
+      
+      // Add event listeners
+      marker.addEventListener('click', () => {
+        setSelected(p)
+        if (mapRef.current) {
+          setCardPosition(calculateCardPosition(p, mapRef.current))
+        }
+      })
+      
+      marker.addEventListener('mouseover', () => {
+        setHoveredId(p.id)
+      })
+      
+      marker.addEventListener('mouseout', () => {
+        setHoveredId(prev => (prev === p.id ? null : prev))
+      })
+    })
     
-    if (!markerPoint || !bounds) {
-      return {
-        top: mapBounds.top + mapBounds.height * 0.3,
-        left: mapBounds.left + mapBounds.width * 0.6 - cardWidth / 2
-      }
+    // Cleanup function
+    return () => {
+      Object.values(markersRef.current).forEach(marker => {
+        marker.map = null
+      })
+      markersRef.current = {}
     }
-    
-    // Calculate marker's position within viewport
-    const sw = projection.fromLatLngToPoint(bounds.getSouthWest())
-    const ne = projection.fromLatLngToPoint(bounds.getNorthEast())
-    
-    if (!sw || !ne) return { top: mapBounds.top + 100, left: mapBounds.left + 100 }
-    
-    // Normalize marker position to 0-1 range within viewport
-    const markerX = (markerPoint.x - sw.x) / (ne.x - sw.x)
-    const markerY = (markerPoint.y - ne.y) / (sw.y - ne.y)
-    
-    // Convert to screen coordinates
-    const markerScreenX = mapBounds.left + markerX * mapBounds.width
-    const markerScreenY = mapBounds.top + markerY * mapBounds.height
-    
-    // Airbnb-style intelligent positioning
-    let left: number
-    let top: number
-    
-    // Horizontal positioning: avoid overlapping marker
-    if (markerScreenX < mapBounds.left + mapBounds.width / 2) {
-      // Marker on left side → place card on right
-      left = markerScreenX + 60
-    } else {
-      // Marker on right side → place card on left  
-      left = markerScreenX - cardWidth - 60
-    }
-    
-    // Vertical positioning: prefer above marker, adapt if needed
-    if (markerScreenY > mapBounds.top + cardHeight + 60) {
-      // Enough space above → place above marker
-      top = markerScreenY - cardHeight - 40
-    } else {
-      // Not enough space above → place below
-      top = markerScreenY + 60
-    }
-    
-    // Ensure card stays within screen bounds
-    if (left < padding) left = padding
-    if (left + cardWidth > window.innerWidth - padding) {
-      left = window.innerWidth - cardWidth - padding
-    }
-    if (top < padding) top = padding
-    if (top + cardHeight > window.innerHeight - padding) {
-      top = window.innerHeight - cardHeight - padding
-    }
-    
-    return { top, left }
-  }
+  }, [isLoaded, mapProperties, selected, hoveredId, calculateCardPosition])
 
   return (
     <div className="relative">
-      {isLoaded && (
-        <GoogleMap
-          mapContainerStyle={containerStyle}
-          mapContainerClassName={`property-map-container ${className}`}
-          center={defaultCenter}
-          zoom={defaultZoom}
-          onLoad={(map: google.maps.Map) => { mapRef.current = map }}
-          options={{
-            mapTypeControl: false,
-            streetViewControl: false,
-            fullscreenControl: false,
-            zoomControl: true,
-            gestureHandling: 'greedy',
-            clickableIcons: false
-          }}
-          onClick={() => setSelected(null)}
-        >
-          {mapProperties.map((p) => {
-            const label = /request/i.test(p.priceLabel || '')
-              ? 'Request price'
-              : (p.price > 0 ? `${p.price.toLocaleString()} ${p.currency}` : 'Request price')
-            const state = selected?.id === p.id ? 'selected' : hoveredId === p.id ? 'hovered' : 'default'
-            const icon = isLoaded ? createSvgMarkerIcon(label, state as any) : undefined
-            return (
-              <Marker
-                key={p.id}
-                position={{ lat: p.lat, lng: p.lng }}
-                onClick={() => {
-                  setSelected(p)
-                  if (mapRef.current) {
-                    setCardPosition(calculateCardPosition(p, mapRef.current))
-                  }
-                }}
-                onMouseOver={() => setHoveredId(p.id)}
-                onMouseOut={() => setHoveredId(prev => (prev === p.id ? null : prev))}
-                options={{ icon }}
-              />
-            )
-          })}
-
-          {/* No OverlayView - card will be positioned outside GoogleMap */}
-        </GoogleMap>
-      )}
+      <div
+        ref={mapContainerRef}
+        className={`property-map-container ${className}`}
+        style={containerStyle}
+      />
 
       {(!isLoaded || loadingData) && (
         <div className="absolute inset-0 flex items-center justify-center bg-gray-50">
