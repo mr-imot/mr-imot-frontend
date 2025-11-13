@@ -155,11 +155,14 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
         markerRef.current = marker
 
         // Handle marker drag
-        marker.addEventListener('dragend', (event) => {
-          const position = event.target.position
+        marker.addEventListener('dragend', (event: any) => {
+          const markerElement = event.target as google.maps.marker.AdvancedMarkerElement
+          if (!markerElement) return
+          
+          const position = markerElement.position
           if (position) {
-            const lat = position.lat
-            const lng = position.lng
+            const lat = typeof position.lat === 'function' ? position.lat() : position.lat
+            const lng = typeof position.lng === 'function' ? position.lng() : position.lng
             
             setFormData(prev => ({
               ...prev,

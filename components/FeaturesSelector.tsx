@@ -28,13 +28,23 @@ interface FeaturesSelectorProps {
   title?: string
   description?: string
   disabled?: boolean
+  lang?: 'en' | 'bg'
+  dict?: any
 }
 
 const categoryLabels = {
-  building_infrastructure: "Building & Infrastructure",
-  security_access: "Security & Access", 
-  amenities: "Amenities",
-  modern_features: "Modern Features"
+  en: {
+    building_infrastructure: "Building & Infrastructure",
+    security_access: "Security & Access", 
+    amenities: "Amenities",
+    modern_features: "Modern Features"
+  },
+  bg: {
+    building_infrastructure: "Сграда & Инфраструктура",
+    security_access: "Сигурност & Достъп", 
+    amenities: "Удобства",
+    modern_features: "Съвременни Функции"
+  }
 }
 
 const categoryIcons = {
@@ -49,7 +59,9 @@ export function FeaturesSelector({
   onSelectionChange, 
   title = "Property Features",
   description = "Select the features and amenities available in your property",
-  disabled = false 
+  disabled = false,
+  lang = 'en',
+  dict
 }: FeaturesSelectorProps) {
   const [features, setFeatures] = useState<FeaturesByCategory | null>(null)
   const [loading, setLoading] = useState(true)
@@ -59,7 +71,7 @@ export function FeaturesSelector({
     const loadFeatures = async () => {
       try {
         setLoading(true)
-        const data = await getFeaturesByCategory()
+        const data = await getFeaturesByCategory(lang)
         setFeatures(data)
       } catch (err) {
         console.error('Failed to load features:', err)
@@ -70,7 +82,7 @@ export function FeaturesSelector({
     }
 
     loadFeatures()
-  }, [])
+  }, [lang]) // Reload when language changes
 
   const handleFeatureToggle = (featureId: string, checked: boolean) => {
     const currentIds = selectedFeatureIds || []
@@ -79,6 +91,40 @@ export function FeaturesSelector({
       : currentIds.filter(id => id !== featureId)
     
     onSelectionChange(newSelection)
+  }
+
+  // Get translated feature name
+  const getFeatureName = (feature: Feature): string => {
+    if (!dict?.features?.features) {
+      return feature.display_name || feature.name
+    }
+    
+    // Try multiple key formats to find the translation
+    const nameLower = feature.name?.toLowerCase() || ''
+    const displayNameLower = feature.display_name?.toLowerCase() || ''
+    
+    // Try with feature.name (e.g., "intercom_system" -> "intercomsystem")
+    let featureKey = nameLower.replace(/[^a-z0-9]/g, '')
+    let translatedName = dict.features.features[featureKey]
+    
+    // If not found, try with display_name (e.g., "Intercom System" -> "intercomsystem")
+    if (!translatedName && displayNameLower) {
+      featureKey = displayNameLower.replace(/[^a-z0-9]/g, '')
+      translatedName = dict.features.features[featureKey]
+    }
+    
+    // If still not found, try with underscores removed (e.g., "intercom_system" -> "intercomsystem")
+    if (!translatedName && nameLower.includes('_')) {
+      featureKey = nameLower.replace(/_/g, '').replace(/[^a-z0-9]/g, '')
+      translatedName = dict.features.features[featureKey]
+    }
+    
+    if (translatedName) {
+      return translatedName
+    }
+    
+    // Fallback to display_name from API
+    return feature.display_name || feature.name
   }
 
   if (loading) {
@@ -136,7 +182,7 @@ export function FeaturesSelector({
           <div key={category} className="space-y-3">
             <h4 className="font-medium text-gray-900 flex items-center gap-2">
               <span>{categoryIcons[category]}</span>
-              {categoryLabels[category]}
+              {dict?.developer?.properties?.features?.categories?.[category] || categoryLabels[lang]?.[category] || categoryLabels.en[category]}
             </h4>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {categoryFeatures.map((feature, index) => {
@@ -145,23 +191,28 @@ export function FeaturesSelector({
                 return (
                   <div
                     key={feature.id || `feature-${index}`}
+                    onClick={() => {
+                      if (!disabled) {
+                        handleFeatureToggle(feature.id, !isSelected)
+                      }
+                    }}
                     className={`
                       flex items-center gap-3 p-3 rounded-lg border transition-colors
                       ${isSelected ? 'bg-blue-50 border-blue-200' : 'bg-white hover:bg-gray-50'}
                       ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
                     `}
                   >
-                    <Checkbox
-                      id={feature.id}
-                      checked={isSelected}
-                      onCheckedChange={(checked) => 
-                        handleFeatureToggle(feature.id, checked === true)
-                      }
-                      disabled={disabled}
-                    />
+                    <div onClick={(e) => e.stopPropagation()}>
+                      <Checkbox
+                        id={feature.id}
+                        checked={isSelected}
+                        disabled={disabled}
+                        onCheckedChange={() => {}}
+                      />
+                    </div>
                     <div className="flex-1">
-                      <label htmlFor={feature.id} className={`font-medium cursor-pointer ${disabled ? 'cursor-not-allowed' : ''}`}>
-                        {feature.display_name}
+                      <label htmlFor={feature.id} className="font-medium cursor-pointer">
+                        {getFeatureName(feature)}
                       </label>
                     </div>
                   </div>

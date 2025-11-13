@@ -248,6 +248,7 @@ class ApiClient {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
+        ...(options.headers || {}),
       },
       ...options,
       // Don't include credentials for public endpoints
@@ -665,8 +666,12 @@ class ApiClient {
     return this.requestWithoutAuth(endpoint);
   }
 
-  async getFeaturesByCategory(): Promise<FeaturesByCategory> {
-    return this.requestWithoutAuth('/api/v1/features/by-category');
+  async getFeaturesByCategory(lang?: string): Promise<FeaturesByCategory> {
+    const headers: HeadersInit = {};
+    if (lang) {
+      headers['Accept-Language'] = lang;
+    }
+    return this.requestWithoutAuth('/api/v1/features/by-category', { headers });
   }
 
   async getFeature(id: string): Promise<Feature> {
@@ -738,7 +743,7 @@ export const resendVerification = (email: string) => apiClient.resendVerificatio
 export const updateDeveloperProfile = (profileData: any) => apiClient.updateDeveloperProfile(profileData);
 export const changeDeveloperPassword = (passwordData: any) => apiClient.changeDeveloperPassword(passwordData);
 export const getFeatures = (category?: string) => apiClient.getFeatures(category);
-export const getFeaturesByCategory = () => apiClient.getFeaturesByCategory();
+export const getFeaturesByCategory = (lang?: string) => apiClient.getFeaturesByCategory(lang);
 export const getFeature = (id: string) => apiClient.getFeature(id);
 export const getAuthHealth = () => apiClient.getAuthHealth();
 export const testConnection = () => apiClient.testConnection(); 

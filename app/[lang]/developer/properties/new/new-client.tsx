@@ -366,12 +366,15 @@ export default function NewPropertyPage({ dict, lang }: NewPropertyClientProps) 
         }
 
         // Marker drag end - update coordinates and reverse geocode
-        marker.addEventListener("dragend", (event) => {
-          const pos = event.target.position
+        marker.addEventListener("dragend", (event: any) => {
+          const markerElement = event.target as google.maps.marker.AdvancedMarkerElement
+          const pos = markerElement?.position
           if (pos) {
-            form.setValue("latitude", pos.lat, { shouldValidate: true })
-            form.setValue("longitude", pos.lng, { shouldValidate: true })
-            reverseGeocode(pos.lat, pos.lng)
+            const lat = typeof pos.lat === 'function' ? pos.lat() : pos.lat
+            const lng = typeof pos.lng === 'function' ? pos.lng() : pos.lng
+            form.setValue("latitude", lat, { shouldValidate: true })
+            form.setValue("longitude", lng, { shouldValidate: true })
+            reverseGeocode(lat, lng)
           }
         })
 
@@ -593,43 +596,36 @@ export default function NewPropertyPage({ dict, lang }: NewPropertyClientProps) 
       const hasImages = values.coverImage || (values.galleryImages && values.galleryImages.length > 0)
       
       if (hasImages) {
-        setSubmitSuccess("Project created! Uploading images...")
+        // Upload images without showing success message - just keep loading state
         try {
           await uploadImagesToProject(
             project.id.toString(),
             values.coverImage,
             values.galleryImages
           )
-          setSubmitSuccess("Project created with images successfully!")
         } catch (imageError) {
           console.error("Failed to upload images", imageError)
-          setSubmitError("Project created but image upload failed. You can add images later from the project page.")
-          setLoading(false)
-          return
+          // Don't show error - just redirect, user can add images later
         }
-      } else {
-        setSubmitSuccess("Project created successfully!")
       }
       
-      // Redirect after a short delay to show success message
-      setTimeout(() => {
-        router.push(`/listing/${project.id}`)
-      }, 2000)
+      // Redirect immediately after project creation (and image upload if any)
+      router.push(`/listing/${project.id}`)
       
     } catch (err: any) {
       console.error("Failed to create project", err)
-      let errorMessage = "Failed to create project. Please try again."
+      let errorMessage = dict.developer?.properties?.failedToCreateProject || "Неуспешно създаване на проект. Моля, опитайте отново."
       
       // Handle specific error types
       if (err.message && err.message.includes("Invalid request format")) {
-        errorMessage = "Invalid data format. Please ensure all required fields are filled correctly. Try selecting an address from the dropdown suggestions."
+        errorMessage = dict.developer?.properties?.invalidDataFormat || "Невалиден формат на данните. Моля, проверете всички задължителни полета."
       } else if (err.message && err.message.includes("city")) {
-        errorMessage = "Please provide a valid city. Try selecting an address from the Google Maps suggestions."
+        errorMessage = dict.developer?.properties?.invalidCity || "Моля, предоставете валиден град. Опитайте да изберете адрес от предложенията на Google Maps."
       } else if (err.isServerError) {
-        errorMessage = "Server error occurred. Please try again later."
+        errorMessage = dict.developer?.properties?.serverError || "Грешка на сървъра. Моля, опитайте по-късно."
       } else if (err.message) {
         if (err.message.includes("Failed to fetch")) {
-          errorMessage = "Connection error. Please check if the backend is running and try again."
+          errorMessage = dict.developer?.properties?.connectionError || "Грешка при връзката. Моля, проверете дали backend-ът работи."
         } else if (err.message.includes("required")) {
           errorMessage = err.message
         } else if (err.message.includes("Server error occurred")) {
@@ -640,9 +636,11 @@ export default function NewPropertyPage({ dict, lang }: NewPropertyClientProps) 
       }
       
       setSubmitError(errorMessage)
-    } finally {
       setLoading(false)
       setIsSubmitting(false)
+      
+      // Scroll to top to show error
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     }
   }
 
@@ -654,24 +652,115 @@ export default function NewPropertyPage({ dict, lang }: NewPropertyClientProps) 
           <p className="text-gray-600">{dict.developer?.properties?.fillDetailsBelow || "Fill in the details below to showcase your real estate project"}</p>
         </CardHeader>
         <CardContent>
-          {/* Success/Error Messages */}
+          {/* Error Messages - only show errors, not success (redirect happens immediately) */}
           {submitError && (
-            <Alert variant="destructive" className="mb-6">
-              <AlertDescription>{submitError}</AlertDescription>
-            </Alert>
-          )}
-          {submitSuccess && (
-            <Alert className="mb-6">
-              <AlertDescription className="text-green-700">{submitSuccess}</AlertDescription>
+            <Alert variant="destructive" className="mb-6 animate-in slide-in-from-top-2">
+              <AlertDescription className="flex items-center gap-2">
+                <Info className="h-4 w-4" />
+                {submitError}
+              </AlertDescription>
             </Alert>
           )}
           
+          {/* Loading Overlay - show when submitting */}
+          {isSubmitting && (
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+              <div className="bg-white rounded-lg p-8 shadow-xl max-w-md w-full mx-4">
+                <div className="flex flex-col items-center gap-4">
+                  <Loader className="h-12 w-12 animate-spin text-blue-600" />
+                  <div className="text-center">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      {dict.developer?.properties?.creatingProject || "Създаване на проект..."}
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      {createdProjectId 
+                        ? (dict.developer?.properties?.uploadingImages || "Качване на изображения...")
+                        : (dict.developer?.properties?.pleaseWait || "Моля, изчакайте...")
+                      }
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <form 
+              onSubmit={form.handleSubmit(onSubmit, (errors) => {
+                // Handle validation errors - scroll to first error
+                const firstErrorField = Object.keys(errors)[0]
+                if (firstErrorField) {
+                  // Show error message at top
+                  setSubmitError(dict.developer?.properties?.fillRequiredFields || "Моля, попълнете всички задължителни полета")
+                  
+                  // Scroll to top to show error message
+                  window.scrollTo({ top: 0, behavior: 'smooth' })
+                  
+                  // Try to find and scroll to the error field
+                  setTimeout(() => {
+                    // Try multiple selectors to find the field
+                    let errorElement: HTMLElement | null = null
+                    
+                    // Try by name attribute
+                    errorElement = document.querySelector(`[name="${firstErrorField}"]`) as HTMLElement
+                    
+                    // Try by id containing the field name
+                    if (!errorElement) {
+                      errorElement = document.querySelector(`[id*="${firstErrorField}"]`) as HTMLElement
+                    }
+                    
+                    // Try to find the FormItem container
+                    if (!errorElement) {
+                      const formItems = document.querySelectorAll('[class*="space-y"]')
+                      formItems.forEach(item => {
+                        const field = item.querySelector(`[name="${firstErrorField}"]`) as HTMLElement
+                        if (field) errorElement = field
+                      })
+                    }
+                    
+                    // Try to find by data attribute or any input/select/textarea
+                    if (!errorElement) {
+                      const allInputs = document.querySelectorAll('input, select, textarea')
+                      allInputs.forEach(input => {
+                        const name = input.getAttribute('name') || input.getAttribute('id') || ''
+                        if (name.includes(firstErrorField)) {
+                          errorElement = input as HTMLElement
+                        }
+                      })
+                    }
+                    
+                    if (errorElement) {
+                      // Scroll to the error field
+                      errorElement.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'center',
+                        inline: 'nearest'
+                      })
+                      
+                      // Focus the field after scroll
+                      setTimeout(() => {
+                        if (errorElement && errorElement instanceof HTMLElement) {
+                          errorElement.focus()
+                          // Highlight the field briefly
+                          errorElement.style.transition = 'box-shadow 0.3s ease'
+                          errorElement.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.3)'
+                          setTimeout(() => {
+                            if (errorElement) {
+                              errorElement.style.boxShadow = ''
+                            }
+                          }, 2000)
+                        }
+                      }, 500)
+                    }
+                  }, 300)
+                }
+              })} 
+              className="space-y-8"
+            >
               {/* Project Information Section */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div className="space-y-6">
-                  <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Project Details</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">{dict.developer?.properties?.projectDetails || "Project Details"}</h3>
                   
                   <FormField
                     control={form.control}
@@ -681,7 +770,7 @@ export default function NewPropertyPage({ dict, lang }: NewPropertyClientProps) 
                         <FormLabel className="text-sm font-medium text-gray-700">{dict.developer?.properties?.projectName || "Project Name"} <span className="text-red-500">*</span></FormLabel>
                         <FormControl>
                           <Input 
-                            placeholder="e.g., Sunrise Residences" 
+                            placeholder={dict.developer?.properties?.placeholders?.projectName || "e.g., Sunrise Residences"} 
                             className="h-11" 
                             onKeyDown={preventEnterSubmit}
                             {...field} 
@@ -705,13 +794,13 @@ export default function NewPropertyPage({ dict, lang }: NewPropertyClientProps) 
                                 <Info className="h-4 w-4" />
                               </TooltipTrigger>
                               <TooltipContent>
-                                <p>Include project highlights, location benefits, amenities, and timelines.</p>
+                                <p>{dict.developer?.properties?.tooltips?.description || "Include project highlights, location benefits, amenities, and timelines."}</p>
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
                         </div>
                         <FormControl>
-                          <Textarea rows={4} placeholder="Tell buyers what makes this project special" className="resize-none" {...field} />
+                          <Textarea rows={4} placeholder={dict.developer?.properties?.placeholders?.projectDescription || "Tell buyers what makes this project special"} className="resize-none" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -727,7 +816,7 @@ export default function NewPropertyPage({ dict, lang }: NewPropertyClientProps) 
                         <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger className="h-11">
-                              <SelectValue placeholder="Choose project type" />
+                              <SelectValue placeholder={dict.developer?.properties?.placeholders?.projectType || "Choose project type"} />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -750,7 +839,7 @@ export default function NewPropertyPage({ dict, lang }: NewPropertyClientProps) 
                          <FormControl>
                            <Select onValueChange={field.onChange} value={field.value}>
                              <SelectTrigger className="h-11">
-                               <SelectValue placeholder="Choose month" />
+                               <SelectValue placeholder={dict.developer?.properties?.placeholders?.completionMonth || "Choose month"} />
                              </SelectTrigger>
                              <SelectContent>
                                <SelectItem value="January">January</SelectItem>
@@ -782,7 +871,7 @@ export default function NewPropertyPage({ dict, lang }: NewPropertyClientProps) 
                          <FormControl>
                            <Select onValueChange={field.onChange} value={field.value}>
                              <SelectTrigger className="h-11">
-                               <SelectValue placeholder="Choose year" />
+                               <SelectValue placeholder={dict.developer?.properties?.placeholders?.completionYear || "Choose year"} />
                              </SelectTrigger>
                              <SelectContent>
                                {Array.from({ length: 10 }, (_, i) => {
@@ -811,7 +900,7 @@ export default function NewPropertyPage({ dict, lang }: NewPropertyClientProps) 
                          <FormControl>
                            <Input 
                              type="url" 
-                             placeholder="https://example.com" 
+                             placeholder={dict.developer?.properties?.placeholders?.projectWebsite || "https://example.com"} 
                              className="h-11"
                              onKeyDown={preventEnterSubmit}
                              {...field} 
@@ -848,7 +937,7 @@ export default function NewPropertyPage({ dict, lang }: NewPropertyClientProps) 
                                 type="number"
                                 inputMode="decimal"
                                 step="0.01"
-                                placeholder="e.g., 1200"
+                                placeholder={dict.developer?.properties?.placeholders?.pricePerM2 || "e.g., 1200"}
                                 className="h-11"
                                 value={field.value ?? ""}
                                 onKeyDown={preventEnterSubmit}
@@ -865,14 +954,14 @@ export default function NewPropertyPage({ dict, lang }: NewPropertyClientProps) 
 
                 {/* Image Gallery Section */}
                 <div className="space-y-6">
-                  <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Project Images</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">{dict.developer?.properties?.projectImages || "Project Images"}</h3>
                   
                   {/* Image Upload Area */}
                   <div className="space-y-4">
                                          <div className="flex items-center justify-between">
                        <div>
-                         <h4 className="text-sm font-medium text-gray-700">Project Gallery <span className="text-red-500">*</span></h4>
-                         <p className="text-xs text-gray-500">First image will be the main cover image</p>
+                         <h4 className="text-sm font-medium text-gray-700">{dict.developer?.properties?.projectGallery || "Project Gallery"} <span className="text-red-500">*</span></h4>
+                         <p className="text-xs text-gray-500">{dict.developer?.properties?.firstImageMainCover || "First image will be the main cover image"}</p>
                        </div>
                       <Button
                         type="button"
@@ -906,7 +995,7 @@ export default function NewPropertyPage({ dict, lang }: NewPropertyClientProps) 
                         className="flex items-center gap-2"
                       >
                         <Plus className="h-4 w-4" />
-                        Add Images
+                        {dict.developer?.properties?.addImages || "Add Images"}
                       </Button>
                     </div>
 
@@ -970,8 +1059,8 @@ export default function NewPropertyPage({ dict, lang }: NewPropertyClientProps) 
                         }}
                       >
                         <ImageIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                        <p className="text-sm text-gray-600 mb-2">Click here to upload images or drag and drop</p>
-                        <p className="text-xs text-gray-500">Upload images to showcase your project</p>
+                        <p className="text-sm text-gray-600 mb-2">{dict.developer?.properties?.clickToUploadOrDragDrop || "Click here to upload images or drag and drop"}</p>
+                        <p className="text-xs text-gray-500">{dict.developer?.properties?.uploadImagesToShowcase || "Upload images to showcase your project"}</p>
                       </div>
                     ) : (
                       <div className="grid grid-cols-2 gap-3">
@@ -997,7 +1086,7 @@ export default function NewPropertyPage({ dict, lang }: NewPropertyClientProps) 
                             {image.isMain && (
                               <div className="absolute top-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
                                 <Star className="h-3 w-3" />
-                                Main
+                                {dict.developer?.properties?.main || "Main"}
                               </div>
                             )}
                             
@@ -1016,7 +1105,7 @@ export default function NewPropertyPage({ dict, lang }: NewPropertyClientProps) 
                                 disabled={image.isMain}
                                 className="h-8 px-3 text-xs"
                               >
-                                {image.isMain ? 'Main' : 'Set Main'}
+                                {image.isMain ? (dict.developer?.properties?.main || "Main") : (dict.developer?.properties?.setMain || "Set Main")}
                               </Button>
                               <Button
                                 type="button"
@@ -1044,12 +1133,12 @@ export default function NewPropertyPage({ dict, lang }: NewPropertyClientProps) 
                         <div className="flex items-start gap-3">
                           <Info className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
                           <div className="text-sm text-blue-800">
-                            <p className="font-medium mb-1">Image Tips:</p>
+                            <p className="font-medium mb-1">{dict.developer?.properties?.imageTips || "Image Tips:"}</p>
                             <ul className="space-y-1 text-xs">
-                              <li>• Drag images to reorder them</li>
-                              <li>• First image becomes the main cover image</li>
-                              <li>• Images will appear in this order on your listing</li>
-                              <li>• Main image shows on map cards and search results</li>
+                              <li>{dict.developer?.properties?.dragToReorder || "• Drag images to reorder them"}</li>
+                              <li>{dict.developer?.properties?.firstImageBecomesMain || "• First image becomes the main cover image"}</li>
+                              <li>{dict.developer?.properties?.imagesAppearInOrder || "• Images will appear in this order on your listing"}</li>
+                              <li>{dict.developer?.properties?.mainImageShowsOnMap || "• Main image shows on map cards and search results"}</li>
                             </ul>
                           </div>
                         </div>
@@ -1061,7 +1150,7 @@ export default function NewPropertyPage({ dict, lang }: NewPropertyClientProps) 
 
                              {/* Location Section */}
                <div className="space-y-6">
-                 <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Location & Map</h3>
+                 <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">{dict.developer?.properties?.locationAndMap || "Location & Map"}</h3>
                  
                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                    <div className="space-y-4">
@@ -1075,7 +1164,7 @@ export default function NewPropertyPage({ dict, lang }: NewPropertyClientProps) 
                               <FormControl>
                                 <Input 
                                   ref={addressInputRef}
-                                  placeholder="Start typing an address (e.g., Sofia, Bulgaria)" 
+                                  placeholder={dict.developer?.properties?.placeholders?.address || "Start typing an address (e.g., Sofia, Bulgaria)"} 
                                   className={`${addressSelected ? "border-green-500 bg-green-50" : ""} h-11`}
                                   value={field.value}
                                   onChange={(e) => {
@@ -1100,10 +1189,10 @@ export default function NewPropertyPage({ dict, lang }: NewPropertyClientProps) 
                       />
                      
                                            <div className="text-sm text-gray-600">
-                        <p>• Start typing in the address field above - Google will suggest addresses</p>
-                        <p>• Select an address to automatically pin it on the map and fill city/country fields</p>
-                        <p>• Click on the map or drag the marker to fine-tune the exact position</p>
-                        <p>• The address field will update automatically when you move the marker</p>
+                        <p>{dict.developer?.properties?.addressInstructions1 || "• Start typing in the address field above - Google will suggest addresses"}</p>
+                        <p>{dict.developer?.properties?.addressInstructions2 || "• Select an address to automatically pin it on the map and fill city/country fields"}</p>
+                        <p>{dict.developer?.properties?.addressInstructions3 || "• Click on the map or drag the marker to fine-tune the exact position"}</p>
+                        <p>{dict.developer?.properties?.addressInstructions4 || "• The address field will update automatically when you move the marker"}</p>
                       </div>
                    </div>
                    
@@ -1139,9 +1228,11 @@ export default function NewPropertyPage({ dict, lang }: NewPropertyClientProps) 
                       <FeaturesSelector
                         selectedFeatureIds={field.value}
                         onSelectionChange={field.onChange}
-                        title="Property Features"
-                        description="Select the features and amenities available in your property. This helps potential buyers understand what your project offers."
+                        title={dict?.developer?.properties?.features?.title || "Property Features"}
+                        description={dict?.developer?.properties?.features?.description || "Select the features and amenities available in your property. This helps potential buyers understand what your project offers."}
                         disabled={isSubmitting}
+                        lang={lang}
+                        dict={dict}
                       />
                       <FormMessage />
                     </FormItem>
@@ -1181,10 +1272,10 @@ export default function NewPropertyPage({ dict, lang }: NewPropertyClientProps) 
                       {loading ? (
                         <>
                           <Loader className="h-5 w-5 animate-spin mr-2" />
-                          Uploading Images...
+                          {dict.developer?.properties?.uploadingImages || "Uploading Images..."}
                         </>
                       ) : (
-                        "Upload Images"
+                        dict.developer?.properties?.uploadImagesButton || "Upload Images"
                       )}
                     </Button>
                     
@@ -1193,7 +1284,7 @@ export default function NewPropertyPage({ dict, lang }: NewPropertyClientProps) 
                       onClick={() => router.push("/developer/dashboard")}
                       className="w-full lg:w-auto px-8 h-12 text-base"
                     >
-                      Go to Dashboard
+                      {dict.developer?.properties?.goToDashboard || "Go to Dashboard"}
                     </Button>
                   </div>
                 )}
