@@ -3,7 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { Separator } from "@/components/ui/separator"
-import { Facebook, Twitter, Instagram } from "lucide-react"
+import { Facebook, Twitter, Instagram, Youtube } from "lucide-react"
 import { useTranslations, useLocale } from "@/lib/locale-context"
 
 export function Footer() {
@@ -47,6 +47,7 @@ export function Footer() {
     { href: "https://www.facebook.com/misterimot/", icon: Facebook, label: "Facebook" },
     { href: "https://x.com/mister_imot", icon: Twitter, label: "X (Twitter)" },
     { href: "https://www.instagram.com/mistar_imot", icon: Instagram, label: "Instagram" },
+    { href: "https://www.youtube.com/@MisterImot", icon: Youtube, label: "YouTube" },
   ]
 
   return (

@@ -153,7 +153,8 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
             sameAs: [
               'https://www.facebook.com/misterimot/',
               'https://x.com/mister_imot',
-              'https://www.instagram.com/mistar_imot'
+              'https://www.instagram.com/mistar_imot',
+              'https://www.youtube.com/@MisterImot'
             ]
           })
         }}
