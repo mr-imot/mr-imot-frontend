@@ -3,7 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { Separator } from "@/components/ui/separator"
-import { Facebook, Twitter, Linkedin, Instagram } from "lucide-react"
+import { Facebook, Twitter, Instagram } from "lucide-react"
 import { useTranslations, useLocale } from "@/lib/locale-context"
 
 export function Footer() {
@@ -44,10 +44,9 @@ export function Footer() {
 ]
 
   const socialLinks = [
-    { href: "https://facebook.com/mrimot", icon: Facebook, label: "Facebook" },
-    { href: "https://twitter.com/mrimot", icon: Twitter, label: "Twitter" },
-    { href: "https://www.linkedin.com/company/mrimot", icon: Linkedin, label: "LinkedIn" },
-    { href: "https://instagram.com/mrimot", icon: Instagram, label: "Instagram" },
+    { href: "https://www.facebook.com/misterimot/", icon: Facebook, label: "Facebook" },
+    { href: "https://x.com/mister_imot", icon: Twitter, label: "X (Twitter)" },
+    { href: "https://www.instagram.com/mistar_imot", icon: Instagram, label: "Instagram" },
   ]
 
   return (

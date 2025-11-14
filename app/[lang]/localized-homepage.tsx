@@ -151,9 +151,9 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
             inLanguage: lang === 'bg' ? 'bg' : 'en',
             logo: 'https://ik.imagekit.io/ts59gf2ul/Logo/mr-imot-logo.png',
             sameAs: [
-              'https://facebook.com/mrimot',
-              'https://www.linkedin.com/company/mrimot',
-              'https://instagram.com/mrimot'
+              'https://www.facebook.com/misterimot/',
+              'https://x.com/mister_imot',
+              'https://www.instagram.com/mistar_imot'
             ]
           })
         }}
