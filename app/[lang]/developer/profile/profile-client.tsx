@@ -15,7 +15,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ensureGoogleMaps } from "@/lib/google-maps"
 import { useAuth } from "@/lib/auth-context"
 import { getCurrentDeveloper, updateDeveloperProfile, changeDeveloperPassword } from "@/lib/api"
-import { Loader, MapPin, Building, User, Phone, Mail, Globe, Lock, Save, Eye, EyeOff, Upload, Camera, X } from "lucide-react"
+import { Loader, MapPin, Building, User, Phone, Mail, Globe, Lock, Save, Eye, EyeOff, Upload, Camera, X, Maximize2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { upload } from "@imagekit/next"
@@ -99,6 +99,7 @@ export default function DeveloperProfilePage({ dict, lang }: ProfileClientProps)
   const [geocodingBlocked, setGeocodingBlocked] = useState(false)
   const [placesBlocked, setPlacesBlocked] = useState(false)
   const [autocompleteOpen, setAutocompleteOpen] = useState(false)
+  const [isMapExpanded, setIsMapExpanded] = useState(false)
   const autocompleteInstanceRef = useRef<google.maps.places.Autocomplete | null>(null)
   
   // Image upload state
@@ -379,6 +380,35 @@ export default function DeveloperProfilePage({ dict, lang }: ProfileClientProps)
       }
     }
   }, [mapInstanceRef.current, addressInputRef.current, placesBlocked, profileForm])
+
+  // Handle Escape key to close fullscreen map
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isMapExpanded) {
+        setIsMapExpanded(false)
+      }
+    }
+
+    if (isMapExpanded) {
+      document.addEventListener('keydown', handleKeyDown)
+    } else {
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [isMapExpanded])
+
+  // Trigger map resize when fullscreen mode changes
+  useEffect(() => {
+    if (mapInstanceRef.current) {
+      // Small delay to ensure DOM has updated
+      setTimeout(() => {
+        google.maps.event.trigger(mapInstanceRef.current as unknown as object, 'resize')
+      }, 100)
+    }
+  }, [isMapExpanded])
 
   // Reverse geocode function
   const reverseGeocode = async (lat: number, lng: number) => {
@@ -1055,7 +1085,54 @@ export default function DeveloperProfilePage({ dict, lang }: ProfileClientProps)
                       <p className="text-gray-500">Map is not available</p>
                     </div>
                   ) : (
-                    <div ref={mapRef} className="h-64 w-full rounded-lg border" />
+                    <>
+                      {/* Map container - conditionally styled for expanded view */}
+                      <div 
+                        className={`relative overflow-hidden transition-all duration-200 ${
+                          isMapExpanded 
+                            ? 'fixed z-[9999] rounded-2xl border-2 border-gray-300 shadow-2xl' 
+                            : 'h-64 w-full rounded-lg border'
+                        }`}
+                        style={isMapExpanded ? {
+                          position: 'fixed',
+                          top: '80px',
+                          left: '2.5%',
+                          right: '2.5%',
+                          bottom: '2.5%',
+                          width: '95%',
+                          height: 'calc(100vh - 80px - 2.5%)',
+                          zIndex: 10000,
+                          backgroundColor: 'white',
+                        } : {}}
+                      >
+                        <div ref={mapRef} className="w-full h-full" />
+                        
+                        {/* Expand/Collapse control */}
+                        <button
+                          type="button"
+                          className="absolute top-4 right-4 z-20 w-11 h-11 rounded-full bg-white/95 border border-gray-200 shadow-lg flex items-center justify-center hover:bg-white hover:shadow-xl transition-all duration-200 cursor-pointer"
+                          onClick={() => setIsMapExpanded(!isMapExpanded)}
+                          aria-label={isMapExpanded ? (dict.listings?.collapseMap || "Collapse map") : (dict.listings?.expandMap || "Expand map")}
+                        >
+                          {isMapExpanded ? <X className="h-5 w-5 text-gray-700 cursor-pointer" /> : <Maximize2 className="h-5 w-5 text-gray-700 cursor-pointer" />}
+                        </button>
+                      </div>
+                      
+                      {/* Backdrop overlay when expanded */}
+                      {isMapExpanded && (
+                        <div 
+                          className="fixed inset-0 bg-black/50 z-[9999]"
+                          onClick={() => setIsMapExpanded(false)}
+                          style={{
+                            position: 'fixed',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                          }}
+                        />
+                      )}
+                    </>
                   )}
                 </div>
               </CardContent>

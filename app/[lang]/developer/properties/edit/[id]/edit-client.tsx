@@ -17,7 +17,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { getProject, updateProject, attachProjectImages, deleteProjectImage, getProjectImages } from "@/lib/api"
 import { upload } from "@imagekit/next";
 import { ensureGoogleMaps } from "@/lib/google-maps"
-import { Info, Loader, Upload, X, Move, Star, Image as ImageIcon, Plus, ArrowLeft } from "lucide-react"
+import { Info, Loader, Upload, X, Move, Star, Image as ImageIcon, Plus, ArrowLeft, Maximize2 } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
 import { FeaturesSelector } from "@/components/FeaturesSelector"
 import Link from "next/link"
@@ -136,6 +136,7 @@ export default function EditProjectPage({ dict, lang, params }: EditPropertyClie
   const [geocodingBlocked, setGeocodingBlocked] = useState(false)
   const [placesBlocked, setPlacesBlocked] = useState(false)
   const [autocompleteOpen, setAutocompleteOpen] = useState(false)
+  const [isMapExpanded, setIsMapExpanded] = useState(false)
 
   const defaultCenter = useMemo(() => ({ lat: 42.6977, lng: 23.3219 }), [])
 
@@ -487,6 +488,35 @@ export default function EditProjectPage({ dict, lang, params }: EditPropertyClie
       }
     }
   }, [mapInstanceRef.current, addressInputRef.current, placesBlocked, form])
+
+  // Handle Escape key to close fullscreen map
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isMapExpanded) {
+        setIsMapExpanded(false)
+      }
+    }
+
+    if (isMapExpanded) {
+      document.addEventListener('keydown', handleKeyDown)
+    } else {
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [isMapExpanded])
+
+  // Trigger map resize when fullscreen mode changes
+  useEffect(() => {
+    if (mapInstanceRef.current) {
+      // Small delay to ensure DOM has updated
+      setTimeout(() => {
+        google.maps.event.trigger(mapInstanceRef.current as unknown as object, 'resize')
+      }, 100)
+    }
+  }, [isMapExpanded])
 
   // Forward geocode function for manual address input
   const forwardGeocode = async (address: string) => {
@@ -1082,9 +1112,51 @@ export default function EditProjectPage({ dict, lang, params }: EditPropertyClie
                     </div>
                   </div>
                   
-                  <div className="h-80 rounded-lg overflow-hidden border shadow-sm">
+                  <div 
+                    className={`relative overflow-hidden transition-all duration-200 ${
+                      isMapExpanded 
+                        ? 'fixed z-[9999] rounded-2xl border-2 border-gray-300 shadow-2xl' 
+                        : 'h-80 rounded-lg border'
+                    } shadow-sm`}
+                    style={isMapExpanded ? {
+                      position: 'fixed',
+                      top: '80px',
+                      left: '2.5%',
+                      right: '2.5%',
+                      bottom: '2.5%',
+                      width: '95%',
+                      height: 'calc(100vh - 80px - 2.5%)',
+                      zIndex: 10000,
+                      backgroundColor: 'white',
+                    } : {}}
+                  >
                     <div ref={mapRef} className="w-full h-full" />
+                    
+                    {/* Expand/Collapse control */}
+                    <button
+                      type="button"
+                      className="absolute top-4 right-4 z-20 w-11 h-11 rounded-full bg-white/95 border border-gray-200 shadow-lg flex items-center justify-center hover:bg-white hover:shadow-xl transition-all duration-200 cursor-pointer"
+                      onClick={() => setIsMapExpanded(!isMapExpanded)}
+                      aria-label={isMapExpanded ? (dict.listings?.collapseMap || "Collapse map") : (dict.listings?.expandMap || "Expand map")}
+                    >
+                      {isMapExpanded ? <X className="h-5 w-5 text-gray-700 cursor-pointer" /> : <Maximize2 className="h-5 w-5 text-gray-700 cursor-pointer" />}
+                    </button>
                   </div>
+                  
+                  {/* Backdrop overlay when expanded */}
+                  {isMapExpanded && (
+                    <div 
+                      className="fixed inset-0 bg-black/50 z-[9999]"
+                      onClick={() => setIsMapExpanded(false)}
+                      style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                      }}
+                    />
+                  )}
                 </div>
               </div>
 
