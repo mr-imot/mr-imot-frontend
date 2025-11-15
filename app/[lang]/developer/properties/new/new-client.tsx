@@ -132,6 +132,7 @@ export default function NewPropertyPage({ dict, lang }: NewPropertyClientProps) 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [geocodingBlocked, setGeocodingBlocked] = useState(false)
   const [placesBlocked, setPlacesBlocked] = useState(false)
+  const [autocompleteOpen, setAutocompleteOpen] = useState(false)
 
   const defaultCenter = useMemo(() => ({ lat: 42.6977, lng: 23.3219 }), [])
 
@@ -471,6 +472,10 @@ export default function NewPropertyPage({ dict, lang }: NewPropertyClientProps) 
   useEffect(() => {
     if (!mapInstanceRef.current || !addressInputRef.current) return
     
+    let checkInterval: NodeJS.Timeout | null = null
+    const inputElement = addressInputRef.current
+    let startCheckingDropdown: (() => void) | null = null
+    
     const initAutocomplete = async () => {
       try {
         const google = await ensureGoogleMaps()
@@ -489,9 +494,41 @@ export default function NewPropertyPage({ dict, lang }: NewPropertyClientProps) 
           setPlacesBlocked(true)
           return
         }
+
+        // Track when autocomplete dropdown opens/closes
+        startCheckingDropdown = () => {
+          if (checkInterval) return
+          checkInterval = setInterval(() => {
+            const pacContainer = document.querySelector('.pac-container') as HTMLElement
+            if (pacContainer) {
+              const isVisible = pacContainer.style.display !== 'none' && 
+                               pacContainer.offsetParent !== null
+              setAutocompleteOpen(isVisible)
+              if (!isVisible && checkInterval) {
+                clearInterval(checkInterval)
+                checkInterval = null
+              }
+            } else {
+              setAutocompleteOpen(false)
+              if (checkInterval) {
+                clearInterval(checkInterval)
+                checkInterval = null
+              }
+            }
+          }, 100)
+        }
+
+        inputElement.addEventListener('focus', startCheckingDropdown)
+        inputElement.addEventListener('input', startCheckingDropdown)
         
         // Handle place selection
         autocomplete.addListener('place_changed', () => {
+          // Stop checking dropdown
+          if (checkInterval) {
+            clearInterval(checkInterval)
+            checkInterval = null
+          }
+          setAutocompleteOpen(false)
           const place = autocomplete.getPlace()
           
           if (place.geometry && place.geometry.location && mapInstanceRef.current && markerRef.current) {
@@ -546,8 +583,76 @@ export default function NewPropertyPage({ dict, lang }: NewPropertyClientProps) 
 
     // Small delay to ensure everything is ready
     const timer = setTimeout(initAutocomplete, 100)
-    return () => clearTimeout(timer)
+    
+    return () => {
+      clearTimeout(timer)
+      if (checkInterval) {
+        clearInterval(checkInterval)
+      }
+      if (inputElement && startCheckingDropdown) {
+        inputElement.removeEventListener('focus', startCheckingDropdown)
+        inputElement.removeEventListener('input', startCheckingDropdown)
+      }
+    }
   }, [mapInstanceRef.current, addressInputRef.current]) // Depend on when these refs are ready
+
+  // Forward geocode function for manual address input
+  const forwardGeocode = async (address: string) => {
+    try {
+      const google = await ensureGoogleMaps()
+      const geocoder = new google.maps.Geocoder()
+      
+      geocoder.geocode({ address }, (results, status) => {
+        if (status === 'OK' && results && results[0] && mapInstanceRef.current && markerRef.current) {
+          const location = results[0].geometry.location
+          const newPosition = { lat: location.lat(), lng: location.lng() }
+          const formattedAddress = results[0].formatted_address || address
+          
+          // Update map and marker
+          mapInstanceRef.current.setCenter(newPosition)
+          mapInstanceRef.current.setZoom(16)
+          markerRef.current.position = newPosition
+          
+          // Parse address components to fill city and country
+          let city = ''
+          let country = ''
+          
+          if (results[0].address_components) {
+            for (const component of results[0].address_components) {
+              const types = component.types
+              if (types.includes('locality') || types.includes('administrative_area_level_1')) {
+                city = component.long_name
+              } else if (types.includes('country')) {
+                country = component.long_name
+              }
+            }
+          }
+          
+          // Update form values
+          form.setValue("latitude", newPosition.lat, { shouldValidate: true })
+          form.setValue("longitude", newPosition.lng, { shouldValidate: true })
+          form.setValue("address", formattedAddress, { shouldValidate: true })
+          if (city) form.setValue("city", city, { shouldValidate: true })
+          if (country) form.setValue("country", country, { shouldValidate: true })
+          
+          // Also update the input field directly to ensure UI sync
+          if (addressInputRef.current) {
+            addressInputRef.current.value = formattedAddress
+          }
+          
+          setAddressSelected(true)
+        } else if (status === 'REQUEST_DENIED' || status === 'OVER_QUERY_LIMIT') {
+          console.warn('Geocoding request denied or quota exceeded. Enable "Geocoding API" for this key in Google Cloud Console.')
+          setGeocodingBlocked(true)
+        } else if (status !== 'ZERO_RESULTS') {
+          console.warn('Geocoding failed with status:', status)
+        }
+      })
+    } catch (error) {
+      console.error('Error forward geocoding:', error)
+      setGeocodingBlocked(true)
+    }
+  }
 
   useEffect(() => {
     return () => {
@@ -1180,12 +1285,31 @@ export default function NewPropertyPage({ dict, lang }: NewPropertyClientProps) 
                                   placeholder={dict.developer?.properties?.placeholders?.address || "Start typing an address (e.g., Sofia, Bulgaria)"} 
                                   className={`${addressSelected ? "border-green-500 bg-green-50" : ""} h-11`}
                                   value={field.value}
-                                  onChange={(e) => {
-                                    field.onChange(e.target.value)
-                                    setAddressSelected(false)
-                                  }}
-                                  onKeyDown={preventEnterSubmit}
-                                  autoComplete="off"
+                                onChange={(e) => {
+                                  field.onChange(e.target.value)
+                                  setAddressSelected(false)
+                                }}
+                                onKeyDown={(e) => {
+                                  // Always prevent form submission when Enter is pressed in address field
+                                  if (e.key === 'Enter') {
+                                    e.preventDefault()
+                                    
+                                    const inputValue = e.currentTarget.value
+                                    
+                                    // If autocomplete dropdown is open, Google's autocomplete will handle selecting the suggestion
+                                    // If dropdown is NOT open and there's a value, geocode it to load the address
+                                    if (!autocompleteOpen && inputValue && !addressSelected) {
+                                      forwardGeocode(inputValue)
+                                    }
+                                    // User must use the submit button to save changes
+                                  }
+                                }}
+                                onBlur={(e) => {
+                                  if (e.target.value && !addressSelected) {
+                                    forwardGeocode(e.target.value)
+                                  }
+                                }}
+                                autoComplete="off"
                                 />
                               </FormControl>
                               {addressSelected && (

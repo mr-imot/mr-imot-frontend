@@ -78,6 +78,7 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
   const [addressSelected, setAddressSelected] = useState(false)
   const [geocodingBlocked, setGeocodingBlocked] = useState(false)
   const [placesBlocked, setPlacesBlocked] = useState(false)
+  const [autocompleteOpen, setAutocompleteOpen] = useState(false)
   
   // Default center for Sofia
   const defaultCenter = useMemo(() => ({ lat: 42.6977, lng: 23.3219 }), [])
@@ -201,6 +202,10 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
   useEffectHook(() => {
     if (!isDeveloper || !mapInstanceRef.current || !addressInputRef.current) return
     
+    let checkInterval: NodeJS.Timeout | null = null
+    const inputElement = addressInputRef.current
+    let startCheckingDropdown: (() => void) | null = null
+    
     const initAutocomplete = async () => {
       try {
         const google = await ensureGoogleMaps()
@@ -215,8 +220,40 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
           types: ["geocode"] // Includes addresses, cities, villages, and other geographic locations
         })
 
+        // Track when autocomplete dropdown opens/closes
+        startCheckingDropdown = () => {
+          if (checkInterval) return
+          checkInterval = setInterval(() => {
+            const pacContainer = document.querySelector('.pac-container') as HTMLElement
+            if (pacContainer) {
+              const isVisible = pacContainer.style.display !== 'none' && 
+                               pacContainer.offsetParent !== null
+              setAutocompleteOpen(isVisible)
+              if (!isVisible && checkInterval) {
+                clearInterval(checkInterval)
+                checkInterval = null
+              }
+            } else {
+              setAutocompleteOpen(false)
+              if (checkInterval) {
+                clearInterval(checkInterval)
+                checkInterval = null
+              }
+            }
+          }, 100)
+        }
+
+        inputElement.addEventListener('focus', startCheckingDropdown)
+        inputElement.addEventListener('input', startCheckingDropdown)
+
         // Handle place selection
         autocomplete.addListener('place_changed', () => {
+          // Stop checking dropdown
+          if (checkInterval) {
+            clearInterval(checkInterval)
+            checkInterval = null
+          }
+          setAutocompleteOpen(false)
           const place = autocomplete.getPlace()
           
           if (place.geometry && place.geometry.location && mapInstanceRef.current && markerRef.current) {
@@ -252,6 +289,17 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
     }
 
     initAutocomplete()
+
+    // Cleanup function
+    return () => {
+      if (checkInterval) {
+        clearInterval(checkInterval)
+      }
+      if (inputElement && startCheckingDropdown) {
+        inputElement.removeEventListener('focus', startCheckingDropdown)
+        inputElement.removeEventListener('input', startCheckingDropdown)
+      }
+    }
   }, [isDeveloper, placesBlocked])
 
   // Reverse geocode function
@@ -633,7 +681,21 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
                           handleInputChange("officeAddress", e.target.value)
                           setAddressSelected(false) // Reset when user types
                         }}
-                        onKeyDown={preventEnterSubmit}
+                        onKeyDown={(e) => {
+                          // Always prevent form submission when Enter is pressed in address field
+                          if (e.key === 'Enter') {
+                            e.preventDefault()
+                            
+                            const inputValue = e.currentTarget.value
+                            
+                            // If autocomplete dropdown is open, Google's autocomplete will handle selecting the suggestion
+                            // If dropdown is NOT open and there's a value, geocode it to load the address
+                            if (!autocompleteOpen && inputValue && !addressSelected) {
+                              forwardGeocode(inputValue)
+                            }
+                            // User must use the submit button to submit the form
+                          }
+                        }}
                         onBlur={(e) => {
                           if (e.target.value && !addressSelected) {
                             forwardGeocode(e.target.value)
