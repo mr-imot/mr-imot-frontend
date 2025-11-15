@@ -330,11 +330,15 @@ export default function EditProjectPage({ dict, lang, params }: EditPropertyClie
 
           // Marker drag end - update coordinates and reverse geocode
           marker.addEventListener("dragend", (event) => {
-            const pos = event.target.position
+            const markerElement = event.target as google.maps.marker.AdvancedMarkerElement
+            if (!markerElement) return
+            const pos = markerElement.position
             if (pos) {
-              form.setValue("latitude", pos.lat, { shouldValidate: true })
-              form.setValue("longitude", pos.lng, { shouldValidate: true })
-              reverseGeocode(pos.lat, pos.lng)
+              const lat = typeof pos.lat === 'function' ? pos.lat() : pos.lat
+              const lng = typeof pos.lng === 'function' ? pos.lng() : pos.lng
+              form.setValue("latitude", lat, { shouldValidate: true })
+              form.setValue("longitude", lng, { shouldValidate: true })
+              reverseGeocode(lat, lng)
             }
           })
 
