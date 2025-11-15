@@ -824,12 +824,17 @@ export default function DeveloperProfilePage({ dict, lang }: ProfileClientProps)
                                 }}
                                 onKeyDown={(e) => {
                                   // Always prevent form submission when Enter is pressed in address field
-                                  // Let Google's autocomplete handle the Enter key to select a suggestion
-                                  // User must use the "Save Changes" button to submit the form
                                   if (e.key === 'Enter') {
                                     e.preventDefault()
-                                    // Google's autocomplete will handle selecting the suggestion
-                                    // The event can still bubble up for autocomplete to process
+                                    
+                                    const inputValue = e.currentTarget.value
+                                    
+                                    // If autocomplete dropdown is open, Google's autocomplete will handle selecting the suggestion
+                                    // If dropdown is NOT open and there's a value, geocode it to load the address
+                                    if (!autocompleteOpen && inputValue && !addressSelected) {
+                                      forwardGeocode(inputValue)
+                                    }
+                                    // User must use the "Save Changes" button to submit the form
                                   }
                                 }}
                                 onBlur={(e) => {
