@@ -1,0 +1,93 @@
+import { MetadataRoute } from 'next'
+
+// Get base URL from environment variable or use localhost for development
+function getBaseUrl(): string {
+  if (process.env.NEXT_PUBLIC_SITE_URL) {
+    return process.env.NEXT_PUBLIC_SITE_URL
+  }
+  // Fallback for development
+  if (process.env.NODE_ENV === 'development') {
+    return 'http://localhost:3000'
+  }
+  // Production fallback (should be set via env var)
+  return 'https://mrimot.com'
+}
+
+export default function robots(): MetadataRoute.Robots {
+  const baseUrl = getBaseUrl()
+
+  // Common rules for all crawlers (including LLMs)
+  const commonRules = {
+    allow: [
+      '/',
+      '/en/',
+      '/bg/',
+      '/en/listings/',
+      '/bg/listings/',
+      '/api/v1/projects/',
+    ],
+    disallow: [
+      '/admin/',
+      '/buyer/',
+      '/developer/',
+      '/api/',
+      '/debug/',
+      '/test-api/',
+      '/verify-email/',
+      '/reset-password/',
+    ],
+  }
+
+  return {
+    rules: [
+      // Explicit rules for LLM/AI crawlers
+      {
+        userAgent: 'GPTBot',
+        ...commonRules,
+      },
+      {
+        userAgent: 'ChatGPT-User',
+        ...commonRules,
+      },
+      {
+        userAgent: 'CCBot',
+        ...commonRules,
+      },
+      {
+        userAgent: 'anthropic-ai',
+        ...commonRules,
+      },
+      {
+        userAgent: 'Claude-Web',
+        ...commonRules,
+      },
+      {
+        userAgent: 'PerplexityBot',
+        ...commonRules,
+      },
+      {
+        userAgent: 'Applebot-Extended',
+        ...commonRules,
+      },
+      {
+        userAgent: 'Omgilibot',
+        ...commonRules,
+      },
+      {
+        userAgent: 'FacebookBot',
+        ...commonRules,
+      },
+      {
+        userAgent: 'Google-Extended',
+        ...commonRules,
+      },
+      // Default rule for all other crawlers
+      {
+        userAgent: '*',
+        ...commonRules,
+      },
+    ],
+    sitemap: `${baseUrl}/sitemap.xml`,
+  }
+}
+
