@@ -2,15 +2,16 @@ import { MetadataRoute } from 'next'
 
 // Get base URL from environment variable or use localhost for development
 function getBaseUrl(): string {
+  let url: string
   if (process.env.NEXT_PUBLIC_SITE_URL) {
-    return process.env.NEXT_PUBLIC_SITE_URL
+    url = process.env.NEXT_PUBLIC_SITE_URL
+  } else if (process.env.NODE_ENV === 'development') {
+    url = 'http://localhost:3000'
+  } else {
+    url = 'https://mrimot.com'
   }
-  // Fallback for development
-  if (process.env.NODE_ENV === 'development') {
-    return 'http://localhost:3000'
-  }
-  // Production fallback (should be set via env var)
-  return 'https://mrimot.com'
+  // Remove trailing slash to prevent double slashes
+  return url.replace(/\/$/, '')
 }
 
 export default function robots(): MetadataRoute.Robots {
