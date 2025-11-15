@@ -213,19 +213,22 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // Check if pathname already includes a locale (only for non-default locales)
+  // Check if pathname already includes a locale
   // Also allow /en/not-found and /bg/not-found to pass through
-  const pathnameHasLocale = pathname.startsWith('/bg/') || pathname === '/bg'
+  const pathnameHasBgLocale = pathname.startsWith('/bg/') || pathname === '/bg'
+  const pathnameHasEnLocale = pathname.startsWith('/en/') || pathname === '/en'
   const isNotFoundPage = pathname === '/not-found' || pathname === '/en/not-found' || pathname === '/bg/not-found'
 
-  if (pathnameHasLocale || isNotFoundPage) {
+  if (pathnameHasBgLocale || pathnameHasEnLocale || isNotFoundPage) {
     const response = NextResponse.next()
     // Set language header based on pathname
-    if (pathnameHasLocale) {
+    if (pathnameHasBgLocale) {
       response.headers.set('x-locale', 'bg')
+    } else if (pathnameHasEnLocale) {
+      response.headers.set('x-locale', 'en')
     } else {
-      // For /en/ paths or root, default to English
-      response.headers.set('x-locale', pathname.startsWith('/en/') ? 'en' : 'en')
+      // For not-found pages, default to English
+      response.headers.set('x-locale', 'en')
     }
     return response
   }
