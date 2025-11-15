@@ -219,7 +219,15 @@ export function middleware(request: NextRequest) {
   const isNotFoundPage = pathname === '/not-found' || pathname === '/en/not-found' || pathname === '/bg/not-found'
 
   if (pathnameHasLocale || isNotFoundPage) {
-    return NextResponse.next()
+    const response = NextResponse.next()
+    // Set language header based on pathname
+    if (pathnameHasLocale) {
+      response.headers.set('x-locale', 'bg')
+    } else {
+      // For /en/ paths or root, default to English
+      response.headers.set('x-locale', pathname.startsWith('/en/') ? 'en' : 'en')
+    }
+    return response
   }
 
   // 1. Check cookie preference (user override) - HIGHEST PRIORITY
@@ -227,14 +235,18 @@ export function middleware(request: NextRequest) {
   const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value
   if (cookieLocale && SUPPORTED_LOCALES.includes(cookieLocale) && pathname !== '/not-found' && !pathname.startsWith('/en/not-found') && !pathname.startsWith('/bg/not-found')) {
     if (cookieLocale === 'bg') {
-      return NextResponse.redirect(new URL(`/bg${pathname}`, request.url))
+      const response = NextResponse.redirect(new URL(`/bg${pathname}`, request.url))
+      response.headers.set('x-locale', 'bg')
+      return response
     }
     // For English (default), rewrite internally to /en for [lang] route handling
     // But skip if pathname already starts with /en/
     if (!pathname.startsWith('/en/')) {
       const url = request.nextUrl.clone()
       url.pathname = `/en${pathname}`
-      return NextResponse.rewrite(url)
+      const response = NextResponse.rewrite(url)
+      response.headers.set('x-locale', 'en')
+      return response
     }
   }
 
@@ -257,6 +269,8 @@ export function middleware(request: NextRequest) {
       maxAge: 60 * 60 * 24 * 365, // 1 year
       sameSite: 'lax',
     })
+    // Set language header for root layout to use
+    response.headers.set('x-locale', 'bg')
     return response
   }
 
@@ -264,7 +278,10 @@ export function middleware(request: NextRequest) {
   // BUT exclude not-found pages to prevent redirect loops
   const negotiated = getLocale(request)
   if (negotiated && negotiated !== DEFAULT_LOCALE && !isNotFoundPage) {
-    return NextResponse.redirect(new URL(`/${negotiated}${pathname}`, request.url))
+    const response = NextResponse.redirect(new URL(`/${negotiated}${pathname}`, request.url))
+    // Set language header for root layout to use
+    response.headers.set('x-locale', negotiated)
+    return response
   }
 
   // 4. Fallback to default locale (English) - rewrite internally to /en
@@ -272,11 +289,18 @@ export function middleware(request: NextRequest) {
   if (!isNotFoundPage && !pathname.startsWith('/en/')) {
     const url = request.nextUrl.clone()
     url.pathname = `/en${pathname}`
-    return NextResponse.rewrite(url)
+    const response = NextResponse.rewrite(url)
+    // Set language header for root layout to use
+    response.headers.set('x-locale', 'en')
+    return response
   }
   
-  // If it's a not-found page or already has /en/, just pass through
-  return NextResponse.next()
+  // If it's a not-found page or already has /en/, set language header and pass through
+  const response = NextResponse.next()
+  // Determine language from pathname
+  const detectedLang = pathname.startsWith('/bg/') || pathname === '/bg' ? 'bg' : 'en'
+  response.headers.set('x-locale', detectedLang)
+  return response
 }
 
 export const config = {

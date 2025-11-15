@@ -1,5 +1,6 @@
 import type React from "react"
 import type { Metadata } from "next"
+import { headers } from "next/headers"
 import { GeistSans } from "geist/font/sans"
 import { GeistMono } from "geist/font/mono"
 import { Figtree, Instrument_Serif, Outfit, Source_Sans_3, Playfair_Display, Inter, Lora } from "next/font/google"
@@ -104,13 +105,40 @@ export function generateViewport() {
 
 // REMOVED: generateThemeColor function that was causing blue background
 
+// Get language from middleware header for HTML lang attribute
+function getLanguageFromPath(): 'en' | 'bg' {
+  try {
+    const headersList = headers()
+    // Get language from middleware-set header
+    const locale = headersList.get('x-locale')
+    
+    if (locale === 'bg' || locale === 'en') {
+      return locale
+    }
+    
+    // Fallback: try to detect from pathname if header not set
+    const pathname = headersList.get('x-pathname') || ''
+    if (pathname.startsWith('/bg/') || pathname === '/bg') {
+      return 'bg'
+    }
+    
+    // Default to English
+    return 'en'
+  } catch {
+    // Fallback to English if headers are not available
+    return 'en'
+  }
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const lang = getLanguageFromPath()
+  
   return (
-    <html lang="en" suppressHydrationWarning className={cn(GeistSans.variable, GeistMono.variable, figtree.variable, instrumentSerif.variable, playfairDisplay.variable, inter.variable, lora.variable)}>
+    <html lang={lang} suppressHydrationWarning className={cn(GeistSans.variable, GeistMono.variable, figtree.variable, instrumentSerif.variable, playfairDisplay.variable, inter.variable, lora.variable)}>
       <head>
         {/* Mobile Viewport Meta Tags */}
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes, viewport-fit=cover" />
