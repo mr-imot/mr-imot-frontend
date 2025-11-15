@@ -212,7 +212,7 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
         const autocomplete = new google.maps.places.Autocomplete(addressInputRef.current!, {
           componentRestrictions: { country: "bg" },
           fields: ["address_components", "formatted_address", "geometry", "place_id"],
-          types: ["address"]
+          types: ["geocode"] // Includes addresses, cities, villages, and other geographic locations
         })
 
         // Handle place selection
@@ -222,19 +222,26 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
           if (place.geometry && place.geometry.location && mapInstanceRef.current && markerRef.current) {
             const location = place.geometry.location
             const newCenter = { lat: location.lat(), lng: location.lng() }
+            const formattedAddress = place.formatted_address || (addressInputRef.current?.value || '')
             
             // Update map and marker
             mapInstanceRef.current.setCenter(newCenter)
             mapInstanceRef.current.setZoom(16)
             markerRef.current.position = newCenter
             
-            // Update form values
+            // Update form values - ensure input field is synced
             setFormData(prev => ({
               ...prev,
               officeLatitude: newCenter.lat,
               officeLongitude: newCenter.lng,
-              officeAddress: place.formatted_address || (addressInputRef.current?.value || '')
+              officeAddress: formattedAddress
             }))
+            
+            // Also update the input field directly to ensure UI sync
+            if (addressInputRef.current) {
+              addressInputRef.current.value = formattedAddress
+            }
+            
             setAddressSelected(true)
           }
         })
@@ -256,11 +263,20 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
       geocoder.geocode({ location: { lat, lng } }, (results, status) => {
         if (status === 'OK' && results && results[0]) {
           const address = results[0].formatted_address
+          // Update form data
           setFormData(prev => ({
             ...prev,
             officeAddress: address
           }))
+          // Also update the input field directly to ensure UI sync
+          if (addressInputRef.current) {
+            addressInputRef.current.value = address
+          }
           setAddressSelected(true)
+        } else if (status === 'REQUEST_DENIED' || status === 'OVER_QUERY_LIMIT') {
+          console.warn('Geocoding request denied or quota exceeded. Enable "Geocoding API" for this key in Google Cloud Console.')
+        } else if (status !== 'ZERO_RESULTS') {
+          console.warn('Geocoding failed with status:', status)
         }
       })
     } catch (error) {
@@ -278,19 +294,31 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
         if (status === 'OK' && results && results[0] && mapInstanceRef.current && markerRef.current) {
           const location = results[0].geometry.location
           const newPosition = { lat: location.lat(), lng: location.lng() }
+          const formattedAddress = results[0].formatted_address || address
           
           // Update map and marker
           mapInstanceRef.current.setCenter(newPosition)
           mapInstanceRef.current.setZoom(16)
           markerRef.current.position = newPosition
           
-          // Update form values
+          // Update form values - IMPORTANT: Update the address field too
           setFormData(prev => ({
             ...prev,
             officeLatitude: newPosition.lat,
-            officeLongitude: newPosition.lng
+            officeLongitude: newPosition.lng,
+            officeAddress: formattedAddress
           }))
+          
+          // Also update the input field directly to ensure UI sync
+          if (addressInputRef.current) {
+            addressInputRef.current.value = formattedAddress
+          }
+          
           setAddressSelected(true)
+        } else if (status === 'REQUEST_DENIED' || status === 'OVER_QUERY_LIMIT') {
+          console.warn('Geocoding request denied or quota exceeded. Enable "Geocoding API" for this key in Google Cloud Console.')
+        } else if (status !== 'ZERO_RESULTS') {
+          console.warn('Geocoding failed with status:', status)
         }
       })
     } catch (error) {

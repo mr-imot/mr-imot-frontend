@@ -308,6 +308,12 @@ export default function EditProjectPage({ dict, lang, params }: EditPropertyClie
                     if (city) form.setValue("city", city, { shouldValidate: true })
                     if (country) form.setValue("country", country, { shouldValidate: true })
                     form.setValue("address", result.formatted_address, { shouldValidate: true })
+                    
+                    // Also update the input field directly to ensure UI sync
+                    if (addressInputRef.current) {
+                      addressInputRef.current.value = result.formatted_address
+                    }
+                    
                     setAddressSelected(true)
                   } else if (status === google.maps.GeocoderStatus.REQUEST_DENIED) {
                     console.warn('Geocoding request denied. Enable "Geocoding API" for this key in Google Cloud Console.')
@@ -366,7 +372,7 @@ export default function EditProjectPage({ dict, lang, params }: EditPropertyClie
         const autocomplete = new google.maps.places.Autocomplete(addressInputRef.current!, {
           componentRestrictions: { country: "bg" }, // Restrict to Bulgaria
           fields: ["address_components", "formatted_address", "geometry", "place_id"],
-          types: ["address"]
+          types: ["geocode"] // Includes addresses, cities, villages, and other geographic locations
         })
         
         // Handle place selection
@@ -376,6 +382,7 @@ export default function EditProjectPage({ dict, lang, params }: EditPropertyClie
           if (place.geometry && place.geometry.location && mapInstanceRef.current && markerRef.current) {
             const location = place.geometry.location
             const newCenter = { lat: location.lat(), lng: location.lng() }
+            const formattedAddress = place.formatted_address || (addressInputRef.current?.value || '')
             
             // Update map and marker
             mapInstanceRef.current.setCenter(newCenter)
@@ -398,7 +405,7 @@ export default function EditProjectPage({ dict, lang, params }: EditPropertyClie
               }
             }
             
-            // Update form values
+            // Update form values - ensure input field is synced
             form.setValue("latitude", newCenter.lat, { shouldValidate: true })
             form.setValue("longitude", newCenter.lng, { shouldValidate: true })
             
@@ -407,7 +414,13 @@ export default function EditProjectPage({ dict, lang, params }: EditPropertyClie
             if (country) form.setValue("country", country, { shouldValidate: true })
             
             // Set the full address
-            form.setValue("address", place.formatted_address || (addressInputRef.current?.value || ''), { shouldValidate: true })
+            form.setValue("address", formattedAddress, { shouldValidate: true })
+            
+            // Also update the input field directly to ensure UI sync
+            if (addressInputRef.current) {
+              addressInputRef.current.value = formattedAddress
+            }
+            
             setAddressSelected(true)
           }
         })
