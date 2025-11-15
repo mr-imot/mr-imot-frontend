@@ -823,11 +823,13 @@ export default function DeveloperProfilePage({ dict, lang }: ProfileClientProps)
                                   setAddressSelected(false) // Reset when user types
                                 }}
                                 onKeyDown={(e) => {
-                                  // Prevent form submission when Enter is pressed and autocomplete dropdown is visible
-                                  if (e.key === 'Enter' && autocompleteOpen) {
+                                  // Always prevent form submission when Enter is pressed in address field
+                                  // Let Google's autocomplete handle the Enter key to select a suggestion
+                                  // User must use the "Save Changes" button to submit the form
+                                  if (e.key === 'Enter') {
                                     e.preventDefault()
-                                    // Let Google's autocomplete handle the Enter key to select a suggestion
-                                    // If no suggestion is selected, the form will submit normally
+                                    // Google's autocomplete will handle selecting the suggestion
+                                    // The event can still bubble up for autocomplete to process
                                   }
                                 }}
                                 onBlur={(e) => {
