@@ -106,28 +106,41 @@ export function generateViewport() {
 // REMOVED: generateThemeColor function that was causing blue background
 
 // Get language from middleware header for HTML lang attribute
+// This function must never throw errors - it's called during SSR and static generation
 function getLanguageFromPath(): 'en' | 'bg' {
+  // Default to English - safe fallback for all contexts
+  let detectedLang: 'en' | 'bg' = 'en'
+  
   try {
-    const headersList = headers()
-    // Get language from middleware-set header
-    const locale = headersList.get('x-locale')
-    
-    if (locale === 'bg' || locale === 'en') {
-      return locale
+    // Only attempt to read headers in server context
+    // headers() can throw errors during static generation or edge runtime
+    if (typeof window === 'undefined') {
+      try {
+        const headersList = headers()
+        // Get language from middleware-set header
+        const locale = headersList.get('x-locale')
+        
+        if (locale === 'bg' || locale === 'en') {
+          detectedLang = locale
+        } else {
+          // Fallback: try to detect from pathname if header not set
+          const pathname = headersList.get('x-pathname') || ''
+          if (pathname.startsWith('/bg/') || pathname === '/bg') {
+            detectedLang = 'bg'
+          }
+        }
+      } catch (headerError) {
+        // Silently fallback to English if headers() fails
+        // This can happen during static generation or in edge runtime
+        detectedLang = 'en'
+      }
     }
-    
-    // Fallback: try to detect from pathname if header not set
-    const pathname = headersList.get('x-pathname') || ''
-    if (pathname.startsWith('/bg/') || pathname === '/bg') {
-      return 'bg'
-    }
-    
-    // Default to English
-    return 'en'
-  } catch {
-    // Fallback to English if headers are not available
-    return 'en'
+  } catch (error) {
+    // Catch any unexpected errors and default to English
+    detectedLang = 'en'
   }
+  
+  return detectedLang
 }
 
 export default function RootLayout({
