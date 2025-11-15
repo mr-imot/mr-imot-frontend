@@ -1048,8 +1048,12 @@ export default function EditProjectPage({ dict, lang, params }: EditPropertyClie
                                     
                                     // If autocomplete dropdown is open, Google's autocomplete will handle selecting the suggestion
                                     // If dropdown is NOT open and there's a value, geocode it to load the address
-                                    if (!autocompleteOpen && inputValue && !addressSelected) {
-                                      forwardGeocode(inputValue)
+                                    // This matches the exact logic from profile-client.tsx
+                                    if (inputValue && !addressSelected) {
+                                      // Only geocode if dropdown is not open (if open, Google handles it)
+                                      if (!autocompleteOpen) {
+                                        forwardGeocode(inputValue)
+                                      }
                                     }
                                     // User must use the submit button to save changes
                                   }
