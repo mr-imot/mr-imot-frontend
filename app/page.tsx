@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -20,8 +21,8 @@ export const metadata: Metadata = {
 }
 
 export default function RootPage() {
-  // Middleware will handle the redirect to the appropriate locale
-  // Return empty fragment instead of null to avoid potential rendering issues
-  // The middleware rewrites this to /en internally, so this should never actually render
-  return <></>
+  // This page should never actually render - middleware handles root path
+  // If we reach here, redirect to default locale
+  // Middleware will intercept this redirect and handle IP-based detection
+  redirect('/en')
 }

@@ -43,22 +43,6 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
   
-
-  // Handle explicit /en/ paths - redirect to root (English default)
-  // BUT exclude not-found pages and register to prevent redirect loops and preserve query params
-  if (pathname.startsWith('/en/') && pathname !== '/en/not-found' && pathname !== '/en/register') {
-    const url = request.nextUrl.clone()
-    const newPath = pathname.replace('/en', '') || '/'
-    url.pathname = newPath
-    // Query params are automatically preserved in the cloned URL
-    return NextResponse.redirect(url)
-  }
-  if (pathname === '/en') {
-    const url = request.nextUrl.clone()
-    url.pathname = '/'
-    return NextResponse.redirect(url)
-  }
-
   // Handle old /listing/ route - redirect to proper localized route
   if (pathname.startsWith('/listing/')) {
     const listingId = pathname.replace('/listing/', '')
