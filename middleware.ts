@@ -15,13 +15,37 @@ const SUPPORTED_LOCALES = ['en', 'bg']
 const DEFAULT_LOCALE = 'en'
 
 function getLocale(request: NextRequest) {
-  // Get the Accept-Language header
-  const acceptLanguage = request.headers.get('accept-language') ?? undefined
-  let headers = { 'accept-language': acceptLanguage }
-  let languages = new Negotiator({ headers }).languages()
-  
-  // Match the preferred language with our supported locales
-  return match(languages, SUPPORTED_LOCALES, DEFAULT_LOCALE)
+  try {
+    // Get the Accept-Language header
+    const acceptLanguage = request.headers.get('accept-language') ?? undefined
+    let headers = { 'accept-language': acceptLanguage }
+    let languages = new Negotiator({ headers }).languages()
+    
+    // Filter out invalid locales (wildcards, malformed codes, etc.)
+    // Only keep valid locale codes that match our supported format (2-letter codes)
+    const validLanguages = languages.filter((lang) => {
+      // Remove wildcards and invalid characters
+      if (lang === '*' || !lang || typeof lang !== 'string') {
+        return false
+      }
+      // Extract base locale (e.g., 'en-US' -> 'en', 'bg' -> 'bg')
+      const baseLocale = lang.split('-')[0].toLowerCase()
+      // Only allow valid 2-letter locale codes
+      return baseLocale.length === 2 && /^[a-z]{2}$/.test(baseLocale)
+    })
+    
+    // If no valid languages found, return default
+    if (validLanguages.length === 0) {
+      return DEFAULT_LOCALE
+    }
+    
+    // Match the preferred language with our supported locales
+    return match(validLanguages, SUPPORTED_LOCALES, DEFAULT_LOCALE)
+  } catch (error) {
+    // If locale matching fails for any reason, return default locale
+    console.error('Error matching locale:', error)
+    return DEFAULT_LOCALE
+  }
 }
 
 export function middleware(request: NextRequest) {
@@ -263,12 +287,18 @@ export function middleware(request: NextRequest) {
 
   // 3. Check Accept-Language header
   // BUT exclude not-found pages to prevent redirect loops
-  const negotiated = getLocale(request)
-  if (negotiated && negotiated !== DEFAULT_LOCALE && !isNotFoundPage) {
-    const response = NextResponse.redirect(new URL(`/${negotiated}${pathname}`, request.url))
-    // Set language header for root layout to use
-    response.headers.set('x-locale', negotiated)
-    return response
+  try {
+    const negotiated = getLocale(request)
+    if (negotiated && negotiated !== DEFAULT_LOCALE && !isNotFoundPage) {
+      const response = NextResponse.redirect(new URL(`/${negotiated}${pathname}`, request.url))
+      // Set language header for root layout to use
+      response.headers.set('x-locale', negotiated)
+      return response
+    }
+  } catch (error) {
+    // If Accept-Language detection fails, continue to fallback
+    // This ensures the middleware never crashes due to locale detection errors
+    console.error('Error in Accept-Language detection:', error)
   }
 
   // 4. Fallback to default locale (English) - rewrite internally to /en
