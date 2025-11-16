@@ -91,7 +91,23 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent'
-  }
+  },
+  alternates: {
+    canonical: process.env.NEXT_PUBLIC_SITE_URL 
+      ? `${process.env.NEXT_PUBLIC_SITE_URL}/en`
+      : 'http://localhost:3000/en',
+    languages: {
+      en: process.env.NEXT_PUBLIC_SITE_URL 
+        ? `${process.env.NEXT_PUBLIC_SITE_URL}/en`
+        : 'http://localhost:3000/en',
+      bg: process.env.NEXT_PUBLIC_SITE_URL 
+        ? `${process.env.NEXT_PUBLIC_SITE_URL}/bg`
+        : 'http://localhost:3000/bg',
+      'x-default': process.env.NEXT_PUBLIC_SITE_URL 
+        ? `${process.env.NEXT_PUBLIC_SITE_URL}/en`
+        : 'http://localhost:3000/en',
+    },
+  },
 }
 
 export function generateViewport() {
