@@ -123,7 +123,7 @@ export function generateViewport() {
 
 // Get language from middleware header for HTML lang attribute
 // This function must never throw errors - it's called during SSR and static generation
-function getLanguageFromPath(): 'en' | 'bg' {
+async function getLanguageFromPath(): Promise<'en' | 'bg'> {
   // Default to English - safe fallback for all contexts
   let detectedLang: 'en' | 'bg' = 'en'
   
@@ -132,7 +132,7 @@ function getLanguageFromPath(): 'en' | 'bg' {
     // headers() can throw errors during static generation or edge runtime
     if (typeof window === 'undefined') {
       try {
-        const headersList = headers()
+        const headersList = await headers()
         // Get language from middleware-set header
         const locale = headersList.get('x-locale')
         
@@ -159,12 +159,12 @@ function getLanguageFromPath(): 'en' | 'bg' {
   return detectedLang
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const lang = getLanguageFromPath()
+  const lang = await getLanguageFromPath()
   
   return (
     <html lang={lang} suppressHydrationWarning className={cn(GeistSans.variable, GeistMono.variable, figtree.variable, instrumentSerif.variable, playfairDisplay.variable, inter.variable, lora.variable)}>
