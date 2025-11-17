@@ -46,7 +46,7 @@ export function Footer() {
   const socialLinks = [
     { href: "https://www.facebook.com/misterimot/", icon: Facebook, label: "Facebook" },
     { href: "https://x.com/mister_imot", icon: Twitter, label: "X (Twitter)" },
-    { href: "https://www.instagram.com/mistar_imot", icon: Instagram, label: "Instagram" },
+    { href: "https://www.instagram.com/mister_imot", icon: Instagram, label: "Instagram" },
     { href: "https://www.youtube.com/@MisterImot", icon: Youtube, label: "YouTube" },
   ]
 
