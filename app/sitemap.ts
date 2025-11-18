@@ -73,6 +73,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'weekly' as const,
       priority: 0.8,
     })),
+    // Developers pages
+    ...languages.map((lang): MetadataRoute.Sitemap[0] => ({
+      url: `${baseUrl}/${lang}/developers`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    })),
   ]
 
   // Dynamic routes - fetch all projects
