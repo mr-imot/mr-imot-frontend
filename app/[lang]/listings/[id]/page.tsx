@@ -1,8 +1,6 @@
 import { notFound } from "next/navigation"
 import type { Metadata } from 'next'
-import ListingDetailClient from './listing-detail-client'
-import PausedListingPage from './paused-listing-page'
-import DeletedListingPage from './deleted-listing-page'
+import ListingPageContent from './listing-page-content'
 import { Project, PausedProject, DeletedProject } from '@/lib/api'
 
 interface PageProps {
@@ -12,7 +10,7 @@ interface PageProps {
   }>
 }
 
-// Server-side function to fetch project data
+// Server-side function to fetch project data for metadata
 async function getProjectData(id: string): Promise<Project | PausedProject | DeletedProject | null> {
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
@@ -39,7 +37,7 @@ async function getProjectData(id: string): Promise<Project | PausedProject | Del
     }
     
     return data as Project
-  } catch (error) {
+      } catch (error) {
     console.error('Error fetching project for metadata:', error)
     return null
   }
@@ -154,24 +152,5 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function ListingPage({ params }: PageProps) {
   const { lang, id } = await params
-  
-  const project = await getProjectData(id)
-  
-  // Project never existed - return 404
-  if (!project) {
-    notFound()
-  }
-  
-  // Paused project - return paused page with NO project data
-  if ('status' in project && project.status === 'paused') {
-    return <PausedListingPage listingId={id} lang={lang} />
-  }
-  
-  // Deleted project - return deleted page with NO project data
-  if ('status' in project && project.status === 'deleted') {
-    return <DeletedListingPage listingId={id} lang={lang} />
-  }
-  
-  // Active project - return full listing page
-  return <ListingDetailClient projectId={id} />
+  return <ListingPageContent lang={lang} id={id} />
 }
