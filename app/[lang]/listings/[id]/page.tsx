@@ -11,12 +11,13 @@ interface PageProps {
 }
 
 // Server-side function to fetch project data for metadata
-async function getProjectData(id: string): Promise<Project | PausedProject | DeletedProject | null> {
+async function getProjectData(id: string, lang: string): Promise<Project | PausedProject | DeletedProject | null> {
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
     const baseUrl = apiUrl.replace(/\/$/, '')
+    // Use no-store to prevent stale cache when switching languages
     const response = await fetch(`${baseUrl}/api/v1/projects/${id}`, {
-      next: { revalidate: 60 }, // Revalidate every 60 seconds
+      cache: 'no-store', // Disable cache to ensure fresh data on language switch
       headers: {
         'Content-Type': 'application/json',
       },
@@ -48,7 +49,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mrimot.com'
   const baseUrl = siteUrl.replace(/\/$/, '')
   
-  const project = await getProjectData(id)
+  const project = await getProjectData(id, lang)
   
   // Project never existed - return 404 metadata
   if (!project) {

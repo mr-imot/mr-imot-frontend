@@ -40,7 +40,15 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
+  Filter,
 } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { toast } from 'react-hot-toast';
 import Link from 'next/link';
 
@@ -50,6 +58,8 @@ function ListingsManagementContent() {
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [projectIdSearch, setProjectIdSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'paused' | 'deleted'>('all');
+  const [statusCounts, setStatusCounts] = useState({ active: 0, paused: 0, deleted: 0 });
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage] = useState(50);
   const [total, setTotal] = useState(0);
@@ -59,7 +69,7 @@ function ListingsManagementContent() {
   const [deleting, setDeleting] = useState(false);
 
   // Load projects
-  const loadProjects = async () => {
+  const loadProjects = async (loadCounts = false) => {
     try {
       setLoading(true);
       setError('');
@@ -75,10 +85,29 @@ function ListingsManagementContent() {
         params.search = searchTerm.trim();
       }
 
+      // Apply status filter
+      if (statusFilter !== 'all') {
+        params.status = statusFilter;
+      }
+
       const response = await getAllProjects(params);
       setProjects(response.projects || []);
       setTotal(response.total || 0);
       setTotalPages(response.total_pages || 0);
+
+      // Load status counts if needed
+      if (loadCounts) {
+        const [activeRes, pausedRes, deletedRes] = await Promise.all([
+          getAllProjects({ ...params, status: 'active', page: 1, per_page: 1 }),
+          getAllProjects({ ...params, status: 'paused', page: 1, per_page: 1 }),
+          getAllProjects({ ...params, status: 'deleted', page: 1, per_page: 1 }),
+        ]);
+        setStatusCounts({
+          active: activeRes.total || 0,
+          paused: pausedRes.total || 0,
+          deleted: deletedRes.total || 0,
+        });
+      }
     } catch (err) {
       console.error('Error loading projects:', err);
       if (err instanceof AdminApiError) {
@@ -92,21 +121,29 @@ function ListingsManagementContent() {
   };
 
   useEffect(() => {
-    loadProjects();
-  }, [currentPage]);
+    loadProjects(statusFilter === 'all'); // Load counts when showing all
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage, statusFilter]);
 
   // Handle search
   const handleSearch = () => {
     setCurrentPage(1);
-    loadProjects();
+    loadProjects(statusFilter === 'all');
   };
 
   // Handle clear search
   const handleClearSearch = () => {
     setSearchTerm('');
     setProjectIdSearch('');
+    setStatusFilter('all');
     setCurrentPage(1);
-    loadProjects();
+    loadProjects(true);
+  };
+
+  // Handle status filter change
+  const handleStatusFilterChange = (value: 'all' | 'active' | 'paused' | 'deleted') => {
+    setStatusFilter(value);
+    setCurrentPage(1);
   };
 
   // Handle delete confirmation
@@ -126,7 +163,7 @@ function ListingsManagementContent() {
       setDeleteDialogOpen(false);
       setProjectToDelete(null);
       // Reload projects
-      await loadProjects();
+      await loadProjects(statusFilter === 'all');
     } catch (err) {
       console.error('Error deleting project:', err);
       if (err instanceof AdminApiError) {
@@ -154,7 +191,7 @@ function ListingsManagementContent() {
           </p>
         </div>
         <div className="flex items-center space-x-3">
-          <Button onClick={loadProjects} variant="outline" size="sm">
+          <Button onClick={() => loadProjects(statusFilter === 'all')} variant="outline" size="sm">
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
           </Button>
@@ -241,9 +278,40 @@ function ListingsManagementContent() {
             <Building2 className="h-5 w-5" />
             <span>All Listings</span>
           </CardTitle>
-          <Badge variant="outline">
-            {total} total
-          </Badge>
+          <div className="flex items-center gap-4">
+            {/* Status Filter */}
+            <div className="flex items-center gap-2">
+              <Filter className="h-4 w-4 text-gray-500" />
+              <Select value={statusFilter} onValueChange={handleStatusFilterChange}>
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="paused">Paused</SelectItem>
+                  <SelectItem value="deleted">Deleted</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {/* Status Counts */}
+            {statusFilter === 'all' && (
+              <div className="flex items-center gap-2 text-sm">
+                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                  {statusCounts.active} active
+                </Badge>
+                <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
+                  {statusCounts.paused} paused
+                </Badge>
+                <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
+                  {statusCounts.deleted} deleted
+                </Badge>
+              </div>
+            )}
+            <Badge variant="outline">
+              {total} total
+            </Badge>
+          </div>
         </CardHeader>
         <CardContent>
           {projects.length === 0 ? (
@@ -384,7 +452,16 @@ function ProjectCard({
           <div>
             <div className="flex items-center space-x-2">
               <p className="font-medium text-gray-900">{project.name}</p>
-              {!project.is_active && (
+              {project.status === 'active' && (
+                <Badge variant="default" className="text-xs bg-green-500 hover:bg-green-600">Active</Badge>
+              )}
+              {project.status === 'paused' && (
+                <Badge variant="secondary" className="text-xs bg-yellow-500 hover:bg-yellow-600 text-white">Paused</Badge>
+              )}
+              {project.status === 'deleted' && (
+                <Badge variant="destructive" className="text-xs">Deleted</Badge>
+              )}
+              {!project.status && !project.is_active && (
                 <Badge variant="secondary" className="text-xs">Inactive</Badge>
               )}
             </div>
@@ -425,7 +502,7 @@ function ProjectCard({
           size="sm"
           asChild
         >
-          <Link href={`/admin/listings/${project.id}`}>
+          <Link href={`/en/listings/${project.id}`} target="_blank" rel="noopener noreferrer">
             <Eye className="h-4 w-4 mr-1" />
             View
           </Link>

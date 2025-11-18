@@ -146,6 +146,8 @@ function MobileLanguageSwitcher({ onLinkClick }: { onLinkClick: () => void }) {
     router.push(finalPath)
     // Persist preference so middleware honors it (standardized to NEXT_LOCALE)
     document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=${60 * 60 * 24 * 365}`
+    // Force refresh to ensure server components re-fetch with new language
+    router.refresh()
     onLinkClick()
   }
 

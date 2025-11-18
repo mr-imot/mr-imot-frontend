@@ -26,10 +26,12 @@ interface UseDeveloperDashboardResult {
 
 // Transform API project data to dashboard format
 const transformProjectForDashboard = (project: any) => {
+  // Use status field if available, otherwise fall back to is_active
+  const projectStatus = project.status || (project.is_active ? 'active' : 'inactive')
   return {
     id: project.id,
     title: project.title || project.name,
-    status: project.is_active ? 'active' : 'inactive',
+    status: projectStatus,
     views: project.total_views || 0,
     websiteClicks: project.total_clicks_website || 0,
     phoneClicks: project.total_clicks_phone || 0,

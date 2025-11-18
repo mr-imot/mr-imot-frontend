@@ -451,12 +451,15 @@ class ApiClient {
     per_page?: number;
     search?: string;
     status?: string;
+    project_status?: string; // Support both 'status' and 'project_status' for backward compatibility
     project_type?: string;
   } = {}): Promise<ProjectListResponse> {
     const searchParams = new URLSearchParams();
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined) {
-        searchParams.append(key, value.toString());
+        // Map 'status' to 'project_status' for backend API
+        const paramKey = key === 'status' ? 'project_status' : key
+        searchParams.append(paramKey, value.toString());
       }
     });
 

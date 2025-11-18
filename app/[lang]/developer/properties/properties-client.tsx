@@ -27,7 +27,7 @@ interface PropertiesClientProps {
   lang: 'en' | 'bg'
 }
 
-type StatusFilter = "all" | "active" | "draft" | "paused"
+type StatusFilter = "all" | "active" | "paused" | "deleted"
 
 export default function DeveloperPropertiesPage({ dict, lang }: PropertiesClientProps) {
   const { canCreateProjects } = useAuth()
@@ -72,10 +72,10 @@ export default function DeveloperPropertiesPage({ dict, lang }: PropertiesClient
     router.replace(`${pathname}${qs ? `?${qs}` : ''}`, { scroll: false })
   }, [search, status, page, pageSize, router, pathname])
 
-  const apiStatus = status === 'all' ? undefined : (status === 'active' ? 'active' : 'inactive')
+  const apiStatus = status === 'all' ? undefined : status
   const { data, isLoading, mutate } = useSWR(
     ['developer/projects/list', search, apiStatus, page, pageSize],
-    () => getDeveloperProjects({ search, status: apiStatus, page, per_page: pageSize }),
+    () => getDeveloperProjects({ search, project_status: apiStatus, page, per_page: pageSize }),
     { dedupingInterval: 30000, revalidateOnFocus: false }
   )
 
@@ -167,8 +167,8 @@ export default function DeveloperPropertiesPage({ dict, lang }: PropertiesClient
                   <SelectContent>
                     <SelectItem value="all">{dict.developer?.properties?.all || "All"}</SelectItem>
                     <SelectItem value="active">{dict.developer?.properties?.active || "Active"}</SelectItem>
-                    <SelectItem value="draft">{dict.developer?.properties?.draft || "Draft"}</SelectItem>
                     <SelectItem value="paused">{dict.developer?.properties?.paused || "Paused"}</SelectItem>
+                    <SelectItem value="deleted">{dict.developer?.properties?.deleted || "Deleted"}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

@@ -178,7 +178,7 @@ function DashboardContent({ dict, lang }: { dict: any, lang: 'en' | 'bg' }) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const [search, setSearch] = useState("")
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>("all")
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'paused' | 'deleted'>("all")
   const [page, setPage] = useState(1)
   const [pageSize] = useState(10)
   const [sortKey, setSortKey] = useState<'views' | 'websiteClicks' | 'phoneClicks' | 'dateCreated'>("dateCreated")
@@ -187,7 +187,7 @@ function DashboardContent({ dict, lang }: { dict: any, lang: 'en' | 'bg' }) {
   // Initialize filters from URL on mount
   useEffect(() => {
     const q = searchParams.get('q') || ''
-    const st = (searchParams.get('status') as 'all' | 'active' | 'inactive') || 'all'
+    const st = (searchParams.get('status') as 'all' | 'active' | 'paused' | 'deleted') || 'all'
     const pg = parseInt(searchParams.get('page') || '1', 10)
     const sk = (searchParams.get('sort') as typeof sortKey) || 'dateCreated'
     const sd = (searchParams.get('dir') as typeof sortDir) || 'desc'

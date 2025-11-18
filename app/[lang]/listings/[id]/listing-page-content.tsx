@@ -11,12 +11,14 @@ interface ListingPageContentProps {
 }
 
 // Server-side function to fetch project data
-async function getProjectData(id: string): Promise<Project | PausedProject | DeletedProject | null> {
+async function getProjectData(id: string, lang: string): Promise<Project | PausedProject | DeletedProject | null> {
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
     const baseUrl = apiUrl.replace(/\/$/, '')
+    // Include lang in cache key to ensure re-fetch on language change
+    // Use no-store to prevent stale cache when switching languages
     const response = await fetch(`${baseUrl}/api/v1/projects/${id}`, {
-      next: { revalidate: 60 }, // Revalidate every 60 seconds
+      cache: 'no-store', // Disable cache to ensure fresh data on language switch
       headers: {
         'Content-Type': 'application/json',
       },
@@ -44,7 +46,7 @@ async function getProjectData(id: string): Promise<Project | PausedProject | Del
 }
 
 export default async function ListingPageContent({ lang, id }: ListingPageContentProps) {
-  const project = await getProjectData(id)
+  const project = await getProjectData(id, lang)
   
   // Project never existed - return 404
   if (!project) {

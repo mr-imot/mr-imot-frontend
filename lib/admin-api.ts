@@ -132,7 +132,8 @@ export interface AdminProject {
   city: string;
   country: string;
   project_type: string;
-  is_active: boolean;
+  is_active: boolean; // Computed from status for backward compatibility
+  status?: 'active' | 'paused' | 'deleted'; // Status field
   created_at: string;
   images_count: number;
 }
@@ -527,12 +528,14 @@ class AdminApiClient {
   async getAllProjects(params?: {
     search?: string;
     project_id?: string;
+    status?: 'active' | 'paused' | 'deleted';
     page?: number;
     per_page?: number;
   }): Promise<AdminProjectsResponse> {
     const queryParams = new URLSearchParams();
     if (params?.search) queryParams.append('search', params.search);
     if (params?.project_id) queryParams.append('project_id', params.project_id);
+    if (params?.status) queryParams.append('status', params.status);
     if (params?.page) queryParams.append('page', params.page.toString());
     if (params?.per_page) queryParams.append('per_page', params.per_page.toString());
 
@@ -577,6 +580,7 @@ export const sendNotification = (request: NotificationRequest) => adminApiClient
 export const getAllProjects = (params?: {
   search?: string;
   project_id?: string;
+  status?: 'active' | 'paused' | 'deleted';
   page?: number;
   per_page?: number;
 }) => adminApiClient.getAllProjects(params);
