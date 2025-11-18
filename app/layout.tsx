@@ -74,6 +74,11 @@ export const metadata: Metadata = {
   description: "Find and connect with real estate developers directly. No brokers, no commissions.",
   generator: 'v0.dev',
   manifest: '/manifest.json',
+  robots: {
+    // Root layout should not be indexed - all content is under /en or /bg
+    index: false,
+    follow: true,
+  },
   icons: {
     icon: [
       { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
