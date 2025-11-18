@@ -71,17 +71,30 @@ export interface FeaturesByCategory {
   modern_features: Feature[];
 }
 
+export type ProjectStatus = 'active' | 'paused' | 'deleted'
+
+// Minimal response for paused/deleted projects (NO sensitive data)
+export interface PausedProject {
+  id: string
+  status: 'paused'
+}
+
+export interface DeletedProject {
+  id: string
+  status: 'deleted'
+}
+
 export interface Project {
   id: number;
-  title: string;
+  title?: string; // May not be present in status responses
   name?: string; // Backend sometimes returns 'name' instead of 'title'
-  description: string;
+  description?: string; // May not be present in status responses
   location?: string;
   formatted_address?: string;
   city: string;
   neighborhood?: string;
   project_type: string;
-  status?: string;
+  status?: ProjectStatus; // Added status field
   price_from?: number;
   price_to?: number;
   price_per_m2?: string;
@@ -495,7 +508,7 @@ class ApiClient {
     return this.request(`/api/v1/analytics/projects/${projectId}/click/phone`, { method: 'POST' });
   }
 
-  async getProject(id: string): Promise<Project> {
+  async getProject(id: string): Promise<Project | PausedProject | DeletedProject> {
     return this.request(`/api/v1/projects/${id}`);
   }
 
@@ -729,7 +742,7 @@ export const getDeveloperAnalytics = (period?: string) => apiClient.getDeveloper
 export const getDeveloperSubscription = () => apiClient.getDeveloperSubscription();
 export const getDeveloperProjects = (params?: any) => apiClient.getDeveloperProjects(params);
 export const getProjects = (params?: any) => apiClient.getProjects(params);
-export const getProject = (id: string) => apiClient.getProject(id);
+export const getProject = (id: string): Promise<Project | PausedProject | DeletedProject> => apiClient.getProject(id);
 export const getProjectFormData = () => apiClient.getProjectFormData();
 export const createProject = (projectData: any) => apiClient.createProject(projectData);
 export const updateProject = (id: string, projectData: any) => apiClient.updateProject(id, projectData);

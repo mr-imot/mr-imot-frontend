@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation"
 import type { Metadata } from 'next'
 import ListingDetailClient from './listing-detail-client'
-import { Project } from '@/lib/api'
+import PausedListingPage from './paused-listing-page'
+import DeletedListingPage from './deleted-listing-page'
+import { Project, PausedProject, DeletedProject } from '@/lib/api'
 
 interface PageProps {
   params: Promise<{
@@ -11,7 +13,7 @@ interface PageProps {
 }
 
 // Server-side function to fetch project data
-async function getProjectData(id: string): Promise<Project | null> {
+async function getProjectData(id: string): Promise<Project | PausedProject | DeletedProject | null> {
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
     const baseUrl = apiUrl.replace(/\/$/, '')
@@ -24,12 +26,19 @@ async function getProjectData(id: string): Promise<Project | null> {
 
     if (!response.ok) {
       if (response.status === 404) {
-        return null
+        return null // Project never existed
       }
       throw new Error(`Failed to fetch project: ${response.statusText}`)
     }
 
-    return await response.json()
+    const data = await response.json()
+    
+    // Check if this is a status-only response (paused/deleted)
+    if (data.status === 'paused' || data.status === 'deleted') {
+      return data as PausedProject | DeletedProject
+    }
+    
+    return data as Project
   } catch (error) {
     console.error('Error fetching project for metadata:', error)
     return null
@@ -43,6 +52,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   
   const project = await getProjectData(id)
   
+  // Project never existed - return 404 metadata
   if (!project) {
     return {
       title: 'Project Not Found',
@@ -53,18 +63,56 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
   }
   
+  // Paused project - return generic metadata with noindex (NO project-specific data)
+  if ('status' in project && project.status === 'paused') {
+    const isBg = lang === 'bg'
+    return {
+      title: isBg ? 'Обявата е временно недостъпна' : 'Listing Temporarily Unavailable',
+      description: isBg 
+        ? 'Тази обява е временно поставена на пауза.'
+        : 'This listing is currently unavailable.',
+      robots: {
+        index: false, // CRITICAL: noindex
+        follow: false,
+      },
+      alternates: {
+        canonical: `${baseUrl}/${lang === 'bg' ? 'bg/obiavi' : 'en/listings'}/${id}`,
+      },
+    }
+  }
+  
+  // Deleted project - return generic metadata with noindex (NO project-specific data)
+  if ('status' in project && project.status === 'deleted') {
+    const isBg = lang === 'bg'
+    return {
+      title: isBg ? 'Обявата е премахната' : 'Listing Removed',
+      description: isBg 
+        ? 'Тази обява вече не е налична.'
+        : 'This listing is no longer available.',
+      robots: {
+        index: false, // CRITICAL: noindex
+        follow: false,
+      },
+      alternates: {
+        canonical: `${baseUrl}/${lang === 'bg' ? 'bg/obiavi' : 'en/listings'}/${id}`,
+      },
+    }
+  }
+  
+  // Active project - return full SEO metadata
+  const fullProject = project as Project
   const isBg = lang === 'bg'
   const brand = isBg ? 'Мистър Имот' : 'Mister Imot'
-  const projectTitle = project.title || project.name || 'New Construction Project'
-  const projectDescription = project.description 
-    ? project.description.substring(0, 160) 
+  const projectTitle = fullProject.title || fullProject.name || 'New Construction Project'
+  const projectDescription = fullProject.description 
+    ? fullProject.description.substring(0, 160) 
     : (isBg 
-      ? `Открийте ${projectTitle} в ${project.city || 'България'}. Директна връзка със строителя, без посредници.`
-      : `Discover ${projectTitle} in ${project.city || 'Bulgaria'}. Connect directly with the developer, no middlemen.`)
+      ? `Открийте ${projectTitle} в ${fullProject.city || 'България'}. Директна връзка със строителя, без посредници.`
+      : `Discover ${projectTitle} in ${fullProject.city || 'Bulgaria'}. Connect directly with the developer, no middlemen.`)
   
   const title = isBg
-    ? `${projectTitle} – ${brand} | Ново Строителство в ${project.city || 'България'}`
-    : `${projectTitle} – ${brand} | New Construction in ${project.city || 'Bulgaria'}`
+    ? `${projectTitle} – ${brand} | Ново Строителство в ${fullProject.city || 'България'}`
+    : `${projectTitle} – ${brand} | New Construction in ${fullProject.city || 'Bulgaria'}`
   
   // Use pretty URL for Bulgarian, canonical for English
   const canonicalUrl = isBg 
@@ -72,7 +120,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     : `${baseUrl}/en/listings/${id}`
   
   const ogLocale = isBg ? 'bg_BG' : 'en_US'
-  const ogImage = project.cover_image_url || project.images?.[0]?.image_url
+  const ogImage = fullProject.cover_image_url || fullProject.images?.[0]?.image_url
   
   return {
     title,
@@ -107,12 +155,23 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function ListingPage({ params }: PageProps) {
   const { lang, id } = await params
   
-  // Verify project exists server-side
   const project = await getProjectData(id)
   
+  // Project never existed - return 404
   if (!project) {
     notFound()
   }
   
+  // Paused project - return paused page with NO project data
+  if ('status' in project && project.status === 'paused') {
+    return <PausedListingPage listingId={id} lang={lang} />
+  }
+  
+  // Deleted project - return deleted page with NO project data
+  if ('status' in project && project.status === 'deleted') {
+    return <DeletedListingPage listingId={id} lang={lang} />
+  }
+  
+  // Active project - return full listing page
   return <ListingDetailClient projectId={id} />
 }
