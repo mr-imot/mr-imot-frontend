@@ -154,7 +154,8 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
               'https://www.facebook.com/misterimot/',
               'https://x.com/mister_imot',
               'https://www.instagram.com/mister_imot',
-              'https://www.youtube.com/@MisterImot'
+              'https://www.youtube.com/@MisterImot',
+              'https://www.tiktok.com/@mister_imot'
             ]
           })
         }}
