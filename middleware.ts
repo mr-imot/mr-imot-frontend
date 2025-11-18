@@ -16,10 +16,10 @@ const DEFAULT_LOCALE = 'en'
 
 function getLocale(request: NextRequest) {
   try {
-    // Get the Accept-Language header
-    const acceptLanguage = request.headers.get('accept-language') ?? undefined
-    let headers = { 'accept-language': acceptLanguage }
-    let languages = new Negotiator({ headers }).languages()
+  // Get the Accept-Language header
+  const acceptLanguage = request.headers.get('accept-language') ?? undefined
+  let headers = { 'accept-language': acceptLanguage }
+  let languages = new Negotiator({ headers }).languages()
     
     // Filter out invalid locales (wildcards, malformed codes, etc.)
     // Only keep valid locale codes that match our supported format (2-letter codes)
@@ -38,8 +38,8 @@ function getLocale(request: NextRequest) {
     if (validLanguages.length === 0) {
       return DEFAULT_LOCALE
     }
-    
-    // Match the preferred language with our supported locales
+  
+  // Match the preferred language with our supported locales
     return match(validLanguages, SUPPORTED_LOCALES, DEFAULT_LOCALE)
   } catch (error) {
     // If locale matching fails for any reason, return default locale
@@ -66,7 +66,7 @@ export function middleware(request: NextRequest) {
   ) {
     return NextResponse.next()
   }
-  
+
   // Handle old /listing/ route - redirect to proper localized route
   if (pathname.startsWith('/listing/')) {
     const listingId = pathname.replace('/listing/', '')
@@ -288,8 +288,8 @@ export function middleware(request: NextRequest) {
   // 3. Check Accept-Language header
   // BUT exclude not-found pages to prevent redirect loops
   try {
-    const negotiated = getLocale(request)
-    if (negotiated && negotiated !== DEFAULT_LOCALE && !isNotFoundPage) {
+  const negotiated = getLocale(request)
+  if (negotiated && negotiated !== DEFAULT_LOCALE && !isNotFoundPage) {
       const response = NextResponse.redirect(new URL(`/${negotiated}${pathname}`, request.url))
       // Set language header for root layout to use
       response.headers.set('x-locale', negotiated)

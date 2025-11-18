@@ -24,6 +24,7 @@ export async function generateMetadata({ params }: HomePageProps): Promise<Metad
   
   const canonicalUrl = `${baseUrl}/${lang}`
   const ogLocale = isBg ? 'bg_BG' : 'en_US'
+  const ogImage = `${baseUrl}/og-image.png`
   
   return {
     title,
@@ -44,11 +45,13 @@ export async function generateMetadata({ params }: HomePageProps): Promise<Metad
       locale: ogLocale,
       alternateLocale: ['en_US', 'bg_BG'],
       type: 'website',
+      images: [{ url: ogImage }],
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
+      images: [ogImage],
     },
   }
 }

@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next'
-import { getProjects, ProjectListResponse } from '@/lib/api'
+import { getProjects, ProjectListResponse, getDevelopers, DevelopersListResponse } from '@/lib/api'
 
 // Get base URL from environment variable or use localhost for development
 function getBaseUrl(): string {
@@ -46,6 +46,37 @@ async function getAllProjects(): Promise<{ id: number }[]> {
   }
 }
 
+// Fetch all developers from the API with pagination
+async function getAllDevelopers(): Promise<{ id: string }[]> {
+  try {
+    const allDevelopers: { id: string }[] = []
+    let page = 1
+    const perPage = 100 // Maximum allowed by API
+    let hasMore = true
+
+    while (hasMore) {
+      const response: DevelopersListResponse = await getDevelopers({
+        page,
+        per_page: perPage,
+      })
+
+      if (response.developers && response.developers.length > 0) {
+        allDevelopers.push(...response.developers.map((d) => ({ id: d.id })))
+      }
+
+      // Check if there are more pages
+      hasMore = page < (response.total_pages || 1)
+      page++
+    }
+
+    return allDevelopers
+  } catch (error) {
+    console.error('Error fetching developers for sitemap:', error)
+    // Return empty array on error - sitemap will still include static pages
+    return []
+  }
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = getBaseUrl()
   const languages = ['en', 'bg']
@@ -84,15 +115,26 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Dynamic routes - fetch all projects
   const projects = await getAllProjects()
-  const dynamicRoutes: MetadataRoute.Sitemap = projects.flatMap((project) =>
+  const projectRoutes: MetadataRoute.Sitemap = projects.flatMap((project) =>
     languages.map((lang): MetadataRoute.Sitemap[0] => ({
-      url: `${baseUrl}/${lang}/listings/${project.id}`,
+      url: `${baseUrl}/${lang === 'bg' ? 'bg/obiavi' : 'en/listings'}/${project.id}`,
       lastModified: new Date(),
       changeFrequency: 'monthly' as const,
       priority: 0.6,
     }))
   )
 
-  return [...staticRoutes, ...dynamicRoutes]
+  // Dynamic routes - fetch all developers
+  const developers = await getAllDevelopers()
+  const developerRoutes: MetadataRoute.Sitemap = developers.flatMap((developer) =>
+    languages.map((lang): MetadataRoute.Sitemap[0] => ({
+      url: `${baseUrl}/${lang === 'bg' ? 'bg/stroiteli' : 'en/developers'}/${developer.id}`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    }))
+  )
+
+  return [...staticRoutes, ...projectRoutes, ...developerRoutes]
 }
 

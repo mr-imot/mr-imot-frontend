@@ -3,6 +3,7 @@ import ListingDetailClient from './listing-detail-client'
 import PausedListingPage from './paused-listing-page'
 import DeletedListingPage from './deleted-listing-page'
 import { Project, PausedProject, DeletedProject } from '@/lib/api'
+import ListingStructuredData from './listing-structured-data'
 
 interface ListingPageContentProps {
   lang: 'en' | 'bg'
@@ -60,7 +61,16 @@ export default async function ListingPageContent({ lang, id }: ListingPageConten
     return <DeletedListingPage listingId={id} lang={lang} />
   }
   
-  // Active project - return full listing page
-  return <ListingDetailClient projectId={id} />
+  // Active project - return full listing page with structured data
+  const activeProject = project as Project
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mrimot.com'
+  const baseUrl = siteUrl.replace(/\/$/, '')
+  
+  return (
+    <>
+      <ListingStructuredData project={activeProject} lang={lang} baseUrl={baseUrl} />
+      <ListingDetailClient projectId={id} />
+    </>
+  )
 }
 
