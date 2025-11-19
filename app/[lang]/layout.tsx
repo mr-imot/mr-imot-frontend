@@ -31,6 +31,12 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: 'en
   return {
     title,
     description,
+    robots: {
+      // Public pages under [lang] should be indexable by default
+      // Private routes (developer, admin, buyer) will override this in their own layouts
+      index: true,
+      follow: true,
+    },
     alternates: {
       canonical: url,
       languages: {

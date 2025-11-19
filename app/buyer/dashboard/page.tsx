@@ -5,6 +5,16 @@ import { User, Heart, Settings } from "lucide-react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
+import type { Metadata } from 'next'
+
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    robots: {
+      index: false, // Buyer dashboard should not be indexed
+      follow: false,
+    },
+  }
+}
 
 export default function BuyerDashboardPage() {
   const navItems = [

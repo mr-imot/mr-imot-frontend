@@ -29,6 +29,10 @@ export async function generateMetadata({ params }: HomePageProps): Promise<Metad
   return {
     title,
     description,
+    robots: {
+      index: true, // Explicitly allow indexing of homepage
+      follow: true,
+    },
     alternates: {
       canonical: canonicalUrl,
       languages: {

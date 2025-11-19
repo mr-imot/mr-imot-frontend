@@ -85,6 +85,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title,
     description,
+    robots: {
+      index: true, // Explicitly allow indexing of developer pages
+      follow: true,
+    },
     alternates: {
       canonical: canonicalUrl,
       languages: {

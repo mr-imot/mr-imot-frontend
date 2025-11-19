@@ -124,6 +124,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title,
     description: projectDescription,
+    robots: {
+      index: true, // Explicitly allow indexing of active listings
+      follow: true,
+    },
     alternates: {
       canonical: canonicalUrl,
       languages: {

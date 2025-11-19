@@ -33,6 +33,10 @@ export async function generateMetadata({ params }: AboutPageProps): Promise<Meta
   return {
     title,
     description,
+    robots: {
+      index: true, // Explicitly allow indexing of about page
+      follow: true,
+    },
     alternates: {
       canonical: canonicalUrl,
       languages: {

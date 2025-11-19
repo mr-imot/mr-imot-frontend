@@ -32,6 +32,10 @@ export async function generateMetadata({ params }: ListingsPageProps): Promise<M
   return {
     title,
     description,
+    robots: {
+      index: true, // Explicitly allow indexing of listings page
+      follow: true,
+    },
     alternates: {
       canonical: canonicalUrl,
       languages: {

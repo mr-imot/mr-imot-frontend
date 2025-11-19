@@ -35,6 +35,10 @@ export async function generateMetadata({ params }: DevelopersPageProps): Promise
   return {
     title,
     description,
+    robots: {
+      index: true, // Explicitly allow indexing of developers page
+      follow: true,
+    },
     alternates: {
       canonical: canonicalUrl,
       languages: {

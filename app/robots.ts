@@ -25,12 +25,30 @@ export default function robots(): MetadataRoute.Robots {
       '/bg/',
       '/en/listings/',
       '/bg/listings/',
+      '/bg/obiavi/', // Bulgarian pretty URL for listings
+      '/en/developers/',
+      '/bg/developers/',
+      '/bg/stroiteli/', // Bulgarian pretty URL for developers
+      '/en/about-us/',
+      '/bg/about-us/',
+      '/bg/za-mistar-imot/', // Bulgarian pretty URL for about
+      '/en/contact/',
+      '/bg/contact/',
+      '/bg/kontakt/', // Bulgarian pretty URL for contact
       '/api/v1/projects/',
     ],
     disallow: [
       '/admin/',
       '/buyer/',
-      '/developer/',
+      '/developer/', // Catches both /developer/ and /en/developer/, /bg/developer/
+      '/en/developer/',
+      '/bg/developer/',
+      '/en/login',
+      '/bg/login',
+      '/en/register',
+      '/bg/register',
+      '/en/forgot-password',
+      '/bg/forgot-password',
       '/api/',
       '/debug/',
       '/test-api/',
