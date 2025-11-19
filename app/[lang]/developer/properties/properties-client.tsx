@@ -251,11 +251,32 @@ export default function DeveloperPropertiesPage({ dict, lang }: PropertiesClient
                       <div className="p-4">
                         {/* Property Name with Fixed Height Container */}
                         <div className="h-12 mb-3">
-                          <h3 className="font-outfit text-gray-900 text-[18px] font-semibold leading-tight line-clamp-2 tracking-[-0.01em] h-full flex items-start">
-                            <Link href={`/developer/properties/edit/${p.id}`} className="hover:text-blue-600 transition-colors cursor-pointer">
-                              {p.name || p.title || 'Untitled project'}
-                            </Link>
-                          </h3>
+                          <div className="flex items-start gap-2">
+                            <h3 className="font-outfit text-gray-900 text-[18px] font-semibold leading-tight line-clamp-2 tracking-[-0.01em] flex-1">
+                              <Link href={`/developer/properties/edit/${p.id}`} className="hover:text-blue-600 transition-colors cursor-pointer">
+                                {p.name || p.title || 'Untitled project'}
+                              </Link>
+                            </h3>
+                            {/* Status Badge */}
+                            {p.status && (
+                              <Badge 
+                                variant={
+                                  p.status === 'active' ? 'default' : 
+                                  p.status === 'paused' ? 'secondary' : 
+                                  'destructive'
+                                }
+                                className={
+                                  p.status === 'active' ? 'bg-green-500 hover:bg-green-600 text-white' :
+                                  p.status === 'paused' ? 'bg-yellow-500 hover:bg-yellow-600 text-white' :
+                                  'bg-red-500 hover:bg-red-600 text-white'
+                                }
+                              >
+                                {p.status === 'active' ? (dict.developer?.properties?.active || 'Active') :
+                                 p.status === 'paused' ? (dict.developer?.properties?.paused || 'Paused') :
+                                 (dict.developer?.properties?.deleted || 'Deleted')}
+                              </Badge>
+                            )}
+                          </div>
                         </div>
                         
                         {/* City with Icon - Now Fixed Position */}
