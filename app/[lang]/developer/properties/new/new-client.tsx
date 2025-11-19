@@ -990,18 +990,18 @@ export default function NewPropertyPage({ dict, lang }: NewPropertyClientProps) 
                                <SelectValue placeholder={dict.developer?.properties?.placeholders?.completionMonth || "Choose month"} />
                              </SelectTrigger>
                              <SelectContent>
-                               <SelectItem value="January">January</SelectItem>
-                               <SelectItem value="February">February</SelectItem>
-                               <SelectItem value="March">March</SelectItem>
-                               <SelectItem value="April">April</SelectItem>
-                               <SelectItem value="May">May</SelectItem>
-                               <SelectItem value="June">June</SelectItem>
-                               <SelectItem value="July">July</SelectItem>
-                               <SelectItem value="August">August</SelectItem>
-                               <SelectItem value="September">September</SelectItem>
-                               <SelectItem value="October">October</SelectItem>
-                               <SelectItem value="November">November</SelectItem>
-                               <SelectItem value="December">December</SelectItem>
+                               <SelectItem value="January">{dict.listingDetail?.months?.January || "January"}</SelectItem>
+                               <SelectItem value="February">{dict.listingDetail?.months?.February || "February"}</SelectItem>
+                               <SelectItem value="March">{dict.listingDetail?.months?.March || "March"}</SelectItem>
+                               <SelectItem value="April">{dict.listingDetail?.months?.April || "April"}</SelectItem>
+                               <SelectItem value="May">{dict.listingDetail?.months?.May || "May"}</SelectItem>
+                               <SelectItem value="June">{dict.listingDetail?.months?.June || "June"}</SelectItem>
+                               <SelectItem value="July">{dict.listingDetail?.months?.July || "July"}</SelectItem>
+                               <SelectItem value="August">{dict.listingDetail?.months?.August || "August"}</SelectItem>
+                               <SelectItem value="September">{dict.listingDetail?.months?.September || "September"}</SelectItem>
+                               <SelectItem value="October">{dict.listingDetail?.months?.October || "October"}</SelectItem>
+                               <SelectItem value="November">{dict.listingDetail?.months?.November || "November"}</SelectItem>
+                               <SelectItem value="December">{dict.listingDetail?.months?.December || "December"}</SelectItem>
                              </SelectContent>
                            </Select>
                          </FormControl>

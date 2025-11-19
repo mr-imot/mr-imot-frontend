@@ -328,9 +328,15 @@ export default function ListingDetailClient({ projectId }: ListingDetailClientPr
     if (!completionNote) return { month: "TBD", year: "TBD" }
     
     const parts = completionNote.split(' ')
+    const englishMonth = parts[0] || "TBD"
+    const year = parts[1] || "TBD"
+    
+    // Translate month name using translation files
+    const translatedMonth = t.listingDetail?.months?.[englishMonth as keyof typeof t.listingDetail.months] || englishMonth
+    
     return {
-      month: parts[0] || "TBD",
-      year: parts[1] || "TBD"
+      month: translatedMonth,
+      year: year
     }
   }
 

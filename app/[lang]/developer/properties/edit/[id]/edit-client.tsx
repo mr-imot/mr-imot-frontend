@@ -762,7 +762,7 @@ export default function EditProjectPage({ dict, lang, params }: EditPropertyClie
       <Card>
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-gray-900">{dict.developer?.properties?.editProject || "Edit Project"}</CardTitle>
-          <p className="text-gray-600">Update your project details and features</p>
+          <p className="text-gray-600">{dict.developer?.properties?.updateProjectDetails || "Update your project details and features"}</p>
         </CardHeader>
         <CardContent>
           {/* Success/Error Messages */}
@@ -782,7 +782,7 @@ export default function EditProjectPage({ dict, lang, params }: EditPropertyClie
               {/* Project Information Section */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div className="space-y-6">
-                  <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Project Details</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">{dict.developer?.properties?.propertyDetails || "Project Details"}</h3>
                   
                   <FormField
                     control={form.control}
@@ -864,18 +864,18 @@ export default function EditProjectPage({ dict, lang, params }: EditPropertyClie
                                 <SelectValue placeholder="Choose month" />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="January">January</SelectItem>
-                                <SelectItem value="February">February</SelectItem>
-                                <SelectItem value="March">March</SelectItem>
-                                <SelectItem value="April">April</SelectItem>
-                                <SelectItem value="May">May</SelectItem>
-                                <SelectItem value="June">June</SelectItem>
-                                <SelectItem value="July">July</SelectItem>
-                                <SelectItem value="August">August</SelectItem>
-                                <SelectItem value="September">September</SelectItem>
-                                <SelectItem value="October">October</SelectItem>
-                                <SelectItem value="November">November</SelectItem>
-                                <SelectItem value="December">December</SelectItem>
+                                <SelectItem value="January">{dict.listingDetail?.months?.January || "January"}</SelectItem>
+                                <SelectItem value="February">{dict.listingDetail?.months?.February || "February"}</SelectItem>
+                                <SelectItem value="March">{dict.listingDetail?.months?.March || "March"}</SelectItem>
+                                <SelectItem value="April">{dict.listingDetail?.months?.April || "April"}</SelectItem>
+                                <SelectItem value="May">{dict.listingDetail?.months?.May || "May"}</SelectItem>
+                                <SelectItem value="June">{dict.listingDetail?.months?.June || "June"}</SelectItem>
+                                <SelectItem value="July">{dict.listingDetail?.months?.July || "July"}</SelectItem>
+                                <SelectItem value="August">{dict.listingDetail?.months?.August || "August"}</SelectItem>
+                                <SelectItem value="September">{dict.listingDetail?.months?.September || "September"}</SelectItem>
+                                <SelectItem value="October">{dict.listingDetail?.months?.October || "October"}</SelectItem>
+                                <SelectItem value="November">{dict.listingDetail?.months?.November || "November"}</SelectItem>
+                                <SelectItem value="December">{dict.listingDetail?.months?.December || "December"}</SelectItem>
                               </SelectContent>
                             </Select>
                           </FormControl>
@@ -915,7 +915,7 @@ export default function EditProjectPage({ dict, lang, params }: EditPropertyClie
 
                 {/* Project Images */}
                 <div className="space-y-6">
-                  <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Project Images</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">{dict.developer?.properties?.projectImages || "Project Images"}</h3>
                   
                   <div className="space-y-4">
                     <div 
@@ -923,8 +923,8 @@ export default function EditProjectPage({ dict, lang, params }: EditPropertyClie
                       onClick={() => fileInputRef.current?.click()}
                     >
                       <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                      <p className="text-sm text-gray-600 mb-1">Click to upload project images</p>
-                      <p className="text-xs text-gray-500">PNG, JPG up to 10MB each</p>
+                      <p className="text-sm text-gray-600 mb-1">{dict.developer?.properties?.uploadImagesToShowcase || dict.developer?.properties?.clickToUploadOrDragDrop || "Click to upload project images"}</p>
+                      <p className="text-xs text-gray-500">{dict.developer?.properties?.supportedFormats || "PNG, JPG up to 10MB each"}</p>
                     </div>
                     
                     <input
@@ -1013,9 +1013,9 @@ export default function EditProjectPage({ dict, lang, params }: EditPropertyClie
                           />
                         </FormControl>
                         <div className="space-y-1 leading-none">
-                          <FormLabel>Request Price</FormLabel>
+                          <FormLabel>{dict.developer?.properties?.requestPrice || "Request Price"}</FormLabel>
                           <p className="text-xs text-muted-foreground">
-                            Check this if you prefer inquiries instead of showing price
+                            {dict.developer?.properties?.requestPriceDescription || "Check this if you prefer inquiries instead of showing price"}
                           </p>
                         </div>
                       </FormItem>
@@ -1048,7 +1048,7 @@ export default function EditProjectPage({ dict, lang, params }: EditPropertyClie
 
               {/* Location Section */}
               <div className="space-y-6">
-                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Location & Map</h3>
+                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">{dict.developer?.properties?.locationAndMap || "Location & Map"}</h3>
                 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   <div className="space-y-4">
@@ -1062,7 +1062,7 @@ export default function EditProjectPage({ dict, lang, params }: EditPropertyClie
                             <FormControl>
                               <Input 
                                 ref={addressInputRef}
-                                placeholder="Start typing an address (e.g., Sofia, Bulgaria)" 
+                                placeholder={dict.developer?.properties?.placeholders?.address || "Start typing an address (e.g., Sofia, Bulgaria)"} 
                                 className={`${addressSelected ? "border-green-500 bg-green-50" : ""} h-11`}
                                 value={field.value}
                                 onChange={(e) => {
@@ -1106,9 +1106,9 @@ export default function EditProjectPage({ dict, lang, params }: EditPropertyClie
                     />
                     
                     <div className="text-sm text-gray-600">
-                      <p>• Address is pre-filled from your current project data</p>
-                      <p>• You can update the address and fine-tune the position on the map</p>
-                      <p>• Click on the map or drag the marker to adjust the exact location</p>
+                      <p>• {dict.developer?.properties?.addressPreFilled || "Address is pre-filled from your current project data"}</p>
+                      <p>• {dict.developer?.properties?.addressUpdate || "You can update the address and fine-tune the position on the map"}</p>
+                      <p>• {dict.developer?.properties?.addressMapInstructions || "Click on the map or drag the marker to adjust the exact location"}</p>
                     </div>
                   </div>
                   
@@ -1186,9 +1186,11 @@ export default function EditProjectPage({ dict, lang, params }: EditPropertyClie
                       <FeaturesSelector
                         selectedFeatureIds={field.value}
                         onSelectionChange={field.onChange}
-                        title="Property Features"
-                        description="Update the features and amenities available in your property. This helps potential buyers understand what your project offers."
+                        title={dict.developer?.properties?.features?.title || "Property Features"}
+                        description={dict.developer?.properties?.features?.description || "Update the features and amenities available in your property. This helps potential buyers understand what your project offers."}
                         disabled={isSubmitting}
+                        lang={lang}
+                        dict={dict}
                       />
                       <FormMessage />
                     </FormItem>
