@@ -222,7 +222,7 @@ export function PerformanceTrendsSection({
         {/* Comparison Toggle */}
         <div className="flex items-center justify-between pt-4 border-t border-slate-200">
           <div className="flex items-center space-x-2">
-            <Checkbox id="comparison" checked={showComparison} onCheckedChange={setShowComparison} />
+            <Checkbox id="comparison" checked={showComparison} onCheckedChange={(checked) => setShowComparison(checked === true)} />
             <label
               htmlFor="comparison"
               className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"

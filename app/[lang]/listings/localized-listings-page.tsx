@@ -1111,7 +1111,7 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
       </div>
 
       {/* Airbnb-style layout with exact proportions */}
-        <div className={`mx-auto w-full max-w-[1905px] px-3 xs:px-4 sm:px-6 md:px-8 py-4`}>
+        <div className={`mx-auto w-full max-w-[1905px] px-3 sm:px-6 md:px-8 py-4`}>
           {/* Mobile: Map-first with draggable bottom sheet (Airbnb-style) */}
           <div className="xl:hidden fixed inset-0 z-10">
             {/* Full screen map */}

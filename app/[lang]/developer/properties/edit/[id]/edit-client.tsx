@@ -14,7 +14,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Checkbox } from "@/components/ui/checkbox"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { getProject, updateProject, attachProjectImages, deleteProjectImage, getProjectImages } from "@/lib/api"
+import { getProject, updateProject, attachProjectImages, deleteProjectImage, getProjectImages, type Project } from "@/lib/api"
 import { upload } from "@imagekit/next";
 import { ensureGoogleMaps } from "@/lib/google-maps"
 import { Info, Loader, Upload, X, Move, Star, Image as ImageIcon, Plus, ArrowLeft, Maximize2 } from "lucide-react"
@@ -169,7 +169,17 @@ export default function EditProjectPage({ dict, lang, params }: EditPropertyClie
 
       try {
         setLoading(true)
-        const project = await getProject(projectId)
+        const projectData = await getProject(projectId)
+        
+        // Check if project is paused or deleted - cannot edit these
+        if ('status' in projectData && (projectData.status === 'paused' || projectData.status === 'deleted')) {
+          setSubmitError('Cannot edit paused or deleted projects.')
+          setLoading(false)
+          return
+        }
+
+        // Type guard: ensure we have a Project (not PausedProject or DeletedProject)
+        const project = projectData as Project
         
         // Debug project structure
         console.log('Edit Project Debug:', {

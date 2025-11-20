@@ -229,11 +229,15 @@ export default function DeveloperProfilePage({ dict, lang }: ProfileClientProps)
 
         // Handle marker drag
         marker.addEventListener('dragend', (event) => {
-          const position = event.target.position
-          if (position) {
-            const lat = position.lat
-            const lng = position.lng
-            
+          const target = event.target as google.maps.marker.AdvancedMarkerElement | null
+          if (!target || !target.position) return
+          
+          // Handle both LatLng object (functions) and LatLngLiteral (numbers)
+          const position = target.position
+          const lat = typeof position.lat === 'function' ? position.lat() : position.lat
+          const lng = typeof position.lng === 'function' ? position.lng() : position.lng
+          
+          if (typeof lat === 'number' && typeof lng === 'number') {
             profileForm.setValue("office_latitude", lat, { shouldValidate: true })
             profileForm.setValue("office_longitude", lng, { shouldValidate: true })
             

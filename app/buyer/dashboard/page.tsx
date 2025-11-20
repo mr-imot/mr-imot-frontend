@@ -7,6 +7,8 @@ import { cn } from "@/lib/utils"
 import Image from "next/image"
 import type { Metadata } from 'next'
 
+type TabType = "profile" | "saved" | "settings"
+
 export async function generateMetadata(): Promise<Metadata> {
   return {
     robots: {
@@ -24,7 +26,7 @@ export default function BuyerDashboardPage() {
   ]
 
   // This would typically be dynamic based on URL params
-  const activeTab = "profile" // Default to profile for demonstration
+  const activeTab = "profile" as TabType // Default to profile for demonstration
 
   const savedListings = [
     {
@@ -124,15 +126,15 @@ export default function BuyerDashboardPage() {
                         <Image
                           src={listing.image || "/placeholder.svg"}
                           alt={listing.title}
-                          layout="fill"
-                          objectFit="cover"
+                          fill
+                          className="object-cover"
                         />
                       </div>
                       <CardContent className="flex-grow p-md">
-                        <h3 className="text-[1.5rem] font-semibold leading-[1.4] text-lg font-semibold text-nova-text-primary">
+                        <h3 className="text-lg font-semibold leading-[1.4] text-nova-text-primary">
                           {listing.title}
                         </h3>
-                        <p className="text-base font-normal leading-[1.6] text-sm text-nova-text-secondary">
+                        <p className="text-sm text-nova-text-secondary">
                           {listing.location}
                         </p>
                         <Button variant="link" className="p-0 h-auto text-nova-secondary hover:underline mt-sm">
