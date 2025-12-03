@@ -339,50 +339,22 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
 
   // CHANGE 1b: checkCacheAndFetch – show cached immediately; start background refresh if needed
   const checkCacheAndFetch = useCallback(async () => {
-    const cached = propertyCache.getCachedData(selectedCity, propertyTypeFilter)
-    if (cached && cached.length > 0) {
-      // CRITICAL: Validate cached slugs before using
-      // If any cached property has a truncated slug, invalidate and fetch fresh
-      const hasInvalidSlugs = cached.some((p: PropertyData) => {
-        // Check if slug exists but is suspiciously short (< 15 chars) and doesn't match expected format
-        if (p.slug && p.slug.length < 15 && !p.slug.includes('-')) {
-          console.warn(`⚠️ Invalid slug detected in cache for property ${p.id}: "${p.slug}"`)
-          return true
-        }
-        return false
-      })
-      
-      if (hasInvalidSlugs) {
-        console.warn('⚠️ Invalid slugs detected in cache, fetching fresh data...')
-        // Clear cache and fetch fresh
-        propertyCache.clearCache(selectedCity, propertyTypeFilter)
-        const fresh = await fetchFreshData()
-        const local = new Map<string, PropertyData>()
-        fresh.forEach((p) => local.set(String((p as any).id || p.id), p))
-        propertyCacheRef.current = local
-        setCacheVersion((v) => v + 1)
-        return fresh
-      }
-      
-      // Hydrate page-local cache from cached data for immediate UI
-      const local = new Map<string, PropertyData>()
-      cached.forEach((p) => local.set(String((p as any).id || p.id), p))
-      propertyCacheRef.current = local
-      setCacheVersion((v) => v + 1)
-
-      // Background refresh if stale – emits propertyCacheUpdated on completion
-      if (propertyCache.needsBackgroundRefresh(selectedCity, propertyTypeFilter)) {
-        propertyCache.startBackgroundRefresh(selectedCity, propertyTypeFilter, fetchFreshData)
-      }
-      return cached
-    }
-
-    // No cached data: fetch fresh and seed local cache
+    // ALWAYS fetch fresh data to ensure we have correct slugs
+    // This matches the developer page behavior which uses fresh API data directly
     const fresh = await fetchFreshData()
     const local = new Map<string, PropertyData>()
     fresh.forEach((p) => local.set(String((p as any).id || p.id), p))
     propertyCacheRef.current = local
     setCacheVersion((v) => v + 1)
+    
+    // Also update the global cache for future use
+    propertyCache.setCacheData(selectedCity, propertyTypeFilter, fresh)
+    
+    // Start background refresh if needed
+    if (propertyCache.needsBackgroundRefresh(selectedCity, propertyTypeFilter)) {
+      propertyCache.startBackgroundRefresh(selectedCity, propertyTypeFilter, fetchFreshData)
+    }
+    
     return fresh
   }, [selectedCity, propertyTypeFilter, fetchFreshData])
   
