@@ -239,8 +239,19 @@ export default async function ListingPage({ params }: PageProps) {
   }
   
   // For slug-based access, extract the UUID from the project object
-  // This ensures we always use the UUID for subsequent fetches
-  const projectId = 'id' in project ? String(project.id) : identifier
+  // This ensures we always use the UUID for subsequent fetches (analytics, etc.)
+  // All project types (Project, PausedProject, DeletedProject) have an 'id' field
+  const projectId = 'id' in project 
+    ? String(project.id) 
+    : (() => {
+        // Fallback should never happen, but log warning if it does
+        if (process.env.NODE_ENV === 'development') {
+          console.warn(
+            `[ListingPage] Project missing id field, using identifier as fallback: ${identifier}`
+          )
+        }
+        return identifier
+      })()
   
   // Pass project data directly to avoid second fetch in ListingPageContent
   return <ListingPageContent lang={lang} id={projectId} initialProject={project} />

@@ -34,7 +34,18 @@ export default async function InterceptedListingModal({ params }: PageProps) {
   }
   
   // Extract project ID for the content component
-  const projectId = 'id' in project ? String(project.id) : identifier
+  // All project types (Project, PausedProject, DeletedProject) have an 'id' field
+  const projectId = 'id' in project 
+    ? String(project.id) 
+    : (() => {
+        // Fallback should never happen, but log warning if it does
+        if (process.env.NODE_ENV === 'development') {
+          console.warn(
+            `[InterceptedListingModal] Project missing id field, using identifier as fallback: ${identifier}`
+          )
+        }
+        return identifier
+      })()
   
   // Pass project data directly to avoid redundant fetches
   return (
