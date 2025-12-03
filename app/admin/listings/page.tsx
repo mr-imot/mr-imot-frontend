@@ -502,7 +502,7 @@ function ProjectCard({
           size="sm"
           asChild
         >
-          <Link href={project.slug ? `/listings/${project.slug}` : `/en/listings/${project.id}`} target="_blank" rel="noopener noreferrer">
+          <Link href={`/en/listings/${project.id}`} target="_blank" rel="noopener noreferrer">
             <Eye className="h-4 w-4 mr-1" />
             View
           </Link>

@@ -49,11 +49,12 @@ export const dynamic = 'force-dynamic'
 export default async function RootNotFound() {
   // Default to English during static generation
   // At runtime, middleware will handle language detection
-  const lang = 'en'
+  const lang: 'en' | 'bg' = 'en'
   const dict = await getDictionary(lang)
 
   const href = (en: string, bg: string) => {
-    return lang === 'bg' ? `/bg/${bg}` : `/${en}`
+    // Always use English for not-found page since we can't detect language here
+    return `/${en}`
   }
 
   const mascotUrl = getImageKitUrl(

@@ -72,7 +72,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     : `${baseUrl}/en/developers/${id}`
   
   const ogLocale = isBg ? 'bg_BG' : 'en_US'
-  const ogImage = developer.profile_image_url || `${baseUrl}/og-image.png`
+  // DeveloperProfile doesn't have profile_image_url, use default OG image
+  const ogImage = `${baseUrl}/og-image.png`
   
   return {
     title,

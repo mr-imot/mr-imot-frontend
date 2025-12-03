@@ -32,7 +32,7 @@ async function getAllActiveProjects(): Promise<{ id: number; slug?: string; upda
       if (response.projects && response.projects.length > 0) {
         // Filter to only active projects and include slug
         const activeProjects = response.projects
-          .filter((p) => p.status === 'active' || p.is_active === true)
+          .filter((p) => p.status === 'active')
           .map((p) => ({ 
             id: p.id,
             slug: p.slug,
