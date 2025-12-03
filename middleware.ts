@@ -53,8 +53,11 @@ export function middleware(request: NextRequest) {
   
   // Skip static files and special paths immediately (before any processing)
   // Also skip not-found pages and 404 trigger routes to prevent middleware interference
+  // Check for file extensions (including images, fonts, etc.)
+  const hasFileExtension = /\.(png|jpg|jpeg|gif|svg|ico|webp|woff|woff2|ttf|eot|css|js|json|xml|txt|pdf|zip)$/i.test(pathname)
+  
   if (
-    pathname.includes('.') || // Any file with extension (.txt, .xml, .ico, etc.)
+    hasFileExtension || // Any file with extension (.png, .jpg, .xml, .ico, etc.)
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api') ||
     pathname.startsWith('/images') ||
@@ -62,7 +65,11 @@ export function middleware(request: NextRequest) {
     pathname === '/en/not-found' ||
     pathname === '/bg/not-found' ||
     pathname === '/en/__404__' ||
-    pathname === '/bg/__404__'
+    pathname === '/bg/__404__' ||
+    pathname === '/og-image.png' || // Explicitly exclude og-image.png
+    pathname === '/favicon.ico' ||
+    pathname === '/robots.txt' ||
+    pathname === '/sitemap.xml'
   ) {
     return NextResponse.next()
   }
@@ -195,6 +202,7 @@ export function middleware(request: NextRequest) {
   }
   
   // Skip middleware for API routes, static assets, internal Next.js paths, and non-localized pages
+  // This is a redundant check (already handled above), but kept for safety
   const nonLocalizedPaths = [
     '/api/',
     '/_next/',
@@ -212,11 +220,15 @@ export function middleware(request: NextRequest) {
     '/maintenance',
     '/robots.txt',
     '/sitemap.xml',
+    '/og-image.png',
   ]
   
+  // Check for file extensions more strictly
+  const hasFileExtension = /\.(png|jpg|jpeg|gif|svg|ico|webp|woff|woff2|ttf|eot|css|js|json|xml|txt|pdf|zip)$/i.test(pathname)
+  
   if (
-    nonLocalizedPaths.some(path => pathname.startsWith(path)) ||
-    pathname.includes('.') // Skip files with extensions (images, etc.)
+    nonLocalizedPaths.some(path => pathname.startsWith(path) || pathname === path) ||
+    hasFileExtension // Skip files with extensions (images, etc.)
   ) {
     return NextResponse.next()
   }
@@ -324,10 +336,11 @@ export const config = {
   matcher: [
     // Match all pathnames except for
     // - API routes (/api/*)
-    // - Static files (/_next/static/*)
+    // - Static files (/_next/static/*, /_next/image/*)
     // - Images (/images/*)
     // - Health check (/health)
-    // - Files with extensions (*.*)
-    '/((?!api|_next/static|_next/image|images|favicon|health|.*\\.).*)',
+    // - Files with extensions (*.png, *.jpg, *.ico, etc.)
+    // - Common static files (robots.txt, sitemap.xml, og-image.png, favicon.ico)
+    '/((?!api|_next/static|_next/image|images|favicon|health|og-image|robots|sitemap|.*\\.(png|jpg|jpeg|gif|svg|ico|webp|woff|woff2|ttf|eot|css|js|json|xml|txt|pdf|zip)).*)',
   ],
 }

@@ -6,9 +6,12 @@ const dictionaries = {
 }
 
 export const getDictionary = async (locale: 'en' | 'bg') => {
-  // Validate locale
+  // Validate locale - silently fallback for invalid locales (e.g., static file requests)
   if (!locale || (locale !== 'en' && locale !== 'bg')) {
-    console.error('Invalid locale:', locale)
+    // Only log in development to avoid noise in production logs
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('Invalid locale detected, falling back to English:', locale)
+    }
     return dictionaries.en() // Fallback to English
   }
   
