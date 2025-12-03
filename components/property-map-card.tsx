@@ -3,14 +3,15 @@
 import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { X, Phone, Globe } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn, getListingUrl } from '@/lib/utils'
 import { recordProjectView, recordProjectPhoneClick, recordProjectWebsiteClick } from '@/lib/api'
 import { translatePrice, PriceTranslations } from '@/lib/price-translator'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { useEmblaCarouselWithPhysics } from '@/hooks/use-embla-carousel'
 
 interface PropertyData {
   id: string | number
+  slug?: string
   title: string
   location: string
   image?: string | null
@@ -50,9 +51,14 @@ export function PropertyMapCard({
   priceTranslations
 }: PropertyMapCardProps) {
   const router = useRouter()
+  const pathname = usePathname()
   const [isClosing, setIsClosing] = useState(false)
   const [hasTrackedView, setHasTrackedView] = useState(false)
   if (!property) return null
+  
+  // Detect locale from pathname
+  const lang = pathname.startsWith('/bg/') ? 'bg' : 'en'
+  const propertyUrl = getListingUrl(property, lang)
   const imageUrls = (property.images && property.images.length > 0)
     ? property.images
     : (property.image ? [property.image] : [])
@@ -176,10 +182,10 @@ export function PropertyMapCard({
           
           if (isDesktop) {
             // On desktop, open in new tab
-            window.open(`/listings/${String(property.id)}`, '_blank')
+            window.open(propertyUrl, '_blank')
           } else {
             // On mobile, use router.push (will be intercepted by modal)
-            router.push(`/listings/${String(property.id)}`)
+            router.push(propertyUrl)
           }
         }}
       >

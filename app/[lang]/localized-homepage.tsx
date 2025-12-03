@@ -20,6 +20,7 @@ import { FaqSection } from "@/components/faq-section"
 import { PricingSection } from "@/components/pricing/PricingSection"
 import { TestimonialsSection } from "@/components/TestimonialsSection"
 import { getProjects } from "@/lib/api"
+import { getListingUrl } from "@/lib/utils"
 
 interface LocalizedHomePageProps {
   dict: any
@@ -770,7 +771,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                 {(recentListings.slice(0, 5)).map((listing) => (
                   <Link 
                     key={listing.id} 
-                    href={`/${lang}/listings/${listing.id}`}
+                    href={getListingUrl(listing, lang as 'en' | 'bg')}
                     className="min-w-[340px] max-w-[360px] lg:min-w-[400px] lg:max-w-[400px] snap-start"
                   >
                     <article className="card p-4 hover:-translate-y-1 transition-transform cursor-pointer h-full">

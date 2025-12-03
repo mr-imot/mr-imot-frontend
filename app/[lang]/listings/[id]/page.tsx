@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 import type { Metadata } from 'next'
 import ListingPageContent from './listing-page-content'
 import { Project, PausedProject, DeletedProject } from '@/lib/api'
@@ -157,5 +157,21 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function ListingPage({ params }: PageProps) {
   const { lang, id } = await params
+  const project = await getProjectData(id, lang)
+  
+  if (!project) {
+    notFound()
+  }
+  
+  // If project has a slug, redirect to slug-based URL
+  if ('slug' in project && project.slug) {
+    const isBg = lang === 'bg'
+    const newUrl = isBg 
+      ? `/bg/obiavi/${project.slug}`
+      : `/listings/${project.slug}`
+    redirect(newUrl)
+  }
+  
+  // Fallback: if no slug, render with ID (for legacy projects)
   return <ListingPageContent lang={lang} id={id} />
 }

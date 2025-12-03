@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
-import { cn } from '@/lib/utils'
+import { useRouter, usePathname } from 'next/navigation'
+import { cn, getListingUrl } from '@/lib/utils'
 import { Home, Building, ExternalLink } from 'lucide-react'
 import { recordProjectView } from '@/lib/api'
 import { translatePrice, PriceTranslations } from '@/lib/price-translator'
@@ -9,6 +9,7 @@ import { useEmblaCarouselWithPhysics } from '@/hooks/use-embla-carousel'
 
 export interface Listing {
   id: string
+  slug?: string
   title: string
   city: string
   coordinates: { lat: number; lng: number }
@@ -41,9 +42,14 @@ function summarize(text: string | null | undefined, max = 100) {
 
 export function ListingCard({ listing, isActive, onCardClick, onCardHover, priority = false, priceTranslations }: ListingCardProps) {
   const router = useRouter()
+  const pathname = usePathname()
   const [hasTrackedView, setHasTrackedView] = useState(false)
   const hasMultipleImages = listing.images?.length > 1
   const cardRef = useRef<HTMLElement>(null)
+  
+  // Detect locale from pathname
+  const lang = pathname.startsWith('/bg/') ? 'bg' : 'en'
+  const listingUrl = getListingUrl(listing, lang)
   
   // Embla carousel hook with physics-based configuration
   const {
@@ -69,11 +75,11 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover, prior
     if (!isMobile) {
       // Desktop: open in new tab
       e.preventDefault()
-      window.open(`/listings/${listing.id}`, '_blank')
+      window.open(listingUrl, '_blank')
     } else {
       // Mobile: use router.push for intercepting route
       e.preventDefault()
-      router.push(`/listings/${listing.id}`)
+      router.push(listingUrl)
     }
   }
 
@@ -137,7 +143,7 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover, prior
 
     return (
     <a
-      href={`/listings/${listing.id}`}
+      href={listingUrl}
       rel="noopener noreferrer nofollow"
       aria-labelledby={`title_${listing.id}`}
       className="block clickable"
