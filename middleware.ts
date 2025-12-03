@@ -195,7 +195,13 @@ export function middleware(request: NextRequest) {
     for (const [from, to] of Object.entries(map)) {
       if (pathname === from || pathname.startsWith(from + '/')) {
         const url = request.nextUrl.clone()
+        // Preserve the full path including slug - replace only the base path
+        // This ensures slugs like "vista-park-oblast-sofiia-71448713" are preserved
         url.pathname = pathname.replace(from, to)
+        // Debug: Log rewrite to identify truncation issues
+        if (process.env.NODE_ENV === 'development' && pathname.includes('/obiavi/')) {
+          console.log(`[Middleware] Rewriting: ${pathname} → ${url.pathname}`)
+        }
         return NextResponse.rewrite(url)
       }
     }

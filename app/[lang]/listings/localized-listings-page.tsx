@@ -278,11 +278,18 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
       const mapped: PropertyData[] = (data.projects || []).map((project: any) => {
         // Debug: Log slug to help identify incomplete slugs
         if (process.env.NODE_ENV === 'development' && project.slug) {
-          console.log(`[Listings] Project ${project.id}: slug="${project.slug}"`)
+          console.log(`[Listings] Project ${project.id}: slug="${project.slug}" (length: ${project.slug.length})`)
+          // Warn if slug seems truncated (less than expected length)
+          if (project.slug.length < 20) {
+            console.warn(`[Listings] WARNING: Project ${project.id} has short slug: "${project.slug}"`)
+          }
         }
+        // Ensure we use the full slug from API - no truncation
+        // IMPORTANT: Use the exact slug from API, don't modify it
+        const fullSlug = project.slug ? String(project.slug) : String(project.id)
         return {
           id: String(project.id),
-          slug: project.slug || String(project.id), // Use actual slug from API, fallback to ID
+          slug: fullSlug, // Use actual slug from API, fallback to ID - preserve full length
           title: project.title || project.name || 'Project',
           priceRange: project.price_label ? `${project.price_label}` : 'Price on request',
           shortPrice: project.price_label || 'Request price',

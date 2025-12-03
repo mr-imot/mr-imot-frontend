@@ -196,7 +196,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function ListingPage({ params }: PageProps) {
   const { lang, slug } = await params
+  // Join all slug parts - this preserves the full slug including hyphens
+  // For URL: /bg/obiavi/vista-park-oblast-sofiia-71448713
+  // Next.js will parse slug as: ['vista-park-oblast-sofiia-71448713']
+  // So slug.join('/') will correctly return the full slug
   const identifier = slug.join('/')
+  
+  // Debug: Log slug parsing to identify truncation
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`[ListingPage] Parsed slug array:`, slug)
+    console.log(`[ListingPage] Joined identifier: "${identifier}" (length: ${identifier.length})`)
+  }
   
   // Handle empty slug - redirect to listings page
   if (!identifier || identifier.trim() === '') {

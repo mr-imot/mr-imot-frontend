@@ -13,7 +13,20 @@ export function cn(...inputs: ClassValue[]) {
  */
 export function getListingUrl(listing: { id: string | number; slug?: string }, lang: 'en' | 'bg'): string {
   const identifier = listing.slug || String(listing.id)
-  return lang === 'bg' 
+  
+  // Debug: Log slug to identify truncation issues
+  if (process.env.NODE_ENV === 'development' && listing.slug) {
+    console.log(`[getListingUrl] Listing ${listing.id}: slug="${listing.slug}", identifier="${identifier}"`)
+  }
+  
+  const url = lang === 'bg' 
     ? `/bg/obiavi/${identifier}`
     : `/listings/${identifier}`
+  
+  // Debug: Log final URL
+  if (process.env.NODE_ENV === 'development' && listing.slug) {
+    console.log(`[getListingUrl] Generated URL: "${url}"`)
+  }
+  
+  return url
 }
