@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { usePathname, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Menu, LogOut, User, Settings, Globe } from "lucide-react"
@@ -86,9 +86,9 @@ function AuthActionsSection({ onLinkClick, t }: { onLinkClick: () => void; t: an
 // Mobile Language Switcher Component
 function MobileLanguageSwitcher({ onLinkClick }: { onLinkClick: () => void }) {
   const pathname = usePathname()
-  const router = useRouter()
   const searchParams = useSearchParams()
   const currentLocale = useLocale()
+  const [isSwitching, setIsSwitching] = useState(false)
 
   const languages = [
     { code: 'en', name: 'English', flag: 'https://flagcdn.com/w20/us.png', nativeName: 'English' },
@@ -96,12 +96,25 @@ function MobileLanguageSwitcher({ onLinkClick }: { onLinkClick: () => void }) {
   ]
 
   const handleLanguageChange = (newLocale: string) => {
-    // Remove existing locale segment if present
+    // Don't do anything if already on this locale or switching
+    if (newLocale === currentLocale || isSwitching) {
+      return
+    }
+    
+    // Set loading state
+    setIsSwitching(true)
+    onLinkClick()
+    
+    // 1. Set cookie FIRST (before navigation) - this is critical!
+    document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=${60 * 60 * 24 * 365}`
+    
+    // 2. Remove existing locale segment if present
     let pathWithoutLocale = pathname
       .replace(/^\/en(?=\/|$)/, '')
       .replace(/^\/bg(?=\/|$)/, '') || '/'
 
-    // Handle pretty URL mapping for Bulgarian routes
+    // 3. Handle pretty URL mapping for Bulgarian routes
+    // Use robust replacement that preserves dynamic segments (like listing IDs)
     if (newLocale === 'en') {
       // Map Bulgarian pretty URLs to English canonical paths
       const prettyUrlMap: Record<string, string> = {
@@ -114,6 +127,7 @@ function MobileLanguageSwitcher({ onLinkClick }: { onLinkClick: () => void }) {
       // Check if path starts with any mapped route (handles dynamic segments)
       for (const [from, to] of Object.entries(prettyUrlMap)) {
         if (pathWithoutLocale === from || pathWithoutLocale.startsWith(from + '/')) {
+          // Replace only the prefix, preserving the rest (including dynamic segments like IDs)
           pathWithoutLocale = pathWithoutLocale.replace(from, to)
           break
         }
@@ -130,28 +144,26 @@ function MobileLanguageSwitcher({ onLinkClick }: { onLinkClick: () => void }) {
       // Check if path starts with any mapped route (handles dynamic segments)
       for (const [from, to] of Object.entries(canonicalUrlMap)) {
         if (pathWithoutLocale === from || pathWithoutLocale.startsWith(from + '/')) {
+          // Replace only the prefix, preserving the rest (including dynamic segments like IDs)
           pathWithoutLocale = pathWithoutLocale.replace(from, to)
           break
         }
       }
     }
 
-    // For English, navigate to /en/...; for others, prefix with locale
-    // Handle root path specially to avoid /en// (double slash)
+    // 4. For English, use clean URLs without /en/ prefix (middleware rewrites internally)
+    // For Bulgarian, prefix with /bg/
     const newPath = newLocale === 'en' 
-      ? (pathWithoutLocale === '/' ? '/en' : `/en${pathWithoutLocale}`)
-      : `/${newLocale}${pathWithoutLocale}`
+      ? pathWithoutLocale  // Clean URL: /listings/[id] (middleware rewrites to /en/listings/[id] internally)
+      : `/${newLocale}${pathWithoutLocale}`  // Bulgarian: /bg/obiavi/[id]
     
-    // Preserve query parameters (e.g., ?type=developer)
+    // 5. Preserve query parameters (e.g., ?type=developer)
     const queryString = searchParams.toString()
     const finalPath = queryString ? `${newPath}?${queryString}` : newPath
     
-    router.push(finalPath)
-    // Persist preference so middleware honors it (standardized to NEXT_LOCALE)
-    document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=${60 * 60 * 24 * 365}`
-    // Force refresh to ensure server components re-fetch with new language
-    router.refresh()
-    onLinkClick()
+    // 6. Use window.location for full page reload to ensure cookie is picked up immediately
+    // This prevents race conditions that cause 404 errors
+    window.location.href = finalPath
   }
 
   return (
@@ -161,11 +173,13 @@ function MobileLanguageSwitcher({ onLinkClick }: { onLinkClick: () => void }) {
         <button
           key={language.code}
           onClick={() => handleLanguageChange(language.code)}
+          disabled={isSwitching}
           className={cn(
             "w-full flex items-center space-x-3 text-left py-3 px-4 rounded-lg transition-all duration-200",
             language.code === currentLocale 
               ? "bg-primary/10 text-primary font-medium" 
-              : "text-foreground/80 hover:text-foreground hover:bg-muted"
+              : "text-foreground/80 hover:text-foreground hover:bg-muted",
+            isSwitching && "opacity-50 cursor-not-allowed"
           )}
         >
           <img 
