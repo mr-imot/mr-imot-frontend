@@ -1,6 +1,5 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { headers } from "next/headers"
 import { GeistSans } from "geist/font/sans"
 import { GeistMono } from "geist/font/mono"
 import { Figtree, Instrument_Serif, Outfit, Source_Sans_3, Playfair_Display, Inter, Lora } from "next/font/google"
@@ -128,40 +127,12 @@ export function generateViewport() {
 
 // Get language from middleware header for HTML lang attribute
 // This function must never throw errors - it's called during SSR and static generation
+// During static generation, we default to 'en' since headers() is not available
 async function getLanguageFromPath(): Promise<'en' | 'bg'> {
   // Default to English - safe fallback for all contexts
-  let detectedLang: 'en' | 'bg' = 'en'
-  
-  try {
-    // Only attempt to read headers in server context
-    // headers() can throw errors during static generation or edge runtime
-    if (typeof window === 'undefined') {
-      try {
-        const headersList = await headers()
-        // Get language from middleware-set header
-        const locale = headersList.get('x-locale')
-        
-        if (locale === 'bg' || locale === 'en') {
-          detectedLang = locale
-        } else {
-          // Fallback: try to detect from pathname if header not set
-          const pathname = headersList.get('x-pathname') || ''
-          if (pathname.startsWith('/bg/') || pathname === '/bg') {
-            detectedLang = 'bg'
-          }
-        }
-      } catch (headerError) {
-        // Silently fallback to English if headers() fails
-        // This can happen during static generation or in edge runtime
-        detectedLang = 'en'
-      }
-    }
-  } catch (error) {
-    // Catch any unexpected errors and default to English
-    detectedLang = 'en'
-  }
-  
-  return detectedLang
+  // During static generation, headers() is not available, so we always default to 'en'
+  // The actual language will be set by the [lang]/layout.tsx which uses params
+  return 'en'
 }
 
 export default async function RootLayout({
@@ -169,6 +140,8 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  // Default to 'en' during static generation
+  // The actual language is handled by [lang]/layout.tsx which uses params
   const lang = await getLanguageFromPath()
   
   return (

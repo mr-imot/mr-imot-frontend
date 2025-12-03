@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Home, Search, AlertCircle } from "lucide-react"
 import { GoBackButton } from './not-found-client-button'
-import { headers } from 'next/headers'
 
 // ImageKit URL helper with optimizations for 404 mascot
 const getImageKitUrl = (originalUrl: string, width: number, height: number, quality: number = 90) => {
@@ -34,9 +33,10 @@ interface NotFoundProps {
   }>
 }
 
-// Helper to extract lang from params, URL, or cookie
+// Helper to extract lang from params
+// During static generation, params are available, so we don't need headers()
 async function getLang(params?: Promise<{ lang: 'en' | 'bg' }>): Promise<'en' | 'bg'> {
-  // First, try to get lang from params if available
+  // Get lang from params if available
   if (params) {
     try {
       const resolved = await params
@@ -46,33 +46,6 @@ async function getLang(params?: Promise<{ lang: 'en' | 'bg' }>): Promise<'en' | 
     } catch (error) {
       console.error('Error resolving params:', error)
     }
-  }
-  
-  // Fallback: extract from URL pathname or cookie
-  try {
-    const headersList = await headers()
-    
-    // Try to get from referer URL (if available)
-    const referer = headersList.get('referer') || ''
-    if (referer) {
-      const urlMatch = referer.match(/\/(en|bg)(\/|$)/)
-      if (urlMatch && (urlMatch[1] === 'en' || urlMatch[1] === 'bg')) {
-        return urlMatch[1] as 'en' | 'bg'
-      }
-    }
-    
-    // Try to get from cookie (set by middleware)
-    const cookieHeader = headersList.get('cookie') || ''
-    const cookieLocale = cookieHeader
-      .split(';')
-      .find(c => c.trim().startsWith('NEXT_LOCALE='))
-      ?.split('=')[1]
-    
-    if (cookieLocale === 'bg' || cookieLocale === 'en') {
-      return cookieLocale
-    }
-  } catch (error) {
-    console.error('Error extracting lang from headers:', error)
   }
   
   // Default fallback to English

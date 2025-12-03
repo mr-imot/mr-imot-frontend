@@ -3,10 +3,10 @@ import type { Metadata } from 'next'
 import DeveloperDetailClient from './developer-detail-client'
 import DeveloperStructuredData from './developer-structured-data'
 import { DeveloperProfile } from '@/lib/api'
-import { headers } from 'next/headers'
 
 interface PageProps {
   params: Promise<{
+    lang: 'en' | 'bg'
     id: string
   }>
 }
@@ -38,16 +38,8 @@ async function getDeveloperData(id: string): Promise<DeveloperProfile | null> {
   }
 }
 
-// Get language from headers (set by middleware)
-async function getLang(): Promise<'en' | 'bg'> {
-  const headersList = await headers()
-  const locale = headersList.get('x-locale') || 'en'
-  return (locale === 'bg' || locale === 'en') ? locale : 'en'
-}
-
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { id } = await params
-  const lang = await getLang()
+  const { lang, id } = await params
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mrimot.com'
   const baseUrl = siteUrl.replace(/\/$/, '')
   
@@ -117,8 +109,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function DeveloperDetailPage({ params }: PageProps) {
-  const { id } = await params
-  const lang = await getLang()
+  const { lang, id } = await params
   const developer = await getDeveloperData(id)
   
   if (!developer) {

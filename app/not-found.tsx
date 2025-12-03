@@ -1,5 +1,4 @@
 import { getDictionary } from './[lang]/dictionaries'
-import { headers } from 'next/headers'
 import { Metadata } from 'next'
 import Link from "next/link"
 import Image from "next/image"
@@ -9,14 +8,11 @@ import { Home, Search } from "lucide-react"
 import { GoBackButton } from './[lang]/not-found-client-button'
 
 // Generate metadata for root not-found page
+// Default to 'en' during static generation since headers() is not available
 export async function generateMetadata(): Promise<Metadata> {
-  const headersList = await headers()
-  const cookieLocale = headersList.get('cookie')
-    ?.split(';')
-    .find(c => c.trim().startsWith('NEXT_LOCALE='))
-    ?.split('=')[1] || 'en'
-  
-  const lang = (cookieLocale === 'bg' || cookieLocale === 'en') ? cookieLocale : 'en'
+  // Default to English during static generation
+  // The actual language will be determined at runtime by middleware
+  const lang = 'en'
   const dict = await getDictionary(lang)
   
   return {
@@ -47,15 +43,13 @@ const getImageKitUrl = (originalUrl: string, width: number, height: number, qual
 }
 
 // Root not-found page - render directly, NO redirects to prevent loops
+// This page needs to be dynamic since we can't use headers() during static generation
+export const dynamic = 'force-dynamic'
+
 export default async function RootNotFound() {
-  // Get locale from cookie
-  const headersList = await headers()
-  const cookieLocale = headersList.get('cookie')
-    ?.split(';')
-    .find(c => c.trim().startsWith('NEXT_LOCALE='))
-    ?.split('=')[1] || 'en'
-  
-  const lang = (cookieLocale === 'bg' || cookieLocale === 'en') ? cookieLocale : 'en'
+  // Default to English during static generation
+  // At runtime, middleware will handle language detection
+  const lang = 'en'
   const dict = await getDictionary(lang)
 
   const href = (en: string, bg: string) => {
