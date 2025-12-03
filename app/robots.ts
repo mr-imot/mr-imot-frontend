@@ -1,12 +1,12 @@
 import { MetadataRoute } from 'next'
 
-// Get base URL from environment variable or use localhost for development
+// Get base URL from environment variable or use production URL
 function getBaseUrl(): string {
   let url: string
   if (process.env.NEXT_PUBLIC_SITE_URL) {
     url = process.env.NEXT_PUBLIC_SITE_URL
   } else if (process.env.NODE_ENV === 'development') {
-    url = 'http://localhost:3000'
+    url = 'https://mrimot.com'
   } else {
     url = 'https://mrimot.com'
   }
