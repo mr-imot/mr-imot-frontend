@@ -275,32 +275,38 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
 
     try {
       const data: any = await getProjects(params)
-      const mapped: PropertyData[] = (data.projects || []).map((project: any) => ({
-        id: String(project.id),
-        slug: project.slug || String(project.id), // Use actual slug from API, fallback to ID
-        title: project.title || project.name || 'Project',
-        priceRange: project.price_label ? `${project.price_label}` : 'Price on request',
-        shortPrice: project.price_label || 'Request price',
-        location: project.neighborhood ? `${project.neighborhood}, ${project.city}` : project.city,
-        image: project.cover_image_url || '/placeholder.svg?height=300&width=400',
-        images: Array.isArray(project.images)
-          ? project.images.map((img: any) => img?.urls?.card || img?.image_url).filter(Boolean)
-          : [],
-        description: project.description || '',
-        lat: typeof project.latitude === 'number' ? project.latitude : 42.6977,
-        lng: typeof project.longitude === 'number' ? project.longitude : 23.3219,
-        color: `from-blue-500 to-blue-700`,
-        type: project.project_type === 'apartment_building' ? 'Apartment Complex' : 'Residential Houses',
-        status: 'Under Construction',
-        developer: project.developer?.company_name || 'Unknown Developer',
+      const mapped: PropertyData[] = (data.projects || []).map((project: any) => {
+        // Debug: Log slug to help identify incomplete slugs
+        if (process.env.NODE_ENV === 'development' && project.slug) {
+          console.log(`[Listings] Project ${project.id}: slug="${project.slug}"`)
+        }
+        return {
+          id: String(project.id),
+          slug: project.slug || String(project.id), // Use actual slug from API, fallback to ID
+          title: project.title || project.name || 'Project',
+          priceRange: project.price_label ? `${project.price_label}` : 'Price on request',
+          shortPrice: project.price_label || 'Request price',
+          location: project.neighborhood ? `${project.neighborhood}, ${project.city}` : project.city,
+          image: project.cover_image_url || '/placeholder.svg?height=300&width=400',
+          images: Array.isArray(project.images)
+            ? project.images.map((img: any) => img?.urls?.card || img?.image_url).filter(Boolean)
+            : [],
+          description: project.description || '',
+          lat: typeof project.latitude === 'number' ? project.latitude : 42.6977,
+          lng: typeof project.longitude === 'number' ? project.longitude : 23.3219,
+          color: `from-blue-500 to-blue-700`,
+          type: project.project_type === 'apartment_building' ? 'Apartment Complex' : 'Residential Houses',
+          status: 'Under Construction',
+          developer: project.developer?.company_name || 'Unknown Developer',
         completionDate: project.expected_completion_date
           ? new Date(project.expected_completion_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })
           : 'TBD',
-        rating: 4.5 + Math.random() * 0.4,
-        reviews: Math.floor(Math.random() * 30) + 5,
-        features: project.amenities_list && project.amenities_list.length > 0 ? project.amenities_list : ['Modern Design', 'Quality Construction'],
-        originalPrice: undefined,
-      }))
+          rating: 4.5 + Math.random() * 0.4,
+          reviews: Math.floor(Math.random() * 30) + 5,
+          features: project.amenities_list && project.amenities_list.length > 0 ? project.amenities_list : ['Modern Design', 'Quality Construction'],
+          originalPrice: undefined,
+        }
+      })
 
       // Populate global cache for this city/type
       propertyCache.setCacheData(selectedCity, propertyTypeFilter, mapped)

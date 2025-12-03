@@ -70,6 +70,7 @@ const OfficeMap = ({ latitude, longitude, title }: { latitude: number, longitude
 function projectToListing(project: any): Listing {
   return {
     id: project.id,
+    slug: project.slug, // Include slug from API for SEO-friendly URLs
     title: project.name,
     city: project.city || project.neighborhood || 'Unknown',
     coordinates: { lat: project.latitude || 0, lng: project.longitude || 0 },
