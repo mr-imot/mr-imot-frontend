@@ -223,9 +223,7 @@ export function middleware(request: NextRequest) {
     '/og-image.png',
   ]
   
-  // Check for file extensions more strictly
-  const hasFileExtension = /\.(png|jpg|jpeg|gif|svg|ico|webp|woff|woff2|ttf|eot|css|js|json|xml|txt|pdf|zip)$/i.test(pathname)
-  
+  // Reuse hasFileExtension already declared at the top of the function
   if (
     nonLocalizedPaths.some(path => pathname.startsWith(path) || pathname === path) ||
     hasFileExtension // Skip files with extensions (images, etc.)
