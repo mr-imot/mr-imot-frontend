@@ -23,7 +23,46 @@ export default function ListingStructuredData({ project, lang, baseUrl }: Listin
     })
   }
   
-  // Product/RealEstateListing Schema
+  // Use slug-based URL if available, otherwise fallback to ID
+  const urlPath = project.slug || String(project.id)
+  const listingUrl = isBg 
+    ? `${baseUrl}/bg/obiavi/${urlPath}`
+    : `${baseUrl}/listings/${urlPath}`
+  
+  // RealEstateListing Schema (more specific than Product for real estate)
+  const realEstateSchema = {
+    "@context": "https://schema.org",
+    "@type": "RealEstateListing",
+    "name": project.title || project.name || 'New Construction Project',
+    "description": project.description || '',
+    "url": listingUrl,
+    ...(images.length > 0 && { "image": images }),
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": project.city || 'Bulgaria',
+      "addressCountry": "BG",
+      ...(project.formatted_address && { "streetAddress": project.formatted_address }),
+      ...(project.neighborhood && { "addressRegion": project.neighborhood })
+    },
+    ...(project.latitude && project.longitude && {
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": project.latitude,
+        "longitude": project.longitude
+      }
+    }),
+    "priceCurrency": "EUR",
+    ...(project.price_label && { 
+      "price": project.price_label,
+      "priceSpecification": {
+        "@type": "UnitPriceSpecification",
+        "price": project.price_label,
+        "priceCurrency": "EUR"
+      }
+    })
+  }
+  
+  // Product Schema (for e-commerce compatibility)
   const productSchema = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -80,13 +119,17 @@ export default function ListingStructuredData({ project, lang, baseUrl }: Listin
         "@type": "ListItem",
         "position": 3,
         "name": project.title || project.name || 'Project',
-        "item": `${baseUrl}/${lang === 'bg' ? 'bg/obiavi' : 'en/listings'}/${project.id}`
+        "item": listingUrl
       }
     ]
   }
   
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(realEstateSchema) }}
+      />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}

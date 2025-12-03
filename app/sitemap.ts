@@ -15,10 +15,10 @@ function getBaseUrl(): string {
   return url.replace(/\/$/, '')
 }
 
-// Fetch all projects from the API with pagination
-async function getAllProjects(): Promise<{ id: number }[]> {
+// Fetch all active projects from the API with pagination
+async function getAllActiveProjects(): Promise<{ id: number; slug?: string; updated_at?: string }[]> {
   try {
-    const allProjects: { id: number }[] = []
+    const allProjects: { id: number; slug?: string; updated_at?: string }[] = []
     let page = 1
     const perPage = 100 // Maximum allowed by API
     let hasMore = true
@@ -30,7 +30,15 @@ async function getAllProjects(): Promise<{ id: number }[]> {
       })
 
       if (response.projects && response.projects.length > 0) {
-        allProjects.push(...response.projects.map((p) => ({ id: p.id })))
+        // Filter to only active projects and include slug
+        const activeProjects = response.projects
+          .filter((p) => p.status === 'active' || p.is_active === true)
+          .map((p) => ({ 
+            id: p.id,
+            slug: p.slug,
+            updated_at: p.updated_at
+          }))
+        allProjects.push(...activeProjects)
       }
 
       // Check if there are more pages
@@ -97,13 +105,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'daily' as const,
       priority: 1.0,
     })),
-    // Listings pages
-    ...languages.map((lang): MetadataRoute.Sitemap[0] => ({
-      url: `${baseUrl}/${lang}/listings`,
+    // Listings pages (using clean English URL)
+    {
+      url: `${baseUrl}/listings`,
       lastModified: new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.8,
-    })),
+    },
+    {
+      url: `${baseUrl}/bg/obiavi`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    },
     // Developers pages
     ...languages.map((lang): MetadataRoute.Sitemap[0] => ({
       url: `${baseUrl}/${lang}/developers`,
@@ -139,15 +153,28 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ]
 
-  // Dynamic routes - fetch all projects
-  const projects = await getAllProjects()
+  // Dynamic routes - fetch all active projects (filtered by status)
+  const projects = await getAllActiveProjects()
   const projectRoutes: MetadataRoute.Sitemap = projects.flatMap((project) =>
-    languages.map((lang): MetadataRoute.Sitemap[0] => ({
-      url: `${baseUrl}/${lang === 'bg' ? 'bg/obiavi' : 'en/listings'}/${project.id}`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly' as const,
-      priority: 0.6,
-    }))
+    languages.map((lang): MetadataRoute.Sitemap[0] => {
+      // Use slug-based URL if available, otherwise fallback to ID
+      const urlPath = project.slug || String(project.id)
+      const url = lang === 'bg' 
+        ? `${baseUrl}/bg/obiavi/${urlPath}`
+        : `${baseUrl}/listings/${urlPath}` // Clean English URL without /en/
+      
+      // Use updated_at if available, otherwise use current date
+      const lastModified = project.updated_at 
+        ? new Date(project.updated_at)
+        : new Date()
+      
+      return {
+        url,
+        lastModified,
+        changeFrequency: 'monthly' as const,
+        priority: 0.6,
+      }
+    })
   )
 
   // Dynamic routes - fetch all developers

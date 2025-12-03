@@ -86,6 +86,7 @@ export interface DeletedProject {
 
 export interface Project {
   id: number;
+  slug?: string; // SEO-friendly URL slug
   title?: string; // May not be present in status responses
   name?: string; // Backend sometimes returns 'name' instead of 'title'
   description?: string; // May not be present in status responses
