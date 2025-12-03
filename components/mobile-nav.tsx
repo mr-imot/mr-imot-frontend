@@ -136,8 +136,11 @@ function MobileLanguageSwitcher({ onLinkClick }: { onLinkClick: () => void }) {
       }
     }
 
-    // For English, navigate to root; for others, prefix
-    const newPath = newLocale === 'en' ? pathWithoutLocale : `/${newLocale}${pathWithoutLocale}`
+    // For English, navigate to /en/...; for others, prefix with locale
+    // Handle root path specially to avoid /en// (double slash)
+    const newPath = newLocale === 'en' 
+      ? (pathWithoutLocale === '/' ? '/en' : `/en${pathWithoutLocale}`)
+      : `/${newLocale}${pathWithoutLocale}`
     
     // Preserve query parameters (e.g., ?type=developer)
     const queryString = searchParams.toString()

@@ -37,6 +37,12 @@ export function LanguageSwitcher() {
   const currentLanguage = languages.find(lang => lang.code === currentLocale) || languages[0]
 
   const handleLanguageChange = (newLocale: string) => {
+    // Don't do anything if already on this locale
+    if (newLocale === currentLocale) {
+      setIsOpen(false)
+      return
+    }
+    
     // 1. Set cookie FIRST (before navigation) - this is critical!
     document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=${60 * 60 * 24 * 365}`
     
@@ -80,18 +86,22 @@ export function LanguageSwitcher() {
       }
     }
 
-    // 4. For English, navigate to root; for others, prefix
-    const newPath = newLocale === 'en' ? pathWithoutLocale : `/${newLocale}${pathWithoutLocale}`
+    // 4. For English, navigate to /en/...; for others, prefix with locale
+    // Handle root path specially to avoid /en// (double slash)
+    const newPath = newLocale === 'en' 
+      ? (pathWithoutLocale === '/' ? '/en' : `/en${pathWithoutLocale}`)
+      : `/${newLocale}${pathWithoutLocale}`
     
     // 5. Preserve query parameters (e.g., ?type=developer)
     const queryString = searchParams.toString()
     const finalPath = queryString ? `${newPath}?${queryString}` : newPath
     
-    // 6. Navigate and force a full refresh to ensure cookie is picked up
+    // 6. Close dropdown first to prevent UI issues
+    setIsOpen(false)
+    
+    // 7. Navigate and force a full refresh to ensure cookie is picked up
     router.push(finalPath)
     router.refresh()
-    
-    setIsOpen(false)
   }
 
   return (
@@ -116,7 +126,11 @@ export function LanguageSwitcher() {
         {languages.map((language) => (
           <DropdownMenuItem
             key={language.code}
-            onClick={() => handleLanguageChange(language.code)}
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              handleLanguageChange(language.code)
+            }}
             className={`flex items-center space-x-3 px-4 py-3 cursor-pointer transition-colors ${
               language.code === currentLocale 
                 ? 'bg-primary/10 text-primary font-medium' 
