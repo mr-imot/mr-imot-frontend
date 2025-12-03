@@ -14,6 +14,7 @@ export interface Developer {
   office_latitude?: number;
   office_longitude?: number;
   website?: string;
+  profile_image_url?: string;
   verification_status: string;
   created_at: string;
   project_count?: number;
