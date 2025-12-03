@@ -179,6 +179,19 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
     }
   }, [ariaLiveMessage])
 
+  // One-time cache validation on mount - clear old caches with truncated slugs
+  useEffect(() => {
+    // Check and clear any caches with invalid slugs
+    // This is a one-time check on mount to fix old cached data
+    const cacheStats = propertyCache.getCacheStats()
+    if (cacheStats.localStorageKeys.length > 0) {
+      // Clear all caches to ensure fresh data with correct slugs
+      // This fixes the issue where old cached data had truncated slugs
+      console.log('🧹 Clearing old property caches to ensure fresh slug data...')
+      propertyCache.clearAllCaches()
+    }
+  }, [])
+
   // Cleanup marker manager and background refresh on unmount
   useEffect(() => {
     return () => {
@@ -328,6 +341,29 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
   const checkCacheAndFetch = useCallback(async () => {
     const cached = propertyCache.getCachedData(selectedCity, propertyTypeFilter)
     if (cached && cached.length > 0) {
+      // CRITICAL: Validate cached slugs before using
+      // If any cached property has a truncated slug, invalidate and fetch fresh
+      const hasInvalidSlugs = cached.some((p: PropertyData) => {
+        // Check if slug exists but is suspiciously short (< 15 chars) and doesn't match expected format
+        if (p.slug && p.slug.length < 15 && !p.slug.includes('-')) {
+          console.warn(`⚠️ Invalid slug detected in cache for property ${p.id}: "${p.slug}"`)
+          return true
+        }
+        return false
+      })
+      
+      if (hasInvalidSlugs) {
+        console.warn('⚠️ Invalid slugs detected in cache, fetching fresh data...')
+        // Clear cache and fetch fresh
+        propertyCache.clearCache(selectedCity, propertyTypeFilter)
+        const fresh = await fetchFreshData()
+        const local = new Map<string, PropertyData>()
+        fresh.forEach((p) => local.set(String((p as any).id || p.id), p))
+        propertyCacheRef.current = local
+        setCacheVersion((v) => v + 1)
+        return fresh
+      }
+      
       // Hydrate page-local cache from cached data for immediate UI
       const local = new Map<string, PropertyData>()
       cached.forEach((p) => local.set(String((p as any).id || p.id), p))

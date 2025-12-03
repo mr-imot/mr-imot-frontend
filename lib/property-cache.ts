@@ -58,6 +58,23 @@ class PropertyCacheManager {
       if (stored) {
         const entry: CacheEntry = JSON.parse(stored)
         if (this.isCacheValid(entry, CACHE_CONFIG.localStorageDuration)) {
+          // CRITICAL: Check for truncated slugs in cached data
+          // If any property has a suspiciously short slug (< 15 chars), invalidate cache
+          // This fixes the issue where old cached data had truncated slugs
+          const hasTruncatedSlugs = entry.data.some((p: PropertyData) => {
+            if (p.slug && p.slug.length < 15 && !p.slug.includes('-')) {
+              // Slug is too short and doesn't have hyphens (likely truncated)
+              return true
+            }
+            return false
+          })
+          
+          if (hasTruncatedSlugs) {
+            console.warn('⚠️ Detected truncated slugs in cache, invalidating...')
+            localStorage.removeItem(key)
+            return null
+          }
+          
           return entry.data
         } else {
           // Remove expired entry
@@ -76,7 +93,22 @@ class PropertyCacheManager {
     // Try session cache first (fastest)
     const sessionData = this.getFromSessionCache(city, propertyType)
     if (sessionData) {
-      return sessionData
+      // Also check session cache for truncated slugs
+      const hasTruncatedSlugs = sessionData.some((p: PropertyData) => {
+        if (p.slug && p.slug.length < 15 && !p.slug.includes('-')) {
+          return true
+        }
+        return false
+      })
+      
+      if (hasTruncatedSlugs) {
+        console.warn('⚠️ Detected truncated slugs in session cache, clearing...')
+        const key = this.getCacheKey(city, propertyType)
+        this.sessionCache.delete(key)
+        // Fall through to try localStorage or return null
+      } else {
+        return sessionData
+      }
     }
 
     // Try localStorage (fast)
