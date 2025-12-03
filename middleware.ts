@@ -341,6 +341,7 @@ export const config = {
     // - Health check (/health)
     // - Files with extensions (*.png, *.jpg, *.ico, etc.)
     // - Common static files (robots.txt, sitemap.xml, og-image.png, favicon.ico)
-    '/((?!api|_next/static|_next/image|images|favicon|health|og-image|robots|sitemap|.*\\.(png|jpg|jpeg|gif|svg|ico|webp|woff|woff2|ttf|eot|css|js|json|xml|txt|pdf|zip)).*)',
+    // Note: Using non-capturing groups (?:...) to avoid "Capturing groups are not allowed" error
+    '/((?!api|_next/static|_next/image|images|favicon|health|og-image|robots|sitemap|.*\\.(?:png|jpg|jpeg|gif|svg|ico|webp|woff|woff2|ttf|eot|css|js|json|xml|txt|pdf|zip)).*)',
   ],
 }
