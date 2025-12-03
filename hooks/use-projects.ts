@@ -34,7 +34,7 @@ const transformProjectToPropertyData = (project: any) => {
   const cover = project.cover_image_url || images[0] || '/placeholder.svg?height=300&width=400';
   return {
     id: String(project.id),
-    slug: String(title).toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
+    slug: project.slug || String(project.id), // Use actual slug from API, fallback to ID
     title,
     priceRange: priceLabel ? `${priceLabel}` : 'Price on request',
     shortPrice: priceLabel || 'Request price',
