@@ -13,12 +13,19 @@ export default async function InterceptedListingModal({ params }: PageProps) {
   const { lang, slug } = await params
   const identifier = slug.join('/')
   
-  // Fetch project to get ID
+  // Handle empty slug - redirect to listings page
+  if (!identifier || identifier.trim() === '') {
+    const isBg = lang === 'bg'
+    // For modal, we can't redirect, so just return not found
+    // The modal will handle this gracefully
+    return null
+  }
+  
+  // Fetch project once
   const project = await getProjectData(identifier, lang)
   
-  if (!project || 'status' in project) {
-    // If project not found or paused/deleted, modal will handle it
-    // Use identifier as projectId (could be UUID or slug)
+  if (!project) {
+    // Project not found - modal will handle it
     return (
       <ModalClientWrapper>
         <ListingPageContent lang={lang} id={identifier} />
@@ -29,9 +36,10 @@ export default async function InterceptedListingModal({ params }: PageProps) {
   // Extract project ID for the content component
   const projectId = 'id' in project ? String(project.id) : identifier
   
+  // Pass project data directly to avoid redundant fetches
   return (
     <ModalClientWrapper>
-      <ListingPageContent lang={lang} id={projectId} />
+      <ListingPageContent lang={lang} id={projectId} initialProject={project} />
     </ModalClientWrapper>
   )
 }

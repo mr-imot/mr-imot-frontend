@@ -8,6 +8,7 @@ import ListingStructuredData from './listing-structured-data'
 interface ListingPageContentProps {
   lang: 'en' | 'bg'
   id: string
+  initialProject?: Project | PausedProject | DeletedProject
 }
 
 // Server-side function to fetch project data
@@ -45,8 +46,13 @@ async function getProjectData(id: string, lang: string): Promise<Project | Pause
   }
 }
 
-export default async function ListingPageContent({ lang, id }: ListingPageContentProps) {
-  const project = await getProjectData(id, lang)
+export default async function ListingPageContent({ 
+  lang, 
+  id, 
+  initialProject 
+}: ListingPageContentProps) {
+  // Use initial project if provided, otherwise fetch
+  const project = initialProject || await getProjectData(id, lang)
   
   // Project never existed - return 404
   if (!project) {
@@ -71,7 +77,7 @@ export default async function ListingPageContent({ lang, id }: ListingPageConten
   return (
     <>
       <ListingStructuredData project={activeProject} lang={lang} baseUrl={baseUrl} />
-      <ListingDetailClient projectId={id} />
+      <ListingDetailClient projectId={id} initialProject={activeProject} />
     </>
   )
 }

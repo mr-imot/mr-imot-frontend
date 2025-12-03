@@ -95,7 +95,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   // Paused project - return generic metadata with noindex (NO project-specific data)
   if ('status' in project && project.status === 'paused') {
     const isBg = lang === 'bg'
-    const urlPath = project.slug || projectId || identifier
+    // PausedProject doesn't have slug, use projectId or identifier
+    const urlPath = projectId || identifier
     return {
       title: isBg ? 'Обявата е временно недостъпна' : 'Listing Temporarily Unavailable',
       description: isBg 
@@ -114,7 +115,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   // Deleted project - return generic metadata with noindex (NO project-specific data)
   if ('status' in project && project.status === 'deleted') {
     const isBg = lang === 'bg'
-    const urlPath = project.slug || projectId || identifier
+    // DeletedProject doesn't have slug, use projectId or identifier
+    const urlPath = projectId || identifier
     return {
       title: isBg ? 'Обявата е премахната' : 'Listing Removed',
       description: isBg 
@@ -192,14 +194,21 @@ export default async function ListingPage({ params }: PageProps) {
   const { lang, slug } = await params
   const identifier = slug.join('/')
   
-  // Fetch project to check if we need to redirect
+  // Handle empty slug - redirect to listings page
+  if (!identifier || identifier.trim() === '') {
+    const isBg = lang === 'bg'
+    redirect(isBg ? '/bg/obiavi' : '/listings')
+  }
+  
+  // Fetch project once
   const project = await getProjectData(identifier, lang)
   
   if (!project) {
     notFound()
   }
   
-  // If we accessed via old UUID format and project has a slug, redirect to slug-based URL
+  // Only redirect if accessing via old UUID format AND project has a slug
+  // This maintains backward compatibility for old UUID links
   if (isUUID(identifier) && 'slug' in project && project.slug) {
     const isBg = lang === 'bg'
     const newUrl = isBg 
@@ -208,9 +217,11 @@ export default async function ListingPage({ params }: PageProps) {
     redirect(newUrl)
   }
   
-  // Extract project ID for the content component
+  // For slug-based access, extract the UUID from the project object
+  // This ensures we always use the UUID for subsequent fetches
   const projectId = 'id' in project ? String(project.id) : identifier
   
-  return <ListingPageContent lang={lang} id={projectId} />
+  // Pass project data directly to avoid second fetch in ListingPageContent
+  return <ListingPageContent lang={lang} id={projectId} initialProject={project} />
 }
 

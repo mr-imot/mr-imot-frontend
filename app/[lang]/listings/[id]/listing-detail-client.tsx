@@ -17,7 +17,7 @@ import {
   Euro,
   Navigation,
 } from "lucide-react"
-import { recordProjectView, recordProjectPhoneClick, recordProjectWebsiteClick } from "@/lib/api"
+import { recordProjectView, recordProjectPhoneClick, recordProjectWebsiteClick, Project } from "@/lib/api"
 import { PropertyGallery } from "@/components/PropertyGallery"
 import { FeaturesDisplay } from "@/components/FeaturesDisplay"
 import { ensureGoogleMaps } from "@/lib/google-maps"
@@ -27,6 +27,7 @@ import { translatePrice, PriceTranslations } from "@/lib/price-translator"
 
 interface ListingDetailClientProps {
   projectId: string
+  initialProject?: Project
 }
 
 // Enhanced ImageKit transformation function - PROPER FULLSCREEN HANDLING
@@ -191,9 +192,9 @@ const LoadingSkeletonPropertyDetail = () => (
   </div>
 )
 
-export default function ListingDetailClient({ projectId }: ListingDetailClientProps) {
-  const [property, setProperty] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
+export default function ListingDetailClient({ projectId, initialProject }: ListingDetailClientProps) {
+  const [property, setProperty] = useState<any>(initialProject || null)
+  const [loading, setLoading] = useState(!initialProject) // Don't show loading if we have data
   const [error, setError] = useState<string | null>(null)
   const [isSaved, setIsSaved] = useState(false)
   const isMobile = useIsMobile()
@@ -201,6 +202,18 @@ export default function ListingDetailClient({ projectId }: ListingDetailClientPr
   const tPrice = useTranslations('price')
 
   useEffect(() => {
+    // Skip fetch if we already have initial project data
+    if (initialProject) {
+      setProperty(initialProject)
+      setLoading(false)
+      // Still record the view
+      recordProjectView(projectId).catch(err => 
+        console.warn("Failed to record project view:", err)
+      )
+      return
+    }
+
+    // Only fetch if we don't have initial data
     const loadProperty = async () => {
       try {
         if (!projectId) {
@@ -231,7 +244,7 @@ export default function ListingDetailClient({ projectId }: ListingDetailClientPr
     }
 
     loadProperty()
-  }, [projectId])
+  }, [projectId, initialProject]) // Add initialProject to dependencies
 
   if (loading) {
     return <LoadingSkeletonPropertyDetail />
