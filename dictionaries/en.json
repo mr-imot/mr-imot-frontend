@@ -121,7 +121,7 @@
     },
     "question3": {
       "question": "What does it cost to list a project?",
-      "answer": "Listing projects is completely free. Verified developers can post an unlimited number of residential projects at no charge, helping them reach buyers directly without middlemen."
+      "answer": "We offer three pricing plans: Lite plan (€39/month excluding VAT) with 1 active listing, Pro plan (€99/month excluding VAT) with 3 active listings, and Pro Plus plan with unlimited listings and custom pricing. All plans include analytics, tracking, and Meta ads worth the monthly subscription. Verified developers can post projects and connect directly with buyers without middlemen."
     },
     "question4": {
       "question": "Do I need to register to browse listings?",
@@ -175,7 +175,7 @@
   "feedback": {
     "button": "Feedback",
     "title": "Send Feedback",
-    "introMessage": "Hey there - Mister Imot is still in beta and we are working everyday to improve your experience! I would LOVE your feedback. What you type in this box will go directly to my inbox :)",
+    "introMessage": "Hey there! I am Martin, founder of Mister Imot.We are working everyday to improve your experience! I would LOVE your feedback. What you type in this box will go directly to my inbox. 😊",
     "selectPlaceholder": "Select an issue type",
     "issueTypes": {
       "bugReport": "Bug Report",
