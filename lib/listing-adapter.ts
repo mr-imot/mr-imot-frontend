@@ -5,6 +5,7 @@ import { Listing } from '@/components/ListingCard'
 export function propertyToListing(property: PropertyData): Listing {
   return {
     id: property.id,
+    slug: property.slug, // Pass through slug for SEO-friendly URLs
     title: property.title,
     city: property.location.split(',')[0].trim(), // Extract city from location
     coordinates: { lat: property.lat, lng: property.lng },

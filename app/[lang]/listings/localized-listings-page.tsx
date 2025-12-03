@@ -277,10 +277,7 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
       const data: any = await getProjects(params)
       const mapped: PropertyData[] = (data.projects || []).map((project: any) => ({
         id: String(project.id),
-        slug: String(project.title || project.name || 'Project')
-          .toLowerCase()
-          .replace(/\s+/g, '-')
-          .replace(/[^a-z0-9-]/g, ''),
+        slug: project.slug || String(project.id), // Use actual slug from API, fallback to ID
         title: project.title || project.name || 'Project',
         priceRange: project.price_label ? `${project.price_label}` : 'Price on request',
         shortPrice: project.price_label || 'Request price',

@@ -40,8 +40,10 @@ export async function getProjectData(identifier: string, lang: string): Promise<
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
     const baseUrl = apiUrl.replace(/\/$/, '')
+    // URL encode the identifier to handle special characters in slugs
+    const encodedIdentifier = encodeURIComponent(identifier)
     // Use no-store to prevent stale cache when switching languages
-    const response = await fetch(`${baseUrl}/api/v1/projects/${identifier}`, {
+    const response = await fetch(`${baseUrl}/api/v1/projects/${encodedIdentifier}`, {
       cache: 'no-store', // Disable cache to ensure fresh data on language switch
       headers: {
         'Content-Type': 'application/json',
@@ -52,7 +54,9 @@ export async function getProjectData(identifier: string, lang: string): Promise<
       if (response.status === 404) {
         return null // Project never existed
       }
-      throw new Error(`Failed to fetch project: ${response.statusText}`)
+      // Log error details for debugging
+      console.error(`Failed to fetch project ${identifier}: ${response.status} ${response.statusText}`)
+      return null
     }
 
     const data = await response.json()
@@ -64,7 +68,7 @@ export async function getProjectData(identifier: string, lang: string): Promise<
     
     return data as Project
   } catch (error) {
-    console.error('Error fetching project for metadata:', error)
+    console.error(`Error fetching project ${identifier}:`, error)
     return null
   }
 }
@@ -200,10 +204,17 @@ export default async function ListingPage({ params }: PageProps) {
     redirect(isBg ? '/bg/obiavi' : '/listings')
   }
   
-  // Fetch project once
-  const project = await getProjectData(identifier, lang)
+  // Fetch project once - handle errors gracefully
+  let project: Project | PausedProject | DeletedProject | null = null
+  try {
+    project = await getProjectData(identifier, lang)
+  } catch (error) {
+    console.error(`Error fetching project with identifier "${identifier}":`, error)
+    notFound()
+  }
   
   if (!project) {
+    // Project not found - return 404 immediately
     notFound()
   }
   

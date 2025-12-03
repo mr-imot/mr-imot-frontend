@@ -157,21 +157,38 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function ListingPage({ params }: PageProps) {
   const { lang, id } = await params
+  
+  // Check if this is a UUID format - if so, redirect to slug route immediately
+  // This route only exists for backward compatibility with old UUID URLs
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+  const isUUIDFormat = uuidRegex.test(id)
+  
+  if (isUUIDFormat) {
+    // For UUIDs, fetch project to get slug and redirect immediately
+    // This prevents the [id] route from rendering before redirect
+    const project = await getProjectData(id, lang)
+    
+    if (!project) {
+      notFound()
+    }
+    
+    // If project has a slug, redirect to slug-based URL immediately (301 permanent redirect for SEO)
+    if ('slug' in project && project.slug) {
+      const isBg = lang === 'bg'
+      const newUrl = isBg 
+        ? `/bg/obiavi/${project.slug}`
+        : `/listings/${project.slug}`
+      redirect(newUrl)
+    }
+  }
+  
+  // For non-UUID IDs or projects without slugs, fetch and render
   const project = await getProjectData(id, lang)
   
   if (!project) {
     notFound()
   }
   
-  // If project has a slug, redirect to slug-based URL
-  if ('slug' in project && project.slug) {
-    const isBg = lang === 'bg'
-    const newUrl = isBg 
-      ? `/bg/obiavi/${project.slug}`
-      : `/listings/${project.slug}`
-    redirect(newUrl)
-  }
-  
-  // Fallback: if no slug, render with ID (for legacy projects)
+  // Fallback: if no slug exists (legacy projects), render with ID
   return <ListingPageContent lang={lang} id={id} />
 }

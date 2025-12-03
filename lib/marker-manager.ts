@@ -4,6 +4,7 @@ import { getDeviceType } from './device-detection'
 
 export interface PropertyData {
   id: string
+  slug?: string // SEO-friendly URL slug from database
   title: string
   priceRange: string
   location: string
