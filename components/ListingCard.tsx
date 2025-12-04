@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { cn, getListingUrl } from '@/lib/utils'
 import { Home, Building, ExternalLink } from 'lucide-react'
 import { trackProjectView } from '@/lib/analytics-batch'
@@ -43,6 +42,7 @@ function summarize(text: string | null | undefined, max = 100) {
 
 export function ListingCard({ listing, isActive, onCardClick, onCardHover, priority = false, priceTranslations }: ListingCardProps) {
   const pathname = usePathname()
+  const router = useRouter()
   const [hasTrackedView, setHasTrackedView] = useState(false)
   const hasMultipleImages = listing.images?.length > 1
   const cardRef = useRef<HTMLElement>(null)
@@ -50,6 +50,23 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover, prior
   // Detect locale from pathname
   const lang = pathname.startsWith('/bg/') ? 'bg' : 'en'
   const listingUrl = getListingUrl(listing, lang)
+  
+  // Handle card click - Desktop: new tab, Mobile: modal
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Don't navigate if clicking on carousel controls
+    const target = e.target as HTMLElement
+    if (target.closest('button')) return
+    
+    const isDesktop = window.innerWidth >= 1024
+    
+    if (isDesktop) {
+      // Desktop: open in new tab for better UX (preserves listings page state)
+      window.open(listingUrl, '_blank', 'noopener,noreferrer')
+    } else {
+      // Mobile: use router for modal interception (preserves map state)
+      router.push(listingUrl)
+    }
+  }
   
   // Embla carousel hook with physics-based configuration
   const {
@@ -124,13 +141,19 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover, prior
   }, [listing.id, hasTrackedView])
 
     return (
-    <Link
-      href={listingUrl}
-      prefetch={false}
+    <div
+      onClick={handleCardClick}
+      role="link"
+      tabIndex={0}
+      onKeyDown={(e) => { if (e.key === 'Enter') handleCardClick(e as unknown as React.MouseEvent) }}
       aria-labelledby={`title_${listing.id}`}
-      className="block clickable"
+      className="block clickable cursor-pointer"
       style={{ transition: 'none', transform: 'translateZ(0)' }}
     >
+      {/* Hidden SEO link for crawlers - they can't execute JavaScript */}
+      <a href={listingUrl} className="sr-only" aria-hidden="true" tabIndex={-1}>
+        {listing.title}
+      </a>
       <article
         ref={cardRef}
         data-id={listing.id}
@@ -263,6 +286,6 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover, prior
          </div>
        </div>
        </article>
-     </Link>
+     </div>
    )
  }

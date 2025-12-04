@@ -283,13 +283,13 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
           </div>
         </div>
 
-        {/* Enhanced thumbnail grid - Mobile Optimized */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mt-4 md:mt-6">
+        {/* Enhanced thumbnail grid - Hidden on mobile (Airbnb style), visible on tablet/desktop */}
+        <div className="hidden md:grid grid-cols-4 gap-4 mt-6">
           {validImages.slice(0, 4).map((image, index) => (
             <div
               key={index}
               className={cn(
-                "relative h-20 md:h-24 lg:h-32 bg-muted rounded-xl overflow-hidden cursor-pointer group shadow-sm hover:shadow-lg transition-all duration-300",
+                "relative h-24 lg:h-32 bg-muted rounded-xl overflow-hidden cursor-pointer group shadow-sm hover:shadow-lg transition-all duration-300",
                 index === mainSelectedIndex && "ring-2 ring-blue-500"
               )}
               onClick={() => mainScrollTo(index)}
@@ -299,17 +299,36 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
                 alt={`${title} - View ${index + 1}`}
                 fill
                 className="object-cover transition-all duration-300 group-hover:scale-110 cursor-pointer"
-                sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw"
+                sizes="(max-width: 1200px) 25vw, 20vw"
               />
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
               <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="bg-white/30 backdrop-blur-sm rounded-full p-1 md:p-2 cursor-pointer">
-                  <Maximize2 className="h-3 w-3 md:h-4 md:w-4 text-white cursor-pointer" />
+                <div className="bg-white/30 backdrop-blur-sm rounded-full p-2 cursor-pointer">
+                  <Maximize2 className="h-4 w-4 text-white cursor-pointer" />
                 </div>
               </div>
             </div>
           ))}
         </div>
+        
+        {/* Mobile carousel dots indicator - Airbnb style */}
+        {hasMultipleImages && (
+          <div className="flex md:hidden justify-center gap-1.5 mt-4">
+            {validImages.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => mainScrollTo(index)}
+                className={cn(
+                  "w-2 h-2 rounded-full transition-all duration-200",
+                  index === mainSelectedIndex 
+                    ? "bg-gray-900 scale-110" 
+                    : "bg-gray-300 hover:bg-gray-400"
+                )}
+                aria-label={`Go to image ${index + 1}`}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       {/* TRUE FULLSCREEN GALLERY - RENDERED VIA PORTAL TO APPEAR ABOVE MODAL */}

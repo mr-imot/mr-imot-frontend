@@ -154,28 +154,28 @@ export function MobileListingModal({
       }`}
       style={{ paddingTop: 'env(safe-area-inset-top)' }}
     >
-      {/* Header */}
+      {/* Header - Airbnb style circular buttons with shadow */}
       <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b border-gray-200 px-4 py-3 flex items-center justify-between">
         <button
           onClick={onClose}
-          className="flex items-center justify-center w-11 h-11 hover:bg-gray-100 active:bg-gray-200 rounded-full transition-colors touch-manipulation"
+          className="flex items-center justify-center w-10 h-10 bg-white rounded-full shadow-lg ring-1 ring-black/10 hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-200 touch-manipulation"
           aria-label="Back"
         >
-          <ArrowLeft className="w-6 h-6 text-gray-700" />
+          <ArrowLeft className="w-5 h-5 text-gray-800" />
         </button>
         
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
           <button 
-            className="flex items-center justify-center w-11 h-11 hover:bg-gray-100 active:bg-gray-200 rounded-full transition-colors touch-manipulation"
+            className="flex items-center justify-center w-10 h-10 bg-white rounded-full shadow-lg ring-1 ring-black/10 hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-200 touch-manipulation"
             aria-label="Save to favorites"
           >
-            <Heart className="w-5 h-5 text-gray-700" />
+            <Heart className="w-5 h-5 text-gray-800" />
           </button>
           <button 
-            className="flex items-center justify-center w-11 h-11 hover:bg-gray-100 active:bg-gray-200 rounded-full transition-colors touch-manipulation"
+            className="flex items-center justify-center w-10 h-10 bg-white rounded-full shadow-lg ring-1 ring-black/10 hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-200 touch-manipulation"
             aria-label="Share"
           >
-            <Share2 className="w-5 h-5 text-gray-700" />
+            <Share2 className="w-5 h-5 text-gray-800" />
           </button>
         </div>
       </div>
