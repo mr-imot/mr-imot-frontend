@@ -241,7 +241,6 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
         {/* Main large image with Embla carousel - Mobile Optimized */}
         <div 
           className="relative h-[50vh] sm:h-[55vh] md:h-[60vh] lg:h-[70vh] bg-muted rounded-xl sm:rounded-2xl overflow-hidden cursor-pointer group shadow-lg sm:shadow-elegant"
-          onClick={() => openFullscreen(mainSelectedIndex)}
         >
           <div className="embla h-full" ref={mainEmblaRef}>
             <div className="embla__container flex h-full">
@@ -252,7 +251,7 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
                       src={getImageKitUrl(image, isMobile ? 800 : 1400, isMobile ? 600 : 900, 95, 'main')}
                       alt={`${title} - View ${index + 1}`}
                       fill
-                      className="object-cover transition-all duration-500 group-hover:scale-110 cursor-pointer"
+                      className="object-cover md:transition-all md:duration-500 md:group-hover:scale-110 cursor-pointer"
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
                       priority={index === 0}
                     />
@@ -262,17 +261,24 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
             </div>
           </div>
           
-          <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          {/* Gradient overlay - Desktop only, pointer-events disabled */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none hidden md:block" />
           
-          {/* Enhanced overlay with expand icon */}
-          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
-            <div className="bg-white/20 backdrop-blur-md rounded-full p-3 md:p-4 text-white transform scale-90 group-hover:scale-100 transition-transform duration-300 cursor-pointer">
-              <Maximize2 className="h-6 w-6 md:h-8 md:w-8 cursor-pointer" />
+          {/* Enhanced overlay with expand icon - Desktop only */}
+          <div 
+            className="absolute inset-0 hidden md:flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 cursor-pointer"
+            onClick={() => openFullscreen(mainSelectedIndex)}
+          >
+            <div className="bg-white/20 backdrop-blur-md rounded-full p-4 text-white transform scale-90 group-hover:scale-100 transition-transform duration-300 cursor-pointer">
+              <Maximize2 className="h-8 w-8 cursor-pointer" />
             </div>
           </div>
           
-          {/* Photo counter - Mobile: "1/4" style, Desktop: "4 photos" style */}
-          <div className="absolute bottom-4 md:bottom-6 right-4 md:right-6 bg-black/70 text-white px-3 md:px-4 py-1 md:py-2 rounded-full backdrop-blur-md flex items-center gap-2">
+          {/* Photo counter - Mobile: "1/4" style (tap to open fullscreen), Desktop: "4 photos" style */}
+          <div 
+            className="absolute bottom-4 md:bottom-6 right-4 md:right-6 bg-black/70 text-white px-3 md:px-4 py-1 md:py-2 rounded-full backdrop-blur-md flex items-center gap-2 cursor-pointer"
+            onClick={() => openFullscreen(mainSelectedIndex)}
+          >
             {/* Mobile: Show current/total like Airbnb */}
             <span className="font-medium text-sm md:hidden">{mainSelectedIndex + 1}/{validImages.length}</span>
             {/* Desktop: Show grid icon + total photos */}
@@ -281,7 +287,7 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
           </div>
 
           {/* Keyboard hint - Hidden on mobile */}
-          <div className="absolute top-4 md:top-6 left-4 md:left-6 bg-white/20 backdrop-blur-md text-white px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden md:block">
+          <div className="absolute top-4 md:top-6 left-4 md:left-6 bg-white/20 backdrop-blur-md text-white px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden md:block pointer-events-none">
             Click to view gallery
           </div>
         </div>
