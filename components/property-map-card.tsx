@@ -168,12 +168,12 @@ export function PropertyMapCard({
           fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
         }}
         onClick={() => {
-          // Check if this is desktop (screen width >= 768px)
-          const isDesktop = window.innerWidth >= 768
+          // Check if this is desktop (screen width >= 1024px) - matches ListingCard breakpoint
+          const isDesktop = window.innerWidth >= 1024
           
           if (isDesktop) {
-            // On desktop, open in new tab
-            window.open(propertyUrl, '_blank')
+            // On desktop, open in new tab with full page (header, nav, footer)
+            window.open(propertyUrl, '_blank', 'noopener,noreferrer')
           } else {
             // On mobile, use router.push (will be intercepted by modal)
             router.push(propertyUrl)
