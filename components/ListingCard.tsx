@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useRouter, usePathname } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import { cn, getListingUrl } from '@/lib/utils'
 import { Home, Building, ExternalLink } from 'lucide-react'
 import { trackProjectView } from '@/lib/analytics-batch'
@@ -42,7 +42,6 @@ function summarize(text: string | null | undefined, max = 100) {
 }
 
 export function ListingCard({ listing, isActive, onCardClick, onCardHover, priority = false, priceTranslations }: ListingCardProps) {
-  const router = useRouter()
   const pathname = usePathname()
   const [hasTrackedView, setHasTrackedView] = useState(false)
   const hasMultipleImages = listing.images?.length > 1
@@ -69,11 +68,10 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover, prior
     }
   })
 
-  // Prefetch the listing URL on mount/visibility for faster navigation
-  useEffect(() => {
-    // Prefetch the route so it's ready when user clicks
-    router.prefetch(listingUrl)
-  }, [router, listingUrl])
+  // NOTE: Disabled prefetch - it was causing 500 errors during RSC streaming
+  // The server components for listing detail pages have issues with RSC prefetch
+  // Navigation will still work, just without prefetching
+  // TODO: Re-enable once RSC prefetch issues are resolved
 
   const handleMouseEnter = () => {
     onCardHover?.(listing.id)
@@ -128,7 +126,7 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover, prior
     return (
     <Link
       href={listingUrl}
-      prefetch={true}
+      prefetch={false}
       aria-labelledby={`title_${listing.id}`}
       className="block clickable"
       style={{ transition: 'none', transform: 'translateZ(0)' }}
