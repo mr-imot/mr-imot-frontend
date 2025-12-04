@@ -1,6 +1,5 @@
 "use client"
 
-import { notFound } from "next/navigation"
 import { useEffect, useState, useRef } from "react"
 import { getProject } from "@/lib/api"
 import { Button } from "@/components/ui/button"
@@ -251,7 +250,18 @@ export default function ListingDetailClient({ projectId, initialProject }: Listi
   }
 
   if (error || !property) {
-    return notFound()
+    // Return error UI instead of notFound() - notFound() in client components
+    // causes 500 errors during RSC prefetch which breaks intercepting routes/modals
+    return (
+      <div className="max-w-4xl mx-auto px-4 py-12 text-center">
+        <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <Building className="w-10 h-10 text-gray-400" />
+        </div>
+        <h2 className="text-2xl font-bold text-gray-800 mb-3">Property Not Found</h2>
+        <p className="text-gray-600 mb-6">The property you&apos;re looking for doesn&apos;t exist or has been removed.</p>
+        <Button onClick={() => window.history.back()}>Go Back</Button>
+      </div>
+    )
   }
 
   const handleSave = () => {

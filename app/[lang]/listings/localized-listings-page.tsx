@@ -942,12 +942,9 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
 
   // Map structural changes are now handled in the earlier useEffect
 
-  // Structural: city change → re-render (force to clear previous state)
-  useEffect(() => {
-    if (markerManagerRef.current) {
-      markerManagerRef.current.renderMarkers(true) // Force render on city change
-    }
-  }, [selectedCity])
+  // NOTE: Removed force marker re-render on city change
+  // Markers now update automatically via memoizedProperties when bounds change
+  // This improves performance by avoiding expensive marker recreation
 
   // Handle Escape key to close fullscreen map
   useEffect(() => {
