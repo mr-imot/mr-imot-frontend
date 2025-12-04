@@ -1,5 +1,6 @@
 import { getDictionary } from '../dictionaries'
 import ContactClient from './contact-client'
+import ContactStructuredData from './contact-structured-data'
 import type { Metadata } from 'next'
 
 interface ContactPageProps {
@@ -32,9 +33,14 @@ export async function generateMetadata({ params }: ContactPageProps): Promise<Me
   const ogLocale = isBg ? 'bg_BG' : 'en_US'
   const ogImage = `${baseUrl}/og-image.png`
   
+  const keywords = isBg
+    ? 'контакт, свържете се, поддръжка, ново строителство, имоти, България, запитвания'
+    : 'contact, support, customer service, new construction, real estate, Bulgaria, inquiries'
+
   return {
     title,
     description,
+    keywords,
     robots: {
       index: true,
       follow: true,
@@ -69,6 +75,13 @@ export async function generateMetadata({ params }: ContactPageProps): Promise<Me
 export default async function ContactPage({ params }: ContactPageProps) {
   const { lang } = await params
   const dict = await getDictionary(lang)
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mrimot.com'
+  const baseUrl = siteUrl.replace(/\/$/, '')
   
-  return <ContactClient dict={dict} lang={lang} />
+  return (
+    <>
+      <ContactStructuredData lang={lang} baseUrl={baseUrl} />
+      <ContactClient dict={dict} lang={lang} />
+    </>
+  )
 }

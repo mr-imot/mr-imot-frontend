@@ -6,14 +6,34 @@ import { ScrollAnimationWrapper } from "@/components/scroll-animation-wrapper"
 import { AngledSeparator } from "@/components/angled-separator"
 import { Mail, Phone, MessageCircle } from "lucide-react"
 import { useLocale } from "@/lib/locale-context"
+import Image from "next/image"
 
 interface ContactClientProps {
   dict: any
   lang: 'en' | 'bg'
 }
 
+// ImageKit transformation helper function
+const getImageKitUrl = (originalUrl: string, width: number, height: number, quality: number = 90) => {
+  if (!originalUrl || !originalUrl.includes('imagekit.io')) {
+    return originalUrl
+  }
+  
+  // Extract the path after the base URL (preserving folder structure like Logo/)
+  const baseUrl = 'https://ik.imagekit.io/ts59gf2ul/'
+  const pathAfterBase = originalUrl.replace(baseUrl, '')
+  
+  // Optimized transformations for mascot image
+  const transformations = `w-${width},h-${height},c-maintain_ratio,cm-focus,fo-auto,q-${quality},f-webp,pr-true,enhancement-true`
+  
+  return `https://ik.imagekit.io/ts59gf2ul/tr:${transformations}/${pathAfterBase}`
+}
+
 export default function ContactClient({ dict, lang }: ContactClientProps) {
   const locale = useLocale()
+  
+  // Mascot image URL
+  const mascotImageUrl = "https://ik.imagekit.io/ts59gf2ul/Logo/mister-imot-customer-support.png"
 
   // Helper function to generate localized URLs
   const href = (en: string, bg: string) => {
@@ -40,7 +60,7 @@ export default function ContactClient({ dict, lang }: ContactClientProps) {
   ]
 
   return (
-    <div className="min-h-screen bg-background">
+    <main className="min-h-screen bg-background">
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-[#e8edf0] via-[#f0f4f6] to-[#eaf0f2]">
         <div className="absolute inset-0 opacity-5">
@@ -57,20 +77,37 @@ export default function ContactClient({ dict, lang }: ContactClientProps) {
         </div>
 
         <div className="container relative py-20 md:py-32">
-          <ScrollAnimationWrapper>
-            <div className="text-center max-w-4xl mx-auto">
-              <div className="inline-flex items-center gap-2 bg-white text-[#111827] px-4 py-2 rounded-full text-sm font-semibold mb-6 shadow-md border border-[#e5e7eb]">
-                <MessageCircle className="w-4 h-4" />
-                {dict.contact?.getInTouch || 'Get in Touch'}
+          <div className="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-12">
+            <ScrollAnimationWrapper>
+              <div className="text-center lg:text-left max-w-4xl lg:flex-1">
+                <div className="inline-flex items-center gap-2 bg-white text-[#111827] px-4 py-2 rounded-full text-sm font-semibold mb-6 shadow-md border border-[#e5e7eb]">
+                  <MessageCircle className="w-4 h-4" />
+                  {dict.contact?.getInTouch || 'Get in Touch'}
+                </div>
+                <h1 className="text-4xl md:text-6xl font-bold text-[#111827] mb-6 leading-tight">
+                  {dict.contact?.heroTitle || 'We\'re Here to'} <span className="text-[#111827]">{dict.contact?.heroTitleHighlight || 'Help'}</span>
+                </h1>
+                <p className="text-xl text-[#374151] leading-relaxed max-w-3xl mx-auto lg:mx-0">
+                  {dict.contact?.heroDescription || 'Have questions about our platform? Want to register as a developer? Need technical support? Our team is here to help you succeed.'}
+                </p>
               </div>
-              <h1 className="text-4xl md:text-6xl font-bold text-[#111827] mb-6 leading-tight">
-                {dict.contact?.heroTitle || 'We\'re Here to'} <span className="text-[#111827]">{dict.contact?.heroTitleHighlight || 'Help'}</span>
-              </h1>
-              <p className="text-xl text-[#374151] leading-relaxed max-w-3xl mx-auto">
-                {dict.contact?.heroDescription || 'Have questions about our platform? Want to register as a developer? Need technical support? Our team is here to help you succeed.'}
-              </p>
-            </div>
-          </ScrollAnimationWrapper>
+            </ScrollAnimationWrapper>
+            
+            {/* Mascot Image */}
+            <ScrollAnimationWrapper delay={0.2}>
+              <div className="relative w-full max-w-md lg:max-w-lg flex-shrink-0 flex items-center justify-center">
+                <Image
+                  src={getImageKitUrl(mascotImageUrl, 600, 600, 90)}
+                  alt={dict.contact?.mascotAlt || "Mister Imot Customer Support Mascot"}
+                  width={600}
+                  height={600}
+                  className="object-contain drop-shadow-2xl w-full h-auto"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 40vw"
+                  priority
+                />
+              </div>
+            </ScrollAnimationWrapper>
+          </div>
         </div>
         <AngledSeparator />
       </section>
@@ -92,17 +129,29 @@ export default function ContactClient({ dict, lang }: ContactClientProps) {
               <ScrollAnimationWrapper key={index} delay={index * 0.1}>
                 <Card className="group bg-white shadow-lg hover:shadow-2xl border border-[#e5e7eb] transition-all duration-300 hover:-translate-y-2 h-full">
                   <CardContent className="p-8 text-center h-full flex flex-col">
-                    <div className="w-16 h-16 bg-[#111827] rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <div className="w-16 h-16 bg-[#111827] rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300" aria-hidden="true">
                       <method.icon className="w-8 h-8 text-white" />
                     </div>
                     <h3 className="text-xl font-bold text-[#111827] mb-3">{method.title}</h3>
                     <p className="text-[#374151] mb-4 flex-grow">{method.description}</p>
-                    <div className="space-y-2 mb-6">
-                      <p className="text-lg font-semibold text-[#111827]">{method.value}</p>
+                    <address className="space-y-2 mb-6 not-italic">
+                      <p className="text-lg font-semibold text-[#111827]">
+                        {method.action.startsWith("tel:") ? (
+                          <a href={method.action} className="hover:underline" aria-label={`Call ${method.value}`}>
+                            {method.value}
+                          </a>
+                        ) : method.action.startsWith("mailto:") ? (
+                          <a href={method.action} className="hover:underline" aria-label={`Email ${method.value}`}>
+                            {method.value}
+                          </a>
+                        ) : (
+                          method.value
+                        )}
+                      </p>
                       <div className="flex items-center justify-center text-sm text-[#6b7280]">
                         {method.available}
                       </div>
-                    </div>
+                    </address>
                     <Button
                       className="w-full bg-[#111827] hover:bg-[#1f2937] text-white font-semibold py-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-300"
                       onClick={() => {
@@ -110,6 +159,7 @@ export default function ContactClient({ dict, lang }: ContactClientProps) {
                           window.open(method.action)
                         }
                       }}
+                      aria-label={`${dict.contact?.contactNow || 'Contact Now'} via ${method.title}`}
                     >
                       {dict.contact?.contactNow || 'Contact Now'}
                     </Button>
@@ -164,6 +214,6 @@ export default function ContactClient({ dict, lang }: ContactClientProps) {
           </ScrollAnimationWrapper>
         </div>
       </section>
-    </div>
+    </main>
   )
 }
