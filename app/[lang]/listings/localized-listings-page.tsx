@@ -13,9 +13,7 @@ import { boundsCache } from "@/lib/property-cache"
 import { MapFetchController, PropertyTypeFilter as MapPropertyTypeFilter } from "@/lib/map-fetch-controller"
 
 import { Card, CardContent } from "@/components/ui/card"
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
 
 import { MapPin, Building, Home, Loader2, Star, Heart, ExternalLink, Maximize2, X, RefreshCw, Search, SlidersHorizontal } from "lucide-react"
 // useProjects hook removed - using MapFetchController exclusively
@@ -25,6 +23,7 @@ import { FilterSkeleton } from "@/components/FilterSkeleton"
 import { LocationSearch } from "@/components/location-search"
 import { DraggableSheet } from "@/components/draggable-sheet"
 import { AirbnbSearch } from "@/components/airbnb-search"
+import { DesktopSearch } from "@/components/desktop-search"
 import { MobileNav } from "@/components/mobile-nav"
 
 // import { AdvancedMapGestures } from "@/lib/advanced-map-gestures"
@@ -1247,80 +1246,23 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
         <div className={`hidden xl:flex ${isMapExpanded ? 'gap-0' : 'gap-8'}`}>
           {/* Left: Scrollable Listings Container */}
           <section className={`min-w-0 ${isMapExpanded ? '!flex-none !w-0 !min-w-0' : ''}`} style={isMapExpanded ? {display: 'none'} : { width: 'calc(100% - max(600px, 40vw) - 2rem)' }}>
-             {/* Desktop Filters aligned with map top */}
+             {/* Desktop Filters with Search - Airbnb-style */}
              <div className="mt-4 mb-4">
               <Card className="shadow-lg border" style={{backgroundColor: '#ffffff', borderColor: 'var(--brand-gray-200)'}}>
                 <CardContent className="p-4 laptop:p-4 xl:p-6">
-                  <div className="flex flex-row items-center justify-center gap-8 laptop:gap-6 xl:gap-12">
-                    {/* City Selector */}
-                    <div className="flex flex-col items-center space-y-2 laptop:space-y-2 xl:space-y-3 w-full xl:w-auto">
-                      <h3 className="text-base font-semibold flex items-center gap-2" style={{color: 'var(--brand-text-primary)'}}>
-                        <MapPin className="w-4 h-4" style={{color: 'var(--brand-btn-primary-bg)'}} />
-                        {dict.listings.filters.chooseCity}
-                      </h3>
-                      <ToggleGroup
-                        type="single"
-                        value={selectedCity}
-                        onValueChange={handleCityChange}
-                        className="flex gap-2 w-full xl:w-auto"
-                      >
-                        <ToggleGroupItem 
-                          value="Sofia" 
-                          className="h-8 laptop:h-8 xl:h-10 px-4 laptop:px-3 xl:px-4 rounded-full border-2 font-medium text-sm laptop:text-sm xl:text-sm shadow-sm hover:shadow-md transition-all duration-300 ease-out bg-transparent border-gray-700 text-gray-900 data-[state=on]:bg-gray-900 data-[state=on]:text-white data-[state=on]:border-gray-900"
-                        >
-                          {dict.listings.cities.sofia}
-                        </ToggleGroupItem>
-                        <ToggleGroupItem 
-                          value="Plovdiv" 
-                          className="h-8 laptop:h-8 xl:h-10 px-4 laptop:px-3 xl:px-4 rounded-full border-2 font-medium text-sm laptop:text-sm xl:text-sm shadow-sm hover:shadow-md transition-all duration-300 ease-out bg-transparent border-gray-700 text-gray-900 data-[state=on]:bg-gray-900 data-[state=on]:text-white data-[state=on]:border-gray-900"
-                        >
-                          {dict.listings.cities.plovdiv}
-                        </ToggleGroupItem>
-                        <ToggleGroupItem 
-                          value="Varna" 
-                          className="h-8 laptop:h-8 xl:h-10 px-4 laptop:px-3 xl:px-4 rounded-full border-2 font-medium text-sm laptop:text-sm xl:text-sm shadow-sm hover:shadow-md transition-all duration-300 ease-out bg-transparent border-gray-700 text-gray-900 data-[state=on]:bg-gray-900 data-[state=on]:text-white data-[state=on]:border-gray-900"
-                        >
-                          {dict.listings.cities.varna}
-                        </ToggleGroupItem>
-                      </ToggleGroup>
-                    </div>
-
-                    {/* Divider */}
-                    <Separator orientation="vertical" className="hidden xl:block h-12" style={{backgroundColor: 'var(--brand-gray-200)'}} />
-
-                    {/* Property Type Filter */}
-                    <div className="flex flex-col items-center space-y-2 laptop:space-y-2 xl:space-y-3 w-full xl:w-auto">
-                      <h3 className="text-base font-semibold flex items-center gap-2" style={{color: 'var(--brand-text-primary)'}}>
-                        <Building className="w-4 h-4" style={{color: 'var(--brand-btn-primary-bg)'}} />
-                        {dict.listings.filters.propertyTypeLabel}
-                      </h3>
-                      <ToggleGroup
-                        type="single"
-                        value={propertyTypeFilter}
-                        onValueChange={handlePropertyTypeFilter}
-                        className="flex gap-2 w-full xl:w-auto justify-center"
-                      >
-                        <ToggleGroupItem 
-                          value="all" 
-                          className="h-8 laptop:h-8 xl:h-10 px-4 laptop:px-3 xl:px-4 rounded-full border-2 font-medium text-sm laptop:text-sm xl:text-sm shadow-sm hover:shadow-md transition-all duration-300 ease-out bg-transparent border-gray-700 text-gray-900 data-[state=on]:bg-gray-900 data-[state=on]:text-white data-[state=on]:border-gray-900"
-                        >
-                          {dict.listings.filters.all}
-                        </ToggleGroupItem>
-                        <ToggleGroupItem 
-                          value="apartments" 
-                          className="h-8 laptop:h-8 xl:h-10 px-3 laptop:px-2 xl:px-3 rounded-full border-2 font-medium text-sm laptop:text-sm xl:text-sm shadow-sm hover:shadow-md transition-all duration-300 ease-out flex items-center gap-1 bg-transparent border-gray-700 text-gray-900 data-[state=on]:bg-gray-900 data-[state=on]:text-white data-[state=on]:border-gray-900"
-                        >
-                          <Building className="w-3 h-3" /> {dict.listings.filters.apartments}
-                        </ToggleGroupItem>
-                        <ToggleGroupItem 
-                          value="houses" 
-                          className="h-8 laptop:h-8 xl:h-10 px-3 laptop:px-2 xl:px-3 rounded-full border-2 font-medium text-sm laptop:text-sm xl:text-sm shadow-sm hover:shadow-md transition-all duration-300 ease-out flex items-center gap-1 bg-transparent border-gray-700 text-gray-900 data-[state=on]:bg-gray-900 data-[state=on]:text-white data-[state=on]:border-gray-900"
-                        >
-                          <Home className="w-3 h-3" /> {dict.listings.filters.houses}
-                        </ToggleGroupItem>
-                      </ToggleGroup>
-                    </div>
-                  </div>
+                  <DesktopSearch
+                    onPlaceSelected={({ lat, lng, zoom }) => {
+                      if (googleMapRef.current) {
+                        googleMapRef.current.panTo({ lat, lng })
+                        googleMapRef.current.setZoom(zoom)
+                      }
+                    }}
+                    onPropertyTypeChange={(type) => handlePropertyTypeFilter(type as PropertyTypeFilter)}
+                    propertyTypeFilter={propertyTypeFilter}
+                    placeholder={dict.listings.filters.chooseCity}
+                    locale={lang}
+                    dict={dict.listings}
+                  />
                 </CardContent>
               </Card>
             </div>
