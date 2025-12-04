@@ -54,7 +54,7 @@ export function middleware(request: NextRequest) {
   // Skip static files and special paths immediately (before any processing)
   // Also skip not-found pages and 404 trigger routes to prevent middleware interference
   // Check for file extensions (including images, fonts, etc.)
-  const hasFileExtension = /\.(png|jpg|jpeg|gif|svg|ico|webp|woff|woff2|ttf|eot|css|js|json|xml|txt|pdf|zip)$/i.test(pathname)
+  const hasFileExtension = /\.(png|jpg|jpeg|gif|svg|ico|webp|woff|woff2|ttf|eot|css|js|json|xml|txt|pdf|zip|html)$/i.test(pathname)
   
   if (
     hasFileExtension || // Any file with extension (.png, .jpg, .xml, .ico, etc.)
@@ -346,6 +346,6 @@ export const config = {
     // - Files with extensions (*.png, *.jpg, *.ico, etc.)
     // - Common static files (robots.txt, sitemap.xml, og-image.png, favicon.ico)
     // Note: Using non-capturing groups (?:...) to avoid "Capturing groups are not allowed" error
-    '/((?!api|_next/static|_next/image|images|favicon|health|og-image|robots|sitemap|.*\\.(?:png|jpg|jpeg|gif|svg|ico|webp|woff|woff2|ttf|eot|css|js|json|xml|txt|pdf|zip)).*)',
+    '/((?!api|_next/static|_next/image|images|favicon|health|og-image|robots|sitemap|.*\\.(?:png|jpg|jpeg|gif|svg|ico|webp|woff|woff2|ttf|eot|css|js|json|xml|txt|pdf|zip|html)).*)',
   ],
 }

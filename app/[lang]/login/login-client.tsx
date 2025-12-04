@@ -272,11 +272,11 @@ function LoginFormContent({ dict, lang }: LoginClientProps) {
       <div className="mt-8 text-center">
         <p className="text-sm" style={{color: 'var(--brand-text-muted)'}}>
           {dict.login?.bySigningIn || "By signing in, you agree to our"}{' '}
-          <Link href={href('terms-of-service.html', 'terms-of-service.html')} className="font-medium hover:underline" style={{color: 'var(--brand-btn-primary-bg)'}}>
+          <Link href={href('terms-of-service', 'terms-of-service')} className="font-medium hover:underline" style={{color: 'var(--brand-btn-primary-bg)'}}>
             {dict.login?.termsOfService || "Terms of Service"}
           </Link>{' '}
           {dict.login?.and || "and"}{' '}
-          <Link href={href('privacy-policy.html', 'privacy-policy.html')} className="font-medium hover:underline" style={{color: 'var(--brand-btn-primary-bg)'}}>
+          <Link href={href('privacy-policy', 'privacy-policy')} className="font-medium hover:underline" style={{color: 'var(--brand-btn-primary-bg)'}}>
             {dict.login?.privacyPolicy || "Privacy Policy"}
           </Link>
         </p>

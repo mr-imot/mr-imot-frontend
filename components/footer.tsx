@@ -38,9 +38,9 @@ export function Footer() {
   ]
 
   const legalLinks = [
-  { href: "/privacy-policy.html", label: t.privacyPolicy },
-  { href: "/terms-of-service.html", label: t.termsOfService },
-  { href: "/cookie-policy.html", label: t.cookiePolicy },
+  { href: href('privacy-policy', 'privacy-policy'), label: t.privacyPolicy },
+  { href: href('terms-of-service', 'terms-of-service'), label: t.termsOfService },
+  { href: href('cookie-policy', 'cookie-policy'), label: t.cookiePolicy },
 ]
 
   // TikTok Icon Component (lucide-react doesn't have TikTok icon)

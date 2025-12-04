@@ -586,26 +586,29 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
       setIsInitialLoading(false)
     }
     
-    // Pan map (animation happens in parallel with data display)
-    if (googleMapRef.current) {
-      googleMapRef.current.panTo(CITY_COORDINATES[selectedCity])
-      googleMapRef.current.setZoom(CITY_COORDINATES[selectedCity].zoom)
-    }
-    if (mobileGoogleMapRef.current) {
-      mobileGoogleMapRef.current.panTo(CITY_COORDINATES[selectedCity])
-      mobileGoogleMapRef.current.setZoom(CITY_COORDINATES[selectedCity].zoom)
-    }
-    
-    // Update bounds state for filtering (use city bounds as approximation)
-    const approxBounds = new google.maps.LatLngBounds(
-      new google.maps.LatLng(cityBounds.sw_lat, cityBounds.sw_lng),
-      new google.maps.LatLng(cityBounds.ne_lat, cityBounds.ne_lng)
-    )
-    
-    if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
-      setMapBounds(approxBounds)
-    } else {
-      setMobileBounds(approxBounds)
+    // Only pan map if Google Maps is loaded
+    if (typeof google !== 'undefined' && google.maps) {
+      // Pan map (animation happens in parallel with data display)
+      if (googleMapRef.current) {
+        googleMapRef.current.panTo(CITY_COORDINATES[selectedCity])
+        googleMapRef.current.setZoom(CITY_COORDINATES[selectedCity].zoom)
+      }
+      if (mobileGoogleMapRef.current) {
+        mobileGoogleMapRef.current.panTo(CITY_COORDINATES[selectedCity])
+        mobileGoogleMapRef.current.setZoom(CITY_COORDINATES[selectedCity].zoom)
+      }
+      
+      // Update bounds state for filtering (use city bounds as approximation)
+      const approxBounds = new google.maps.LatLngBounds(
+        new google.maps.LatLng(cityBounds.sw_lat, cityBounds.sw_lng),
+        new google.maps.LatLng(cityBounds.ne_lat, cityBounds.ne_lng)
+      )
+      
+      if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
+        setMapBounds(approxBounds)
+      } else {
+        setMobileBounds(approxBounds)
+      }
     }
     
     // Fetch fresh data if no cache (with immediate flag)

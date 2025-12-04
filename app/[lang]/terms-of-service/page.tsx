@@ -1,0 +1,28 @@
+import { getDictionary } from '@/app/[lang]/dictionaries'
+import { Metadata } from 'next'
+import TermsOfServiceClient from './terms-of-service-client'
+
+interface TermsOfServicePageProps {
+  params: Promise<{
+    lang: 'en' | 'bg'
+  }>
+}
+
+export async function generateMetadata({ params }: TermsOfServicePageProps): Promise<Metadata> {
+  const { lang } = await params
+  
+  return {
+    title: lang === 'bg' ? 'Условия за Ползване - Мистър Имот' : 'Terms of Service - Mister Imot',
+    description: lang === 'bg' 
+      ? 'Условия за ползване на платформата Мистър Имот'
+      : 'Terms of Service for Mister Imot platform',
+  }
+}
+
+export default async function TermsOfServicePage({ params }: TermsOfServicePageProps) {
+  const { lang } = await params
+  const dict = await getDictionary(lang)
+
+  return <TermsOfServiceClient dict={dict} lang={lang} />
+}
+
