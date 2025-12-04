@@ -634,6 +634,18 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
   }, [selectedCity, propertyTypeFilter, getOrCreateFetchController])
 
   // Build filtered list - MOBILE & DESKTOP both use bounds-based filtering
+  // Helper to check if point is within bounds (no Google Maps dependency)
+  const isPointInBounds = useCallback((lat: number, lng: number, bounds: google.maps.LatLngBounds | null): boolean => {
+    if (!bounds) return true
+    try {
+      const sw = bounds.getSouthWest()
+      const ne = bounds.getNorthEast()
+      return lat >= sw.lat() && lat <= ne.lat() && lng >= sw.lng() && lng <= ne.lng()
+    } catch {
+      return true // If bounds methods fail, show all
+    }
+  }, [])
+
   const filteredProperties = useMemo(() => {
     const all = Array.from(propertyCacheRef.current.values())
     
@@ -650,7 +662,7 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
       if (mobileBounds) {
         return typeFiltered.filter((p) =>
           typeof p.lat === 'number' && typeof p.lng === 'number' &&
-          mobileBounds.contains(new google.maps.LatLng(p.lat, p.lng))
+          isPointInBounds(p.lat, p.lng, mobileBounds)
         )
       }
       return typeFiltered // No bounds yet, show all
@@ -660,13 +672,13 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
     if (mapBounds) {
       return typeFiltered.filter((p) =>
         typeof p.lat === 'number' && typeof p.lng === 'number' &&
-        mapBounds.contains(new google.maps.LatLng(p.lat, p.lng))
+        isPointInBounds(p.lat, p.lng, mapBounds)
       )
     }
     
     // No bounds yet, return all
     return typeFiltered
-  }, [propertyTypeFilter, mapBounds, mobileBounds, cacheVersion])
+  }, [propertyTypeFilter, mapBounds, mobileBounds, cacheVersion, isPointInBounds])
 
   // Memoize properties - use cacheVersion as stable dependency instead of expensive JSON.stringify
   // cacheVersion changes only when actual data changes

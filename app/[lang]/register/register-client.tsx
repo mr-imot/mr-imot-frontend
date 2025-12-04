@@ -877,9 +877,9 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
                     <Checkbox id="acceptTerms" checked={formData.acceptTerms} onCheckedChange={(v) => handleInputChange("acceptTerms", v === true)} disabled={isLoading} />
                     <Label htmlFor="acceptTerms" className="text-sm text-foreground leading-relaxed cursor-pointer flex-1">
                       {dict.register?.iAgreeToThe || "I agree to the"}{' '}
-                      <a href="/terms-of-service.html" target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-4">{dict.register?.termsOfService || "Terms of Service"}</a>{' '}
+                      <Link href={href('terms-of-service', 'terms-of-service')} target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-4">{dict.register?.termsOfService || "Terms of Service"}</Link>{' '}
                       {dict.register?.and || "and"}{' '}
-                      <a href="/privacy-policy.html" target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-4">{dict.register?.privacyPolicy || "Privacy Policy"}</a>
+                      <Link href={href('privacy-policy', 'privacy-policy')} target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-4">{dict.register?.privacyPolicy || "Privacy Policy"}</Link>
                       <span className="text-destructive ml-1 font-bold">*</span>
                     </Label>
                   </div>

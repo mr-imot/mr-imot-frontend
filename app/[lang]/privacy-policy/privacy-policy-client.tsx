@@ -10,7 +10,7 @@ export default function PrivacyPolicyClient({ dict, lang }: PrivacyPolicyClientP
     <div className="min-h-screen bg-muted/30 py-12 px-4">
       <div className="max-w-4xl mx-auto">
         <div className="bg-card rounded-lg shadow-sm p-8 md:p-12">
-          <h1 className="text-3xl md:text-4xl font-bold mb-4 text-emerald-600 border-b-3 border-emerald-600 pb-3">
+          <h1 className="text-3xl md:text-4xl font-bold mb-4 text-emerald-600 border-b-4 border-emerald-600 pb-3">
             {lang === 'bg' ? '🔒 Политика за Поверителност' : '🔒 Privacy Policy'}
           </h1>
           

@@ -10,7 +10,7 @@ export default function TermsOfServiceClient({ dict, lang }: TermsOfServiceClien
     <div className="min-h-screen bg-muted/30 py-12 px-4">
       <div className="max-w-4xl mx-auto">
         <div className="bg-card rounded-lg shadow-sm p-8 md:p-12">
-          <h1 className="text-3xl md:text-4xl font-bold mb-4 text-blue-600 border-b-3 border-blue-600 pb-3">
+          <h1 className="text-3xl md:text-4xl font-bold mb-4 text-blue-600 border-b-4 border-blue-600 pb-3">
             {lang === 'bg' ? '📜 Условия за Ползване' : '📜 Terms of Service'}
           </h1>
           
