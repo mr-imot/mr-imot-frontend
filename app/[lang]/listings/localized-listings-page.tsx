@@ -1468,7 +1468,8 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
              <div className="listings-map-container overflow-y-auto pr-4 scrollbar-thin" style={{
                scrollbarColor: 'var(--brand-gray-300) var(--brand-gray-100)'
              }}>
-              {shouldShowLoading || isBoundsLoading ? (
+              {/* Only show full loading spinner if we have NO data at all */}
+              {(shouldShowLoading || isBoundsLoading) && filteredProperties.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-24 space-y-6">
                   <div className="relative">
                     <Loader2 className="h-12 w-12 animate-spin" style={{color: 'var(--brand-btn-primary-bg)'}} />
