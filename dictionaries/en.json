@@ -537,6 +537,11 @@
         }
       ]
     },
+    "imageAlt": {
+      "dashboard": "Mister Imot Dashboard - Property Management Interface",
+      "mapView": "Mister Imot Mobile App - Map View Showing Properties",
+      "locationView": "Mister Imot Mobile App - Location View with Property Details"
+    },
     "ourApproach": {
       "title": "Our Approach",
       "point1": {

@@ -61,7 +61,7 @@ export default function AboutClient({ dict, lang }: AboutClientProps) {
   ]
 
   return (
-    <div className="min-h-screen" style={{backgroundColor: '#ffffff'}}>
+    <main className="min-h-screen" style={{backgroundColor: '#ffffff'}}>
       {/* About Mister Imot Section - First Section */}
       <section className="py-24 md:py-32 bg-white">
         <div className="container">
@@ -126,7 +126,7 @@ export default function AboutClient({ dict, lang }: AboutClientProps) {
                   <div className="relative aspect-[16/10] w-full rounded-2xl overflow-hidden ring-1 ring-black/10 shadow-[0_20px_60px_rgba(2,6,23,0.15)] bg-white">
                     <Image
                       src={getImageKitUrl("https://ik.imagekit.io/ts59gf2ul/about-us/372shots_so.png?updatedAt=1762858783236", 1920, 1200, 95)}
-                      alt="Mister Imot Dashboard - Property Management"
+                      alt={dict.about?.imageAlt?.dashboard || "Mister Imot Dashboard - Property Management"}
                       fill
                       className="object-cover"
                       sizes="(max-width: 768px) 100vw, 640px"
@@ -178,7 +178,7 @@ export default function AboutClient({ dict, lang }: AboutClientProps) {
                   <div className="relative aspect-[9/16] w-full rounded-[2rem] overflow-hidden ring-1 ring-black/10 shadow-[0_12px_40px_rgba(2,6,23,0.16)] bg-white">
                     <Image
                       src={getImageKitUrl("https://ik.imagekit.io/ts59gf2ul/about-us/108shots_so.png?updatedAt=1762858783223", 900, 1600, 95)}
-                      alt="Mister Imot Mobile - Map View"
+                      alt={dict.about?.imageAlt?.mapView || "Mister Imot Mobile - Map View"}
                       fill
                       className="object-cover"
                       sizes="(max-width: 768px) 80vw, 320px"
@@ -260,7 +260,7 @@ export default function AboutClient({ dict, lang }: AboutClientProps) {
                   <div className="relative aspect-[9/16] w-full rounded-[2rem] overflow-hidden ring-1 ring-black/10 shadow-[0_12px_40px_rgba(2,6,23,0.16)] bg-white">
                     <Image
                       src={getImageKitUrl("https://ik.imagekit.io/ts59gf2ul/about-us/701shots_so.png?updatedAt=1762858783237", 900, 1600, 95)}
-                      alt="Mister Imot Mobile - Location View"
+                      alt={dict.about?.imageAlt?.locationView || "Mister Imot Mobile - Location View"}
                       fill
                       className="object-cover"
                       sizes="(max-width: 768px) 80vw, 320px"
@@ -344,6 +344,6 @@ export default function AboutClient({ dict, lang }: AboutClientProps) {
           </ScrollAnimationWrapper>
         </div>
       </section>
-    </div>
+    </main>
   )
 }

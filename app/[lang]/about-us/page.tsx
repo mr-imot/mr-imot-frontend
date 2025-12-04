@@ -1,5 +1,6 @@
 import { getDictionary } from '../dictionaries'
 import AboutClient from './about-client'
+import AboutStructuredData from './about-structured-data'
 import type { Metadata } from 'next'
 
 interface AboutPageProps {
@@ -29,10 +30,17 @@ export async function generateMetadata({ params }: AboutPageProps): Promise<Meta
     : `${siteUrl}/en/about-mister-imot`
   
   const ogLocale = isBg ? 'bg_BG' : 'en_US'
+  const baseUrl = siteUrl.replace(/\/$/, '')
+  const ogImage = `${baseUrl}/og-image.png`
   
+  const keywords = isBg
+    ? 'за нас, мистър имот, ново строителство, България, платформа, имоти, строители, без брокери, мисия, роудмап'
+    : 'about us, mister imot, new construction, Bulgaria, platform, real estate, developers, no brokers, mission, roadmap'
+
   return {
     title,
     description,
+    keywords,
     robots: {
       index: true, // Explicitly allow indexing of about page
       follow: true,
@@ -40,9 +48,9 @@ export async function generateMetadata({ params }: AboutPageProps): Promise<Meta
     alternates: {
       canonical: canonicalUrl,
       languages: {
-        en: `${siteUrl}/en/about-mister-imot`,
-        bg: `${siteUrl}/bg/za-mistar-imot`,
-        'x-default': `${siteUrl}/en/about-mister-imot`,
+        en: `${baseUrl}/en/about-mister-imot`,
+        bg: `${baseUrl}/bg/za-mistar-imot`,
+        'x-default': `${baseUrl}/en/about-mister-imot`,
       },
     },
     openGraph: {
@@ -53,11 +61,13 @@ export async function generateMetadata({ params }: AboutPageProps): Promise<Meta
       locale: ogLocale,
       alternateLocale: ['en_US', 'bg_BG'],
       type: 'website',
+      images: [{ url: ogImage }],
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
+      images: [ogImage],
     },
   }
 }
@@ -65,6 +75,13 @@ export async function generateMetadata({ params }: AboutPageProps): Promise<Meta
 export default async function AboutPage({ params }: AboutPageProps) {
   const { lang } = await params
   const dict = await getDictionary(lang)
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mrimot.com'
+  const baseUrl = siteUrl.replace(/\/$/, '')
 
-  return <AboutClient dict={dict} lang={lang} />
+  return (
+    <>
+      <AboutStructuredData lang={lang} baseUrl={baseUrl} />
+      <AboutClient dict={dict} lang={lang} />
+    </>
+  )
 }
