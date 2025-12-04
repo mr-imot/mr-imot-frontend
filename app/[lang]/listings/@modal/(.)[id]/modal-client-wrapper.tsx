@@ -36,8 +36,13 @@ export function ModalNotFound({ lang }: { lang: 'en' | 'bg' }) {
 
 export function ModalClientWrapper({ children }: ModalClientWrapperProps) {
   const router = useRouter()
-  const [isMobile, setIsMobile] = useState(false)
   const scrollPositionRef = useRef<number>(0)
+  
+  // Mobile detection - check on initial render to avoid flash
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window === 'undefined') return false
+    return window.innerWidth < 1024 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+  })
 
   // Share functionality
   const handleShare = async () => {
@@ -61,10 +66,10 @@ export function ModalClientWrapper({ children }: ModalClientWrapperProps) {
     }
   }
 
-  // Mobile detection
+  // Mobile detection - update on resize, using 1024px breakpoint (matches ListingCard)
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent))
+      setIsMobile(window.innerWidth < 1024 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent))
     }
     checkMobile()
     window.addEventListener('resize', checkMobile)
@@ -94,7 +99,13 @@ export function ModalClientWrapper({ children }: ModalClientWrapperProps) {
     }
   }, [isMobile])
 
-  // Show modal on both mobile and desktop (Airbnb experience)
+  // DESKTOP: Don't show modal wrapper - let the full page with header render
+  // This handles cases where the page is opened in a new tab
+  if (!isMobile) {
+    return <>{children}</>
+  }
+
+  // MOBILE ONLY: Show modal with back button (Airbnb experience)
   return (
     <div className="fixed inset-0 z-[100] bg-white flex flex-col">
       {/* Modal Header with Back Button and Share Button - Airbnb style */}
