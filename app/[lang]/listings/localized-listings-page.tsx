@@ -770,14 +770,44 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
       mobileGoogleMapRef.current.setZoom(CITY_COORDINATES[selectedCity].zoom)
     }
     
-    // Reset flag after map animation completes (1 second should be enough)
+    // Reset flag and update bounds after map animation completes
     setTimeout(() => {
       setIsProgrammaticMove(false)
-    }, 1000)
+      
+      // CRITICAL: Update mapBounds to match new city center
+      // This fixes the race condition where filteredProperties uses stale bounds
+      if (typeof window !== 'undefined' && window.innerWidth >= 1024 && googleMapRef.current) {
+        const newBounds = googleMapRef.current.getBounds()
+        if (newBounds) {
+          setMapBounds(newBounds)
+          // Trigger fetch for new bounds
+          const sw = newBounds.getSouthWest()
+          const ne = newBounds.getNorthEast()
+          getOrCreateFetchController().schedule(
+            sw.lat(), sw.lng(), ne.lat(), ne.lng(),
+            propertyTypeFilter as MapPropertyTypeFilter,
+            { immediate: true }
+          )
+        }
+      }
+      
+      // Same for mobile
+      if (typeof window !== 'undefined' && window.innerWidth < 1024 && mobileGoogleMapRef.current) {
+        const newBounds = mobileGoogleMapRef.current.getBounds()
+        if (newBounds) {
+          setMobileBounds(newBounds)
+          const sw = newBounds.getSouthWest()
+          const ne = newBounds.getNorthEast()
+          getOrCreateFetchController().schedule(
+            sw.lat(), sw.lng(), ne.lat(), ne.lng(),
+            propertyTypeFilter as MapPropertyTypeFilter,
+            { immediate: true }
+          )
+        }
+      }
+    }, 800) // Slightly less than 1s to ensure smooth transition
     
-    // Map bounds change will trigger cache-first fetch automatically
-    // No explicit fetch needed - bounds update listener handles it
-  }, [selectedCity])
+  }, [selectedCity, propertyTypeFilter, getOrCreateFetchController])
 
   // Build filtered list - MOBILE & DESKTOP both use bounds-based filtering
   const filteredProperties = useMemo(() => {
