@@ -1,7 +1,7 @@
-import { notFound } from "next/navigation"
 import ListingDetailClient from './listing-detail-client'
 import PausedListingPage from './paused-listing-page'
 import DeletedListingPage from './deleted-listing-page'
+import NotFoundPage from './not-found-page'
 import { Project, PausedProject, DeletedProject } from '@/lib/api'
 import ListingStructuredData from './listing-structured-data'
 
@@ -16,10 +16,8 @@ async function getProjectData(id: string, lang: string): Promise<Project | Pause
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
     const baseUrl = apiUrl.replace(/\/$/, '')
-    // Include lang in cache key to ensure re-fetch on language change
-    // Use no-store to prevent stale cache when switching languages
-    const response = await fetch(`${baseUrl}/api/v1/projects/${id}`, {
-      cache: 'no-store', // Disable cache to ensure fresh data on language switch
+    const response = await fetch(`${baseUrl}/api/v1/projects/${encodeURIComponent(id)}`, {
+      cache: 'no-store',
       headers: {
         'Content-Type': 'application/json',
       },
@@ -27,14 +25,13 @@ async function getProjectData(id: string, lang: string): Promise<Project | Pause
 
     if (!response.ok) {
       if (response.status === 404) {
-        return null // Project never existed
+        return null
       }
       throw new Error(`Failed to fetch project: ${response.statusText}`)
     }
 
     const data = await response.json()
     
-    // Check if this is a status-only response (paused/deleted)
     if (data.status === 'paused' || data.status === 'deleted') {
       return data as PausedProject | DeletedProject
     }
@@ -54,9 +51,9 @@ export default async function ListingPageContent({
   // Use initial project if provided, otherwise fetch
   const project = initialProject || await getProjectData(id, lang)
   
-  // Project never existed - return 404
+  // Project never existed - return not found page (don't throw)
   if (!project) {
-    notFound()
+    return <NotFoundPage lang={lang} />
   }
   
   // Paused project - return paused page with NO project data

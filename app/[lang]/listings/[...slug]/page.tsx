@@ -1,6 +1,7 @@
-import { notFound, redirect } from "next/navigation"
+import { redirect } from "next/navigation"
 import type { Metadata } from 'next'
 import ListingPageContent from '../[id]/listing-page-content'
+import NotFoundPage from '../[id]/not-found-page'
 import { Project, PausedProject, DeletedProject } from '@/lib/api'
 
 interface PageProps {
@@ -214,18 +215,19 @@ export default async function ListingPage({ params }: PageProps) {
     redirect(isBg ? '/bg/obiavi' : '/listings')
   }
   
-  // Fetch project once - handle errors gracefully
+  // Fetch project once - handle errors gracefully (don't throw)
   let project: Project | PausedProject | DeletedProject | null = null
   try {
     project = await getProjectData(identifier, lang)
   } catch (error) {
     console.error(`Error fetching project with identifier "${identifier}":`, error)
-    notFound()
+    // Return error page instead of throwing (prevents 500 on RSC prefetch)
+    return <NotFoundPage lang={lang} />
   }
   
   if (!project) {
-    // Project not found - return 404 immediately
-    notFound()
+    // Project not found - return error page instead of throwing
+    return <NotFoundPage lang={lang} />
   }
   
   // Only redirect if accessing via old UUID format AND project has a slug

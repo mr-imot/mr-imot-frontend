@@ -161,10 +161,23 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  // Check auth on component mount
+  // Check auth on component mount - only on pages that need auth
+  // Skip on public pages like /listings, /obiavi to avoid 401 noise
   useEffect(() => {
     const initAuth = async () => {
       try {
+        // Skip auth check on public listing pages to avoid 401 console errors
+        if (typeof window !== 'undefined') {
+          const path = window.location.pathname
+          const isPublicListingPage = path.includes('/obiavi') || 
+                                       path.includes('/listings') ||
+                                       path === '/' ||
+                                       path.startsWith('/bg') && !path.includes('/developer') && !path.includes('/admin')
+          if (isPublicListingPage) {
+            setIsLoading(false)
+            return
+          }
+        }
         await checkAuth();
       } catch (error) {
         console.error('Auth initialization failed:', error);
