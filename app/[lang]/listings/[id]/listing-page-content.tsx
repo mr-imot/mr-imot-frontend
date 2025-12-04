@@ -11,13 +11,13 @@ interface ListingPageContentProps {
   initialProject?: Project | PausedProject | DeletedProject
 }
 
-// Server-side function to fetch project data
+// Server-side function to fetch project data with caching
 async function getProjectData(id: string, lang: string): Promise<Project | PausedProject | DeletedProject | null> {
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
     const baseUrl = apiUrl.replace(/\/$/, '')
     const response = await fetch(`${baseUrl}/api/v1/projects/${encodeURIComponent(id)}`, {
-      cache: 'no-store',
+      next: { revalidate: 60 }, // Cache for 60 seconds - fast page loads
       headers: {
         'Content-Type': 'application/json',
       },

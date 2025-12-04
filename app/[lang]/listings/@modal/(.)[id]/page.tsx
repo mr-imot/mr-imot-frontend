@@ -9,13 +9,13 @@ interface PageProps {
   }>
 }
 
-// Server-side fetch to pre-validate the project exists
+// Server-side fetch with caching - revalidate every 60 seconds for fast modal loads
 async function getProjectData(id: string): Promise<Project | PausedProject | DeletedProject | null> {
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
     const baseUrl = apiUrl.replace(/\/$/, '')
     const response = await fetch(`${baseUrl}/api/v1/projects/${encodeURIComponent(id)}`, {
-      cache: 'no-store',
+      next: { revalidate: 60 }, // Cache for 60 seconds - makes modal instant on repeat clicks
       headers: { 'Content-Type': 'application/json' },
     })
     if (!response.ok) return null

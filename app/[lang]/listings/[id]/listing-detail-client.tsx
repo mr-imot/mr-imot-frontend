@@ -16,7 +16,7 @@ import {
   Euro,
   Navigation,
 } from "lucide-react"
-import { recordProjectView, recordProjectPhoneClick, recordProjectWebsiteClick, Project } from "@/lib/api"
+import { recordProjectPhoneClick, recordProjectWebsiteClick, Project } from "@/lib/api"
 import { PropertyGallery } from "@/components/PropertyGallery"
 import { FeaturesDisplay } from "@/components/FeaturesDisplay"
 import { ensureGoogleMaps } from "@/lib/google-maps"
@@ -205,14 +205,12 @@ export default function ListingDetailClient({ projectId, initialProject }: Listi
     if (initialProject) {
       setProperty(initialProject)
       setLoading(false)
-      // Still record the view
-      recordProjectView(projectId).catch(err => 
-        console.warn("Failed to record project view:", err)
-      )
+      // NOTE: View tracking is handled by ListingCard when card becomes visible in grid
+      // Don't double-track here - it would count modal opens as separate views
       return
     }
 
-    // Only fetch if we don't have initial data
+    // Only fetch if we don't have initial data (direct URL access)
     const loadProperty = async () => {
       try {
         if (!projectId) {
@@ -227,12 +225,8 @@ export default function ListingDetailClient({ projectId, initialProject }: Listi
         }
         
         setProperty(data)
-        
-        try {
-          await recordProjectView(projectId)
-        } catch (viewError) {
-          console.warn("Failed to record project view:", viewError)
-        }
+        // NOTE: For direct URL access (not from grid), view is not pre-tracked
+        // But we don't track here either - views are only counted when visible in listings grid
         
       } catch (err) {
         console.error("Error loading property:", err)
@@ -243,7 +237,7 @@ export default function ListingDetailClient({ projectId, initialProject }: Listi
     }
 
     loadProperty()
-  }, [projectId, initialProject]) // Add initialProject to dependencies
+  }, [projectId, initialProject])
 
   if (loading) {
     return <LoadingSkeletonPropertyDetail />
