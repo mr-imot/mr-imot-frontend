@@ -21,7 +21,9 @@ export function DraggableSheet({
   const [currentY, setCurrentY] = useState(0)
   const sheetRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
-  const dragFromHandleRef = useRef(false)
+
+  // CRITICAL: Only allow scrolling when at the LAST (highest) snap point
+  const isFullyExpanded = currentSnap === snapPoints.length - 1
 
   const handleStart = useCallback((clientY: number) => {
     setIsDragging(true)
@@ -44,117 +46,94 @@ export function DraggableSheet({
     let newSnap = currentSnap
 
     if (deltaY > threshold && currentSnap < snapPoints.length - 1) {
-      // Swiped up - expand
+      // Swiped up - expand to next snap
       newSnap = currentSnap + 1
     } else if (deltaY < -threshold && currentSnap > 0) {
-      // Swiped down - collapse
-      newSnap = currentSnap - 1
+      // Swiped down - collapse to previous snap
+      // But only if we're at the top of scroll (or not fully expanded)
+      const content = contentRef.current
+      const canCollapse = !isFullyExpanded || (content && content.scrollTop <= 1)
+      if (canCollapse) {
+        newSnap = currentSnap - 1
+      }
     }
 
     setCurrentSnap(newSnap)
     onSnapChange?.(newSnap)
-  }, [isDragging, startY, currentY, currentSnap, snapPoints.length, onSnapChange])
+  }, [isDragging, startY, currentY, currentSnap, snapPoints.length, onSnapChange, isFullyExpanded])
 
-  // Mouse events
+  // Mouse events (desktop only)
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault()
-    dragFromHandleRef.current = true
     handleStart(e.clientY)
   }
 
   const handleMouseMove = useCallback((e: MouseEvent) => handleMove(e.clientY), [handleMove])
   const handleMouseUp = useCallback(() => handleEnd(), [handleEnd])
 
-  // Touch events - SMART DETECTION: drag vs scroll
+  // Touch events - SIMPLE AIRBNB-LIKE BEHAVIOR:
+  // - If NOT fully expanded: all touches are for dragging (expand/collapse)
+  // - If fully expanded: content scrolls, can only collapse when at top AND dragging down
   const handleTouchStart = (e: React.TouchEvent) => {
-    const content = contentRef.current
-    if (!content) return
-
     const touchY = e.touches[0].clientY
-    const isScrollable = currentSnap >= 1 // Can potentially scroll when expanded
-    const scrollTop = content.scrollTop
-    const scrollHeight = content.scrollHeight
-    const clientHeight = content.clientHeight
-    const isAtTop = scrollTop <= 0
-    const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1
-
-    // CRITICAL FIX: Only allow scroll if:
-    // 1. Sheet is expanded (currentSnap >= 1)
-    // 2. Content is scrollable (scrollHeight > clientHeight)
-    // 3. User is NOT at scroll boundary trying to drag
+    const target = e.target as HTMLElement
+    const content = contentRef.current
     
-    if (isScrollable && scrollHeight > clientHeight) {
-      // If at top and swiping down, OR at bottom and swiping up, allow dragging
-      // Otherwise, allow native scroll
-      const target = e.target as HTMLElement
-      
-      // Always capture drag from handle area
-      if (target.closest('[data-drag-handle]')) {
-        e.preventDefault()
-        dragFromHandleRef.current = true
-        handleStart(touchY)
-        return
-      }
-
-      // If at scroll boundary, prepare to capture drag on move
-      if (isAtTop || isAtBottom) {
-        // Don't prevent default yet, wait for move direction
-        dragFromHandleRef.current = false
-        handleStart(touchY)
-        return
-      }
-      
-      // Middle of scroll, allow native scroll, don't start drag
+    // Always capture drag from handle area
+    if (target.closest('[data-drag-handle]')) {
+      e.preventDefault()
+      handleStart(touchY)
       return
-    } else {
-      // Sheet is collapsed or content not scrollable, always capture for drag
-      // Only prevent default if we're actually going to handle the drag
-      dragFromHandleRef.current = true
+    }
+
+    // If NOT fully expanded, capture ALL touches for drag (no scrolling allowed)
+    if (!isFullyExpanded) {
+      e.preventDefault()
+      handleStart(touchY)
+      return
+    }
+
+    // Fully expanded: check if at top of scroll
+    const scrollTop = content?.scrollTop ?? 0
+    const isAtTop = scrollTop <= 1
+    
+    if (isAtTop) {
+      // At top - might be collapse gesture, start tracking
       handleStart(touchY)
     }
+    // If not at top, don't start drag - let native scroll work
   }
 
   const handleTouchMove = useCallback((e: TouchEvent) => {
-    if (!isDragging) return
-    
     const content = contentRef.current
-    if (!content) return
-
     const touchY = e.touches[0].clientY
-    const deltaY = startY - touchY
-    const isScrollable = currentSnap >= 1
-    const scrollTop = content.scrollTop
-    const scrollHeight = content.scrollHeight
-    const clientHeight = content.clientHeight
-    const isAtTop = scrollTop <= 0
-    const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1
+    const deltaY = startY - touchY // Positive = swiping up, Negative = swiping down
 
-    // If drag started from the handle or when sheet isn't scrollable, always capture drag
-    if (dragFromHandleRef.current || !(isScrollable && scrollHeight > clientHeight)) {
+    // If not fully expanded, always capture for dragging
+    if (!isFullyExpanded) {
       e.preventDefault()
       handleMove(touchY)
       return
     }
 
-    // If expanded and scrollable, only prevent if at boundary
-    if (isScrollable && scrollHeight > clientHeight) {
-      if ((isAtTop) || (isAtBottom)) {
-        // At boundary, prevent and allow drag
+    // Fully expanded - smart handling
+    if (isDragging) {
+      const scrollTop = content?.scrollTop ?? 0
+      const isAtTop = scrollTop <= 1
+      
+      // At top and swiping DOWN = collapse gesture
+      if (isAtTop && deltaY < 0) {
         e.preventDefault()
         handleMove(touchY)
-      } else {
-        // Not at boundary, release drag and allow scroll
-        setIsDragging(false)
+        return
       }
-    } else {
-      // Collapsed or not scrollable, always drag
-      e.preventDefault()
-      handleMove(touchY)
+      
+      // Swiping UP or no longer at top = let scroll take over
+      setIsDragging(false)
     }
-  }, [isDragging, startY, currentSnap, handleMove])
+  }, [isDragging, startY, isFullyExpanded, handleMove])
 
   const handleTouchEnd = useCallback(() => {
-    dragFromHandleRef.current = false
     handleEnd()
   }, [handleEnd])
 
@@ -185,7 +164,6 @@ export function DraggableSheet({
 
   const height = snapPoints[currentSnap]
   const dragOffset = isDragging ? Math.max(0, (startY - currentY) / 10) : 0
-  const canScroll = currentSnap >= 1
 
   return (
     <div
@@ -193,7 +171,7 @@ export function DraggableSheet({
       className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl transition-all duration-300 ease-out z-40"
       style={{
         height: `${Math.min(height + dragOffset, 100)}vh`,
-        touchAction: 'none',
+        touchAction: isFullyExpanded ? 'pan-y' : 'none',
         paddingBottom: 'env(safe-area-inset-bottom)',
         overscrollBehavior: 'contain'
       }}
@@ -201,20 +179,21 @@ export function DraggableSheet({
       {/* Drag Handle */}
       <div
         data-drag-handle
-        className="absolute top-0 left-0 right-0 h-20 flex items-center justify-center cursor-grab active:cursor-grabbing z-10"
+        className="absolute top-0 left-0 right-0 h-12 flex items-center justify-center cursor-grab active:cursor-grabbing z-10 bg-white rounded-t-3xl"
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
       >
-        <div className="w-16 h-2 bg-gray-300 rounded-full" />
+        <div className="w-12 h-1.5 bg-gray-300 rounded-full" />
       </div>
 
-      {/* Content */}
+      {/* Content - only scrollable when fully expanded */}
       <div 
         ref={contentRef}
-        className="h-full pt-20 overscroll-contain"
+        className="h-full pt-12 overscroll-contain"
         style={{ 
-          overflowY: canScroll ? 'auto' as const : 'hidden' as const, 
-          WebkitOverflowScrolling: 'touch' 
+          overflowY: isFullyExpanded ? 'auto' : 'hidden', 
+          WebkitOverflowScrolling: 'touch',
+          touchAction: isFullyExpanded ? 'pan-y' : 'none'
         }}
         onTouchStart={handleTouchStart}
       >
