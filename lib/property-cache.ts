@@ -27,13 +27,14 @@ function getBoundsCacheKey(
   ne_lng: number,
   propertyType: string
 ): string {
-  // Round bounds to 0.001° precision for cache key (approximately 100m)
-  // More granular than 0.01° to reduce unnecessary refetches on small pans
+  // Round bounds to 0.05° precision (~5km tiles)
+  // This ensures cache hits when returning to the same general area
+  // Small pans within 5km will hit the same cache entry
   const rounded = {
-    sw_lat: Math.round(sw_lat * 1000) / 1000,
-    sw_lng: Math.round(sw_lng * 1000) / 1000,
-    ne_lat: Math.round(ne_lat * 1000) / 1000,
-    ne_lng: Math.round(ne_lng * 1000) / 1000,
+    sw_lat: Math.round(sw_lat * 20) / 20,
+    sw_lng: Math.round(sw_lng * 20) / 20,
+    ne_lat: Math.round(ne_lat * 20) / 20,
+    ne_lng: Math.round(ne_lng * 20) / 20,
   }
   return `bounds-${rounded.sw_lat}-${rounded.sw_lng}-${rounded.ne_lat}-${rounded.ne_lng}-${propertyType}`
 }

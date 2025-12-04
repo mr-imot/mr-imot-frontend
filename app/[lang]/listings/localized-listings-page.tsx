@@ -18,8 +18,7 @@ import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 
 import { MapPin, Building, Home, Loader2, Star, Heart, ExternalLink, Maximize2, X, RefreshCw, Search, SlidersHorizontal } from "lucide-react"
-import { useProjects } from "@/hooks/use-projects"
-import { getProjects } from "@/lib/api"
+// useProjects hook removed - using MapFetchController exclusively
 import { PropertyMapCard } from "@/components/property-map-card"
 import { ListingCardSkeleton, ListingCardSkeletonGrid } from "@/components/ListingCardSkeleton"
 import { FilterSkeleton } from "@/components/FilterSkeleton"
@@ -139,22 +138,13 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
   }>({})
   const [localError, setLocalError] = useState<string | null>(null)
   const [isInitialLoading, setIsInitialLoading] = useState(true)
-  const [isProgrammaticMove, setIsProgrammaticMove] = useState(false)
+  // isProgrammaticMove removed - no longer blocking during city switch
   // const [advancedMapGestures, setAdvancedMapGestures] = useState<AdvancedMapGestures | null>(null)
   const [headerSnapPct, setHeaderSnapPct] = useState<number>(90)
   const [desktopMapReady, setDesktopMapReady] = useState(false)
   const [mobileMapReady, setMobileMapReady] = useState(false)
   
-  // Track current fetch request to prevent race conditions
-  const currentFetchRef = useRef<number>(0)
-  
-  // Map bounds state for API calls
-  const [currentBounds, setCurrentBounds] = useState<{
-    sw_lat: number
-    sw_lng: number
-    ne_lat: number
-    ne_lng: number
-  } | null>(null)
+  // Loading state for bounds-based fetches
   const [isBoundsLoading, setIsBoundsLoading] = useState(false)
   
   // Debounce hover updates
@@ -259,8 +249,6 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
 
   // Airbnb-style pure bounds-based caching system
   const propertyCacheRef = useRef<Map<string, PropertyData>>(new Map())
-  const loadedTilesRef = useRef<Set<string>>(new Set())
-  const [fetchParams, setFetchParams] = useState<any>({ per_page: 0 })
   const [cacheVersion, setCacheVersion] = useState(0)
 
   // MapFetchController – handles debounce, throttle, and request cancellation
@@ -294,191 +282,16 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
     return fetchControllerRef.current
   }, [])
 
-  // Unified: Bounds-based API hook (works for both desktop and mobile)
-  const { projects: apiProjects, loading, error } = useProjects(fetchParams)
+  // SIMPLIFIED: All fetching goes through MapFetchController
+  // No duplicate fetch paths - single source of truth
+  const loading = isBoundsLoading
+  const error = localError
   
-  // Fetch data for bounds + property type
-  const fetchDataForBounds = useCallback(async (
-    sw_lat: number,
-    sw_lng: number,
-    ne_lat: number,
-    ne_lng: number,
-    propertyType: PropertyTypeFilter
-  ): Promise<PropertyData[]> => {
-    const params = {
-      per_page: 100,
-      sw_lat,
-      sw_lng,
-      ne_lat,
-      ne_lng,
-      project_type:
-        propertyType === 'all'
-          ? undefined
-          : propertyType === 'apartments'
-            ? 'apartment_building'
-            : 'house_complex',
-    } as const
-
-    try {
-      const data: any = await getProjects(params)
-      const mapped: PropertyData[] = (data.projects || []).map((project: any) => {
-        const fullSlug = project.slug ? String(project.slug) : String(project.id)
-        return {
-          id: String(project.id),
-          slug: fullSlug,
-          title: project.title || project.name || 'Project',
-          priceRange: project.price_label ? `${project.price_label}` : 'Price on request',
-          shortPrice: project.price_label || 'Request price',
-          location: project.neighborhood ? `${project.neighborhood}, ${project.city}` : project.city,
-          image: project.cover_image_url || '/placeholder.svg?height=300&width=400',
-          images: Array.isArray(project.images)
-            ? project.images.map((img: any) => img?.urls?.card || img?.image_url).filter(Boolean)
-            : [],
-          description: project.description || '',
-          lat: typeof project.latitude === 'number' ? project.latitude : 42.6977,
-          lng: typeof project.longitude === 'number' ? project.longitude : 23.3219,
-          color: `from-blue-500 to-blue-700`,
-          type: project.project_type === 'apartment_building' ? 'Apartment Complex' : 'Residential Houses',
-          status: 'Under Construction',
-          developer: project.developer?.company_name || 'Unknown Developer',
-          completionDate: project.expected_completion_date
-            ? new Date(project.expected_completion_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })
-            : 'TBD',
-          rating: 4.5 + Math.random() * 0.4,
-          reviews: Math.floor(Math.random() * 30) + 5,
-          features: project.amenities_list && project.amenities_list.length > 0 ? project.amenities_list : ['Modern Design', 'Quality Construction'],
-          originalPrice: undefined,
-        }
-      })
-
-      // Store in bounds-based cache
-      boundsCache.setCachedData(sw_lat, sw_lng, ne_lat, ne_lng, propertyType, mapped)
-      return mapped
-    } catch (err) {
-      console.error('Failed to fetch data for bounds:', err)
-      return []
-    }
-  }, [])
-
-  // Cache-first fetch: check cache, show immediately, fetch in background if needed
-  const checkCacheAndFetch = useCallback(async (
-    sw_lat: number,
-    sw_lng: number,
-    ne_lat: number,
-    ne_lng: number,
-    propertyType: PropertyTypeFilter
-  ): Promise<PropertyData[]> => {
-    // Check cache first
-    const cached = boundsCache.getCachedData(sw_lat, sw_lng, ne_lat, ne_lng, propertyType)
-    
-    if (cached && cached.length > 0) {
-      // Show cached data immediately
-      const local = new Map<string, PropertyData>()
-      cached.forEach((p) => local.set(String(p.id), p))
-      propertyCacheRef.current = local
-      setCacheVersion((v) => v + 1)
-      setIsInitialLoading(false)
-      
-      // Fetch fresh data in background (don't await)
-      fetchDataForBounds(sw_lat, sw_lng, ne_lat, ne_lng, propertyType).then((fresh) => {
-        if (fresh.length > 0) {
-          const local = new Map<string, PropertyData>()
-          fresh.forEach((p) => local.set(String(p.id), p))
-          propertyCacheRef.current = local
-          setCacheVersion((v) => v + 1)
-        }
-      }).catch(err => {
-        console.warn('Background fetch failed:', err)
-      })
-      
-      return cached
-    }
-    
-    // No cache, fetch fresh data
-    setIsInitialLoading(true)
-    const fresh = await fetchDataForBounds(sw_lat, sw_lng, ne_lat, ne_lng, propertyType)
-    const local = new Map<string, PropertyData>()
-    fresh.forEach((p) => local.set(String(p.id), p))
-    propertyCacheRef.current = local
-    setCacheVersion((v) => v + 1)
-    setIsInitialLoading(false)
-    
-    return fresh
-  }, [fetchDataForBounds])
-  
-  // DESKTOP: Fetch properties for current map bounds (Airbnb-style) - cache-first
-  const fetchBoundsData = useCallback((bounds: google.maps.LatLngBounds, immediate = false) => {
-    // Skip on mobile
-    if (typeof window !== 'undefined' && window.innerWidth < 1024) return
-    
-    const sw = bounds.getSouthWest()
-    const ne = bounds.getNorthEast()
-    
-    setCurrentBounds({
-      sw_lat: sw.lat(),
-      sw_lng: sw.lng(),
-      ne_lat: ne.lat(),
-      ne_lng: ne.lng(),
-    })
-
-    // Check cache first
-    const cached = boundsCache.getCachedData(
-      sw.lat(),
-      sw.lng(),
-      ne.lat(),
-      ne.lng(),
-      propertyTypeFilter
-    )
-
-    if (cached && cached.length > 0) {
-      // Show cached data immediately
-      const local = new Map<string, PropertyData>()
-      cached.forEach((p) => local.set(String(p.id), p))
-      propertyCacheRef.current = local
-      setCacheVersion((v) => v + 1)
-      setIsBoundsLoading(false)
-      setIsInitialLoading(false)
-      
-      // Fetch fresh in background
-      checkCacheAndFetch(sw.lat(), sw.lng(), ne.lat(), ne.lng(), propertyTypeFilter)
-        .then(() => {
-          setIsBoundsLoading(false)
-        })
-        .catch(() => {
-          setIsBoundsLoading(false)
-        })
-    } else {
-      // No cache, fetch fresh
-      setIsBoundsLoading(true)
-      checkCacheAndFetch(sw.lat(), sw.lng(), ne.lat(), ne.lng(), propertyTypeFilter)
-        .then(() => {
-          setIsBoundsLoading(false)
-        })
-        .catch(() => {
-          setIsBoundsLoading(false)
-        })
-    }
-  }, [propertyTypeFilter, checkCacheAndFetch])
-
-  // Debounced version for pan/zoom
-  const debouncedBoundsUpdate = useCallback(
-    debounce((bounds: google.maps.LatLngBounds) => {
-      // CHANGE 3: Bounds fetch gating – ensure we keep the willFetch vs cached tile branches inside fetchBoundsData
-      // and that setIsBoundsLoading(true) and setFetchParams({ per_page: 0 }) are used consistently.
-      fetchBoundsData(bounds, false)
-    }, 500),
-    [fetchBoundsData]
-  )
-
-  // Clear bounds loading when API call completes
-  useEffect(() => {
-    if (!loading && isBoundsLoading) {
-      setIsBoundsLoading(false)
-    }
-  }, [loading, isBoundsLoading])
-
-  // Note: Cache updates are now handled directly in checkCacheAndFetch
-  // No need for separate event listeners
+  // SIMPLIFIED: MapFetchController handles all fetch logic
+  // - Debounce (600ms)
+  // - Throttle (1500ms)  
+  // - Cache-first with background refresh
+  // - Request cancellation
 
   // Initialize Google Maps like the homepage
   useEffect(() => {
@@ -570,9 +383,6 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
         
         // Listen for map idle (after pan/zoom/resize)
         google.maps.event.addListener(map, "idle", () => {
-          // Skip API calls during programmatic map movements (city switches)
-          if (isProgrammaticMove) return
-          
           const bounds = map.getBounds()
           if (bounds) {
             setMapBounds(bounds)
@@ -670,7 +480,7 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
         // MOBILE: Bounds-based data fetching (like Airbnb) - via controller (debounced + throttled)
         mobileMap.addListener('idle', () => {
           const bounds = mobileMap.getBounds()
-          if (bounds && !isProgrammaticMove) {
+          if (bounds) {
             setMobileBounds(bounds)
             
             const sw = bounds.getSouthWest()
@@ -753,60 +563,71 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
     initMobileMap()
   }, [propertyTypeFilter, getOrCreateFetchController])
   
-  // Recenter when city changes (navigation only, not filtering)
+  // Recenter when city changes - INSTANT cache lookup, no blocking
   useEffect(() => {
-    // Set flag to prevent API calls during programmatic map movement
-    setIsProgrammaticMove(true)
+    // Get city bounds for cache lookup
+    const cityBounds = CITY_BOUNDS[selectedCity]
     
-    // Recenter desktop map
+    // IMMEDIATELY check cache and show data (no 800ms wait!)
+    const cached = boundsCache.getCachedData(
+      cityBounds.sw_lat,
+      cityBounds.sw_lng,
+      cityBounds.ne_lat,
+      cityBounds.ne_lng,
+      propertyTypeFilter
+    )
+    
+    if (cached && cached.length > 0) {
+      // Show cached data INSTANTLY
+      const local = new Map<string, PropertyData>()
+      cached.forEach((p) => local.set(String(p.id), p))
+      propertyCacheRef.current = local
+      setCacheVersion((v) => v + 1)
+      setIsInitialLoading(false)
+    }
+    
+    // Pan map (animation happens in parallel with data display)
     if (googleMapRef.current) {
       googleMapRef.current.panTo(CITY_COORDINATES[selectedCity])
       googleMapRef.current.setZoom(CITY_COORDINATES[selectedCity].zoom)
     }
-    
-    // Recenter mobile map if it exists
     if (mobileGoogleMapRef.current) {
       mobileGoogleMapRef.current.panTo(CITY_COORDINATES[selectedCity])
       mobileGoogleMapRef.current.setZoom(CITY_COORDINATES[selectedCity].zoom)
     }
     
-    // Reset flag and update bounds after map animation completes
-    setTimeout(() => {
-      setIsProgrammaticMove(false)
-      
-      // CRITICAL: Update mapBounds to match new city center
-      // This fixes the race condition where filteredProperties uses stale bounds
-      if (typeof window !== 'undefined' && window.innerWidth >= 1024 && googleMapRef.current) {
-        const newBounds = googleMapRef.current.getBounds()
-        if (newBounds) {
-          setMapBounds(newBounds)
-          // Trigger fetch for new bounds
-          const sw = newBounds.getSouthWest()
-          const ne = newBounds.getNorthEast()
-          getOrCreateFetchController().schedule(
-            sw.lat(), sw.lng(), ne.lat(), ne.lng(),
-            propertyTypeFilter as MapPropertyTypeFilter,
-            { immediate: true }
-          )
-        }
-      }
-      
-      // Same for mobile
-      if (typeof window !== 'undefined' && window.innerWidth < 1024 && mobileGoogleMapRef.current) {
-        const newBounds = mobileGoogleMapRef.current.getBounds()
-        if (newBounds) {
-          setMobileBounds(newBounds)
-          const sw = newBounds.getSouthWest()
-          const ne = newBounds.getNorthEast()
-          getOrCreateFetchController().schedule(
-            sw.lat(), sw.lng(), ne.lat(), ne.lng(),
-            propertyTypeFilter as MapPropertyTypeFilter,
-            { immediate: true }
-          )
-        }
-      }
-    }, 800) // Slightly less than 1s to ensure smooth transition
+    // Update bounds state for filtering (use city bounds as approximation)
+    const approxBounds = new google.maps.LatLngBounds(
+      new google.maps.LatLng(cityBounds.sw_lat, cityBounds.sw_lng),
+      new google.maps.LatLng(cityBounds.ne_lat, cityBounds.ne_lng)
+    )
     
+    if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
+      setMapBounds(approxBounds)
+    } else {
+      setMobileBounds(approxBounds)
+    }
+    
+    // Fetch fresh data if no cache (with immediate flag)
+    if (!cached || cached.length === 0) {
+      getOrCreateFetchController().schedule(
+        cityBounds.sw_lat,
+        cityBounds.sw_lng,
+        cityBounds.ne_lat,
+        cityBounds.ne_lng,
+        propertyTypeFilter as MapPropertyTypeFilter,
+        { immediate: true }
+      )
+    } else {
+      // Background refresh for cached data
+      getOrCreateFetchController().schedule(
+        cityBounds.sw_lat,
+        cityBounds.sw_lng,
+        cityBounds.ne_lat,
+        cityBounds.ne_lng,
+        propertyTypeFilter as MapPropertyTypeFilter
+      )
+    }
   }, [selectedCity, propertyTypeFilter, getOrCreateFetchController])
 
   // Build filtered list - MOBILE & DESKTOP both use bounds-based filtering
@@ -844,11 +665,9 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
     return typeFiltered
   }, [propertyTypeFilter, mapBounds, mobileBounds, cacheVersion])
 
-  // Memoize to prevent effects from re-running on equivalent arrays
-  const memoizedProperties = useMemo(() => filteredProperties, [
-    filteredProperties.length,
-    JSON.stringify(filteredProperties.map(p => p.id)),
-  ])
+  // Memoize properties - use cacheVersion as stable dependency instead of expensive JSON.stringify
+  // cacheVersion changes only when actual data changes
+  const memoizedProperties = useMemo(() => filteredProperties, [cacheVersion, propertyTypeFilter, mapBounds, mobileBounds])
 
   // Debug filtered properties
   useEffect(() => {
