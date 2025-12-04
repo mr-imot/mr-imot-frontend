@@ -3,7 +3,7 @@ import Image from 'next/image'
 import { useRouter, usePathname } from 'next/navigation'
 import { cn, getListingUrl } from '@/lib/utils'
 import { Home, Building, ExternalLink } from 'lucide-react'
-import { recordProjectView } from '@/lib/api'
+import { trackProjectView } from '@/lib/analytics-batch'
 import { translatePrice, PriceTranslations } from '@/lib/price-translator'
 import { useEmblaCarouselWithPhysics } from '@/hooks/use-embla-carousel'
 
@@ -69,18 +69,10 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover, prior
   })
 
   const handleClick = (e: React.MouseEvent) => {
-    // Check if this is a mobile device or if we're in a mobile context
-    const isMobile = window.innerWidth < 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
-    
-    if (!isMobile) {
-      // Desktop: open in new tab
-      e.preventDefault()
-      window.open(listingUrl, '_blank')
-    } else {
-      // Mobile: use router.push for intercepting route
-      e.preventDefault()
-      router.push(listingUrl)
-    }
+    // Use intercepting routes for modal on both mobile and desktop
+    // This restores the Airbnb experience with back button
+    e.preventDefault()
+    router.push(listingUrl)
   }
 
   const handleMouseEnter = () => {
@@ -117,17 +109,9 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover, prior
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting && !hasTrackedView) {
-            // Track view with debounce to avoid multiple calls
-            setTimeout(async () => {
-              try {
-                await recordProjectView(listing.id)
-                setHasTrackedView(true)
-              } catch (error) {
-                // Fail silently to not break user experience
-                console.warn('Analytics tracking failed:', error)
-                setHasTrackedView(true) // Mark as tracked to avoid retry
-              }
-            }, 1000) // 1 second delay to ensure user actually viewed it
+            // Track view using batched analytics (debounced and batched)
+            trackProjectView(listing.id)
+            setHasTrackedView(true)
           }
         })
       },

@@ -4,7 +4,8 @@ import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { X, Phone, Globe } from 'lucide-react'
 import { cn, getListingUrl } from '@/lib/utils'
-import { recordProjectView, recordProjectPhoneClick, recordProjectWebsiteClick } from '@/lib/api'
+import { trackProjectView } from '@/lib/analytics-batch'
+import { recordProjectPhoneClick, recordProjectWebsiteClick } from '@/lib/api'
 import { translatePrice, PriceTranslations } from '@/lib/price-translator'
 import { useRouter, usePathname } from 'next/navigation'
 import { useEmblaCarouselWithPhysics } from '@/hooks/use-embla-carousel'
@@ -97,21 +98,11 @@ export function PropertyMapCard({
     }, 180)
   }
 
-  // Track view when map card opens
+  // Track view when map card opens (using batched analytics)
   useEffect(() => {
     if (!hasTrackedView && property) {
-      const trackView = async () => {
-        try {
-          await recordProjectView(String(property.id))
-          setHasTrackedView(true)
-        } catch (error) {
-          // Fail silently to not break user experience
-          console.warn('Analytics tracking failed:', error)
-          setHasTrackedView(true) // Mark as tracked to avoid retry
-        }
-      }
-      
-      trackView()
+      trackProjectView(String(property.id))
+      setHasTrackedView(true)
     }
   }, [property, hasTrackedView])
 

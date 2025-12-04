@@ -69,11 +69,7 @@ export function ModalClientWrapper({ children }: ModalClientWrapperProps) {
     }
   }, [isMobile])
 
-  // Only show modal on mobile
-  if (!isMobile) {
-    return null
-  }
-
+  // Show modal on both mobile and desktop (Airbnb experience)
   return (
     <div className="fixed inset-0 z-[100] bg-white flex flex-col">
       {/* Modal Header with Back Button and Share Button */}

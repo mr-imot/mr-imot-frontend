@@ -1,263 +1,200 @@
-// Airbnb-quality property caching system
-// Three-tier caching: Session Cache + localStorage + Smart API calls
+// Airbnb-style bounds-based property caching system
+// Cache keys = map bounds + property type
+// Uses sessionStorage with TTL (2-5 minutes)
 
 import { PropertyData } from './marker-manager'
 
-interface CacheEntry {
+interface BoundsCacheEntry {
   data: PropertyData[]
   timestamp: number
-  city: string
+  boundsKey: string
   propertyType: string
 }
 
 interface CacheConfig {
-  sessionDuration: number // 2 hours
-  localStorageDuration: number // 24 hours
-  backgroundRefreshInterval: number // 3 minutes
+  ttl: number // Time to live in milliseconds (2-5 minutes)
 }
 
 const CACHE_CONFIG: CacheConfig = {
-  sessionDuration: 2 * 60 * 60 * 1000, // 2 hours
-  localStorageDuration: 24 * 60 * 60 * 1000, // 24 hours
-  backgroundRefreshInterval: 3 * 60 * 1000, // 3 minutes
+  ttl: 3 * 60 * 1000, // 3 minutes default (configurable 2-5 minutes)
 }
 
-class PropertyCacheManager {
-  private sessionCache = new Map<string, CacheEntry>()
-  private lastRefreshTimes = new Map<string, number>()
-  private backgroundRefreshTimer: NodeJS.Timeout | null = null
+// Generate cache key from bounds and property type
+function getBoundsCacheKey(
+  sw_lat: number,
+  sw_lng: number,
+  ne_lat: number,
+  ne_lng: number,
+  propertyType: string
+): string {
+  // Round bounds to 0.01° precision for cache key (approximately 1km)
+  const rounded = {
+    sw_lat: Math.round(sw_lat * 100) / 100,
+    sw_lng: Math.round(sw_lng * 100) / 100,
+    ne_lat: Math.round(ne_lat * 100) / 100,
+    ne_lng: Math.round(ne_lng * 100) / 100,
+  }
+  return `bounds-${rounded.sw_lat}-${rounded.sw_lng}-${rounded.ne_lat}-${rounded.ne_lng}-${propertyType}`
+}
 
-  // Generate cache key
-  private getCacheKey(city: string, propertyType: string): string {
-    return `${city}-${propertyType}`
+class BoundsBasedCacheManager {
+  private sessionCache = new Map<string, BoundsCacheEntry>()
+
+  // Check if cache entry is valid (not expired)
+  private isCacheValid(entry: BoundsCacheEntry): boolean {
+    return Date.now() - entry.timestamp < CACHE_CONFIG.ttl
   }
 
-  // Check if cache entry is valid
-  private isCacheValid(entry: CacheEntry, maxAge: number): boolean {
-    return Date.now() - entry.timestamp < maxAge
-  }
-
-  // Get data from session cache (fastest)
-  getFromSessionCache(city: string, propertyType: string): PropertyData[] | null {
-    const key = this.getCacheKey(city, propertyType)
-    const entry = this.sessionCache.get(key)
+  // Get cached data for bounds + property type
+  getCachedData(
+    sw_lat: number,
+    sw_lng: number,
+    ne_lat: number,
+    ne_lng: number,
+    propertyType: string
+  ): PropertyData[] | null {
+    const key = getBoundsCacheKey(sw_lat, sw_lng, ne_lat, ne_lng, propertyType)
     
-    if (entry && this.isCacheValid(entry, CACHE_CONFIG.sessionDuration)) {
-      return entry.data
+    // Try in-memory cache first (fastest)
+    const memoryEntry = this.sessionCache.get(key)
+    if (memoryEntry && this.isCacheValid(memoryEntry)) {
+      return memoryEntry.data
     }
-    
-    return null
-  }
 
-  // Get data from localStorage (fast)
-  getFromLocalStorage(city: string, propertyType: string): PropertyData[] | null {
+    // Try sessionStorage
     try {
-      const key = `properties-${this.getCacheKey(city, propertyType)}`
-      const stored = localStorage.getItem(key)
-      
+      const stored = sessionStorage.getItem(key)
       if (stored) {
-        const entry: CacheEntry = JSON.parse(stored)
-        if (this.isCacheValid(entry, CACHE_CONFIG.localStorageDuration)) {
-          // CRITICAL: Check for truncated slugs in cached data
-          // If any property has a suspiciously short slug (< 15 chars), invalidate cache
-          // This fixes the issue where old cached data had truncated slugs
-          const hasTruncatedSlugs = entry.data.some((p: PropertyData) => {
-            if (p.slug && p.slug.length < 15 && !p.slug.includes('-')) {
-              // Slug is too short and doesn't have hyphens (likely truncated)
-              return true
-            }
-            return false
-          })
-          
-          if (hasTruncatedSlugs) {
-            console.warn('⚠️ Detected truncated slugs in cache, invalidating...')
-            localStorage.removeItem(key)
-            return null
-          }
-          
+        const entry: BoundsCacheEntry = JSON.parse(stored)
+        if (this.isCacheValid(entry)) {
+          // Promote to memory cache for faster access
+          this.sessionCache.set(key, entry)
           return entry.data
         } else {
-          // Remove expired entry
-          localStorage.removeItem(key)
+          // Expired, remove it
+          sessionStorage.removeItem(key)
         }
       }
     } catch (error) {
-      console.warn('Failed to read from localStorage:', error)
-    }
-    
-    return null
-  }
-
-  // Get cached data (tries session first, then localStorage)
-  getCachedData(city: string, propertyType: string): PropertyData[] | null {
-    // Try session cache first (fastest)
-    const sessionData = this.getFromSessionCache(city, propertyType)
-    if (sessionData) {
-      // Also check session cache for truncated slugs
-      const hasTruncatedSlugs = sessionData.some((p: PropertyData) => {
-        if (p.slug && p.slug.length < 15 && !p.slug.includes('-')) {
-          return true
-        }
-        return false
-      })
-      
-      if (hasTruncatedSlugs) {
-        console.warn('⚠️ Detected truncated slugs in session cache, clearing...')
-        const key = this.getCacheKey(city, propertyType)
-        this.sessionCache.delete(key)
-        // Fall through to try localStorage or return null
-      } else {
-        return sessionData
-      }
-    }
-
-    // Try localStorage (fast)
-    const localStorageData = this.getFromLocalStorage(city, propertyType)
-    if (localStorageData) {
-      // Promote to session cache for faster future access
-      this.setSessionCache(city, propertyType, localStorageData)
-      return localStorageData
+      console.warn('Failed to read from sessionStorage:', error)
     }
 
     return null
   }
 
-  // Set session cache
-  setSessionCache(city: string, propertyType: string, data: PropertyData[]): void {
-    const key = this.getCacheKey(city, propertyType)
-    const entry: CacheEntry = {
+  // Set cached data for bounds + property type
+  setCachedData(
+    sw_lat: number,
+    sw_lng: number,
+    ne_lat: number,
+    ne_lng: number,
+    propertyType: string,
+    data: PropertyData[]
+  ): void {
+    const key = getBoundsCacheKey(sw_lat, sw_lng, ne_lat, ne_lng, propertyType)
+    const entry: BoundsCacheEntry = {
       data,
       timestamp: Date.now(),
-      city,
-      propertyType
+      boundsKey: key,
+      propertyType,
     }
+
+    // Store in memory
     this.sessionCache.set(key, entry)
-  }
 
-  // Set localStorage cache
-  setLocalStorageCache(city: string, propertyType: string, data: PropertyData[]): void {
+    // Store in sessionStorage
     try {
-      const key = `properties-${this.getCacheKey(city, propertyType)}`
-      const entry: CacheEntry = {
-        data,
-        timestamp: Date.now(),
-        city,
-        propertyType
-      }
-      localStorage.setItem(key, JSON.stringify(entry))
-      console.log(`💾 Stored in localStorage: ${key} (${data.length} properties)`)
+      sessionStorage.setItem(key, JSON.stringify(entry))
     } catch (error) {
-      console.warn('Failed to write to localStorage:', error)
+      console.warn('Failed to write to sessionStorage:', error)
+      // If sessionStorage is full, clear oldest entries
+      this.cleanupOldEntries()
     }
   }
 
-  // Set data in both caches
-  setCacheData(city: string, propertyType: string, data: PropertyData[]): void {
-    this.setSessionCache(city, propertyType, data)
-    this.setLocalStorageCache(city, propertyType, data)
-    this.lastRefreshTimes.set(this.getCacheKey(city, propertyType), Date.now())
+  // Check if cache exists and is valid
+  hasCachedData(
+    sw_lat: number,
+    sw_lng: number,
+    ne_lat: number,
+    ne_lng: number,
+    propertyType: string
+  ): boolean {
+    return this.getCachedData(sw_lat, sw_lng, ne_lat, ne_lng, propertyType) !== null
   }
 
-  // Check if data needs background refresh
-  needsBackgroundRefresh(city: string, propertyType: string): boolean {
-    const key = this.getCacheKey(city, propertyType)
-    const lastRefresh = this.lastRefreshTimes.get(key) || 0
-    return Date.now() - lastRefresh > CACHE_CONFIG.backgroundRefreshInterval
-  }
-
-  // Start background refresh for active city
-  startBackgroundRefresh(
-    city: string, 
-    propertyType: string, 
-    fetchFunction: () => Promise<PropertyData[]>
-  ): void {
-    if (this.backgroundRefreshTimer) {
-      clearInterval(this.backgroundRefreshTimer)
-    }
-
-    this.backgroundRefreshTimer = setInterval(async () => {
-      if (this.needsBackgroundRefresh(city, propertyType)) {
-        try {
-          console.log(`🔄 Background refresh for ${city} ${propertyType}`)
-          const freshData = await fetchFunction()
-          this.setCacheData(city, propertyType, freshData)
-          
-          // Emit event for UI to update
-          window.dispatchEvent(new CustomEvent('propertyCacheUpdated', {
-            detail: { city, propertyType, data: freshData }
-          }))
-        } catch (error) {
-          console.warn('Background refresh failed:', error)
+  // Cleanup expired entries from sessionStorage
+  private cleanupOldEntries(): void {
+    try {
+      const keysToRemove: string[] = []
+      for (let i = 0; i < sessionStorage.length; i++) {
+        const key = sessionStorage.key(i)
+        if (key && key.startsWith('bounds-')) {
+          try {
+            const stored = sessionStorage.getItem(key)
+            if (stored) {
+              const entry: BoundsCacheEntry = JSON.parse(stored)
+              if (!this.isCacheValid(entry)) {
+                keysToRemove.push(key)
+              }
+            }
+          } catch {
+            keysToRemove.push(key)
+          }
         }
       }
-    }, CACHE_CONFIG.backgroundRefreshInterval)
-  }
-
-  // Stop background refresh
-  stopBackgroundRefresh(): void {
-    if (this.backgroundRefreshTimer) {
-      clearInterval(this.backgroundRefreshTimer)
-      this.backgroundRefreshTimer = null
-    }
-  }
-
-  // Clear all caches
-  clearAllCaches(): void {
-    this.sessionCache.clear()
-    this.lastRefreshTimes.clear()
-    
-    // Clear localStorage
-    try {
-      const keys = Object.keys(localStorage)
-      keys.forEach(key => {
-        if (key.startsWith('properties-')) {
-          localStorage.removeItem(key)
-        }
+      keysToRemove.forEach(key => {
+        sessionStorage.removeItem(key)
+        this.sessionCache.delete(key)
       })
     } catch (error) {
-      console.warn('Failed to clear localStorage:', error)
+      console.warn('Failed to cleanup old entries:', error)
     }
   }
 
-  // Clear cache for specific city/type
-  clearCache(city: string, propertyType: string): void {
-    const key = this.getCacheKey(city, propertyType)
-    this.sessionCache.delete(key)
-    this.lastRefreshTimes.delete(key)
-    
+  // Clear all caches (use sparingly)
+  clearAllCaches(): void {
+    this.sessionCache.clear()
     try {
-      const localStorageKey = `properties-${key}`
-      localStorage.removeItem(localStorageKey)
+      const keysToRemove: string[] = []
+      for (let i = 0; i < sessionStorage.length; i++) {
+        const key = sessionStorage.key(i)
+        if (key && key.startsWith('bounds-')) {
+          keysToRemove.push(key)
+        }
+      }
+      keysToRemove.forEach(key => sessionStorage.removeItem(key))
     } catch (error) {
-      console.warn('Failed to clear localStorage:', error)
+      console.warn('Failed to clear sessionStorage:', error)
     }
   }
 
   // Get cache statistics (for debugging)
   getCacheStats(): {
-    sessionCacheSize: number
-    localStorageKeys: string[]
-    lastRefreshTimes: Record<string, number>
+    memoryCacheSize: number
+    sessionStorageKeys: string[]
   } {
-    const localStorageKeys: string[] = []
+    const sessionStorageKeys: string[] = []
     try {
-      const keys = Object.keys(localStorage)
-      localStorageKeys.push(...keys.filter(key => key.startsWith('properties-')))
+      for (let i = 0; i < sessionStorage.length; i++) {
+        const key = sessionStorage.key(i)
+        if (key && key.startsWith('bounds-')) {
+          sessionStorageKeys.push(key)
+        }
+      }
     } catch (error) {
-      console.warn('Failed to read localStorage keys:', error)
+      console.warn('Failed to read sessionStorage keys:', error)
     }
 
     return {
-      sessionCacheSize: this.sessionCache.size,
-      localStorageKeys,
-      lastRefreshTimes: Object.fromEntries(this.lastRefreshTimes)
+      memoryCacheSize: this.sessionCache.size,
+      sessionStorageKeys,
     }
   }
 }
 
 // Export singleton instance
-export const propertyCache = new PropertyCacheManager()
+export const boundsCache = new BoundsBasedCacheManager()
 
 // Export types
-export type { CacheEntry, CacheConfig }
-
+export type { BoundsCacheEntry, CacheConfig }
