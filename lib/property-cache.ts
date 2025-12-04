@@ -16,7 +16,7 @@ interface CacheConfig {
 }
 
 const CACHE_CONFIG: CacheConfig = {
-  ttl: 3 * 60 * 1000, // 3 minutes default (configurable 2-5 minutes)
+  ttl: 30 * 60 * 1000, // 30 minutes – longer TTL reduces refetches; background refresh keeps data fresh
 }
 
 // Generate cache key from bounds and property type
@@ -27,12 +27,13 @@ function getBoundsCacheKey(
   ne_lng: number,
   propertyType: string
 ): string {
-  // Round bounds to 0.01° precision for cache key (approximately 1km)
+  // Round bounds to 0.001° precision for cache key (approximately 100m)
+  // More granular than 0.01° to reduce unnecessary refetches on small pans
   const rounded = {
-    sw_lat: Math.round(sw_lat * 100) / 100,
-    sw_lng: Math.round(sw_lng * 100) / 100,
-    ne_lat: Math.round(ne_lat * 100) / 100,
-    ne_lng: Math.round(ne_lng * 100) / 100,
+    sw_lat: Math.round(sw_lat * 1000) / 1000,
+    sw_lng: Math.round(sw_lng * 1000) / 1000,
+    ne_lat: Math.round(ne_lat * 1000) / 1000,
+    ne_lng: Math.round(ne_lng * 1000) / 1000,
   }
   return `bounds-${rounded.sw_lat}-${rounded.sw_lng}-${rounded.ne_lat}-${rounded.ne_lng}-${propertyType}`
 }

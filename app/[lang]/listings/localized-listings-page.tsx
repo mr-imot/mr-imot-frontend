@@ -10,6 +10,7 @@ import { MarkerManager, PropertyData } from "@/lib/marker-manager"
 import { ListingCard } from "@/components/ListingCard"
 import { propertyToListing } from "@/lib/listing-adapter"
 import { boundsCache } from "@/lib/property-cache"
+import { MapFetchController, PropertyTypeFilter as MapPropertyTypeFilter } from "@/lib/map-fetch-controller"
 
 import { Card, CardContent } from "@/components/ui/card"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
@@ -29,6 +30,7 @@ import { MobileNav } from "@/components/mobile-nav"
 
 // import { AdvancedMapGestures } from "@/lib/advanced-map-gestures"
 import { haptic } from "@/lib/haptic-feedback"
+import { MapDebugPanel } from "@/components/map-debug-panel"
 // import { FloatingPWAInstallButton } from "@/components/PWAInstallButton"
 
 // Debounce utility for map bounds updates
@@ -185,11 +187,14 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
     // No aggressive clearing - cache persists across page loads
   }, [])
 
-  // Cleanup marker manager and background refresh on unmount
+  // Cleanup marker manager, fetch controller, and background refresh on unmount
   useEffect(() => {
     return () => {
       if (markerManagerRef.current) {
         markerManagerRef.current.cleanup()
+      }
+      if (fetchControllerRef.current) {
+        fetchControllerRef.current.cancel()
       }
       // Cleanup on unmount
       // if (advancedMapGestures) {
@@ -257,6 +262,37 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
   const loadedTilesRef = useRef<Set<string>>(new Set())
   const [fetchParams, setFetchParams] = useState<any>({ per_page: 0 })
   const [cacheVersion, setCacheVersion] = useState(0)
+
+  // MapFetchController – handles debounce, throttle, and request cancellation
+  const fetchControllerRef = useRef<MapFetchController | null>(null)
+
+  // Helper to get or create the fetch controller
+  const getOrCreateFetchController = useCallback(() => {
+    if (!fetchControllerRef.current) {
+      fetchControllerRef.current = new MapFetchController({
+        debounceMs: 600,
+        throttleMs: 1500,
+        onDataUpdate: (properties) => {
+          const local = new Map<string, PropertyData>()
+          properties.forEach((p) => local.set(String(p.id), p))
+          propertyCacheRef.current = local
+          setCacheVersion((v) => v + 1)
+          setIsInitialLoading(false)
+          setIsBoundsLoading(false)
+        },
+        onLoadingChange: (isLoading) => {
+          if (isLoading) {
+            setIsBoundsLoading(true)
+          }
+        },
+        onError: (err) => {
+          console.error('[MapFetchController] Error:', err)
+          setLocalError(err.message)
+        },
+      })
+    }
+    return fetchControllerRef.current
+  }, [])
 
   // Unified: Bounds-based API hook (works for both desktop and mobile)
   const { projects: apiProjects, loading, error } = useProjects(fetchParams)
@@ -522,8 +558,14 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
          // DESKTOP: Fetch initial data immediately based on map bounds (Airbnb-style)
         const initialBounds = map.getBounds()
         if (initialBounds && typeof window !== 'undefined' && window.innerWidth >= 1024) {
-          console.log('🚀 Initial desktop load - fetching properties for Sofia bounds')
-          fetchBoundsData(initialBounds, true) // Immediate fetch, no debounce
+          const sw = initialBounds.getSouthWest()
+          const ne = initialBounds.getNorthEast()
+          // Use controller with immediate flag for first load
+          getOrCreateFetchController().schedule(
+            sw.lat(), sw.lng(), ne.lat(), ne.lng(),
+            propertyTypeFilter as MapPropertyTypeFilter,
+            { immediate: true }
+          )
         }
         
         // Listen for map idle (after pan/zoom/resize)
@@ -534,9 +576,14 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
           const bounds = map.getBounds()
           if (bounds) {
             setMapBounds(bounds)
-            // Desktop: Debounced bounds fetch (Airbnb-style)
+            // Desktop: Use fetch controller (handles debounce, throttle, cancellation)
             if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
-              debouncedBoundsUpdate(bounds)
+              const sw = bounds.getSouthWest()
+              const ne = bounds.getNorthEast()
+              getOrCreateFetchController().schedule(
+                sw.lat(), sw.lng(), ne.lat(), ne.lng(),
+                propertyTypeFilter as MapPropertyTypeFilter
+              )
             }
           }
         })
@@ -620,18 +667,20 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
         
         setMobileMapReady(true)
         
-        // MOBILE: Bounds-based data fetching (like Airbnb) - cache-first
+        // MOBILE: Bounds-based data fetching (like Airbnb) - via controller (debounced + throttled)
         mobileMap.addListener('idle', () => {
           const bounds = mobileMap.getBounds()
           if (bounds && !isProgrammaticMove) {
-            console.log('📱 Mobile map bounds changed')
             setMobileBounds(bounds)
             
             const sw = bounds.getSouthWest()
             const ne = bounds.getNorthEast()
             
-            // Use cache-first fetch
-            checkCacheAndFetch(sw.lat(), sw.lng(), ne.lat(), ne.lng(), propertyTypeFilter)
+            // Use the fetch controller (handles debounce, throttle, cancellation)
+            getOrCreateFetchController().schedule(
+              sw.lat(), sw.lng(), ne.lat(), ne.lng(),
+              propertyTypeFilter as MapPropertyTypeFilter
+            )
           }
         })
         
@@ -689,7 +738,12 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
             setMobileBounds(initialBounds)
             const sw = initialBounds.getSouthWest()
             const ne = initialBounds.getNorthEast()
-            checkCacheAndFetch(sw.lat(), sw.lng(), ne.lat(), ne.lng(), propertyTypeFilter)
+            // Use controller with immediate flag for first load
+            getOrCreateFetchController().schedule(
+              sw.lat(), sw.lng(), ne.lat(), ne.lng(),
+              propertyTypeFilter as MapPropertyTypeFilter,
+              { immediate: true }
+            )
           }
         })
       } catch (e) {
@@ -697,7 +751,7 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
       }
     }
     initMobileMap()
-  }, [propertyTypeFilter, checkCacheAndFetch])
+  }, [propertyTypeFilter, getOrCreateFetchController])
   
   // Recenter when city changes (navigation only, not filtering)
   useEffect(() => {
@@ -1067,8 +1121,17 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
   }, [loading, filteredProperties.length])
 
 
+  // Debug mode - enabled with ?debug=map query param
+  const isDebugMode = searchParams.get('debug') === 'map'
+
   return (
     <div className="min-h-screen bg-background">
+      {/* Debug panel for performance monitoring */}
+      <MapDebugPanel 
+        fetchController={fetchControllerRef.current} 
+        show={isDebugMode} 
+      />
+
       {/* Accessibility: Screen reader announcements */}
       <div
         role="status"

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
 import { cn, getListingUrl } from '@/lib/utils'
 import { Home, Building, ExternalLink } from 'lucide-react'
@@ -68,12 +69,11 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover, prior
     }
   })
 
-  const handleClick = (e: React.MouseEvent) => {
-    // Use intercepting routes for modal on both mobile and desktop
-    // This restores the Airbnb experience with back button
-    e.preventDefault()
-    router.push(listingUrl)
-  }
+  // Prefetch the listing URL on mount/visibility for faster navigation
+  useEffect(() => {
+    // Prefetch the route so it's ready when user clicks
+    router.prefetch(listingUrl)
+  }, [router, listingUrl])
 
   const handleMouseEnter = () => {
     onCardHover?.(listing.id)
@@ -126,13 +126,12 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover, prior
   }, [listing.id, hasTrackedView])
 
     return (
-    <a
+    <Link
       href={listingUrl}
-      rel="noopener noreferrer nofollow"
+      prefetch={true}
       aria-labelledby={`title_${listing.id}`}
       className="block clickable"
       style={{ transition: 'none', transform: 'translateZ(0)' }}
-      onClick={handleClick}
     >
       <article
         ref={cardRef}
@@ -266,6 +265,6 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover, prior
          </div>
        </div>
        </article>
-     </a>
+     </Link>
    )
  }
