@@ -563,12 +563,12 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
     initMobileMap()
   }, [propertyTypeFilter, getOrCreateFetchController])
   
-  // Recenter when city changes - INSTANT cache lookup, no blocking
+  // Recenter when city changes
   useEffect(() => {
     // Get city bounds for cache lookup
     const cityBounds = CITY_BOUNDS[selectedCity]
     
-    // IMMEDIATELY check cache and show data (no 800ms wait!)
+    // Check cache FIRST and show data immediately if available
     const cached = boundsCache.getCachedData(
       cityBounds.sw_lat,
       cityBounds.sw_lng,
@@ -578,7 +578,7 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
     )
     
     if (cached && cached.length > 0) {
-      // Show cached data INSTANTLY
+      // Show cached data INSTANTLY (no blocking!)
       const local = new Map<string, PropertyData>()
       cached.forEach((p) => local.set(String(p.id), p))
       propertyCacheRef.current = local
@@ -586,51 +586,49 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
       setIsInitialLoading(false)
     }
     
-    // Only pan map if Google Maps is loaded
-    if (typeof google !== 'undefined' && google.maps) {
-      // Pan map (animation happens in parallel with data display)
-      if (googleMapRef.current) {
-        googleMapRef.current.panTo(CITY_COORDINATES[selectedCity])
-        googleMapRef.current.setZoom(CITY_COORDINATES[selectedCity].zoom)
-      }
-      if (mobileGoogleMapRef.current) {
-        mobileGoogleMapRef.current.panTo(CITY_COORDINATES[selectedCity])
-        mobileGoogleMapRef.current.setZoom(CITY_COORDINATES[selectedCity].zoom)
-      }
-      
-      // Update bounds state for filtering (use city bounds as approximation)
-      const approxBounds = new google.maps.LatLngBounds(
-        new google.maps.LatLng(cityBounds.sw_lat, cityBounds.sw_lng),
-        new google.maps.LatLng(cityBounds.ne_lat, cityBounds.ne_lng)
-      )
-      
-      if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
-        setMapBounds(approxBounds)
-      } else {
-        setMobileBounds(approxBounds)
-      }
+    // Pan map (animation happens in parallel with data display)
+    if (googleMapRef.current) {
+      googleMapRef.current.panTo(CITY_COORDINATES[selectedCity])
+      googleMapRef.current.setZoom(CITY_COORDINATES[selectedCity].zoom)
+    }
+    if (mobileGoogleMapRef.current) {
+      mobileGoogleMapRef.current.panTo(CITY_COORDINATES[selectedCity])
+      mobileGoogleMapRef.current.setZoom(CITY_COORDINATES[selectedCity].zoom)
     }
     
-    // Fetch fresh data if no cache (with immediate flag)
-    if (!cached || cached.length === 0) {
-      getOrCreateFetchController().schedule(
-        cityBounds.sw_lat,
-        cityBounds.sw_lng,
-        cityBounds.ne_lat,
-        cityBounds.ne_lng,
-        propertyTypeFilter as MapPropertyTypeFilter,
-        { immediate: true }
-      )
-    } else {
-      // Background refresh for cached data
-      getOrCreateFetchController().schedule(
-        cityBounds.sw_lat,
-        cityBounds.sw_lng,
-        cityBounds.ne_lat,
-        cityBounds.ne_lng,
-        propertyTypeFilter as MapPropertyTypeFilter
-      )
-    }
+    // Update bounds after short delay (map needs time to animate)
+    // This uses getBounds() from existing map, not new google.maps.* constructors
+    const timeoutId = setTimeout(() => {
+      if (typeof window !== 'undefined' && window.innerWidth >= 1024 && googleMapRef.current) {
+        const newBounds = googleMapRef.current.getBounds()
+        if (newBounds) {
+          setMapBounds(newBounds)
+          const sw = newBounds.getSouthWest()
+          const ne = newBounds.getNorthEast()
+          getOrCreateFetchController().schedule(
+            sw.lat(), sw.lng(), ne.lat(), ne.lng(),
+            propertyTypeFilter as MapPropertyTypeFilter,
+            { immediate: true }
+          )
+        }
+      }
+      
+      if (typeof window !== 'undefined' && window.innerWidth < 1024 && mobileGoogleMapRef.current) {
+        const newBounds = mobileGoogleMapRef.current.getBounds()
+        if (newBounds) {
+          setMobileBounds(newBounds)
+          const sw = newBounds.getSouthWest()
+          const ne = newBounds.getNorthEast()
+          getOrCreateFetchController().schedule(
+            sw.lat(), sw.lng(), ne.lat(), ne.lng(),
+            propertyTypeFilter as MapPropertyTypeFilter,
+            { immediate: true }
+          )
+        }
+      }
+    }, 300) // Short delay for map animation
+    
+    return () => clearTimeout(timeoutId)
   }, [selectedCity, propertyTypeFilter, getOrCreateFetchController])
 
   // Build filtered list - MOBILE & DESKTOP both use bounds-based filtering
