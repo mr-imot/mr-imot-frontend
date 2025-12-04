@@ -271,10 +271,13 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
             </div>
           </div>
           
-          {/* Enhanced photo counter */}
+          {/* Photo counter - Mobile: "1/4" style, Desktop: "4 photos" style */}
           <div className="absolute bottom-4 md:bottom-6 right-4 md:right-6 bg-black/70 text-white px-3 md:px-4 py-1 md:py-2 rounded-full backdrop-blur-md flex items-center gap-2">
-            <Grid3X3 className="h-3 w-3 md:h-4 md:w-4" />
-            <span className="font-medium text-sm md:text-base">{validImages.length} photos</span>
+            {/* Mobile: Show current/total like Airbnb */}
+            <span className="font-medium text-sm md:hidden">{mainSelectedIndex + 1}/{validImages.length}</span>
+            {/* Desktop: Show grid icon + total photos */}
+            <Grid3X3 className="h-4 w-4 hidden md:block" />
+            <span className="font-medium text-base hidden md:block">{validImages.length} photos</span>
           </div>
 
           {/* Keyboard hint - Hidden on mobile */}
@@ -311,24 +314,6 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
           ))}
         </div>
         
-        {/* Mobile carousel dots indicator - Airbnb style */}
-        {hasMultipleImages && (
-          <div className="flex md:hidden justify-center gap-1.5 mt-4">
-            {validImages.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => mainScrollTo(index)}
-                className={cn(
-                  "w-2 h-2 rounded-full transition-all duration-200",
-                  index === mainSelectedIndex 
-                    ? "bg-gray-900 scale-110" 
-                    : "bg-gray-300 hover:bg-gray-400"
-                )}
-                aria-label={`Go to image ${index + 1}`}
-              />
-            ))}
-          </div>
-        )}
       </div>
 
       {/* TRUE FULLSCREEN GALLERY - RENDERED VIA PORTAL TO APPEAR ABOVE MODAL */}
@@ -460,3 +445,4 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
     </>
   );
 };
+
