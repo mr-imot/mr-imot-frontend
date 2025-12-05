@@ -26,3 +26,6 @@ export default async function CookiePolicyPage({ params }: CookiePolicyPageProps
   return <CookiePolicyClient dict={dict} lang={lang} />
 }
 
+
+
+

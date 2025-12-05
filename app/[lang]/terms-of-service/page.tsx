@@ -26,3 +26,6 @@ export default async function TermsOfServicePage({ params }: TermsOfServicePageP
   return <TermsOfServiceClient dict={dict} lang={lang} />
 }
 
+
+
+

@@ -27,3 +27,6 @@ export default async function PrivacyPolicyPage({ params }: PrivacyPolicyPagePro
   return <PrivacyPolicyClient dict={dict} lang={lang} />
 }
 
+
+
+
