@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next'
 import { getProjects, ProjectListResponse, getDevelopers, DevelopersListResponse } from '@/lib/api'
 
 // Refresh sitemap periodically to pick up new content
-export const revalidate = 60 * 60 // 1 hour
+export const revalidate = 3600 // 1 hour
 
 // Get base URL from environment variable or use production URL
 function getBaseUrl(): string {
