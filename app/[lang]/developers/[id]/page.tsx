@@ -42,6 +42,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { lang, id } = await params
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mrimot.com'
   const baseUrl = siteUrl.replace(/\/$/, '')
+  const socialImage = 'https://ik.imagekit.io/ts59gf2ul/Logo/mister-imot-waving-hi-with-bg.png?tr=w-1200,h-630,cm-pad_resize,bg-FFFFFF,fo-auto,q-85,f-auto&v=20241205'
   
   const developer = await getDeveloperData(id)
   
@@ -72,9 +73,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     : `${baseUrl}/developers/${id}`
   
   const ogLocale = isBg ? 'bg_BG' : 'en_US'
-  // DeveloperProfile doesn't have profile_image_url, use default OG image
-  const ogImage = `${baseUrl}/og-image.png`
-  
   return {
     title,
     description,
@@ -98,13 +96,22 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       locale: ogLocale,
       alternateLocale: ['en_US', 'bg_BG'],
       type: 'website',
-      images: [{ url: ogImage }],
+      images: [
+        {
+          url: socialImage,
+          width: 1200,
+          height: 630,
+          alt: isBg
+            ? `${companyName} – Верифициран строител`
+            : `${companyName} – Verified developer`,
+        },
+      ],
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
-      images: [ogImage],
+      images: [socialImage],
     },
   }
 }

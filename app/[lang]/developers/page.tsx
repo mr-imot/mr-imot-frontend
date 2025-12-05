@@ -15,6 +15,7 @@ export async function generateMetadata({ params }: DevelopersPageProps): Promise
   
   const isBg = lang === 'bg'
   const brand = isBg ? 'Мистър Имот' : 'Mister Imot'
+  const socialImage = 'https://ik.imagekit.io/ts59gf2ul/Logo/mister-imot-waving-hi-with-bg.png?tr=w-1200,h-630,cm-pad_resize,bg-FFFFFF,fo-auto,q-85,f-auto&v=20241205'
   
   const title = isBg
     ? `Верифицирани Строители – ${brand} | Платформа за Ново Строителство`
@@ -30,11 +31,10 @@ export async function generateMetadata({ params }: DevelopersPageProps): Promise
     : `${baseUrl}/developers`
   
   const ogLocale = isBg ? 'bg_BG' : 'en_US'
-  const ogImage = `${baseUrl}/og-image.png`
-  
   return {
     title,
     description,
+    metadataBase: new URL(baseUrl),
     robots: {
       index: true, // Explicitly allow indexing of developers page
       follow: true,
@@ -55,13 +55,22 @@ export async function generateMetadata({ params }: DevelopersPageProps): Promise
       locale: ogLocale,
       alternateLocale: ['en_US', 'bg_BG'],
       type: 'website',
-      images: [{ url: ogImage }],
+      images: [
+        {
+          url: socialImage,
+          width: 1200,
+          height: 630,
+          alt: isBg
+            ? 'Мистър Имот – Верифицирани строители'
+            : 'Mister Imot – Verified developers',
+        },
+      ],
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
-      images: [ogImage],
+      images: [socialImage],
     },
   }
 }

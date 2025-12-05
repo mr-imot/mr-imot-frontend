@@ -78,6 +78,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { lang, slug } = await params
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mrimot.com'
   const baseUrl = siteUrl.replace(/\/$/, '')
+  const socialFallback = 'https://ik.imagekit.io/ts59gf2ul/Logo/mister-imot-waving-hi-with-bg.png?tr=w-1200,h-630,cm-pad_resize,bg-FFFFFF,fo-auto,q-85,f-auto&v=20241205'
   
   // Join slug parts to get full identifier
   const identifier = slug.join('/')
@@ -159,11 +160,21 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     : `${baseUrl}/listings/${urlPath}`
   
   const ogLocale = isBg ? 'bg_BG' : 'en_US'
-  const ogImage = fullProject.cover_image_url || fullProject.images?.[0]?.image_url
+  const rawImage =
+    fullProject.cover_image_url ||
+    fullProject.images?.[0]?.image_url
+
+  // Ensure OG image is absolute; if missing, fallback to sitewide social image
+  const ogImage = rawImage
+    ? rawImage.startsWith('http')
+      ? rawImage
+      : `${baseUrl}${rawImage.startsWith('/') ? '' : '/'}${rawImage}`
+    : socialFallback
   
   return {
     title,
     description: projectDescription,
+    metadataBase: new URL(baseUrl),
     robots: {
       index: true, // Explicitly allow indexing of active listings
       follow: true,
@@ -184,13 +195,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       locale: ogLocale,
       alternateLocale: ['en_US', 'bg_BG'],
       type: 'website',
-      ...(ogImage && { images: [{ url: ogImage }] }),
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: projectTitle,
+        },
+      ],
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description: projectDescription,
-      ...(ogImage && { images: [ogImage] }),
+      images: [ogImage],
     },
   }
 }

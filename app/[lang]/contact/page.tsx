@@ -16,6 +16,7 @@ export async function generateMetadata({ params }: ContactPageProps): Promise<Me
   
   const isBg = lang === 'bg'
   const brand = isBg ? 'Мистър Имот' : 'Mister Imot'
+  const socialImage = 'https://ik.imagekit.io/ts59gf2ul/Logo/mister-imot-waving-hi-with-bg.png?tr=w-1200,h-630,cm-pad_resize,bg-FFFFFF,fo-auto,q-85,f-auto&v=20241205'
   
   const title = isBg
     ? `Контакт – ${brand} | Свържете се с нас`
@@ -31,8 +32,6 @@ export async function generateMetadata({ params }: ContactPageProps): Promise<Me
     : `${baseUrl}/contact`
   
   const ogLocale = isBg ? 'bg_BG' : 'en_US'
-  const ogImage = `${baseUrl}/og-image.png`
-  
   const keywords = isBg
     ? 'контакт, свържете се, поддръжка, ново строителство, имоти, България, запитвания'
     : 'contact, support, customer service, new construction, real estate, Bulgaria, inquiries'
@@ -41,6 +40,7 @@ export async function generateMetadata({ params }: ContactPageProps): Promise<Me
     title,
     description,
     keywords,
+    metadataBase: new URL(baseUrl),
     robots: {
       index: true,
       follow: true,
@@ -61,13 +61,22 @@ export async function generateMetadata({ params }: ContactPageProps): Promise<Me
       locale: ogLocale,
       alternateLocale: ['en_US', 'bg_BG'],
       type: 'website',
-      images: [{ url: ogImage }],
+      images: [
+        {
+          url: socialImage,
+          width: 1200,
+          height: 630,
+          alt: isBg
+            ? 'Мистър Имот – Контакт'
+            : 'Mister Imot – Contact',
+        },
+      ],
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
-      images: [ogImage],
+      images: [socialImage],
     },
   }
 }
