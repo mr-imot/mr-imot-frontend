@@ -13,6 +13,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ lang: 'en' | 'bg' }> }): Promise<Metadata> {
   const { lang } = await params
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mrimot.com'
+  const socialImage = 'https://ik.imagekit.io/ts59gf2ul/Logo/mister-imot-waving-hi-with-bg.png?tr=w-1200,h-630,cm-pad_resize,bg-FFFFFF,fo-auto,q-85,f-auto'
 
   const isBg = lang === 'bg'
   const brand = isBg ? 'Мистър Имот' : 'Mister Imot'
@@ -31,6 +32,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: 'en
   return {
     title,
     description,
+    metadataBase: new URL(siteUrl),
     robots: {
       // Public pages under [lang] should be indexable by default
       // Private routes (developer, admin, buyer) will override this in their own layouts
@@ -53,11 +55,22 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: 'en
       locale: ogLocale,
       alternateLocale: ['en_US', 'bg_BG'],
       type: 'website',
+      images: [
+        {
+          url: socialImage,
+          width: 1200,
+          height: 630,
+          alt: isBg
+            ? 'Мистър Имот – Имоти директно от строители'
+            : 'Mister Imot – Off-plan properties directly from developers',
+        },
+      ],
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
+      images: [socialImage],
     },
   }
 }
