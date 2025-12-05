@@ -436,9 +436,9 @@ export default function ListingDetailClient({ projectId, initialProject }: Listi
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600">{t.listingDetail?.buildingType || "Building Type"}</span>
                   <span className="font-medium">
-                    {property.project_type === 'apartment_building' 
-                      ? (t.listingDetail?.apartmentComplex || 'Apartment Complex') 
-                      : (t.listingDetail?.houseComplex || 'House Complex')}
+                  {property.project_type === 'apartment_building' 
+                    ? (t.projectTypes?.apartmentBuilding || 'Apartment building') 
+                    : (t.projectTypes?.houseComplex || 'House complex')}
                   </span>
                 </div>
               </div>
@@ -554,8 +554,8 @@ export default function ListingDetailClient({ projectId, initialProject }: Listi
             <Building className="h-4 w-4" />
             <span className="text-sm sm:text-base">
               {property.project_type === 'apartment_building' 
-                ? (t.listingDetail?.apartmentComplex || 'Apartment Complex') 
-                : (t.listingDetail?.houseComplex || 'House Complex')}
+                ? (t.projectTypes?.apartmentBuilding || 'Apartment building') 
+                : (t.projectTypes?.houseComplex || 'House complex')}
             </span>
           </div>
         </div>

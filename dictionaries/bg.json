@@ -620,8 +620,8 @@
       "December": "Декември"
     },
     "buildingType": "Тип сграда",
-    "apartmentComplex": "Комплекс с апартаменти",
-    "houseComplex": "Комплекс с къщи",
+    "apartmentComplex": "Жилищна сграда",
+    "houseComplex": "Комплекс от къщи",
     "contactDeveloper": "Свържи се със строителя",
     "company": "Компания",
     "contactPerson": "Лице за контакт",
@@ -645,6 +645,10 @@
     "officeLocationNotAvailable": "Местоположението на офиса не е налично",
     "noImagesAvailable": "Няма налични изображения за този имот",
     "untitledProject": "Неозаглавен проект"
+  },
+  "projectTypes": {
+    "apartmentBuilding": "Жилищна сграда",
+    "houseComplex": "Комплекс от къщи"
   },
   "features": {
     "buildingInfrastructure": "Сграда и инфраструктура",
@@ -886,8 +890,8 @@
       "projectName": "Име на проекта",
       "projectDescription": "Описание",
       "projectType": "Тип проект",
-      "apartmentBuilding": "Апартаментна сграда",
-      "houseComplex": "Жилищен комплекс",
+      "apartmentBuilding": "Жилищна сграда",
+      "houseComplex": "Комплекс от къщи",
       "completionMonth": "Месец на завършване на проекта",
       "completionYear": "Година на завършване на проекта",
       "projectWebsite": "Уебсайт на проекта",

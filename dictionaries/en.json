@@ -637,6 +637,10 @@
     "noImagesAvailable": "No images available for this property",
     "untitledProject": "Untitled Project"
   },
+  "projectTypes": {
+    "apartmentBuilding": "Apartment building",
+    "houseComplex": "House complex"
+  },
   "features": {
     "buildingInfrastructure": "Building & Infrastructure",
     "securityAccess": "Security & Access",

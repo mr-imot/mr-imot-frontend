@@ -86,8 +86,8 @@ export default function EditProjectPage({ dict, lang, params }: EditPropertyClie
   const { user, isLoading } = useAuth()
   
   const projectTypeOptions = [
-    { label: dict?.developer?.properties?.apartmentBuilding || "Apartment building", value: "apartment_building" },
-    { label: dict?.developer?.properties?.houseComplex || "House complex", value: "house_complex" },
+    { label: dict?.projectTypes?.apartmentBuilding || "Apartment building", value: "apartment_building" },
+    { label: dict?.projectTypes?.houseComplex || "House complex", value: "house_complex" },
   ]
   
   // Backup authentication check (in addition to layout protection)
