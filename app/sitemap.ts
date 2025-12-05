@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next'
-import { getProjects, ProjectListResponse, getDevelopers, DevelopersListResponse } from '@/lib/api'
+import { getDevelopers, DevelopersListResponse } from '@/lib/api'
 
 // Refresh sitemap periodically to pick up new content
 export const revalidate = 3600 // 1 hour
@@ -18,41 +18,53 @@ function getBaseUrl(): string {
   return url.replace(/\/$/, '')
 }
 
-// Fetch all active projects from the API with pagination
+// Fetch all active projects from the API with pagination (public endpoint, no cookies)
 async function getAllActiveProjects(): Promise<{ id: number; slug?: string; updated_at?: string }[]> {
   try {
+    const apiBase = process.env.NEXT_PUBLIC_API_URL || getBaseUrl()
     const allProjects: { id: number; slug?: string; updated_at?: string }[] = []
     let page = 1
-    const perPage = 100 // Maximum allowed by API
+    const perPage = 100
     let hasMore = true
 
     while (hasMore) {
-      const response: ProjectListResponse = await getProjects({
-        page,
-        per_page: perPage,
+      const url = `${apiBase}/api/v1/projects?page=${page}&per_page=${perPage}`
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
       })
 
-      if (response.projects && response.projects.length > 0) {
-        // Filter to only active projects and include slug
-        const activeProjects = response.projects
+      if (!response.ok) {
+        const text = await response.text().catch(() => '')
+        throw new Error(`Failed to fetch projects (status ${response.status}): ${text}`)
+      }
+
+      const data = (await response.json()) as {
+        projects?: { id: number; slug?: string; updated_at?: string; status?: string }[]
+        total_pages?: number
+      }
+
+      const projects = data.projects || []
+      if (projects.length > 0) {
+        const activeProjects = projects
           .filter((p) => p.status === 'active')
-          .map((p) => ({ 
+          .map((p) => ({
             id: p.id,
             slug: p.slug,
-            updated_at: p.updated_at
+            updated_at: p.updated_at,
           }))
         allProjects.push(...activeProjects)
       }
 
-      // Check if there are more pages
-      hasMore = page < (response.total_pages || 1)
+      hasMore = page < (data.total_pages || 1)
       page++
     }
 
     return allProjects
   } catch (error) {
-    console.error('Error fetching projects for sitemap:', error)
-    // Return empty array on error - sitemap will still include static pages
+    console.error('Error fetching projects for sitemap (public):', error)
     return []
   }
 }
