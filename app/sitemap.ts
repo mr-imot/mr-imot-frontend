@@ -49,7 +49,7 @@ async function getAllActiveProjects(): Promise<{ id: number; slug?: string; upda
       const projects = data.projects || []
       if (projects.length > 0) {
         const activeProjects = projects
-          .filter((p) => p.status === 'active')
+          .filter((p) => (p.status || '').toLowerCase() === 'active')
           .map((p) => ({
             id: p.id,
             slug: p.slug,
