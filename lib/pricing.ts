@@ -52,7 +52,13 @@ const pricingData: PricingData = {
             bg: 'Създавайте неограничени обяви в таблото и поддържайте 1 публично активна обява. Може да сменяте коя обява е активна по всяко време.'
           }
         },
-        { label: { en: 'Analytics tracking', bg: 'Аналитики и проследяване' } },
+        {
+          label: { en: 'Analytics tracking', bg: 'Статистики' },
+          tooltip: {
+            en: 'Track views, clicks, and traffic to your website.',
+            bg: 'Следете статистики на гледания, кликове и трафик към вашия уебсайт'
+          }
+        },
         { label: { en: 'Email support', bg: 'Имейл поддръжка' } },
         {
           label: { en: 'Only verified developers can upload', bg: 'Само проверени строители качват обяви' },
@@ -72,7 +78,7 @@ const pricingData: PricingData = {
           label: { en: 'BONUS: Meta advertising on your 1 listing in the amount of your monthly subscription', bg: 'БОНУС: Meta реклама на вашата 1 обява в размер на месечния абонамент' },
           tooltip: {
             en: 'First month only, instant bonus - our advertising team will manage your ads and polish copy.',
-            bg: 'Само първия месец, мигновен бонус - нашият рекламен екип ще управлява вашите реклами и ще подобри текста.'
+            bg: 'Само първия месец, мигновен бонус - нашият рекламен екип ще рекламира вашата обява в Мета.'
           }
         }
       ],
@@ -96,7 +102,13 @@ const pricingData: PricingData = {
             bg: 'Неограничени обяви в таблото; поддържайте 3 публично активни. Ротирайте кои обяви са активни по всяко време.'
           }
         },
-        { label: { en: 'Analytics tracking', bg: 'Аналитики и проследяване' } },
+        {
+          label: { en: 'Analytics tracking', bg: 'Статистики' },
+          tooltip: {
+            en: 'Track views, clicks, and traffic to your website.',
+            bg: 'Следете статистики на гледания, кликове и трафик към вашия уебсайт'
+          }
+        },
         { label: { en: 'Email & phone support', bg: 'Имейл и телефонна поддръжка' } },
         {
           label: { en: 'Only verified developers can upload', bg: 'Само проверени строители качват обяви' },
@@ -116,7 +128,7 @@ const pricingData: PricingData = {
           label: { en: 'BONUS: Meta advertising on your 3 listings in the amount of your monthly subscription', bg: 'БОНУС: Meta реклами на вашите 3 обяви в размер на месечния абонамент' },
           tooltip: {
             en: 'First month only, instant bonus - our advertising team will manage your ads and polish copy.',
-            bg: 'Само първия месец, мигновен бонус - нашият рекламен екип ще управлява вашите реклами и ще подобри текста.'
+            bg: 'Само първия месец, мигновен бонус - нашият рекламен екип ще рекламира вашите обяви в Мета.'
           }
         }
       ],
@@ -132,7 +144,13 @@ const pricingData: PricingData = {
       prices: { currency: 'EUR', monthly: null, yearlyMonthly: null, yearlyTotal: null, yearlySavings: null },
       features: [
         { label: { en: 'Unlimited active listings', bg: 'Неограничени активни обяви' } },
-        { label: { en: 'Analytics tracking & insights', bg: 'Аналитики и прозрения' } },
+        {
+          label: { en: 'Analytics tracking & insights', bg: 'Статистики' },
+          tooltip: {
+            en: 'Track views, clicks, and traffic to your website with insights.',
+            bg: 'Следете статистики на гледания, кликове и трафик към вашия уебсайт'
+          }
+        },
         { label: { en: 'Priority support', bg: 'Приоритетна поддръжка' } },
         {
           label: { en: 'Only verified developers can upload', bg: 'Само проверени строители качват обяви' },
@@ -147,7 +165,7 @@ const pricingData: PricingData = {
           label: { en: 'BONUS: Meta advertising on your listings in the amount of your monthly subscription', bg: 'БОНУС: Meta реклами на вашите обяви в размер на месечния абонамент' },
           tooltip: {
             en: 'First month only, instant bonus - our advertising team will manage your ads and polish copy.',
-            bg: 'Само първия месец, мигновен бонус - нашият рекламен екип ще управлява вашите реклами и ще подобри текста.'
+            bg: 'Само първия месец, мигновен бонус - нашият рекламен екип ще рекламира вашите обяви в Мета.'
           }
         }
       ],
