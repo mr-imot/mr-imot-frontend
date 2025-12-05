@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { CalendarDays, TrendingUp, Eye, Globe, Phone, Calendar, Filter, Download, RefreshCw } from "lucide-react"
-import { format, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear } from "date-fns"
+import { format, subDays } from "date-fns"
 
 import { ProtectedRoute } from "@/components/protected-route"
 import { DeveloperSidebar } from "@/components/developer-sidebar"
@@ -15,6 +15,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator"
 import { Progress } from "@/components/ui/progress"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Label } from "@/components/ui/label"
 import {
   ChartContainer,
   ChartTooltip,
@@ -122,6 +124,7 @@ function MetricCard({ title, value, previousValue, icon: Icon, color, loading, v
 function AnalyticsContent({ dict, lang }: AnalyticsClientProps) {
   const [selectedPeriod, setSelectedPeriod] = useState("week")
   const [chartType, setChartType] = useState("area")
+  const [seriesEnabled, setSeriesEnabled] = useState({ views: true, website: true, phone: true })
   
   const { stats, analytics, loading, error, refetch } = useDeveloperDashboard(selectedPeriod)
   const { canCreateProjects } = useAuth()
@@ -143,20 +146,45 @@ function AnalyticsContent({ dict, lang }: AnalyticsClientProps) {
     },
   }
 
-  // Generate sample data for visualization
+  // Helper to build date labels ending today for the selected period
   const chartData = useMemo(() => {
     if (!analytics) return []
-    
+
     const views = analytics.projects_views || []
     const website = analytics.website_clicks || []
     const phone = analytics.phone_clicks || []
-    
-    return Array.from({ length: Math.max(views.length, website.length, phone.length, 7) }, (_, i) => ({
-      day: selectedPeriod === 'week' ? ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i] :
-           selectedPeriod === 'month' ? `Day ${i + 1}` : `Week ${i + 1}`,
-      views: views[i] || 0,
-      website: website[i] || 0,
-      phone: phone[i] || 0,
+
+    const today = new Date()
+    const lengthByPeriod = {
+      week: 7,
+      month: 30,
+      quarter: 90,
+      year: 365,
+    } as const
+    const len = lengthByPeriod[selectedPeriod as keyof typeof lengthByPeriod] || 7
+
+    // generate dates from oldest to newest
+    const days = Array.from({ length: len }, (_, idx) => {
+      const d = subDays(today, len - idx - 1)
+      return format(d, "dd.MM.yyyy")
+    })
+
+    // align data from the end; pad missing with 0 at start
+    const padAndAlign = (arr: number[]) => {
+      if (arr.length >= len) return arr.slice(arr.length - len)
+      const padSize = len - arr.length
+      return Array(padSize).fill(0).concat(arr)
+    }
+
+    const vAligned = padAndAlign(views)
+    const wAligned = padAndAlign(website)
+    const pAligned = padAndAlign(phone)
+
+    return days.map((day, i) => ({
+      day,
+      views: vAligned[i] || 0,
+      website: wAligned[i] || 0,
+      phone: pAligned[i] || 0,
     }))
   }, [analytics, selectedPeriod])
 
@@ -230,10 +258,6 @@ function AnalyticsContent({ dict, lang }: AnalyticsClientProps) {
                 {dict.developer?.analytics?.refresh || "Refresh"}
               </Button>
               
-              <Button onClick={handleExportData}>
-                <Download className="h-4 w-4 mr-2" />
-                {dict.developer?.analytics?.export || "Export"}
-              </Button>
             </div>
           </div>
         </div>
@@ -289,6 +313,43 @@ function AnalyticsContent({ dict, lang }: AnalyticsClientProps) {
             </div>
 
             <Card className="p-6 border-border/50 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm shadow-lg">
+              {/* Series filters */}
+              <div className="flex flex-wrap items-center gap-6 pb-6 border-b border-border/30">
+                <div className="flex items-center gap-3">
+                  <Checkbox 
+                    id="views-toggle" 
+                    checked={seriesEnabled.views}
+                    onCheckedChange={(v)=>setSeriesEnabled(s=>({ ...s, views: !!v }))}
+                    className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                  />
+                  <Label htmlFor="views-toggle" className="text-sm font-medium text-foreground cursor-pointer">
+                    {dict.developer?.analytics?.views || "Views"}
+                  </Label>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Checkbox 
+                    id="website-toggle" 
+                    checked={seriesEnabled.website}
+                    onCheckedChange={(v)=>setSeriesEnabled(s=>({ ...s, website: !!v }))}
+                    className="data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
+                  />
+                  <Label htmlFor="website-toggle" className="text-sm font-medium text-foreground cursor-pointer">
+                    {dict.developer?.analytics?.websiteClicks || "Website Clicks"}
+                  </Label>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Checkbox 
+                    id="phone-toggle" 
+                    checked={seriesEnabled.phone}
+                    onCheckedChange={(v)=>setSeriesEnabled(s=>({ ...s, phone: !!v }))}
+                    className="data-[state=checked]:bg-amber-600 data-[state=checked]:border-amber-600"
+                  />
+                  <Label htmlFor="phone-toggle" className="text-sm font-medium text-foreground cursor-pointer">
+                    {dict.developer?.analytics?.phoneClicks || "Phone Clicks"}
+                  </Label>
+                </div>
+              </div>
+
               <TabsContent value="area" className="m-0">
                 <ChartContainer config={dynamicChartConfig} className="h-[25rem] w-full">
                   <AreaChart data={chartData}>
@@ -297,30 +358,36 @@ function AnalyticsContent({ dict, lang }: AnalyticsClientProps) {
                     <YAxis axisLine={false} tickLine={false} />
                     <ChartTooltip content={<ChartTooltipContent />} />
                     <ChartLegend content={<ChartLegendContent />} />
-                    <Area
-                      type="monotone"
-                      dataKey="views"
-                      stroke={dynamicChartConfig.views.color}
-                      fill={dynamicChartConfig.views.color}
-                      fillOpacity={0.2}
-                      strokeWidth={2}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="website"
-                      stroke={dynamicChartConfig.website.color}
-                      fill={dynamicChartConfig.website.color}
-                      fillOpacity={0.2}
-                      strokeWidth={2}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="phone"
-                      stroke={dynamicChartConfig.phone.color}
-                      fill={dynamicChartConfig.phone.color}
-                      fillOpacity={0.2}
-                      strokeWidth={2}
-                    />
+                    {seriesEnabled.views && (
+                      <Area
+                        type="monotone"
+                        dataKey="views"
+                        stroke={dynamicChartConfig.views.color}
+                        fill={dynamicChartConfig.views.color}
+                        fillOpacity={0.2}
+                        strokeWidth={2}
+                      />
+                    )}
+                    {seriesEnabled.website && (
+                      <Area
+                        type="monotone"
+                        dataKey="website"
+                        stroke={dynamicChartConfig.website.color}
+                        fill={dynamicChartConfig.website.color}
+                        fillOpacity={0.2}
+                        strokeWidth={2}
+                      />
+                    )}
+                    {seriesEnabled.phone && (
+                      <Area
+                        type="monotone"
+                        dataKey="phone"
+                        stroke={dynamicChartConfig.phone.color}
+                        fill={dynamicChartConfig.phone.color}
+                        fillOpacity={0.2}
+                        strokeWidth={2}
+                      />
+                    )}
                   </AreaChart>
                 </ChartContainer>
               </TabsContent>
@@ -333,30 +400,36 @@ function AnalyticsContent({ dict, lang }: AnalyticsClientProps) {
                     <YAxis axisLine={false} tickLine={false} />
                     <ChartTooltip content={<ChartTooltipContent />} />
                     <ChartLegend content={<ChartLegendContent />} />
-                    <Line
-                      type="monotone"
-                      dataKey="views"
-                      stroke={dynamicChartConfig.views.color}
-                      strokeWidth={3}
-                      dot={{ r: 4 }}
-                      activeDot={{ r: 6 }}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="website"
-                      stroke={dynamicChartConfig.website.color}
-                      strokeWidth={3}
-                      dot={{ r: 4 }}
-                      activeDot={{ r: 6 }}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="phone"
-                      stroke={dynamicChartConfig.phone.color}
-                      strokeWidth={3}
-                      dot={{ r: 4 }}
-                      activeDot={{ r: 6 }}
-                    />
+                    {seriesEnabled.views && (
+                      <Line
+                        type="monotone"
+                        dataKey="views"
+                        stroke={dynamicChartConfig.views.color}
+                        strokeWidth={3}
+                        dot={{ r: 4 }}
+                        activeDot={{ r: 6 }}
+                      />
+                    )}
+                    {seriesEnabled.website && (
+                      <Line
+                        type="monotone"
+                        dataKey="website"
+                        stroke={dynamicChartConfig.website.color}
+                        strokeWidth={3}
+                        dot={{ r: 4 }}
+                        activeDot={{ r: 6 }}
+                      />
+                    )}
+                    {seriesEnabled.phone && (
+                      <Line
+                        type="monotone"
+                        dataKey="phone"
+                        stroke={dynamicChartConfig.phone.color}
+                        strokeWidth={3}
+                        dot={{ r: 4 }}
+                        activeDot={{ r: 6 }}
+                      />
+                    )}
                   </LineChart>
                 </ChartContainer>
               </TabsContent>
@@ -369,9 +442,9 @@ function AnalyticsContent({ dict, lang }: AnalyticsClientProps) {
                     <YAxis axisLine={false} tickLine={false} />
                     <ChartTooltip content={<ChartTooltipContent />} />
                     <ChartLegend content={<ChartLegendContent />} />
-                    <Bar dataKey="views" fill={dynamicChartConfig.views.color} radius={4} />
-                    <Bar dataKey="website" fill={dynamicChartConfig.website.color} radius={4} />
-                    <Bar dataKey="phone" fill={dynamicChartConfig.phone.color} radius={4} />
+                    {seriesEnabled.views && <Bar dataKey="views" fill={dynamicChartConfig.views.color} radius={4} />}
+                    {seriesEnabled.website && <Bar dataKey="website" fill={dynamicChartConfig.website.color} radius={4} />}
+                    {seriesEnabled.phone && <Bar dataKey="phone" fill={dynamicChartConfig.phone.color} radius={4} />}
                   </BarChart>
                 </ChartContainer>
               </TabsContent>
