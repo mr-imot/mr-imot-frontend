@@ -434,30 +434,56 @@ function DashboardContent({ dict, lang }: { dict: any, lang: 'en' | 'bg' }) {
                       }}
                       className="w-full h-80"
                     >
-                  <AreaChart
-                    data={(analytics.projects_views || []).map((v: number, i: number) => ({
-                      day: `D${i+1}`,
-                      views: v,
-                      website: (analytics.website_clicks || [])[i] || 0,
-                      phone: (analytics.phone_clicks || [])[i] || 0,
-                    }))}
-                    margin={{ left: 8, right: 8, top: 8, bottom: 8 }}
-                  >
-                    <CartesianGrid vertical={false} />
-                    <XAxis dataKey="day" tickLine={false} axisLine={false} />
-                    <YAxis width={36} tickLine={false} axisLine={false} />
-                    <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-                    <ChartLegend content={<ChartLegendContent />} />
-                    {seriesEnabled.views && (
-                      <Area type="monotone" dataKey="views" stroke="var(--color-views)" fill="var(--color-views)" fillOpacity={0.18} />
-                    )}
-                    {seriesEnabled.website && (
-                      <Area type="monotone" dataKey="website" stroke="var(--color-website)" fill="var(--color-website)" fillOpacity={0.18} />
-                    )}
-                    {seriesEnabled.phone && (
-                      <Area type="monotone" dataKey="phone" stroke="var(--color-phone)" fill="var(--color-phone)" fillOpacity={0.18} />
-                    )}
-                    </AreaChart>
+                  {(() => {
+                    const normalizeSeries = (raw: any[] = []) => {
+                      if (raw.length && typeof raw[0] === 'object' && raw[0] !== null && 'date' in raw[0]) {
+                        return raw.map((item) => ({
+                          day: new Date(item.date).toISOString().split('T')[0],
+                          value: Number(item.value ?? 0),
+                        }))
+                      }
+                      // fallback numeric arrays
+                      return raw.map((v, i) => ({
+                        day: `D${i + 1}`,
+                        value: Number(v ?? 0),
+                      }))
+                    }
+
+                    const views = normalizeSeries(analytics?.projects_views || [])
+                    const website = normalizeSeries(analytics?.website_clicks || [])
+                    const phone = normalizeSeries(analytics?.phone_clicks || [])
+
+                    // align by day key
+                    const dayKeys = Array.from(new Set([...views, ...website, ...phone].map(d => d.day))).sort()
+                    const chartData = dayKeys.map((day) => ({
+                      day,
+                      views: views.find((v) => v.day === day)?.value || 0,
+                      website: website.find((w) => w.day === day)?.value || 0,
+                      phone: phone.find((p) => p.day === day)?.value || 0,
+                    }))
+
+                    return (
+                      <AreaChart
+                        data={chartData}
+                        margin={{ left: 8, right: 8, top: 8, bottom: 8 }}
+                      >
+                        <CartesianGrid vertical={false} />
+                        <XAxis dataKey="day" tickLine={false} axisLine={false} />
+                        <YAxis width={36} tickLine={false} axisLine={false} />
+                        <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+                        <ChartLegend content={<ChartLegendContent />} />
+                        {seriesEnabled.views && (
+                          <Area type="monotone" dataKey="views" stroke="var(--color-views)" fill="var(--color-views)" fillOpacity={0.18} />
+                        )}
+                        {seriesEnabled.website && (
+                          <Area type="monotone" dataKey="website" stroke="var(--color-website)" fill="var(--color-website)" fillOpacity={0.18} />
+                        )}
+                        {seriesEnabled.phone && (
+                          <Area type="monotone" dataKey="phone" stroke="var(--color-phone)" fill="var(--color-phone)" fillOpacity={0.18} />
+                        )}
+                      </AreaChart>
+                    )
+                  })()}
                     </ChartContainer>
                   </div>
                 </>
