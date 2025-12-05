@@ -611,8 +611,8 @@
       "December": "December"
     },
     "buildingType": "Building Type",
-    "apartmentComplex": "Apartment Complex",
-    "houseComplex": "House Complex",
+    "apartmentComplex": "Apartment complex",
+    "houseComplex": "Housing complex",
     "contactDeveloper": "Contact Developer",
     "company": "Company",
     "contactPerson": "Contact Person",
@@ -638,8 +638,8 @@
     "untitledProject": "Untitled Project"
   },
   "projectTypes": {
-    "apartmentBuilding": "Apartment building",
-    "houseComplex": "House complex"
+    "apartmentBuilding": "Apartment complex",
+    "houseComplex": "Housing complex"
   },
   "features": {
     "buildingInfrastructure": "Building & Infrastructure",
@@ -881,8 +881,8 @@
       "projectName": "Project Name",
       "projectDescription": "Description",
       "projectType": "Project Type",
-      "apartmentBuilding": "Apartment building",
-      "houseComplex": "House complex",
+      "apartmentBuilding": "Apartment complex",
+      "houseComplex": "Housing complex",
       "completionMonth": "Project Completion Month",
       "completionYear": "Project Completion Year",
       "projectWebsite": "Project Website",

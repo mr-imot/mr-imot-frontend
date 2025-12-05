@@ -82,8 +82,8 @@ export default function NewPropertyPage({ dict, lang }: NewPropertyClientProps) 
   const { user, isLoading } = useAuth()
   
   const projectTypeOptions = [
-    { label: dict?.projectTypes?.apartmentBuilding || "Apartment building", value: "apartment_building" },
-    { label: dict?.projectTypes?.houseComplex || "House complex", value: "house_complex" },
+    { label: dict?.projectTypes?.apartmentBuilding || "Apartment complex", value: "apartment_building" },
+    { label: dict?.projectTypes?.houseComplex || "Housing complex", value: "house_complex" },
   ]
   
   // Backup authentication check (in addition to layout protection)

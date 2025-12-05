@@ -437,8 +437,8 @@ export default function ListingDetailClient({ projectId, initialProject }: Listi
                   <span className="text-gray-600">{t.listingDetail?.buildingType || "Building Type"}</span>
                   <span className="font-medium">
                   {property.project_type === 'apartment_building' 
-                    ? (t.projectTypes?.apartmentBuilding || 'Apartment building') 
-                    : (t.projectTypes?.houseComplex || 'House complex')}
+                    ? (t.projectTypes?.apartmentBuilding || 'Apartment complex') 
+                    : (t.projectTypes?.houseComplex || 'Housing complex')}
                   </span>
                 </div>
               </div>
@@ -554,8 +554,8 @@ export default function ListingDetailClient({ projectId, initialProject }: Listi
             <Building className="h-4 w-4" />
             <span className="text-sm sm:text-base">
               {property.project_type === 'apartment_building' 
-                ? (t.projectTypes?.apartmentBuilding || 'Apartment building') 
-                : (t.projectTypes?.houseComplex || 'House complex')}
+                ? (t.projectTypes?.apartmentBuilding || 'Apartment complex') 
+                : (t.projectTypes?.houseComplex || 'Housing complex')}
             </span>
           </div>
         </div>
