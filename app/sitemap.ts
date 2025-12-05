@@ -1,6 +1,9 @@
 import { MetadataRoute } from 'next'
 import { getProjects, ProjectListResponse, getDevelopers, DevelopersListResponse } from '@/lib/api'
 
+// Refresh sitemap periodically to pick up new content
+export const revalidate = 60 * 60 // 1 hour
+
 // Get base URL from environment variable or use production URL
 function getBaseUrl(): string {
   let url: string
@@ -91,20 +94,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Static routes
   const staticRoutes: MetadataRoute.Sitemap = [
-    // Homepage (root is canonical for English)
+    // Homepage (canonical for English)
     {
       url: baseUrl,
       lastModified: new Date(),
       changeFrequency: 'daily' as const,
       priority: 1.0,
     },
-    // Language-specific homepages
-    ...languages.map((lang): MetadataRoute.Sitemap[0] => ({
-      url: lang === 'en' ? `${baseUrl}/` : `${baseUrl}/bg`,
+    // Language-specific homepage for Bulgarian only (avoid duplicate EN root)
+    {
+      url: `${baseUrl}/bg`,
       lastModified: new Date(),
       changeFrequency: 'daily' as const,
       priority: 1.0,
-    })),
+    },
     // Listings pages (using clean English URL)
     {
       url: `${baseUrl}/listings`,
