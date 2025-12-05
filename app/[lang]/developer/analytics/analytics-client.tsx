@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
-import { CalendarDays, TrendingUp, Eye, Globe, Phone, Calendar, Filter, Download, RefreshCw } from "lucide-react"
+import { CalendarDays, TrendingUp, Eye, Globe, Phone, RefreshCw } from "lucide-react"
 import { format, subDays } from "date-fns"
 
 import { ProtectedRoute } from "@/components/protected-route"
@@ -146,56 +146,95 @@ function AnalyticsContent({ dict, lang }: AnalyticsClientProps) {
     },
   }
 
-  // Helper to build date labels ending today for the selected period
+  // Helpers to build dated series ending today for the selected period
+  const lengthByPeriod = {
+    week: 7,
+    month: 30,
+    quarter: 90,
+    year: 365,
+  } as const
+
+  const buildDateRange = (len: number) => {
+    const today = new Date()
+    return Array.from({ length: len }, (_, idx) => subDays(today, len - idx - 1))
+  }
+
+  const normalizeSeries = (raw: any, len: number) => {
+    if (!raw || !Array.isArray(raw)) return []
+
+    // If backend returns dated objects
+    if (raw.length && typeof raw[0] === 'object' && raw[0] !== null && 'date' in raw[0]) {
+      return raw
+        .map((item: any) => ({
+          date: item.date,
+          value: Number(item.value ?? 0),
+        }))
+        .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    }
+
+    // Fallback for numeric arrays (old shape)
+    const trimmed = raw.slice(-len)
+    const padSize = Math.max(0, len - trimmed.length)
+    const padded = Array(padSize).fill(0).concat(trimmed)
+    const dates = buildDateRange(len)
+
+    return dates.map((date, i) => ({
+      date: date.toISOString(),
+      value: Number(padded[i] ?? 0),
+    }))
+  }
+
   const chartData = useMemo(() => {
     if (!analytics) return []
 
-    const views = analytics.projects_views || []
-    const website = analytics.website_clicks || []
-    const phone = analytics.phone_clicks || []
-
-    const today = new Date()
-    const lengthByPeriod = {
-      week: 7,
-      month: 30,
-      quarter: 90,
-      year: 365,
-    } as const
     const len = lengthByPeriod[selectedPeriod as keyof typeof lengthByPeriod] || 7
+    const dates = buildDateRange(len)
+    const dateLabels = dates.map((d) => format(d, "dd.MM.yyyy"))
 
-    // generate dates from oldest to newest
-    const days = Array.from({ length: len }, (_, idx) => {
-      const d = subDays(today, len - idx - 1)
-      return format(d, "dd.MM.yyyy")
-    })
+    const viewsSeries = normalizeSeries(analytics.projects_views, len)
+    const websiteSeries = normalizeSeries(analytics.website_clicks, len)
+    const phoneSeries = normalizeSeries(analytics.phone_clicks, len)
 
-    // align data from the end; pad missing with 0 at start
-    const padAndAlign = (arr: number[]) => {
-      if (arr.length >= len) return arr.slice(arr.length - len)
-      const padSize = len - arr.length
-      return Array(padSize).fill(0).concat(arr)
-    }
+    const toMap = (series: { date: string; value: number }[]) =>
+      series.reduce<Record<string, number>>((acc, item) => {
+        const key = format(new Date(item.date), "dd.MM.yyyy")
+        acc[key] = item.value ?? 0
+        return acc
+      }, {})
 
-    const vAligned = padAndAlign(views)
-    const wAligned = padAndAlign(website)
-    const pAligned = padAndAlign(phone)
+    const vMap = toMap(viewsSeries)
+    const wMap = toMap(websiteSeries)
+    const pMap = toMap(phoneSeries)
 
-    return days.map((day, i) => ({
+    return dateLabels.map((day) => ({
       day,
-      views: vAligned[i] || 0,
-      website: wAligned[i] || 0,
-      phone: pAligned[i] || 0,
+      views: vMap[day] ?? 0,
+      website: wMap[day] ?? 0,
+      phone: pMap[day] ?? 0,
     }))
   }, [analytics, selectedPeriod])
 
-  // Pie chart data
-  const pieData = useMemo(() => [
-    { name: dynamicChartConfig.views.label, value: stats?.total_views || 0, color: dynamicChartConfig.views.color },
-    { name: dynamicChartConfig.website.label, value: stats?.total_website_clicks || 0, color: dynamicChartConfig.website.color },
-    { name: dynamicChartConfig.phone.label, value: stats?.total_phone_clicks || 0, color: dynamicChartConfig.phone.color },
-  ], [stats, dynamicChartConfig])
+  // Pie chart data - based on current period and visible series
+  const pieData = useMemo(() => {
+    const sums = chartData.reduce(
+      (acc, row) => {
+        acc.views += row.views || 0
+        acc.website += row.website || 0
+        acc.phone += row.phone || 0
+        return acc
+      },
+      { views: 0, website: 0, phone: 0 }
+    )
 
-  const totalInteractions = (stats?.total_views || 0) + (stats?.total_website_clicks || 0) + (stats?.total_phone_clicks || 0)
+    const data = []
+    if (seriesEnabled.views) data.push({ name: dynamicChartConfig.views.label, value: sums.views, color: dynamicChartConfig.views.color })
+    if (seriesEnabled.website) data.push({ name: dynamicChartConfig.website.label, value: sums.website, color: dynamicChartConfig.website.color })
+    if (seriesEnabled.phone) data.push({ name: dynamicChartConfig.phone.label, value: sums.phone, color: dynamicChartConfig.phone.color })
+
+    return data
+  }, [chartData, seriesEnabled, dynamicChartConfig])
+
+  const totalInteractions = pieData.reduce((acc, item) => acc + (item.value || 0), 0)
 
   const handleExportData = () => {
     // TODO: Implement data export functionality
