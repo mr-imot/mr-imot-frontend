@@ -13,7 +13,7 @@ interface DeletedListingPageProps {
 export default function DeletedListingPage({ listingId, lang }: DeletedListingPageProps) {
   const isBg = lang === 'bg'
   
-  const browseUrl = isBg ? '/bg/obiavi' : '/en/listings'
+  const browseUrl = isBg ? '/bg/obiavi' : '/listings'
   
   return (
     <div className="max-w-4xl mx-auto px-4 py-12">

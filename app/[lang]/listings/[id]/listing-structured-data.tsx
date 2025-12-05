@@ -113,7 +113,7 @@ export default function ListingStructuredData({ project, lang, baseUrl }: Listin
         "@type": "ListItem",
         "position": 2,
         "name": isBg ? "Обяви" : "Listings",
-        "item": isBg ? `${baseUrl}/bg/obiavi` : `${baseUrl}/en/listings`
+        "item": isBg ? `${baseUrl}/bg/obiavi` : `${baseUrl}/listings`
       },
       {
         "@type": "ListItem",

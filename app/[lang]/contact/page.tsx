@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: ContactPageProps): Promise<Me
   // Use pretty URL for Bulgarian, canonical for English
   const canonicalUrl = isBg 
     ? `${baseUrl}/bg/kontakt`
-    : `${baseUrl}/en/contact`
+    : `${baseUrl}/contact`
   
   const ogLocale = isBg ? 'bg_BG' : 'en_US'
   const ogImage = `${baseUrl}/og-image.png`
@@ -48,9 +48,9 @@ export async function generateMetadata({ params }: ContactPageProps): Promise<Me
     alternates: {
       canonical: canonicalUrl,
       languages: {
-        en: `${baseUrl}/en/contact`,
+        en: `${baseUrl}/contact`,
         bg: `${baseUrl}/bg/kontakt`,
-        'x-default': `${baseUrl}/en/contact`,
+        'x-default': `${baseUrl}/contact`,
       },
     },
     openGraph: {

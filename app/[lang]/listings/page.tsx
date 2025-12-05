@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: ListingsPageProps): Promise<M
   // Use pretty URL for Bulgarian, canonical for English
   const canonicalUrl = isBg 
     ? `${baseUrl}/bg/obiavi`
-    : `${baseUrl}/en/listings`
+    : `${baseUrl}/listings`
   
   const ogLocale = isBg ? 'bg_BG' : 'en_US'
   
@@ -39,9 +39,9 @@ export async function generateMetadata({ params }: ListingsPageProps): Promise<M
     alternates: {
       canonical: canonicalUrl,
       languages: {
-        en: `${baseUrl}/en/listings`,
+      en: `${baseUrl}/listings`,
         bg: `${baseUrl}/bg/obiavi`,
-        'x-default': `${baseUrl}/en/listings`,
+      'x-default': `${baseUrl}/listings`,
       },
     },
     openGraph: {

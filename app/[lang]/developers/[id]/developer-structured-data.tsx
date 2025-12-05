@@ -46,7 +46,7 @@ export default function DeveloperStructuredData({ developer, lang, baseUrl }: De
         "@type": "ListItem",
         "position": 2,
         "name": isBg ? "Строители" : "Developers",
-        "item": isBg ? `${baseUrl}/bg/stroiteli` : `${baseUrl}/en/developers`
+        "item": isBg ? `${baseUrl}/bg/stroiteli` : `${baseUrl}/developers`
       },
       {
         "@type": "ListItem",

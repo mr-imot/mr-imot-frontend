@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: AboutPageProps): Promise<Meta
   // Use pretty URL for Bulgarian, canonical for English
   const canonicalUrl = isBg 
     ? `${siteUrl}/bg/za-mistar-imot`
-    : `${siteUrl}/en/about-mister-imot`
+    : `${siteUrl}/about-mister-imot`
   
   const ogLocale = isBg ? 'bg_BG' : 'en_US'
   const baseUrl = siteUrl.replace(/\/$/, '')
@@ -48,9 +48,9 @@ export async function generateMetadata({ params }: AboutPageProps): Promise<Meta
     alternates: {
       canonical: canonicalUrl,
       languages: {
-        en: `${baseUrl}/en/about-mister-imot`,
+        en: `${baseUrl}/about-mister-imot`,
         bg: `${baseUrl}/bg/za-mistar-imot`,
-        'x-default': `${baseUrl}/en/about-mister-imot`,
+        'x-default': `${baseUrl}/about-mister-imot`,
       },
     },
     openGraph: {

@@ -91,7 +91,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Static routes
   const staticRoutes: MetadataRoute.Sitemap = [
-    // Homepage (root redirects to /en)
+    // Homepage (root is canonical for English)
     {
       url: baseUrl,
       lastModified: new Date(),
@@ -100,7 +100,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     // Language-specific homepages
     ...languages.map((lang): MetadataRoute.Sitemap[0] => ({
-      url: `${baseUrl}/${lang}`,
+      url: lang === 'en' ? `${baseUrl}/` : `${baseUrl}/bg`,
       lastModified: new Date(),
       changeFrequency: 'daily' as const,
       priority: 1.0,
@@ -120,14 +120,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     // Developers pages
     ...languages.map((lang): MetadataRoute.Sitemap[0] => ({
-      url: `${baseUrl}/${lang}/developers`,
+      url: lang === 'bg' ? `${baseUrl}/bg/stroiteli` : `${baseUrl}/developers`,
       lastModified: new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.8,
     })),
     // About Us pages (using pretty URLs for Bulgarian)
     {
-      url: `${baseUrl}/en/about-us`,
+      url: `${baseUrl}/about-mister-imot`,
       lastModified: new Date(),
       changeFrequency: 'monthly' as const,
       priority: 0.5,
@@ -140,7 +140,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     // Contact pages (using pretty URLs for Bulgarian)
     {
-      url: `${baseUrl}/en/contact`,
+      url: `${baseUrl}/contact`,
       lastModified: new Date(),
       changeFrequency: 'monthly' as const,
       priority: 0.5,
@@ -181,7 +181,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const developers = await getAllDevelopers()
   const developerRoutes: MetadataRoute.Sitemap = developers.flatMap((developer) =>
     languages.map((lang): MetadataRoute.Sitemap[0] => ({
-      url: `${baseUrl}/${lang === 'bg' ? 'bg/stroiteli' : 'en/developers'}/${developer.id}`,
+      url: `${baseUrl}/${lang === 'bg' ? 'bg/stroiteli' : 'developers'}/${developer.id}`,
       lastModified: new Date(),
       changeFrequency: 'monthly' as const,
       priority: 0.7,

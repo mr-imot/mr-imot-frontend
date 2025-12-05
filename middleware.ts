@@ -74,6 +74,16 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
+  // Enforce no /en prefix in canonical URLs – redirect /en/* → /* (preserve path/query)
+  if (pathname === '/en') {
+    return NextResponse.redirect(new URL('/', request.url))
+  }
+  if (pathname.startsWith('/en/')) {
+    const url = request.nextUrl.clone()
+    url.pathname = pathname.replace(/^\/en/, '') || '/'
+    return NextResponse.redirect(url)
+  }
+
   // Handle old /listing/ route - redirect to proper localized route
   if (pathname.startsWith('/listing/')) {
     const listingId = pathname.replace('/listing/', '')
@@ -83,7 +93,7 @@ export function middleware(request: NextRequest) {
     if (cookieLocale === 'bg') {
       return NextResponse.redirect(new URL(`/bg/obiavi/${listingId}`, request.url))
     } else {
-      return NextResponse.redirect(new URL(`/en/listings/${listingId}`, request.url))
+      return NextResponse.redirect(new URL(`/listings/${listingId}`, request.url))
     }
   }
 
@@ -96,7 +106,7 @@ export function middleware(request: NextRequest) {
   // Handle /en/listing/ route - redirect to /en/listings/
   if (pathname.startsWith('/en/listing/')) {
     const listingId = pathname.replace('/en/listing/', '')
-    return NextResponse.redirect(new URL(`/en/listings/${listingId}`, request.url))
+    return NextResponse.redirect(new URL(`/listings/${listingId}`, request.url))
   }
 
   // Handle /register route - block access without type=developer
@@ -168,13 +178,45 @@ export function middleware(request: NextRequest) {
 
   // Note: no pretty slug for register in BG; '/bg/register' is canonical
 
-  // English pretty slugs → internal canonical paths
-  if (pathname.startsWith('/en/') || (!pathname.startsWith('/bg/') && !pathname.startsWith('/en/'))) {
-    const englishMap: Record<string, string> = {
-      '/en/about-mister-imot': '/en/about-us',
+  // English aliases → canonical no-prefix URLs
+  const englishAliasMap: Record<string, string> = {
+    '/en/listings': '/listings',
+    '/en/developers': '/developers',
+    '/en/about-us': '/about-mister-imot',
+    '/en/about-mister-imot': '/about-mister-imot',
+    '/en/contact': '/contact',
+    '/about-us': '/about-mister-imot',
+  }
+  for (const [from, to] of Object.entries(englishAliasMap)) {
+    if (pathname === from || pathname.startsWith(from + '/')) {
+      const url = request.nextUrl.clone()
+      url.pathname = pathname.replace(from, to)
+      return NextResponse.redirect(url)
+    }
+  }
+
+  // Bulgarian aliases → canonical BG pretty URLs
+  const bulgarianAliasMap: Record<string, string> = {
+    '/bg/listings': '/bg/obiavi',
+    '/bg/developers': '/bg/stroiteli',
+    '/bg/about-us': '/bg/za-mistar-imot',
+    '/bg/about-mister-imot': '/bg/za-mistar-imot',
+    '/bg/contact': '/bg/kontakt',
+  }
+  for (const [from, to] of Object.entries(bulgarianAliasMap)) {
+    if (pathname === from || pathname.startsWith(from + '/')) {
+      const url = request.nextUrl.clone()
+      url.pathname = pathname.replace(from, to)
+      return NextResponse.redirect(url)
+    }
+  }
+
+  // English canonical slugs (no prefix) → internal /en routes for rendering
+  if (!pathname.startsWith('/bg/')) {
+    const englishRewriteMap: Record<string, string> = {
       '/about-mister-imot': '/en/about-us',
     }
-    for (const [from, to] of Object.entries(englishMap)) {
+    for (const [from, to] of Object.entries(englishRewriteMap)) {
       if (pathname === from || pathname.startsWith(from + '/')) {
         const url = request.nextUrl.clone()
         url.pathname = pathname.replace(from, to)

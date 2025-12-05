@@ -69,7 +69,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   
   const canonicalUrl = isBg 
     ? `${baseUrl}/bg/stroiteli/${id}`
-    : `${baseUrl}/en/developers/${id}`
+    : `${baseUrl}/developers/${id}`
   
   const ogLocale = isBg ? 'bg_BG' : 'en_US'
   // DeveloperProfile doesn't have profile_image_url, use default OG image
@@ -85,9 +85,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     alternates: {
       canonical: canonicalUrl,
       languages: {
-        en: `${baseUrl}/en/developers/${id}`,
+        en: `${baseUrl}/developers/${id}`,
         bg: `${baseUrl}/bg/stroiteli/${id}`,
-        'x-default': `${baseUrl}/en/developers/${id}`,
+        'x-default': `${baseUrl}/developers/${id}`,
       },
     },
     openGraph: {

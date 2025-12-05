@@ -6,7 +6,7 @@ interface AboutStructuredDataProps {
 export default function AboutStructuredData({ lang, baseUrl }: AboutStructuredDataProps) {
   const isBg = lang === 'bg'
   const brand = isBg ? 'Мистър Имот' : 'Mister Imot'
-  const aboutUrl = isBg ? `${baseUrl}/bg/za-mistar-imot` : `${baseUrl}/en/about-mister-imot`
+  const aboutUrl = isBg ? `${baseUrl}/bg/za-mistar-imot` : `${baseUrl}/about-mister-imot`
   
   // AboutPage Schema
   const aboutPageSchema = {

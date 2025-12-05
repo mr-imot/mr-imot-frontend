@@ -21,19 +21,14 @@ export default function robots(): MetadataRoute.Robots {
   const commonRules = {
     allow: [
       '/',
-      '/en/',
       '/bg/',
-      '/en/listings/',
-      '/bg/listings/',
+      '/listings/',
       '/bg/obiavi/', // Bulgarian pretty URL for listings
-      '/en/developers/',
-      '/bg/developers/',
+      '/developers/',
       '/bg/stroiteli/', // Bulgarian pretty URL for developers
-      '/en/about-us/',
-      '/bg/about-us/',
+      '/about-mister-imot/',
       '/bg/za-mistar-imot/', // Bulgarian pretty URL for about
-      '/en/contact/',
-      '/bg/contact/',
+      '/contact/',
       '/bg/kontakt/', // Bulgarian pretty URL for contact
       '/api/v1/projects/',
     ],

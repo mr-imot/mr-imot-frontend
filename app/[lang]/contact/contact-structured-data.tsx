@@ -6,7 +6,7 @@ interface ContactStructuredDataProps {
 export default function ContactStructuredData({ lang, baseUrl }: ContactStructuredDataProps) {
   const isBg = lang === 'bg'
   const brand = isBg ? 'Мистър Имот' : 'Mister Imot'
-  const contactUrl = isBg ? `${baseUrl}/bg/kontakt` : `${baseUrl}/en/contact`
+  const contactUrl = isBg ? `${baseUrl}/bg/kontakt` : `${baseUrl}/contact`
   
   // ContactPage Schema
   const contactPageSchema = {
