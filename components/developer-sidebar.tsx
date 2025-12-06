@@ -119,12 +119,8 @@ export function DeveloperSidebar({ children, dict, lang }: DeveloperSidebarProps
             <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white shadow-sm" />
           </div>
           <div className="flex-1">
-            <h1 className="text-lg font-bold text-foreground tracking-tight">
-              {lang === 'bg' ? 'Мистър Имот' : 'Mister Imot'}
-            </h1>
-            <p className="text-xs text-muted-foreground font-medium">
-              {sidebarTranslations.developerPortal || "Mister Imot Developer Portal"}
-            </p>
+            <h1 className="text-lg font-bold text-foreground tracking-tight">Mr imot</h1>
+            <p className="text-xs text-muted-foreground font-medium">{sidebarTranslations.developerPortal || "Developer Portal"}</p>
           </div>
           {/* Mobile close button */}
           <Button

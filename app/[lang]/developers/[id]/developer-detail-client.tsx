@@ -203,12 +203,8 @@ export default function DeveloperDetailClient({ developer }: DeveloperDetailClie
                       <p className="text-base font-semibold text-foreground">{developer.company_name}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground uppercase tracking-wide font-medium">
-                        {tDevs?.activeProjects ?? 'Active Projects'}
-                      </p>
-                      <p className="text-base font-semibold text-foreground">
-                        {developer.projects_pagination?.total ?? developer.projects?.length ?? 0}
-                      </p>
+                      <p className="text-sm text-muted-foreground uppercase tracking-wide font-medium">{tDevs?.activeProjects ?? 'Active Projects'}</p>
+                      <p className="text-base font-semibold text-foreground">{developer.total_projects}</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground uppercase tracking-wide font-medium">{tDev?.verificationStatus ?? 'Verification Status'}</p>

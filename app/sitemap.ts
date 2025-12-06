@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next'
-import { getDevelopers, DevelopersListResponse } from '@/lib/api'
+import { getDevelopers, getProjects, DevelopersListResponse, ProjectListResponse } from '@/lib/api'
 
 // Refresh sitemap periodically to pick up new content
 export const revalidate = 3600 // 1 hour
@@ -21,44 +21,35 @@ function getBaseUrl(): string {
 // Fetch all active projects from the API with pagination (public endpoint, no cookies)
 async function getAllActiveProjects(): Promise<{ id: number; slug?: string; updated_at?: string }[]> {
   try {
-    const apiBase = process.env.NEXT_PUBLIC_API_URL || getBaseUrl()
     const allProjects: { id: number; slug?: string; updated_at?: string }[] = []
     let page = 1
     const perPage = 100
     let hasMore = true
 
     while (hasMore) {
-      const url = `${apiBase}/api/v1/projects?page=${page}&per_page=${perPage}`
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+      const data: ProjectListResponse = await getProjects({
+        page,
+        per_page: perPage,
+        status: 'active',
       })
 
-      if (!response.ok) {
-        const text = await response.text().catch(() => '')
-        throw new Error(`Failed to fetch projects (status ${response.status}): ${text}`)
-      }
-
-      const data = (await response.json()) as {
-        projects?: { id: number; slug?: string; updated_at?: string; status?: string }[]
-        total_pages?: number
-      }
-
-      const projects = data.projects || []
+      const projects = data?.projects || []
       if (projects.length > 0) {
         const activeProjects = projects
-          .filter((p) => (p.status || '').toLowerCase() === 'active')
+          // API might omit status for public feed; include items unless explicitly inactive
+          .filter((p) => {
+            const status = (p.status || '').toLowerCase()
+            return status === '' || status === 'active'
+          })
           .map((p) => ({
-            id: p.id,
+            id: Number(p.id),
             slug: p.slug,
             updated_at: p.updated_at,
           }))
         allProjects.push(...activeProjects)
       }
 
-      hasMore = page < (data.total_pages || 1)
+      hasMore = page < (data?.total_pages || 1)
       page++
     }
 
