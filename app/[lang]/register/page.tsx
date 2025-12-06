@@ -12,6 +12,7 @@ export async function generateMetadata({ params }: RegisterPageProps): Promise<M
   const { lang } = await params
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mrimot.com'
   const baseUrl = siteUrl.replace(/\/$/, '')
+  const socialImage = 'https://ik.imagekit.io/ts59gf2ul/Logo/mister-imot-waving-hi-with-bg.png?tr=w-1200,h-630,cm-pad_resize,bg-FFFFFF,fo-auto,q-85,f-auto&v=20241205'
   
   const isBg = lang === 'bg'
   const brand = isBg ? 'Мистър Имот' : 'Mister Imot'
@@ -50,11 +51,20 @@ export async function generateMetadata({ params }: RegisterPageProps): Promise<M
       locale: ogLocale,
       alternateLocale: ['en_US', 'bg_BG'],
       type: 'website',
+      images: [
+        {
+          url: socialImage,
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
     },
     twitter: {
       card: 'summary',
       title,
       description,
+      images: [socialImage],
     },
   }
 }
