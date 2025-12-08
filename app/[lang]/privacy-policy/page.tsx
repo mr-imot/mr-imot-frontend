@@ -1,4 +1,5 @@
 import { getDictionary } from '@/app/[lang]/dictionaries'
+import { formatTitleWithBrand } from '@/lib/seo'
 import { Metadata } from 'next'
 import PrivacyPolicyClient from './privacy-policy-client'
 
@@ -10,10 +11,14 @@ interface PrivacyPolicyPageProps {
 
 export async function generateMetadata({ params }: PrivacyPolicyPageProps): Promise<Metadata> {
   const { lang } = await params
-  const dict = await getDictionary(lang)
+  await getDictionary(lang) // preload translations if needed
   
+  const title = formatTitleWithBrand(
+    lang === 'bg' ? 'Политика за Поверителност' : 'Privacy Policy',
+    lang
+  )
   return {
-    title: lang === 'bg' ? 'Политика за Поверителност - Мистър Имот' : 'Privacy Policy - Mister Imot',
+    title,
     description: lang === 'bg' 
       ? 'Политика за поверителност на платформата Мистър Имот'
       : 'Privacy Policy for Mister Imot platform',

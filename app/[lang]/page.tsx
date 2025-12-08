@@ -1,5 +1,6 @@
 import { getDictionary } from "./dictionaries"
 import { LocalizedHomePage } from "./localized-homepage"
+import { brandForLang, formatTitleWithBrand } from "@/lib/seo"
 import type { Metadata } from 'next'
 
 interface HomePageProps {
@@ -10,24 +11,31 @@ export async function generateMetadata({ params }: HomePageProps): Promise<Metad
   const { lang } = await params
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mrimot.com'
   const baseUrl = siteUrl.replace(/\/$/, '')
-  
+  const dict = await getDictionary(lang)
   const isBg = lang === 'bg'
-  const brand = isBg ? 'Мистър Имот' : 'Mister Imot'
+  const brand = brandForLang(lang)
   const socialImage = 'https://ik.imagekit.io/ts59gf2ul/Logo/mister-imot-waving-hi-with-bg.png?tr=w-1200,h-630,cm-pad_resize,bg-FFFFFF,fo-auto,q-85,f-auto&v=20241205'
-  
-  const title = isBg
+
+  const fallbackTitle = isBg
     ? `${brand} – Имоти директно от строители (без брокери, без комисионни)`
     : `${brand} – Off‑plan properties directly from developers (no brokers, 0% commissions)`
-  
-  const description = isBg
+
+  const fallbackDescription = isBg
     ? `${brand}: единствената платформа в България за ново строителство – директна връзка със строители, без брокери и без комисионни.`
     : `${brand}: Bulgaria's platform for new construction – connect directly with developers, no brokers and 0% commissions.`
-  
+
+  const seoContent = (dict as { seo?: { home?: { title?: string; description?: string; keywords?: string[] } } })?.seo?.home
+  const rawTitle = seoContent?.title || fallbackTitle
+  const title = formatTitleWithBrand(rawTitle, lang)
+  const description = seoContent?.description || fallbackDescription
+  const keywords = Array.isArray(seoContent?.keywords) ? seoContent?.keywords : undefined
+
   const canonicalUrl = `${baseUrl}/${lang}`
   const ogLocale = isBg ? 'bg_BG' : 'en_US'
   return {
     title,
     description,
+    keywords,
     metadataBase: new URL(baseUrl),
     robots: {
       index: true, // Explicitly allow indexing of homepage

@@ -1,5 +1,6 @@
 import { getDictionary } from '../dictionaries'
 import RegisterClient from './register-client'
+import { brandForLang, formatTitleWithBrand } from '@/lib/seo'
 import type { Metadata } from 'next'
 
 interface RegisterPageProps {
@@ -15,11 +16,12 @@ export async function generateMetadata({ params }: RegisterPageProps): Promise<M
   const socialImage = 'https://ik.imagekit.io/ts59gf2ul/Logo/mister-imot-waving-hi-with-bg.png?tr=w-1200,h-630,cm-pad_resize,bg-FFFFFF,fo-auto,q-85,f-auto&v=20241205'
   
   const isBg = lang === 'bg'
-  const brand = isBg ? 'Мистър Имот' : 'Mister Imot'
+  const brand = brandForLang(lang)
   
-  const title = isBg
+  const rawTitle = isBg
     ? `Регистрация за Строители – ${brand}`
     : `Developer Registration – ${brand}`
+  const title = formatTitleWithBrand(rawTitle, lang)
   
   const description = isBg
     ? `Регистрирайте се като строител в ${brand} и започнете да публикувате вашите проекти за ново строителство. Без комисионни, директна връзка с клиенти.`

@@ -5,12 +5,15 @@ import { User, Heart, Settings } from "lucide-react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
+import { formatTitleWithBrand } from "@/lib/seo"
 import type { Metadata } from 'next'
 
 type TabType = "profile" | "saved" | "settings"
 
 export async function generateMetadata(): Promise<Metadata> {
+  const title = formatTitleWithBrand('Buyer Dashboard', 'en')
   return {
+    title,
     robots: {
       index: false, // Buyer dashboard should not be indexed
       follow: false,

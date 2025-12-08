@@ -1,5 +1,6 @@
 import { getDictionary } from '../dictionaries'
 import LoginClient from './login-client'
+import { brandForLang, formatTitleWithBrand } from '@/lib/seo'
 import type { Metadata } from 'next'
 
 interface LoginPageProps {
@@ -14,11 +15,12 @@ export async function generateMetadata({ params }: LoginPageProps): Promise<Meta
   const baseUrl = siteUrl.replace(/\/$/, '')
   
   const isBg = lang === 'bg'
-  const brand = isBg ? 'Мистър Имот' : 'Mister Imot'
+  const brand = brandForLang(lang)
   
-  const title = isBg
+  const rawTitle = isBg
     ? `Вход – ${brand}`
     : `Login – ${brand}`
+  const title = formatTitleWithBrand(rawTitle, lang)
   
   const description = isBg
     ? `Влезте в профила си в ${brand}.`

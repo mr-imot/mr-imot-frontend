@@ -3,6 +3,7 @@ import { getDictionary } from "./dictionaries"
 import { SiteHeader } from "@/components/site-header"
 import { Footer } from "@/components/footer"
 import { FeedbackButton } from "@/components/feedback-button"
+import { brandForLang, formatTitleWithBrand } from "@/lib/seo"
 import type { Metadata } from "next"
 import ViewportLock from "@/components/ViewportLock"
 
@@ -16,11 +17,12 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: 'en
   const socialImage = 'https://ik.imagekit.io/ts59gf2ul/Logo/mister-imot-waving-hi-with-bg.png?tr=w-1200,h-630,cm-pad_resize,bg-FFFFFF,fo-auto,q-85,f-auto'
 
   const isBg = lang === 'bg'
-  const brand = isBg ? 'Мистър Имот' : 'Mister Imot'
+  const brand = brandForLang(lang)
 
-  const title = isBg
+  const rawTitle = isBg
     ? `${brand} – Имоти директно от строители (без брокери, без комисионни)`
     : `${brand} – Off‑plan properties directly from developers (no brokers, 0% commissions)`
+  const title = formatTitleWithBrand(rawTitle, lang)
 
   const description = isBg
     ? `${brand}: единствената платформа в България за ново строителство – директна връзка със строители, без брокери и без комисионни.`

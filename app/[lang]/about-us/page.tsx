@@ -1,6 +1,7 @@
 import { getDictionary } from '../dictionaries'
 import AboutClient from './about-client'
 import AboutStructuredData from './about-structured-data'
+import { brandForLang, formatTitleWithBrand } from '@/lib/seo'
 import type { Metadata } from 'next'
 
 interface AboutPageProps {
@@ -15,12 +16,13 @@ export async function generateMetadata({ params }: AboutPageProps): Promise<Meta
   const baseUrl = siteUrl.replace(/\/$/, '')
   
   const isBg = lang === 'bg'
-  const brand = isBg ? 'Мистър Имот' : 'Mister Imot'
+  const brand = brandForLang(lang)
   const socialImage = 'https://ik.imagekit.io/ts59gf2ul/Logo/mister-imot-waving-hi-with-bg.png?tr=w-1200,h-630,cm-pad_resize,bg-FFFFFF,fo-auto,q-85,f-auto&v=20241205'
   
-  const title = isBg
+  const rawTitle = isBg
     ? `За Нас – ${brand} | Платформа за ново строителство в България`
     : `About Us – ${brand} | New Construction Platform in Bulgaria`
+  const title = formatTitleWithBrand(rawTitle, lang)
   
   const description = isBg
     ? `Научете повече за ${brand} – платформата, която модернизира пазара на ново строителство в България. Директна връзка със строители, без брокери и без комисионни. Нашата мисия, подход и роудмап за развитие.`

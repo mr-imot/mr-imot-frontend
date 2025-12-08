@@ -1011,7 +1011,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
 
           {/* 2️⃣ Section: "Pricing / Subscription Plans" */}
           <div className="mt-8 sm:mt-12 md:mt-16 lg:mt-20">
-            <PricingSection lang={lang} />
+            <PricingSection lang={lang} dict={dict} />
           </div>
 
 

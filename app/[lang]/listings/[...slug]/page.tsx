@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import ListingPageContent from '../[id]/listing-page-content'
 import NotFoundPage from '../[id]/not-found-page'
 import { Project, PausedProject, DeletedProject } from '@/lib/api'
+import { brandForLang, formatTitleWithBrand } from '@/lib/seo'
 
 interface PageProps {
   params: Promise<{
@@ -87,7 +88,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   // Project never existed - return 404 metadata
   if (!project) {
     return {
-      title: 'Project Not Found',
+      title: formatTitleWithBrand('Project Not Found', lang),
       robots: {
         index: false,
         follow: false,
@@ -101,10 +102,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   // Paused project - return generic metadata with noindex (NO project-specific data)
   if ('status' in project && project.status === 'paused') {
     const isBg = lang === 'bg'
+    const title = formatTitleWithBrand(
+      isBg ? 'Обявата е временно недостъпна' : 'Listing Temporarily Unavailable',
+      lang
+    )
     // PausedProject doesn't have slug, use projectId or identifier
     const urlPath = projectId || identifier
     return {
-      title: isBg ? 'Обявата е временно недостъпна' : 'Listing Temporarily Unavailable',
+      title,
       description: isBg 
         ? 'Тази обява е временно поставена на пауза.'
         : 'This listing is currently unavailable.',
@@ -121,10 +126,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   // Deleted project - return generic metadata with noindex (NO project-specific data)
   if ('status' in project && project.status === 'deleted') {
     const isBg = lang === 'bg'
+    const title = formatTitleWithBrand(
+      isBg ? 'Обявата е премахната' : 'Listing Removed',
+      lang
+    )
     // DeletedProject doesn't have slug, use projectId or identifier
     const urlPath = projectId || identifier
     return {
-      title: isBg ? 'Обявата е премахната' : 'Listing Removed',
+      title,
       description: isBg 
         ? 'Тази обява вече не е налична.'
         : 'This listing is no longer available.',
@@ -141,7 +150,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   // Active project - return full SEO metadata
   const fullProject = project as Project
   const isBg = lang === 'bg'
-  const brand = isBg ? 'Мистър Имот' : 'Mister Imot'
+  const brand = brandForLang(lang)
   const projectTitle = fullProject.title || fullProject.name || 'New Construction Project'
   const projectDescription = fullProject.description 
     ? fullProject.description.substring(0, 160) 
@@ -149,9 +158,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       ? `Открийте ${projectTitle} в ${fullProject.city || 'България'}. Директна връзка със строителя, без посредници.`
       : `Discover ${projectTitle} in ${fullProject.city || 'Bulgaria'}. Connect directly with the developer, no middlemen.`)
   
-  const title = isBg
+  const rawTitle = isBg
     ? `${projectTitle} – ${brand} | Ново Строителство в ${fullProject.city || 'България'}`
     : `${projectTitle} – ${brand} | New Construction in ${fullProject.city || 'Bulgaria'}`
+  const title = formatTitleWithBrand(rawTitle, lang)
   
   // Use slug-based URL if available, otherwise fallback to ID
   const urlPath = fullProject.slug || projectId || identifier

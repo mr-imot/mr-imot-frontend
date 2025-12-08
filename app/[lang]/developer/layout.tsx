@@ -1,4 +1,5 @@
 import { ProtectedRoute } from "@/components/protected-route"
+import { formatTitleWithBrand } from "@/lib/seo"
 import type { Metadata } from "next"
 
 interface DeveloperLayoutProps {
@@ -9,7 +10,14 @@ interface DeveloperLayoutProps {
 }
 
 export async function generateMetadata({ params }: DeveloperLayoutProps): Promise<Metadata> {
+  const { lang } = await params
+  const title = formatTitleWithBrand(
+    lang === 'bg' ? 'Панел за строители' : 'Developer Dashboard',
+    lang
+  )
+
   return {
+    title,
     robots: {
       index: false, // All developer dashboard pages should not be indexed
       follow: false,

@@ -1,4 +1,5 @@
 import { getDictionary } from '@/app/[lang]/dictionaries'
+import { formatTitleWithBrand } from '@/lib/seo'
 import { Metadata } from 'next'
 import CookiePolicyClient from './cookie-policy-client'
 
@@ -11,8 +12,13 @@ interface CookiePolicyPageProps {
 export async function generateMetadata({ params }: CookiePolicyPageProps): Promise<Metadata> {
   const { lang } = await params
   
+  const title = formatTitleWithBrand(
+    lang === 'bg' ? 'Политика за Бисквитки' : 'Cookie Policy',
+    lang
+  )
+
   return {
-    title: lang === 'bg' ? 'Политика за Бисквитки - Мистър Имот' : 'Cookie Policy - Mister Imot',
+    title,
     description: lang === 'bg' 
       ? 'Политика за бисквитки на платформата Мистър Имот'
       : 'Cookie Policy for Mister Imot platform',
@@ -25,6 +31,7 @@ export default async function CookiePolicyPage({ params }: CookiePolicyPageProps
 
   return <CookiePolicyClient dict={dict} lang={lang} />
 }
+
 
 
 

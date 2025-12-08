@@ -1,4 +1,22 @@
 {
+  "seo": {
+    "home": {
+      "title": "New-build & off-plan properties in Bulgaria | Mister Imot (0% commission, direct from developers)",
+      "description": "Discover new-build and off-plan apartments and houses across Bulgaria. Mister Imot connects buyers directly with verified developers—no brokers, no commissions, with project details, maps, and pricing transparency.",
+      "keywords": [
+        "new build properties Bulgaria",
+        "off plan apartments Bulgaria",
+        "buy direct from developer Bulgaria",
+        "0% commission real estate",
+        "new construction homes Sofia",
+        "off plan houses Varna",
+        "off plan apartments Plovdiv",
+        "direct from developers no brokers",
+        "investor direct property Bulgaria",
+        "verified developers Bulgaria"
+      ]
+    }
+  },
   "hero": {
     "title": {
       "find": "Apartments",
@@ -68,6 +86,90 @@
       }
     },
     "cta": "Browse All Properties"
+  },
+  "pricingSection": {
+    "heading": "Transparent Pricing",
+    "subheading": "Choose the active listings you need. Pricing auto-calculates. Cancel monthly anytime.",
+    "sliderLabel": "Number of active listings",
+    "sliderMin": "1",
+    "sliderMax": "10",
+    "sliderInputLabel": "Enter a number",
+    "billing": {
+      "monthly": "Monthly",
+      "yearly": "Yearly",
+      "yearlyHint": "Switch to yearly to save {{savePerListing}}/listing monthly ({{totalSavings}}/yr, billed annually)",
+      "billedAnnually": "Billed annually: {{amount}}"
+    },
+    "bestValue": "Best value",
+    "finalPrice": "Total price",
+    "per": {
+      "monthly": "month",
+      "yearly": "year"
+    },
+    "annualSavingsLabel": "You save €{{amount}}/yr.",
+    "overTenNotice": "Need more listings? Contact us for a tailored offer with preferential pricing and special terms for your business.",
+    "pricesNote": "*Prices exclude VAT.",
+    "plans": {
+      "single": {
+        "name": "One plan. Full access.",
+        "subtitle": "Pay only for what you use.",
+        "cta": "Start now",
+        "pill": "Limited-time offer",
+        "badge": null,
+        "basePriceLabel": "€39/listing/month | €29/listing/month (billed annually)",
+        "bullets": [
+          {
+            "label": "1 active listing",
+            "tooltip": "You can create unlimited projects in the dashboard, but only one can be active and publicly visible. You can swap anytime."
+          },
+          {
+            "label": "Analytics",
+            "tooltip": "Access key data: views, clicks, and traffic to your website in real time."
+          },
+          {
+            "label": "Email and phone support",
+            "tooltip": null
+          },
+          {
+            "label": "Protected listings",
+            "tooltip": "Your listing is tied only to your verified company. We prevent unauthorized uploads by brokers or other users."
+          },
+          {
+            "label": "Add-on active listings",
+            "tooltip": "You can add more active listings at €39/listing per month. Charged only when you need it."
+          },
+          {
+            "label": "BONUS: Meta ads",
+            "tooltip": "In the first month we advertise your active listing in Meta with a budget equal to your monthly subscription.",
+            "bonus": true
+          }
+        ]
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "subtitle": "For teams with over 10 active listings",
+        "cta": "Contact sales",
+        "badge": null,
+        "basePriceLabel": "Contact us",
+        "bullets": [
+          {
+            "label": "Unlimited active listings",
+            "tooltip": "Custom pricing based on volume, locations, and needs."
+          },
+          {
+            "label": "Priority support"
+          },
+          {
+            "label": "Dedicated account manager",
+            "tooltip": "A specialist focused on your projects, optimization, and goals."
+          },
+          {
+            "label": "Advertising package",
+            "tooltip": "Personalized Meta campaign tailored to your projects."
+          }
+        ]
+      }
+    }
   },
   "developerJoin": {
     "heading": "Why Join as a Developer?",

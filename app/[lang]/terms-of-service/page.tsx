@@ -1,4 +1,5 @@
 import { getDictionary } from '@/app/[lang]/dictionaries'
+import { formatTitleWithBrand } from '@/lib/seo'
 import { Metadata } from 'next'
 import TermsOfServiceClient from './terms-of-service-client'
 
@@ -11,8 +12,13 @@ interface TermsOfServicePageProps {
 export async function generateMetadata({ params }: TermsOfServicePageProps): Promise<Metadata> {
   const { lang } = await params
   
+  const title = formatTitleWithBrand(
+    lang === 'bg' ? 'Условия за Ползване' : 'Terms of Service',
+    lang
+  )
+
   return {
-    title: lang === 'bg' ? 'Условия за Ползване - Мистър Имот' : 'Terms of Service - Mister Imot',
+    title,
     description: lang === 'bg' 
       ? 'Условия за ползване на платформата Мистър Имот'
       : 'Terms of Service for Mister Imot platform',

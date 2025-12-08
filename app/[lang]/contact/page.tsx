@@ -1,6 +1,7 @@
 import { getDictionary } from '../dictionaries'
 import ContactClient from './contact-client'
 import ContactStructuredData from './contact-structured-data'
+import { brandForLang, formatTitleWithBrand } from '@/lib/seo'
 import type { Metadata } from 'next'
 
 interface ContactPageProps {
@@ -15,12 +16,13 @@ export async function generateMetadata({ params }: ContactPageProps): Promise<Me
   const baseUrl = siteUrl.replace(/\/$/, '')
   
   const isBg = lang === 'bg'
-  const brand = isBg ? 'Мистър Имот' : 'Mister Imot'
+  const brand = brandForLang(lang)
   const socialImage = 'https://ik.imagekit.io/ts59gf2ul/Logo/mister-imot-waving-hi-with-bg.png?tr=w-1200,h-630,cm-pad_resize,bg-FFFFFF,fo-auto,q-85,f-auto&v=20241205'
   
-  const title = isBg
+  const rawTitle = isBg
     ? `Контакт – ${brand} | Свържете се с нас`
     : `Contact – ${brand} | Get in Touch`
+  const title = formatTitleWithBrand(rawTitle, lang)
   
   const description = isBg
     ? `Свържете се с ${brand} за въпроси относно ново строителство, партньорства или общи запитвания. Отговоряме бързо и с удоволствие.`

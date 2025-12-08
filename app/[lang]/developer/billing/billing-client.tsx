@@ -63,7 +63,7 @@ function BillingContent({ dict, lang }: BillingClientProps) {
 
         {/* Pricing Plans */}
         <section id="pricing-plans" className="space-y-6">
-          <PricingSection lang={lang} />
+          <PricingSection lang={lang} dict={dict} />
         </section>
 
         {/* Bottom Row - Value Proposition & Pricing Model (50/50) */}

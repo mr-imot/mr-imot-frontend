@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import DeveloperDetailClient from './developer-detail-client'
 import DeveloperStructuredData from './developer-structured-data'
 import { DeveloperProfile } from '@/lib/api'
+import { brandForLang, formatTitleWithBrand } from '@/lib/seo'
 
 interface PageProps {
   params: Promise<{
@@ -48,7 +49,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   
   if (!developer) {
     return {
-      title: 'Developer Not Found',
+      title: formatTitleWithBrand('Developer Not Found', lang),
       robots: {
         index: false,
         follow: false,
@@ -57,12 +58,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
   
   const isBg = lang === 'bg'
-  const brand = isBg ? 'Мистър Имот' : 'Mister Imot'
+  const brand = brandForLang(lang)
   const companyName = developer.company_name
   
-  const title = isBg
+  const rawTitle = isBg
     ? `${companyName} – Верифициран Строител | ${brand}`
     : `${companyName} – Verified Developer | ${brand}`
+  const title = formatTitleWithBrand(rawTitle, lang)
   
   const description = isBg
     ? `Открийте ${companyName} в ${brand}. Верифициран строител с ${developer.total_projects} активни проекта. Директна връзка без посредници.`

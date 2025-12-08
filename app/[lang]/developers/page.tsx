@@ -1,5 +1,6 @@
 import { getDictionary } from '../dictionaries'
 import DevelopersClient from './developers-client'
+import { brandForLang, formatTitleWithBrand } from '@/lib/seo'
 import type { Metadata } from 'next'
 
 interface DevelopersPageProps {
@@ -14,12 +15,13 @@ export async function generateMetadata({ params }: DevelopersPageProps): Promise
   const baseUrl = siteUrl.replace(/\/$/, '')
   
   const isBg = lang === 'bg'
-  const brand = isBg ? 'Мистър Имот' : 'Mister Imot'
+  const brand = brandForLang(lang)
   const socialImage = 'https://ik.imagekit.io/ts59gf2ul/Logo/mister-imot-waving-hi-with-bg.png?tr=w-1200,h-630,cm-pad_resize,bg-FFFFFF,fo-auto,q-85,f-auto&v=20241205'
   
-  const title = isBg
+  const rawTitle = isBg
     ? `Верифицирани Строители – ${brand} | Платформа за Ново Строителство`
     : `Verified Developers – ${brand} | New Construction Platform`
+  const title = formatTitleWithBrand(rawTitle, lang)
   
   const description = isBg
     ? `Открийте верифицирани строители в България. Директна връзка с компании за ново строителство, без посредници. Прегледайте портфолиото и проектите на всеки строител.`

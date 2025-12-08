@@ -1,5 +1,6 @@
 import { getDictionary } from '@/app/[lang]/dictionaries'
 import ForgotPasswordClient from './forgot-password-client'
+import { brandForLang, formatTitleWithBrand } from '@/lib/seo'
 import type { Metadata } from 'next'
 
 interface ForgotPasswordPageProps {
@@ -14,11 +15,12 @@ export async function generateMetadata({ params }: ForgotPasswordPageProps): Pro
   const baseUrl = siteUrl.replace(/\/$/, '')
   
   const isBg = lang === 'bg'
-  const brand = isBg ? 'Мистър Имот' : 'Mister Imot'
+  const brand = brandForLang(lang)
   
-  const title = isBg
+  const rawTitle = isBg
     ? `Забравена Парола – ${brand}`
     : `Forgot Password – ${brand}`
+  const title = formatTitleWithBrand(rawTitle, lang)
   
   const description = isBg
     ? `Възстановете вашата парола за ${brand}.`

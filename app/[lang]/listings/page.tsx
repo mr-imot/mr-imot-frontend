@@ -1,5 +1,6 @@
 import { getDictionary } from "../dictionaries"
 import { LocalizedListingsPage } from "./localized-listings-page"
+import { brandForLang, formatTitleWithBrand } from "@/lib/seo"
 import type { Metadata } from 'next'
 
 interface ListingsPageProps {
@@ -13,11 +14,12 @@ export async function generateMetadata({ params }: ListingsPageProps): Promise<M
   const socialImage = 'https://ik.imagekit.io/ts59gf2ul/Logo/mister-imot-waving-hi-with-bg.png?tr=w-1200,h-630,cm-pad_resize,bg-FFFFFF,fo-auto,q-85,f-auto&v=20241205'
   
   const isBg = lang === 'bg'
-  const brand = isBg ? 'Мистър Имот' : 'Mister Imot'
+  const brand = brandForLang(lang)
   
-  const title = isBg
+  const rawTitle = isBg
     ? `Обяви за Ново Строителство – ${brand} | Без Брокери, Без Комисионни`
     : `New Construction Listings – ${brand} | No Brokers, 0% Commission`
+  const title = formatTitleWithBrand(rawTitle, lang)
   
   const description = isBg
     ? `Открийте най-добрите обяви за ново строителство в България. Директна връзка със строители, без посредници. Апартаменти и къщи в София, Пловдив, Варна и други градове.`

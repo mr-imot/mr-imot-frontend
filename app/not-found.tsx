@@ -1,4 +1,5 @@
 import { getDictionary } from './[lang]/dictionaries'
+import { formatTitleWithBrand } from '@/lib/seo'
 import { Metadata } from 'next'
 import Link from "next/link"
 import Image from "next/image"
@@ -15,8 +16,12 @@ export async function generateMetadata(): Promise<Metadata> {
   const lang = 'en'
   const dict = await getDictionary(lang)
   
+  const title = formatTitleWithBrand(
+    dict.notFound?.title || '404 - Page Not Found',
+    lang
+  )
   return {
-    title: dict.notFound?.title || '404 - Page Not Found',
+    title,
     description: dict.notFound?.description || 'The page you are looking for could not be found.',
     robots: {
       index: false,
