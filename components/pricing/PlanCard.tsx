@@ -92,10 +92,14 @@ export function PlanCard({
 
       {plan.pill && (
         <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 rotate-[-2deg] drop-shadow-xl max-w-[calc(100vw-2rem)] sm:max-w-none">
-          <div className="inline-flex items-center gap-1 sm:gap-2 rounded-full bg-gradient-to-r from-rose-700 via-red-600 to-orange-500 text-white px-3 py-1.5 sm:px-5 sm:py-2 text-xs sm:text-base font-extrabold uppercase tracking-wide shadow-2xl">
-            <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-200" />
+          <div className="inline-flex items-center gap-[clamp(0.25rem,1vw,0.5rem)] rounded-full bg-gradient-to-r from-rose-700 via-red-600 to-orange-500 text-white font-extrabold uppercase shadow-2xl" style={{
+            fontSize: 'clamp(0.625rem, 2.5vw, 1rem)',
+            padding: 'clamp(0.375rem, 1.5vw, 0.5rem) clamp(0.625rem, 3vw, 1.25rem)',
+            letterSpacing: 'clamp(0.025em, 0.1vw, 0.05em)'
+          }}>
+            <Sparkles className="text-yellow-200 flex-shrink-0" style={{ width: 'clamp(0.625rem, 2vw, 1rem)', height: 'clamp(0.625rem, 2vw, 1rem)' }} />
             <span className="whitespace-nowrap">{plan.pill}</span>
-            <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-200" />
+            <Sparkles className="text-yellow-200 flex-shrink-0" style={{ width: 'clamp(0.625rem, 2vw, 1rem)', height: 'clamp(0.625rem, 2vw, 1rem)' }} />
           </div>
         </div>
       )}
