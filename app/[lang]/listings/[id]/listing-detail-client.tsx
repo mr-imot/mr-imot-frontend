@@ -358,6 +358,8 @@ export default function ListingDetailClient({ projectId, initialProject }: Listi
   }
 
   const completionData = parseCompletionNote(property.completion_note)
+  const developerProfilePath = property.developer?.slug || property.developer?.id
+  const developerProfileUrl = developerProfilePath ? `/developers/${developerProfilePath}` : null
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
@@ -456,7 +458,7 @@ export default function ListingDetailClient({ projectId, initialProject }: Listi
                   <Avatar 
                     className="h-10 w-10 cursor-pointer hover:opacity-80 transition-opacity" 
                     style={{ cursor: 'pointer' }}
-                    onClick={() => window.open(`/developers/${property.developer?.id}`, '_blank')}
+                    onClick={() => developerProfileUrl && window.open(developerProfileUrl, '_blank')}
                   >
                     <AvatarImage 
                       src={property.developer?.profile_image_url} 
@@ -473,7 +475,7 @@ export default function ListingDetailClient({ projectId, initialProject }: Listi
                   </Avatar>
                   <h4 
                     className="font-semibold text-base text-gray-900 cursor-pointer hover:text-primary transition-colors"
-                    onClick={() => window.open(`/developers/${property.developer?.id}`, '_blank')}
+                    onClick={() => developerProfileUrl && window.open(developerProfileUrl, '_blank')}
                   >
                     {property.developer?.company_name || 'Unknown Developer'}
                   </h4>

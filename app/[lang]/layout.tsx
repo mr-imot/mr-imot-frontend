@@ -11,7 +11,7 @@ export async function generateStaticParams() {
   return [{ lang: 'en' }, { lang: 'bg' }]
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ lang: 'en' | 'bg' }> }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ lang: 'en' | 'bg' | 'ru' }> }): Promise<Metadata> {
   const { lang } = await params
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mrimot.com'
   const socialImage = 'https://ik.imagekit.io/ts59gf2ul/Logo/mister-imot-waving-hi-with-bg.png?tr=w-1200,h-630,cm-pad_resize,bg-FFFFFF,fo-auto,q-85,f-auto'
@@ -82,7 +82,7 @@ export default async function RootLayout({
   params,
 }: Readonly<{
   children: React.ReactNode
-  params: Promise<{ lang: 'en' | 'bg' }>
+  params: Promise<{ lang: 'en' | 'bg' | 'ru' }>
 }>) {
   const { lang } = await params
   

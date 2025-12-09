@@ -18,7 +18,17 @@ export function MainNav() {
 
   // Helper function to generate localized URLs
   const href = (en: string, bg: string) => {
-    return locale === 'bg' ? `/bg/${bg}` : `/${en}`
+    if (locale === 'bg') return `/bg/${bg}`
+    if (locale === 'ru') {
+      const ruMap: Record<string, string> = {
+        'listings': 'obyavleniya',
+        'developers': 'zastroyshchiki',
+        'about-mister-imot': 'o-mister-imot',
+        'contact': 'kontakty',
+      }
+      return `/ru/${ruMap[en] ?? en}`
+    }
+    return `/${en}`
   }
 
   const navItems = [

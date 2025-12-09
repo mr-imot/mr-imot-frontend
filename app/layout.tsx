@@ -107,6 +107,9 @@ export const metadata: Metadata = {
       bg: process.env.NEXT_PUBLIC_SITE_URL 
         ? `${process.env.NEXT_PUBLIC_SITE_URL}/bg`
         : 'https://mrimot.com/bg',
+      ru: process.env.NEXT_PUBLIC_SITE_URL 
+        ? `${process.env.NEXT_PUBLIC_SITE_URL}/ru`
+        : 'https://mrimot.com/ru',
       'x-default': process.env.NEXT_PUBLIC_SITE_URL 
         ? `${process.env.NEXT_PUBLIC_SITE_URL}/en`
         : 'https://mrimot.com/en',
@@ -128,7 +131,7 @@ export function generateViewport() {
 // Get language from middleware header for HTML lang attribute
 // This function must never throw errors - it's called during SSR and static generation
 // During static generation, we default to 'en' since headers() is not available
-async function getLanguageFromPath(): Promise<'en' | 'bg'> {
+async function getLanguageFromPath(): Promise<'en' | 'bg' | 'ru'> {
   // Default to English - safe fallback for all contexts
   // During static generation, headers() is not available, so we always default to 'en'
   // The actual language will be set by the [lang]/layout.tsx which uses params

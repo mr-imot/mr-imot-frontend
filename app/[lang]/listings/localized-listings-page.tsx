@@ -102,7 +102,7 @@ const useHeaderHeight = () => {
 
 interface LocalizedListingsPageProps {
   dict: any
-  lang: 'en' | 'bg'
+  lang: 'en' | 'bg' | 'ru'
 }
 
 export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps) {

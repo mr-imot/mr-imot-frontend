@@ -13,7 +13,17 @@ export function Footer() {
 
   // Helper function to generate localized URLs
   const href = (en: string, bg: string) => {
-    return locale === 'bg' ? `/bg/${bg}` : `/${en}`
+    if (locale === 'bg') return `/bg/${bg}`
+    if (locale === 'ru') {
+      const ruMap: Record<string, string> = {
+        'listings': 'obyavleniya',
+        'developers': 'zastroyshchiki',
+        'about-mister-imot': 'o-mister-imot',
+        'contact': 'kontakty',
+      }
+      return `/ru/${ruMap[en] ?? en}`
+    }
+    return `/${en}`
   }
 
   const navColumns = [
@@ -73,7 +83,9 @@ export function Footer() {
           <div className="lg:col-span-1">
             <div className="flex items-center space-x-3">
               <div className="h-8 w-8 rounded bg-foreground/90" />
-              <span className="text-lg font-semibold">{locale === 'bg' ? 'Мистър Имот' : 'Mister Imot'}</span>
+              <span className="text-lg font-semibold">
+                {locale === 'bg' ? 'Мистър Имот' : locale === 'ru' ? 'Мистер Имот' : 'Mister Imot'}
+              </span>
             </div>
             <p className="mt-6 text-muted-foreground leading-relaxed">
               {t.description}

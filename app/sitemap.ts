@@ -61,9 +61,9 @@ async function getAllActiveProjects(): Promise<{ id: number; slug?: string; upda
 }
 
 // Fetch all developers from the API with pagination
-async function getAllDevelopers(): Promise<{ id: string }[]> {
+async function getAllDevelopers(): Promise<{ id: string; slug?: string }[]> {
   try {
-    const allDevelopers: { id: string }[] = []
+    const allDevelopers: { id: string; slug?: string }[] = []
     let page = 1
     const perPage = 100 // Maximum allowed by API
     let hasMore = true
@@ -75,7 +75,7 @@ async function getAllDevelopers(): Promise<{ id: string }[]> {
       })
 
       if (response.developers && response.developers.length > 0) {
-        allDevelopers.push(...response.developers.map((d) => ({ id: d.id })))
+        allDevelopers.push(...response.developers.map((d) => ({ id: d.id, slug: d.slug })))
       }
 
       // Check if there are more pages
@@ -93,7 +93,7 @@ async function getAllDevelopers(): Promise<{ id: string }[]> {
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = getBaseUrl()
-  const languages = ['en', 'bg']
+  const languages = ['en', 'bg', 'ru']
 
   // Static routes
   const staticRoutes: MetadataRoute.Sitemap = [
@@ -111,9 +111,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'daily' as const,
       priority: 1.0,
     },
+    {
+      url: `${baseUrl}/ru`,
+      lastModified: new Date(),
+      changeFrequency: 'daily' as const,
+      priority: 1.0,
+    },
     // Listings pages (using clean English URL)
     {
       url: `${baseUrl}/listings`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/ru/obyavleniya`,
       lastModified: new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.8,
@@ -126,7 +138,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     // Developers pages
     ...languages.map((lang): MetadataRoute.Sitemap[0] => ({
-      url: lang === 'bg' ? `${baseUrl}/bg/stroiteli` : `${baseUrl}/developers`,
+      url:
+        lang === 'bg'
+          ? `${baseUrl}/bg/stroiteli`
+          : lang === 'ru'
+            ? `${baseUrl}/ru/zastroyshchiki`
+            : `${baseUrl}/developers`,
       lastModified: new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.8,
@@ -134,6 +151,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // About Us pages (using pretty URLs for Bulgarian)
     {
       url: `${baseUrl}/about-mister-imot`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.5,
+    },
+    {
+      url: `${baseUrl}/ru/o-mister-imot`,
       lastModified: new Date(),
       changeFrequency: 'monthly' as const,
       priority: 0.5,
@@ -147,6 +170,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Contact pages (using pretty URLs for Bulgarian)
     {
       url: `${baseUrl}/contact`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.5,
+    },
+    {
+      url: `${baseUrl}/ru/kontakty`,
       lastModified: new Date(),
       changeFrequency: 'monthly' as const,
       priority: 0.5,
@@ -167,7 +196,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       const urlPath = project.slug || String(project.id)
       const url = lang === 'bg' 
         ? `${baseUrl}/bg/obiavi/${urlPath}`
-        : `${baseUrl}/listings/${urlPath}` // Clean English URL without /en/
+        : lang === 'ru'
+          ? `${baseUrl}/ru/obyavleniya/${urlPath}`
+          : `${baseUrl}/listings/${urlPath}` // Clean English URL without /en/
       
       // Use updated_at if available, otherwise use current date
       const lastModified = project.updated_at 
@@ -187,7 +218,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const developers = await getAllDevelopers()
   const developerRoutes: MetadataRoute.Sitemap = developers.flatMap((developer) =>
     languages.map((lang): MetadataRoute.Sitemap[0] => ({
-      url: `${baseUrl}/${lang === 'bg' ? 'bg/stroiteli' : 'developers'}/${developer.id}`,
+      url: `${baseUrl}/${
+        lang === 'bg' ? 'bg/stroiteli' : lang === 'ru' ? 'ru/zastroyshchiki' : 'developers'
+      }/${developer.slug || developer.id}`,
       lastModified: new Date(),
       changeFrequency: 'monthly' as const,
       priority: 0.7,

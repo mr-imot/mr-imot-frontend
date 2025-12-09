@@ -1,6 +1,10 @@
-type Lang = 'en' | 'bg' | undefined
+type Lang = 'en' | 'bg' | 'ru' | undefined
 
-export const brandForLang = (lang: Lang) => (lang === 'bg' ? 'Мистър Имот' : 'Mister Imot')
+export const brandForLang = (lang: Lang) => {
+  if (lang === 'bg') return 'Мистър Имот'
+  if (lang === 'ru') return 'Мистер Имот'
+  return 'Mister Imot'
+}
 
 /**
  * Normalizes a title and guarantees the brand suffix at the end.
@@ -9,14 +13,14 @@ export const brandForLang = (lang: Lang) => (lang === 'bg' ? 'Мистър Им�
  * - Appends the correct suffix: " | Мистър Имот" or " | Mister Imot".
  */
 export const formatTitleWithBrand = (rawTitle: string, lang: Lang) => {
-  const suffix = lang === 'bg' ? ' | Мистър Имот' : ' | Mister Imot'
+  const suffix = lang === 'bg' ? ' | Мистър Имот' : lang === 'ru' ? ' | Мистер Имот' : ' | Mister Imot'
   if (!rawTitle) return brandForLang(lang) + suffix
 
   const stripped = rawTitle
     // Remove brand when it appears after a bar (and keep what follows)
-    .replace(/\|\s*(Mister Imot|Мистър Имот)\s*/gi, '| ')
+    .replace(/\|\s*(Mister Imot|Мистър Имот|Мистер Имот)\s*/gi, '| ')
     // Remove brand when it appears after a dash at the end of a segment
-    .replace(/[–—-]\s*(Mister Imot|Мистър Имот)\s*/gi, '')
+    .replace(/[–—-]\s*(Mister Imot|Мистър Имот|Мистер Имот)\s*/gi, '')
     // Remove orphan dashes that were connected to a bar after stripping brand
     .replace(/\|\s*[–—-]\s*/g, '| ')
     // Clean duplicate separators created by removals

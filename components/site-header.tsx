@@ -15,7 +15,19 @@ export function SiteHeader() {
   const locale = useLocale()
 
   const href = (en: string, bg: string) => {
-    return locale === 'bg' ? `/bg/${bg}` : `/${en}`
+    if (locale === 'bg') return `/bg/${bg}`
+    if (locale === 'ru') {
+      const ruMap: Record<string, string> = {
+        'listings': 'obyavleniya',
+        'developers': 'zastroyshchiki',
+        'about-mister-imot': 'o-mister-imot',
+        'contact': 'kontakty',
+        'register?type=developer': 'register?type=developer',
+        'login': 'login',
+      }
+      return `/ru/${ruMap[en] ?? en}`
+    }
+    return `/${en}`
   }
 
   return (
@@ -29,7 +41,13 @@ export function SiteHeader() {
             <div className="relative w-14 h-14 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-200 border border-white/20 cursor-pointer logo-circle">
               <Image
                 src="/images/mr-imot-logo-no-background.png"
-                alt={locale === 'bg' ? 'Лого на Мистър Имот' : 'Mister Imot Logo'}
+                alt={
+                  locale === 'bg'
+                    ? 'Лого на Мистър Имот'
+                    : locale === 'ru'
+                      ? 'Логотип Mister Imot'
+                      : 'Mister Imot Logo'
+                }
                 width={56}
                 height={56}
                 className="object-contain drop-shadow-lg cursor-pointer"

@@ -4,7 +4,7 @@ import { brandForLang, formatTitleWithBrand } from "@/lib/seo"
 import type { Metadata } from 'next'
 
 interface ListingsPageProps {
-  params: Promise<{ lang: 'en' | 'bg' }>
+  params: Promise<{ lang: 'en' | 'bg' | 'ru' }>
 }
 
 export async function generateMetadata({ params }: ListingsPageProps): Promise<Metadata> {
@@ -14,23 +14,30 @@ export async function generateMetadata({ params }: ListingsPageProps): Promise<M
   const socialImage = 'https://ik.imagekit.io/ts59gf2ul/Logo/mister-imot-waving-hi-with-bg.png?tr=w-1200,h-630,cm-pad_resize,bg-FFFFFF,fo-auto,q-85,f-auto&v=20241205'
   
   const isBg = lang === 'bg'
+  const isRu = lang === 'ru'
   const brand = brandForLang(lang)
   
   const rawTitle = isBg
     ? `Обяви за Ново Строителство – ${brand} | Без Брокери, Без Комисионни`
-    : `New Construction Listings – ${brand} | No Brokers, 0% Commission`
+    : isRu
+      ? `Объявления новостроек – ${brand} | Без брокеров, 0% комиссии`
+      : `New Construction Listings – ${brand} | No Brokers, 0% Commission`
   const title = formatTitleWithBrand(rawTitle, lang)
   
   const description = isBg
     ? `Открийте най-добрите обяви за ново строителство в България. Директна връзка със строители, без посредници. Апартаменти и къщи в София, Пловдив, Варна и други градове.`
-    : `Discover the best new construction listings in Bulgaria. Connect directly with developers, no middlemen. Apartments and houses in Sofia, Plovdiv, Varna, and other cities.`
+    : isRu
+      ? `Откройте лучшие объявления новостроек в Болгарии. Общайтесь напрямую с застройщиками, без посредников. Квартиры и дома в Софии, Пловдиве, Варне и других городах.`
+      : `Discover the best new construction listings in Bulgaria. Connect directly with developers, no middlemen. Apartments and houses in Sofia, Plovdiv, Varna, and other cities.`
   
-  // Use pretty URL for Bulgarian, canonical for English
+  // Use pretty URL for Bulgarian and Russian, canonical for English
   const canonicalUrl = isBg 
     ? `${baseUrl}/bg/obiavi`
-    : `${baseUrl}/listings`
+    : isRu
+      ? `${baseUrl}/ru/obyavleniya`
+      : `${baseUrl}/listings`
   
-  const ogLocale = isBg ? 'bg_BG' : 'en_US'
+  const ogLocale = isBg ? 'bg_BG' : isRu ? 'ru_RU' : 'en_US'
   
   return {
     title,
@@ -43,7 +50,8 @@ export async function generateMetadata({ params }: ListingsPageProps): Promise<M
       canonical: canonicalUrl,
       languages: {
       en: `${baseUrl}/listings`,
-        bg: `${baseUrl}/bg/obiavi`,
+      bg: `${baseUrl}/bg/obiavi`,
+      ru: `${baseUrl}/ru/obyavleniya`,
       'x-default': `${baseUrl}/listings`,
       },
     },
@@ -53,7 +61,7 @@ export async function generateMetadata({ params }: ListingsPageProps): Promise<M
       url: canonicalUrl,
       siteName: brand,
       locale: ogLocale,
-      alternateLocale: ['en_US', 'bg_BG'],
+      alternateLocale: ['en_US', 'bg_BG', 'ru_RU'],
       type: 'website',
       images: [
         {

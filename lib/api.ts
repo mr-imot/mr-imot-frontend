@@ -6,6 +6,7 @@ import { withRetry, isNetworkError, getConnectionErrorMessage, AUTH_RETRY_OPTION
 // Types for API responses
 export interface Developer {
   id: string;
+  slug?: string;
   email?: string;
   company_name: string;
   contact_person: string;
@@ -18,6 +19,7 @@ export interface Developer {
   verification_status: string;
   created_at: string;
   project_count?: number;
+  active_projects?: number;
   is_verified?: boolean;
 }
 
@@ -121,6 +123,7 @@ export interface Project {
   }[];
   developer?: {
     id: number;
+    slug?: string;
     company_name: string;
     email: string;
     contact_person: string;
@@ -414,7 +417,7 @@ class ApiClient {
     return this.publicRequest(endpoint);
   }
 
-  async getDeveloper(developerId: string, params: {
+  async getDeveloper(developerIdentifier: string, params: {
     page?: number;
     per_page?: number;
   } = {}): Promise<DeveloperProfile> {
@@ -426,7 +429,8 @@ class ApiClient {
     });
 
     const queryString = searchParams.toString();
-    const endpoint = `/api/v1/developers/${developerId}${queryString ? `?${queryString}` : ''}`;
+    const encodedIdentifier = encodeURIComponent(developerIdentifier);
+    const endpoint = `/api/v1/developers/${encodedIdentifier}${queryString ? `?${queryString}` : ''}`;
     
     return this.publicRequest(endpoint);
   }

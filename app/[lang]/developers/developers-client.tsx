@@ -65,105 +65,109 @@ export default function DevelopersClient({ dict, lang }: DevelopersClientProps) 
           {developers && developers.length > 0 ? (
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {developers.map((developer: any, index: number) => (
-                  <ScrollAnimationWrapper key={developer.id} delay={index * 100}>
-                    <Card className="group hover:shadow-xl transition-all duration-300 h-full flex flex-col">
-                      <CardContent className="p-0 flex flex-col h-full">
-                        {/* Cover Image */}
-                        <div className="relative h-48 bg-gradient-to-br from-primary to-primary/80 rounded-t-lg overflow-hidden">
-                          {developer.profile_image_url ? (
-                            <>
-                              <Image
-                                src={developer.profile_image_url}
-                                alt={`${developer.company_name} profile`}
-                                fill
-                                className="object-cover"
-                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                              />
-                              <div className="absolute inset-0 bg-black/20"></div>
-                            </>
-                          ) : (
-                            <div className="absolute inset-0 bg-gradient-to-br from-primary to-primary/80"></div>
-                          )}
+                {developers.map((developer: any, index: number) => {
+                  const profilePath = developer.slug || developer.id
 
-                          {/* Verification Badge */}
-                          <div className="absolute top-4 left-4 flex gap-2">
-                            {developer.is_verified && (
-                              <Badge className="bg-green-500 text-white">
-                                <CheckCircle className="w-3 h-3 mr-1" />
-                                {dict.developers.verified}
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Developer Info */}
-                        <div className="p-6 flex flex-col flex-grow">
-                          <div className="flex items-start justify-between mb-4">
-                            <div className="flex-grow">
-                              <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
-                                {developer.company_name}
-                              </h3>
-                              {developer.contact_person && (
-                                <p className="text-sm text-muted-foreground mb-2">
-                                  {dict.developers.contact}: {developer.contact_person}
-                                </p>
-                              )}
-                              <div className="flex items-center text-sm text-muted-foreground mb-2">
-                                <MapPin className="w-4 h-4 mr-1 flex-shrink-0" />
-                                <span className="break-words">{developer.office_address}</span>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Stats */}
-                          <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
-                            <div className="flex items-center">
-                              <Building className="w-4 h-4 mr-1 flex-shrink-0" />
-                              <span>{developer.project_count || 0} {dict.developers.activeProjects}</span>
-                            </div>
-                          </div>
-
-                          {/* Contact Info */}
-                          <div className="space-y-2 mb-4 flex-grow">
-                            {developer.phone && (
-                              <div className="flex items-center text-sm text-muted-foreground">
-                                <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
-                                <span>{developer.phone}</span>
-                              </div>
-                            )}
-                            {developer.website ? (
-                              <div className="flex items-center text-sm text-muted-foreground">
-                                <Globe className="w-4 h-4 mr-2 flex-shrink-0" />
-                                <a
-                                  href={developer.website}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-primary hover:text-primary/80 hover:underline"
-                                >
-                                  {dict.developers.website}
-                                </a>
-                              </div>
+                  return (
+                    <ScrollAnimationWrapper key={developer.id} delay={index * 100}>
+                      <Card className="group hover:shadow-xl transition-all duration-300 h-full flex flex-col">
+                        <CardContent className="p-0 flex flex-col h-full">
+                          {/* Cover Image */}
+                          <div className="relative h-48 bg-gradient-to-br from-primary to-primary/80 rounded-t-lg overflow-hidden">
+                            {developer.profile_image_url ? (
+                              <>
+                                <Image
+                                  src={developer.profile_image_url}
+                                  alt={`${developer.company_name} profile`}
+                                  fill
+                                  className="object-cover"
+                                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                />
+                                <div className="absolute inset-0 bg-black/20"></div>
+                              </>
                             ) : (
-                              <div className="flex items-center text-sm text-muted-foreground opacity-0">
-                                <Globe className="w-4 h-4 mr-2 flex-shrink-0" />
-                                <span>{dict.developers.website}</span>
-                              </div>
+                              <div className="absolute inset-0 bg-gradient-to-br from-primary to-primary/80"></div>
                             )}
+
+                            {/* Verification Badge */}
+                            <div className="absolute top-4 left-4 flex gap-2">
+                              {developer.is_verified && (
+                                <Badge className="bg-green-500 text-white">
+                                  <CheckCircle className="w-3 h-3 mr-1" />
+                                  {dict.developers.verified}
+                                </Badge>
+                              )}
+                            </div>
                           </div>
 
-                          {/* Action Button */}
-                          <Button asChild className="w-full mt-auto">
-                            <Link href={`/${lang === 'bg' ? 'stroiteli' : 'developers'}/${developer.id}`}>
-                              {dict.developers.viewProfile}
-                              <ExternalLink className="w-4 h-4 ml-2" />
-                            </Link>
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </ScrollAnimationWrapper>
-                ))}
+                          {/* Developer Info */}
+                          <div className="p-6 flex flex-col flex-grow">
+                            <div className="flex items-start justify-between mb-4">
+                              <div className="flex-grow">
+                                <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
+                                  {developer.company_name}
+                                </h3>
+                                {developer.contact_person && (
+                                  <p className="text-sm text-muted-foreground mb-2">
+                                    {dict.developers.contact}: {developer.contact_person}
+                                  </p>
+                                )}
+                                <div className="flex items-center text-sm text-muted-foreground mb-2">
+                                  <MapPin className="w-4 h-4 mr-1 flex-shrink-0" />
+                                  <span className="break-words">{developer.office_address}</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Stats */}
+                            <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
+                              <div className="flex items-center">
+                                <Building className="w-4 h-4 mr-1 flex-shrink-0" />
+                                <span>{developer.project_count || 0} {dict.developers.activeProjects}</span>
+                              </div>
+                            </div>
+
+                            {/* Contact Info */}
+                            <div className="space-y-2 mb-4 flex-grow">
+                              {developer.phone && (
+                                <div className="flex items-center text-sm text-muted-foreground">
+                                  <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
+                                  <span>{developer.phone}</span>
+                                </div>
+                              )}
+                              {developer.website ? (
+                                <div className="flex items-center text-sm text-muted-foreground">
+                                  <Globe className="w-4 h-4 mr-2 flex-shrink-0" />
+                                  <a
+                                    href={developer.website}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-primary hover:text-primary/80 hover:underline"
+                                  >
+                                    {dict.developers.website}
+                                  </a>
+                                </div>
+                              ) : (
+                                <div className="flex items-center text-sm text-muted-foreground opacity-0">
+                                  <Globe className="w-4 h-4 mr-2 flex-shrink-0" />
+                                  <span>{dict.developers.website}</span>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Action Button */}
+                            <Button asChild className="w-full mt-auto">
+                              <Link href={`/${lang === 'bg' ? 'stroiteli' : 'developers'}/${profilePath}`}>
+                                {dict.developers.viewProfile}
+                                <ExternalLink className="w-4 h-4 ml-2" />
+                              </Link>
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </ScrollAnimationWrapper>
+                  )
+                })}
               </div>
 
               {/* Pagination Info */}

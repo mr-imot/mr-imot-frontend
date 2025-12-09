@@ -24,6 +24,12 @@ const languages = [
     name: 'Bulgarian',
     flag: 'https://flagcdn.com/w20/bg.png',
     nativeName: 'Български'
+  },
+  {
+    code: 'ru',
+    name: 'Russian',
+    flag: 'https://flagcdn.com/w20/ru.png',
+    nativeName: 'Русский'
   }
 ]
 
@@ -53,40 +59,50 @@ export function LanguageSwitcher() {
     // 2. Remove existing locale segment if present
     let pathWithoutLocale = pathname
       .replace(/^\/en(?=\/|$)/, '')
-      .replace(/^\/bg(?=\/|$)/, '') || '/'
+      .replace(/^\/bg(?=\/|$)/, '')
+      .replace(/^\/ru(?=\/|$)/, '') || '/'
 
-    // 3. Handle pretty URL mapping for Bulgarian routes
-    // Use robust replacement that preserves dynamic segments (like listing IDs)
-    if (newLocale === 'en') {
-      // Map Bulgarian pretty URLs to English canonical paths
-      const prettyUrlMap: Record<string, string> = {
-        '/obiavi': '/listings',
-        '/stroiteli': '/developers', 
-        '/za-mistar-imot': '/about-mister-imot',
-        '/kontakt': '/contact'
+    // 3. Normalize any localized "pretty" URLs back to canonical paths first
+    const prettyToCanonical: Record<string, string> = {
+      '/obiavi': '/listings',
+      '/stroiteli': '/developers',
+      '/za-mistar-imot': '/about-mister-imot',
+      '/kontakt': '/contact',
+      '/obyavleniya': '/listings',
+      '/zastroyshchiki': '/developers',
+      '/o-mister-imot': '/about-mister-imot',
+      '/kontakty': '/contact',
+    }
+    for (const [from, to] of Object.entries(prettyToCanonical)) {
+      if (pathWithoutLocale === from || pathWithoutLocale.startsWith(from + '/')) {
+        pathWithoutLocale = pathWithoutLocale.replace(from, to)
+        break
       }
-      
-      // Check if path starts with any mapped route (handles dynamic segments)
-      for (const [from, to] of Object.entries(prettyUrlMap)) {
+    }
+
+    // 4. Map canonical paths to the target locale's pretty URLs
+    if (newLocale === 'bg') {
+      const canonicalToBg: Record<string, string> = {
+        '/listings': '/obiavi',
+        '/developers': '/stroiteli',
+        '/about-mister-imot': '/za-mistar-imot',
+        '/contact': '/kontakt',
+      }
+      for (const [from, to] of Object.entries(canonicalToBg)) {
         if (pathWithoutLocale === from || pathWithoutLocale.startsWith(from + '/')) {
-          // Replace only the prefix, preserving the rest (including dynamic segments like IDs)
           pathWithoutLocale = pathWithoutLocale.replace(from, to)
           break
         }
       }
-    } else if (newLocale === 'bg') {
-      // Map English canonical paths to Bulgarian pretty URLs
-      const canonicalUrlMap: Record<string, string> = {
-        '/listings': '/obiavi',
-        '/developers': '/stroiteli',
-        '/about-mister-imot': '/za-mistar-imot',
-        '/contact': '/kontakt'
+    } else if (newLocale === 'ru') {
+      const canonicalToRu: Record<string, string> = {
+        '/listings': '/obyavleniya',
+        '/developers': '/zastroyshchiki',
+        '/about-mister-imot': '/o-mister-imot',
+        '/contact': '/kontakty',
       }
-      
-      // Check if path starts with any mapped route (handles dynamic segments)
-      for (const [from, to] of Object.entries(canonicalUrlMap)) {
+      for (const [from, to] of Object.entries(canonicalToRu)) {
         if (pathWithoutLocale === from || pathWithoutLocale.startsWith(from + '/')) {
-          // Replace only the prefix, preserving the rest (including dynamic segments like IDs)
           pathWithoutLocale = pathWithoutLocale.replace(from, to)
           break
         }

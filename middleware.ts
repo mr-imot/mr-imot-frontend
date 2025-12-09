@@ -11,7 +11,7 @@ interface VercelRequest extends NextRequest {
   }
 }
 
-const SUPPORTED_LOCALES = ['en', 'bg']
+const SUPPORTED_LOCALES = ['en', 'bg', 'ru']
 const DEFAULT_LOCALE = 'en'
 
 function getLocale(request: NextRequest) {
@@ -64,8 +64,10 @@ export function middleware(request: NextRequest) {
     pathname === '/not-found' ||
     pathname === '/en/not-found' ||
     pathname === '/bg/not-found' ||
+    pathname === '/ru/not-found' ||
     pathname === '/en/__404__' ||
     pathname === '/bg/__404__' ||
+    pathname === '/ru/__404__' ||
     pathname === '/og-image.png' || // Explicitly exclude og-image.png
     pathname === '/favicon.ico' ||
     pathname === '/robots.txt' ||
@@ -119,7 +121,7 @@ export function middleware(request: NextRequest) {
     if (type !== 'developer') {
       // Check cookie preference for locale
       const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value
-      const locale = cookieLocale === 'bg' ? 'bg' : 'en'
+      const locale = cookieLocale === 'bg' ? 'bg' : cookieLocale === 'ru' ? 'ru' : 'en'
       // Redirect to a route that doesn't exist to trigger not-found naturally
       return NextResponse.redirect(new URL(`/${locale}/__404__`, request.url))
     }
@@ -128,6 +130,8 @@ export function middleware(request: NextRequest) {
     const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value
     if (cookieLocale === 'bg') {
       url.pathname = '/bg/register'
+    } else if (cookieLocale === 'ru') {
+      url.pathname = '/ru/register'
     } else {
       // Rewrite to /en/register internally
       url.pathname = '/en/register'
@@ -144,6 +148,8 @@ export function middleware(request: NextRequest) {
     const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value
     if (cookieLocale === 'bg') {
       url.pathname = '/bg/forgot-password'
+    } else if (cookieLocale === 'ru') {
+      url.pathname = '/ru/forgot-password'
     } else {
       // Rewrite to /en/forgot-password internally
       url.pathname = '/en/forgot-password'
@@ -161,6 +167,18 @@ export function middleware(request: NextRequest) {
     if (type !== 'developer') {
       // Redirect to non-existent route to trigger not-found naturally
       return NextResponse.redirect(new URL('/bg/__404__', request.url))
+    }
+  }
+
+  // Handle /ru/register - block access without type=developer
+  if (pathname === '/ru/register') {
+    const url = request.nextUrl.clone()
+    const type = url.searchParams.get('type')
+    
+    // Only allow developer registration - redirect others to trigger not-found
+    if (type !== 'developer') {
+      // Redirect to non-existent route to trigger not-found naturally
+      return NextResponse.redirect(new URL('/ru/__404__', request.url))
     }
   }
 
@@ -211,6 +229,22 @@ export function middleware(request: NextRequest) {
     }
   }
 
+  // Russian aliases → canonical RU pretty URLs
+  const russianAliasMap: Record<string, string> = {
+    '/ru/listings': '/ru/obyavleniya',
+    '/ru/developers': '/ru/zastroyshchiki',
+    '/ru/about-us': '/ru/o-mister-imot',
+    '/ru/about-mister-imot': '/ru/o-mister-imot',
+    '/ru/contact': '/ru/kontakty',
+  }
+  for (const [from, to] of Object.entries(russianAliasMap)) {
+    if (pathname === from || pathname.startsWith(from + '/')) {
+      const url = request.nextUrl.clone()
+      url.pathname = pathname.replace(from, to)
+      return NextResponse.redirect(url)
+    }
+  }
+
   // English canonical slugs (no prefix) → internal /en routes for rendering
   if (!pathname.startsWith('/bg/')) {
     const englishRewriteMap: Record<string, string> = {
@@ -248,6 +282,24 @@ export function middleware(request: NextRequest) {
       }
     }
   }
+
+  // Russian pretty slugs → internal canonical paths
+  if (pathname.startsWith('/ru/')) {
+    const map: Record<string, string> = {
+      '/ru/obyavleniya': '/ru/listings',
+      '/ru/zastroyshchiki': '/ru/developers',
+      '/ru/o-mister-imot': '/ru/about-us',
+      '/ru/kontakty': '/ru/contact',
+      '/ru/login': '/ru/login',
+    }
+    for (const [from, to] of Object.entries(map)) {
+      if (pathname === from || pathname.startsWith(from + '/')) {
+        const url = request.nextUrl.clone()
+        url.pathname = pathname.replace(from, to)
+        return NextResponse.rewrite(url)
+      }
+    }
+  }
   
   // Skip middleware for API routes, static assets, internal Next.js paths, and non-localized pages
   // This is a redundant check (already handled above), but kept for safety
@@ -280,18 +332,21 @@ export function middleware(request: NextRequest) {
   }
 
   // Check if pathname already includes a locale
-  // Also allow /en/not-found and /bg/not-found to pass through
+  // Also allow localized not-found pages to pass through
   const pathnameHasBgLocale = pathname.startsWith('/bg/') || pathname === '/bg'
   const pathnameHasEnLocale = pathname.startsWith('/en/') || pathname === '/en'
-  const isNotFoundPage = pathname === '/not-found' || pathname === '/en/not-found' || pathname === '/bg/not-found'
+  const pathnameHasRuLocale = pathname.startsWith('/ru/') || pathname === '/ru'
+  const isNotFoundPage = pathname === '/not-found' || pathname === '/en/not-found' || pathname === '/bg/not-found' || pathname === '/ru/not-found'
 
-  if (pathnameHasBgLocale || pathnameHasEnLocale || isNotFoundPage) {
+  if (pathnameHasBgLocale || pathnameHasEnLocale || pathnameHasRuLocale || isNotFoundPage) {
     const response = NextResponse.next()
     // Set language header based on pathname
     if (pathnameHasBgLocale) {
       response.headers.set('x-locale', 'bg')
     } else if (pathnameHasEnLocale) {
       response.headers.set('x-locale', 'en')
+    } else if (pathnameHasRuLocale) {
+      response.headers.set('x-locale', 'ru')
     } else {
       // For not-found pages, default to English
       response.headers.set('x-locale', 'en')
@@ -302,10 +357,21 @@ export function middleware(request: NextRequest) {
   // 1. Check cookie preference (user override) - HIGHEST PRIORITY
   // BUT exclude not-found pages to prevent redirect loops
   const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value
-  if (cookieLocale && SUPPORTED_LOCALES.includes(cookieLocale) && pathname !== '/not-found' && !pathname.startsWith('/en/not-found') && !pathname.startsWith('/bg/not-found')) {
+  if (
+    cookieLocale &&
+    SUPPORTED_LOCALES.includes(cookieLocale) &&
+    pathname !== '/not-found' &&
+    !pathname.startsWith('/en/not-found') &&
+    !pathname.startsWith('/bg/not-found') &&
+    !pathname.startsWith('/ru/not-found')
+  ) {
     if (cookieLocale === 'bg') {
       const response = NextResponse.redirect(new URL(`/bg${pathname}`, request.url))
       response.headers.set('x-locale', 'bg')
+      return response
+    } else if (cookieLocale === 'ru') {
+      const response = NextResponse.redirect(new URL(`/ru${pathname}`, request.url))
+      response.headers.set('x-locale', 'ru')
       return response
     }
     // For English (default), rewrite internally to /en for [lang] route handling
@@ -361,7 +427,7 @@ export function middleware(request: NextRequest) {
 
   // 4. Fallback to default locale (English) - rewrite internally to /en
   // BUT exclude not-found pages and paths that already start with /en/
-  if (!isNotFoundPage && !pathname.startsWith('/en/')) {
+  if (!isNotFoundPage && !pathname.startsWith('/en/') && !pathnameHasRuLocale && !pathnameHasBgLocale) {
     const url = request.nextUrl.clone()
     url.pathname = `/en${pathname}`
     const response = NextResponse.rewrite(url)
@@ -373,7 +439,11 @@ export function middleware(request: NextRequest) {
   // If it's a not-found page or already has /en/, set language header and pass through
   const response = NextResponse.next()
   // Determine language from pathname
-  const detectedLang = pathname.startsWith('/bg/') || pathname === '/bg' ? 'bg' : 'en'
+  const detectedLang = pathname.startsWith('/bg/') || pathname === '/bg'
+    ? 'bg'
+    : pathname.startsWith('/ru/') || pathname === '/ru'
+      ? 'ru'
+      : 'en'
   response.headers.set('x-locale', detectedLang)
   return response
 }

@@ -2,15 +2,17 @@
 
 import { createContext, useContext, ReactNode } from 'react'
 
+type SupportedLocale = 'en' | 'bg' | 'ru'
+
 interface LocaleContextType {
-  locale: 'en' | 'bg'
+  locale: SupportedLocale
   translations: any
 }
 
 const LocaleContext = createContext<LocaleContextType | null>(null)
 
 interface LocaleProviderProps {
-  locale: 'en' | 'bg'
+  locale: SupportedLocale
   translations: any
   children: ReactNode
 }

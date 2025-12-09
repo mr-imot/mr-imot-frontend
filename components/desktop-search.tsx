@@ -61,7 +61,7 @@ interface DesktopSearchProps {
   onPropertyTypeChange: (type: PropertyTypeFilter) => void
   propertyTypeFilter: PropertyTypeFilter
   placeholder?: string
-  locale: 'en' | 'bg'
+  locale: 'en' | 'bg' | 'ru'
   dict: {
     filters: {
       all: string
@@ -244,6 +244,12 @@ export function DesktopSearch({
       subtitle: 'Открийте какво има около вас',
       suggested: 'Предложени Дестинации',
       searchPlaceholder: 'Търси София, Пловдив, Варна...'
+    },
+    ru: {
+      nearby: 'Рядом',
+      subtitle: 'Узнайте, что рядом с вами',
+      suggested: 'Предложенные направления',
+      searchPlaceholder: 'Ищите София, Пловдив, Варна...'
     }
   }
 

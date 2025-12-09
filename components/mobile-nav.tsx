@@ -92,7 +92,8 @@ function MobileLanguageSwitcher({ onLinkClick }: { onLinkClick: () => void }) {
 
   const languages = [
     { code: 'en', name: 'English', flag: 'https://flagcdn.com/w20/us.png', nativeName: 'English' },
-    { code: 'bg', name: 'Bulgarian', flag: 'https://flagcdn.com/w20/bg.png', nativeName: 'Български' }
+    { code: 'bg', name: 'Bulgarian', flag: 'https://flagcdn.com/w20/bg.png', nativeName: 'Български' },
+    { code: 'ru', name: 'Russian', flag: 'https://flagcdn.com/w20/ru.png', nativeName: 'Русский' }
   ]
 
   const handleLanguageChange = (newLocale: string) => {
@@ -111,40 +112,50 @@ function MobileLanguageSwitcher({ onLinkClick }: { onLinkClick: () => void }) {
     // 2. Remove existing locale segment if present
     let pathWithoutLocale = pathname
       .replace(/^\/en(?=\/|$)/, '')
-      .replace(/^\/bg(?=\/|$)/, '') || '/'
+      .replace(/^\/bg(?=\/|$)/, '')
+      .replace(/^\/ru(?=\/|$)/, '') || '/'
 
-    // 3. Handle pretty URL mapping for Bulgarian routes
-    // Use robust replacement that preserves dynamic segments (like listing IDs)
-    if (newLocale === 'en') {
-      // Map Bulgarian pretty URLs to English canonical paths
-      const prettyUrlMap: Record<string, string> = {
-        '/obiavi': '/listings',
-        '/stroiteli': '/developers', 
-        '/za-mistar-imot': '/about-mister-imot',
-        '/kontakt': '/contact'
+    // 3. Normalize any localized "pretty" URLs back to canonical paths first
+    const prettyToCanonical: Record<string, string> = {
+      '/obiavi': '/listings',
+      '/stroiteli': '/developers',
+      '/za-mistar-imot': '/about-mister-imot',
+      '/kontakt': '/contact',
+      '/obyavleniya': '/listings',
+      '/zastroyshchiki': '/developers',
+      '/o-mister-imot': '/about-mister-imot',
+      '/kontakty': '/contact',
+    }
+    for (const [from, to] of Object.entries(prettyToCanonical)) {
+      if (pathWithoutLocale === from || pathWithoutLocale.startsWith(from + '/')) {
+        pathWithoutLocale = pathWithoutLocale.replace(from, to)
+        break
       }
-      
-      // Check if path starts with any mapped route (handles dynamic segments)
-      for (const [from, to] of Object.entries(prettyUrlMap)) {
+    }
+
+    // 4. Map canonical paths to the target locale's pretty URLs
+    if (newLocale === 'bg') {
+      const canonicalToBg: Record<string, string> = {
+        '/listings': '/obiavi',
+        '/developers': '/stroiteli',
+        '/about-mister-imot': '/za-mistar-imot',
+        '/contact': '/kontakt',
+      }
+      for (const [from, to] of Object.entries(canonicalToBg)) {
         if (pathWithoutLocale === from || pathWithoutLocale.startsWith(from + '/')) {
-          // Replace only the prefix, preserving the rest (including dynamic segments like IDs)
           pathWithoutLocale = pathWithoutLocale.replace(from, to)
           break
         }
       }
-    } else if (newLocale === 'bg') {
-      // Map English canonical paths to Bulgarian pretty URLs
-      const canonicalUrlMap: Record<string, string> = {
-        '/listings': '/obiavi',
-        '/developers': '/stroiteli',
-        '/about-mister-imot': '/za-mistar-imot',
-        '/contact': '/kontakt'
+    } else if (newLocale === 'ru') {
+      const canonicalToRu: Record<string, string> = {
+        '/listings': '/obyavleniya',
+        '/developers': '/zastroyshchiki',
+        '/about-mister-imot': '/o-mister-imot',
+        '/contact': '/kontakty',
       }
-      
-      // Check if path starts with any mapped route (handles dynamic segments)
-      for (const [from, to] of Object.entries(canonicalUrlMap)) {
+      for (const [from, to] of Object.entries(canonicalToRu)) {
         if (pathWithoutLocale === from || pathWithoutLocale.startsWith(from + '/')) {
-          // Replace only the prefix, preserving the rest (including dynamic segments like IDs)
           pathWithoutLocale = pathWithoutLocale.replace(from, to)
           break
         }
@@ -155,7 +166,7 @@ function MobileLanguageSwitcher({ onLinkClick }: { onLinkClick: () => void }) {
     // For Bulgarian, prefix with /bg/
     const newPath = newLocale === 'en' 
       ? pathWithoutLocale  // Clean URL: /listings/[id] (middleware rewrites to /en/listings/[id] internally)
-      : `/${newLocale}${pathWithoutLocale}`  // Bulgarian: /bg/obiavi/[id]
+      : `/${newLocale}${pathWithoutLocale}`  // Localized prefix: /bg/obiavi/[id], /ru/listings/[id]
     
     // 5. Preserve query parameters (e.g., ?type=developer)
     const queryString = searchParams.toString()
@@ -202,7 +213,21 @@ export function MobileNav() {
   const pathname = usePathname()
   const t = useTranslations('navigation')
   const locale = useLocale()
-  const href = (en: string, bg: string) => (locale === 'bg' ? `/bg/${bg}` : `/${en}`)
+  const href = (en: string, bg: string) => {
+    if (locale === 'bg') return `/bg/${bg}`
+    if (locale === 'ru') {
+      const ruMap: Record<string, string> = {
+        'listings': 'obyavleniya',
+        'developers': 'zastroyshchiki',
+        'about-mister-imot': 'o-mister-imot',
+        'contact': 'kontakty',
+        'register?type=developer': 'register?type=developer',
+        'login': 'login',
+      }
+      return `/ru/${ruMap[en] ?? en}`
+    }
+    return `/${en}`
+  }
 
   const navItems = [
     { href: href('listings', 'obiavi'), label: t.listings },

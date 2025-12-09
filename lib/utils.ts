@@ -8,10 +8,10 @@ export function cn(...inputs: ClassValue[]) {
 /**
  * Generate a listing URL with proper locale-aware routing
  * @param listing - Listing object with id and optional slug
- * @param lang - Language code ('en' or 'bg')
+ * @param lang - Language code ('en', 'bg', 'ru')
  * @returns URL string with proper route structure
  */
-export function getListingUrl(listing: { id: string | number; slug?: string }, lang: 'en' | 'bg'): string {
+export function getListingUrl(listing: { id: string | number; slug?: string }, lang: 'en' | 'bg' | 'ru'): string {
   const identifier = listing.slug || String(listing.id)
   
   // Debug: Log slug to identify truncation issues
@@ -21,7 +21,9 @@ export function getListingUrl(listing: { id: string | number; slug?: string }, l
   
   const url = lang === 'bg' 
     ? `/bg/obiavi/${identifier}`
-    : `/listings/${identifier}`
+    : lang === 'ru'
+      ? `/ru/obyavleniya/${identifier}`
+      : `/listings/${identifier}`
   
   // Debug: Log final URL
   if (process.env.NODE_ENV === 'development' && listing.slug) {
