@@ -4,6 +4,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import Link from "next/link";
 
 interface FaqItem {
   id: string;
@@ -95,7 +96,22 @@ const FaqSection = ({
                 {item.question}
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground pb-6 leading-relaxed">
-                {item.answer}
+                {item.answer.split(/(https?:\/\/[^\s]+)/g).map((part, i) => {
+                  if (part.match(/^https?:\/\//)) {
+                    return (
+                      <Link
+                        key={i}
+                        href={part}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline font-medium"
+                      >
+                        {part.replace(/^https?:\/\//, '').replace(/\/$/, '')}
+                      </Link>
+                    );
+                  }
+                  return <span key={i}>{part}</span>;
+                })}
               </AccordionContent>
             </AccordionItem>
           ))}

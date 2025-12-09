@@ -98,7 +98,13 @@
       "monthly": "Monthly",
       "yearly": "Yearly",
       "yearlyHint": "Switch to yearly to save {{savePerListing}}/listing monthly ({{totalSavings}}/yr, billed annually)",
-      "billedAnnually": "Billed annually: {{amount}}"
+      "billedAnnually": "Billed annually: {{amount}}",
+      "billedAnnuallyNoAmount": "Billed annually",
+      "toggleNote": "Your competitors choose annual"
+    },
+    "coffeeLine": {
+      "yearly": "Only €0.95/day per listing < than a ☕",
+      "monthly": "Only €1.25/day per listing < than a ☕"
     },
     "bestValue": "Best value",
     "finalPrice": "Total price",
@@ -107,6 +113,7 @@
       "yearly": "year"
     },
     "annualSavingsLabel": "You save €{{amount}}/yr.",
+    "annualSavingsRich": "You save {{amount}} yearly (3 months free)",
     "overTenNotice": "Need more listings? Contact us for a tailored offer with preferential pricing and special terms for your business.",
     "pricesNote": "*Prices exclude VAT.",
     "plans": {
@@ -114,7 +121,7 @@
         "name": "One plan. Full access.",
         "subtitle": "Pay only for what you use.",
         "cta": "Start now",
-        "pill": "Limited-time offer",
+        "pill": "LAST CHANCE – price increases Feb 1",
         "badge": null,
         "basePriceLabel": "€39/listing/month | €29/listing/month (billed annually)",
         "bullets": [
@@ -215,7 +222,7 @@
     "subheading": "Everything you need to know about using Mister Imot Platform",
     "question1": {
       "question": "How can I find new apartments or houses in my city?",
-      "answer": "Open the map at mrimot.com/listings and explore projects in your city. Each project is posted by a verified developer, not a broker. You can view location details, visit sites in person, and contact developers directly. No registration is required to browse and explore all listings."
+      "answer": "Open the map at https://mrimot.com/listings and explore projects in your city. Each project is posted by a verified developer, not a broker. You can view location details, visit sites in person, and contact developers directly. No registration is required to browse and explore all listings."
     },
     "question2": {
       "question": "Are the projects on the platform reliable?",
@@ -223,7 +230,7 @@
     },
     "question3": {
       "question": "What does it cost to list a project?",
-      "answer": "We offer three pricing plans: Lite plan (€39/month excluding VAT) with 1 active listing, Pro plan (€99/month excluding VAT) with 3 active listings, and Pro Plus plan with unlimited listings and custom pricing."
+      "answer": "We offer one transparent plan: €39/month per listing (excluding VAT) with monthly billing or €29/month per listing (excluding VAT) with annual billing. You pay only for the number of active listings you use (from 1 to 10). For over 10 listings, we offer a custom Enterprise plan with preferential pricing."
     },
     "question4": {
       "question": "Do I need to register to browse listings?",

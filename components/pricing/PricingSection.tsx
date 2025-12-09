@@ -20,7 +20,7 @@ export function PricingSection({ lang, dict }: PricingSectionProps) {
   const pricingDict = dict?.pricingSection
   const plansCopy = pricingDict?.plans
 
-  const [cycle, setCycle] = useState<BillingCycle>('monthly')
+  const [cycle, setCycle] = useState<BillingCycle>('yearly')
   const [units, setUnits] = useState<number>(1)
 
   const numberFormatter = useMemo(
@@ -54,19 +54,18 @@ export function PricingSection({ lang, dict }: PricingSectionProps) {
       ?.replace('{{savePerListing}}', formatCurrency(perListingSavings))
       ?.replace('{{totalSavings}}', formatCurrency(perListingSavings * 12))
 
-  const formatSavings = (value: number) => {
-    if (!pricingDict?.annualSavingsLabel || value <= 0) return null
-    return pricingDict.annualSavingsLabel.replace('{{amount}}', value.toString())
-  }
+  const savingsRichTemplate = pricingDict?.annualSavingsRich
+  const savingsText =
+    cycle === 'yearly' && savings > 0 && savingsRichTemplate
+      ? savingsRichTemplate.replace('{{amount}}', formatCurrency(savings))
+      : null
 
   const displayTotal = cycle === 'yearly' && yearlyTotal != null ? yearlyTotal / 12 : monthlyTotal
-  const billedAnnuallyLabel =
-    pricingDict?.billing?.billedAnnually ||
-    (lang === 'bg' ? 'Таксува се годишно: {{amount}}' : 'Billed annually: {{amount}}')
-  const priceLabel =
-    cycle === 'yearly' && yearlyTotal != null
-      ? billedAnnuallyLabel.replace('{{amount}}', formatCurrency(yearlyTotal))
-      : ''
+  const billedAnnuallyText =
+    pricingDict?.billing?.billedAnnuallyNoAmount ||
+    (lang === 'bg' ? 'Таксува се годишно' : 'Billed annually')
+  const priceLabel = cycle === 'yearly' ? billedAnnuallyText : ''
+  const anchorPrice = cycle === 'yearly' ? '€45' : '€50'
 
   const dynamicFeatures = useMemo(() => {
     const features = plansCopy?.single?.bullets ?? []
@@ -93,6 +92,17 @@ export function PricingSection({ lang, dict }: PricingSectionProps) {
       return f
     })
   }, [plansCopy?.single?.bullets, lang, units])
+
+  const coffeeLineYearly =
+    pricingDict?.coffeeLine?.yearly ||
+    (lang === 'bg'
+      ? 'Само €0.95/ден за обява — по-малко от едно кафе'
+      : 'Only €0.95/day per listing — less than a coffee')
+  const coffeeLineMonthly =
+    pricingDict?.coffeeLine?.monthly ||
+    (lang === 'bg'
+      ? 'Само €1.25/ден за обява — по-малко от едно кафе'
+      : 'Only €1.25/day per listing — less than a coffee')
 
   return (
     <section className="mb-16">
@@ -130,8 +140,17 @@ export function PricingSection({ lang, dict }: PricingSectionProps) {
           monthlyLabel={pricingDict?.billing?.monthly || (lang === 'bg' ? 'Месечно' : 'Monthly')}
           yearlyLabel={pricingDict?.billing?.yearly || (lang === 'bg' ? 'Годишно' : 'Yearly')}
           yearlyHint={undefined}
+          defaultCycle="yearly"
           onChange={setCycle}
         />
+        {pricingDict?.billing?.toggleNote && (
+          <div className="mt-[-2px] flex justify-center">
+            <div className="inline-flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-base sm:text-lg font-bold text-emerald-800">
+              <span className="text-emerald-700">➤</span>
+              <span>{pricingDict.billing.toggleNote}</span>
+            </div>
+          </div>
+        )}
 
         {units >= 10 && (
           <div className="border border-dashed border-gray-200 rounded-2xl p-5 md:p-6 bg-white shadow-sm">
@@ -175,11 +194,15 @@ export function PricingSection({ lang, dict }: PricingSectionProps) {
             }}
             priceLabel={priceLabel}
             totalCost={displayTotal}
+            anchorPrice={anchorPrice}
+            coffeeLineYearly={coffeeLineYearly}
+            coffeeLineMonthly={coffeeLineMonthly}
             highlight={true}
             isBestValue={false}
             bestValueLabel={plansCopy?.single?.badge || pricingDict?.bestValue || (lang === 'bg' ? 'Най-добра стойност' : 'Best value')}
             registerHref={registerHref}
-            savingsText={cycle === 'yearly' ? formatSavings(savings) : null}
+            savingsText={savingsText}
+            isYearly={cycle === 'yearly'}
             tenPlusNotice={units >= 10 ? pricingDict?.overTenNotice : undefined}
             locale={lang === 'bg' ? 'bg-BG' : 'en-US'}
           />

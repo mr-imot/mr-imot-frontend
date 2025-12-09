@@ -1,6 +1,6 @@
 import { useState } from "react"
 import Image from "next/image"
-import { CheckCircle, Info } from "lucide-react"
+import { CheckCircle, Gift, Info, Sparkles } from "lucide-react"
 import Link from "next/link"
 
 interface PlanFeature {
@@ -23,6 +23,10 @@ interface PlanCardProps {
   plan: PlanCopy
   priceLabel: string
   totalCost: number | null
+  anchorPrice?: string | null
+  isYearly?: boolean
+  coffeeLineYearly?: string
+  coffeeLineMonthly?: string
   highlight: boolean
   isBestValue: boolean
   bestValueLabel: string
@@ -36,6 +40,10 @@ export function PlanCard({
   plan,
   priceLabel,
   totalCost,
+  anchorPrice,
+  isYearly = false,
+  coffeeLineYearly,
+  coffeeLineMonthly,
   highlight,
   isBestValue,
   bestValueLabel,
@@ -52,12 +60,14 @@ export function PlanCard({
 
   const numberFormatter = new Intl.NumberFormat(locale || 'en-US', { maximumFractionDigits: 2, minimumFractionDigits: 0 })
   const formattedTotal = totalCost != null ? `€${numberFormatter.format(totalCost)}` : priceLabel
+  const priceSuffix = locale === 'bg-BG' ? '/месец' : '/month'
 
   const regularFeatures = plan.features.filter((f) => !f.bonus)
   const bonusFeatures = plan.features.filter((f) => f.bonus)
 
   return (
-    <div className={`card p-8 h-full flex flex-col relative overflow-visible ${highlight ? 'border-2 border-primary' : ''}`}>
+    <div className={isYearly ? 'rounded-3xl bg-gradient-to-r from-amber-200/70 via-sky-200/60 to-emerald-200/70 p-[3px]' : ''}>
+      <div className={`card p-8 h-full flex flex-col relative overflow-visible rounded-3xl bg-white ${highlight ? 'shadow-2xl' : ''}`}>
       {/* Mascot overlay inside the card */}
       <div className="pointer-events-none absolute right-2 bottom-4 md:right-3 md:top-1/2 md:-translate-y-1/2 z-0 opacity-45 md:opacity-60 blur-[0.5px]">
         <div className="relative h-[120px] w-[90px] md:h-[190px] md:w-[140px]">
@@ -73,32 +83,58 @@ export function PlanCard({
       </div>
 
       {badgeText && (
-        <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-          <span className="bg-primary text-white px-4 py-1 rounded-full text-sm font-semibold">
+        <div className="absolute top-4 right-4">
+          <span className="bg-primary text-white px-4 py-1 rounded-full text-sm font-semibold shadow-md">
             {badgeText}
           </span>
         </div>
       )}
 
-      <div className="text-center flex-1 flex flex-col relative z-10">
-        {plan.pill && (
-          <div className="mx-auto mb-2 inline-flex items-center rounded-full bg-slate-100 text-slate-700 px-3 py-1 text-xs font-semibold uppercase tracking-wide">
-            {plan.pill}
+      {plan.pill && (
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 rotate-[-2deg] drop-shadow-xl max-w-[calc(100vw-2rem)] sm:max-w-none">
+          <div className="inline-flex items-center gap-1 sm:gap-2 rounded-full bg-gradient-to-r from-rose-700 via-red-600 to-orange-500 text-white px-3 py-1.5 sm:px-5 sm:py-2 text-xs sm:text-base font-extrabold uppercase tracking-wide shadow-2xl">
+            <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-200" />
+            <span className="whitespace-nowrap">{plan.pill}</span>
+            <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-200" />
           </div>
-        )}
+        </div>
+      )}
+
+      <div className="text-center flex-1 flex flex-col relative z-10">
         <h4 className="text-xl font-bold text-gray-900 mb-1">
           {plan.name}
         </h4>
         <p className="text-gray-600 mb-3 text-sm">{plan.subtitle}</p>
-        <div className="text-4xl font-extrabold text-gray-900 mb-1">
-          {formattedTotal}{locale === 'bg-BG' ? '/месец' : '/month'}
+
+        {anchorPrice && (
+          <div className="text-sm font-semibold text-rose-600 line-through opacity-80">
+            {anchorPrice}{priceSuffix}
+          </div>
+        )}
+
+        <div className="text-7xl font-black text-black leading-none mb-1 mt-1">
+          {formattedTotal}{priceSuffix}
         </div>
+        {((isYearly ? coffeeLineYearly : coffeeLineMonthly) ?? '').length > 0 && (
+          <div className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">
+            {isYearly ? coffeeLineYearly : coffeeLineMonthly}
+          </div>
+        )}
         {priceLabel && priceLabel !== formattedTotal && (
-          <div className="text-sm text-gray-600">{priceLabel}</div>
+          <div className="text-sm sm:text-base font-normal text-gray-400 mb-2">
+            {priceLabel}
+          </div>
         )}
         {savingsText && (
-          <div className="inline-block text-sm font-bold text-emerald-700 bg-emerald-100 rounded-full px-3 py-1 mb-3 shadow-sm">
-            {savingsText}
+          <div className="block mt-1 mb-4 text-slate-900">
+            <div className="text-2xl sm:text-3xl font-black leading-tight">
+              {savingsText.split('(')[0].trim()}
+            </div>
+            {savingsText.includes('(') && (
+              <div className="text-lg sm:text-xl font-semibold text-slate-800">
+                ({savingsText.substring(savingsText.indexOf('(') + 1, savingsText.lastIndexOf(')')).trim()})
+              </div>
+            )}
           </div>
         )}
 
@@ -148,32 +184,32 @@ export function PlanCard({
                 return (
                   <div
                     key={i}
-                    className="relative overflow-visible bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 border-2 border-gradient-to-r border-amber-200 rounded-xl p-4 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
+                    className="relative overflow-visible bg-gradient-to-br from-emerald-400 via-green-500 to-teal-500 rounded-2xl p-4 shadow-2xl hover:shadow-[0_20px_50px_rgba(34,197,94,0.35)] transition-all duration-300 hover:scale-[1.02] text-white"
                     onMouseEnter={() => f.tooltip && setActiveBonusTooltip(i)}
                     onMouseLeave={() => setActiveBonusTooltip((prev) => (prev === i ? null : prev))}
                     onFocus={() => f.tooltip && setActiveBonusTooltip(i)}
                     onBlur={() => setActiveBonusTooltip((prev) => (prev === i ? null : prev))}
                   >
-                    <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/20 to-transparent opacity-50"></div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-white/0 opacity-70 rounded-2xl"></div>
                     
                     <div className="relative flex items-center gap-4">
-                      <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center shadow-md ring-2 ring-white/50">
-                        <CheckCircle className="w-5 h-5 text-white stroke-2" />
+                      <div className="flex-shrink-0 w-10 h-10 bg-white/90 rounded-full flex items-center justify-center shadow-md ring-2 ring-emerald-200/70">
+                        <Gift className="w-5 h-5 text-emerald-600" />
                       </div>
                       
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-bold text-gradient bg-gradient-to-r from-amber-800 to-orange-800 bg-clip-text text-transparent">
+                          <span className="text-sm sm:text-base font-black tracking-tight">
                             {f.label}
                           </span>
                           {f.tooltip && (
                             <button
                               type="button"
-                              className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-white/70 text-amber-800 hover:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400"
+                              className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-white/30 text-white hover:bg-white/50 focus:outline-none focus:ring-2 focus:ring-white/70"
                               aria-label={f.tooltip}
                               onClick={() => setActiveBonusTooltip(isOpen ? null : i)}
                             >
-                              <Info className="w-3.5 h-3.5" />
+                              <Info className="w-4 h-4" />
                             </button>
                           )}
                         </div>
@@ -181,12 +217,10 @@ export function PlanCard({
                     </div>
                     
                     {f.tooltip && isOpen && (
-                      <div className="absolute left-4 top-full mt-2 z-30 w-72 rounded-lg bg-white shadow-2xl border border-amber-200 p-3 text-xs text-gray-800">
+                      <div className="absolute left-4 top-full mt-2 z-30 w-72 rounded-lg bg-white shadow-2xl border border-emerald-100 p-3 text-xs text-gray-800">
                         {f.tooltip}
                       </div>
                     )}
-                    
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-amber-300 to-transparent opacity-60"></div>
                   </div>
                 )
               })}
@@ -202,11 +236,18 @@ export function PlanCard({
 
         <div className="mt-auto pt-4">
           <Link href={registerHref}>
-            <button className={`w-full px-6 py-3 rounded-lg font-semibold transition-colors ${highlight ? 'bg-primary text-white hover:bg-primary/90' : 'bg-gray-900 text-white hover:bg-gray-800'}`}>
+            <button
+              className={`w-full px-9 py-5 rounded-xl text-lg font-black tracking-tight transition-all shadow-xl hover:shadow-2xl hover:-translate-y-[1px] active:translate-y-0 border-2 ${
+                highlight
+                  ? 'bg-gradient-to-r from-amber-500 via-amber-400 to-orange-500 text-white border-amber-200 hover:from-amber-500 hover:to-orange-500'
+                  : 'bg-red-500 text-white border-red-200 hover:bg-red-500/90'
+              }`}
+            >
               {plan.cta}
             </button>
           </Link>
         </div>
+      </div>
       </div>
     </div>
   )
