@@ -128,7 +128,7 @@ export function PricingSection({ lang, dict }: PricingSectionProps) {
             max={10}
             value={units}
             onChange={(e) => setUnits(parseInt(e.target.value, 10))}
-            className="w-full accent-emerald-600"
+            className="pricing-slider w-full"
           />
           <div className="flex items-center justify-between text-xs text-gray-500">
             <span>{pricingDict?.sliderMin ?? '1'}</span>
@@ -214,6 +214,80 @@ export function PricingSection({ lang, dict }: PricingSectionProps) {
           {pricingDict?.pricesNote || (lang === 'bg' ? '*Цените са без ДДС.' : '*Prices are without VAT.')}
         </p>
       </div>
+      <style jsx>{`
+        .pricing-slider {
+          appearance: none;
+          width: 100%;
+          height: 18px;
+          border-radius: 9999px;
+          background: linear-gradient(90deg, #ecfdf3 0%, #d1fae5 100%);
+          outline: none;
+          box-shadow:
+            inset 0 1px 4px rgba(0, 0, 0, 0.08),
+            0 6px 14px rgba(16, 185, 129, 0.15);
+          transition: box-shadow 0.2s ease, transform 0.12s ease;
+          padding: 0;
+          margin: 2px 0 6px;
+          touch-action: pan-x;
+        }
+        .pricing-slider:focus-visible {
+          box-shadow:
+            inset 0 1px 4px rgba(0, 0, 0, 0.08),
+            0 0 0 6px rgba(16, 185, 129, 0.2),
+            0 10px 18px rgba(16, 185, 129, 0.18);
+        }
+        .pricing-slider::-webkit-slider-runnable-track {
+          height: 18px;
+          border-radius: 9999px;
+          background: #e5e7eb;
+        }
+        .pricing-slider::-moz-range-track {
+          height: 18px;
+          border-radius: 9999px;
+          background: #e5e7eb;
+        }
+        .pricing-slider::-webkit-slider-thumb {
+          appearance: none;
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          background: #ffffff;
+          border: 3px solid #10b981;
+          box-shadow: 0 8px 18px rgba(16, 185, 129, 0.35);
+          margin-top: -7px;
+        }
+        .pricing-slider::-moz-range-thumb {
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          background: #ffffff;
+          border: 3px solid #10b981;
+          box-shadow: 0 8px 18px rgba(16, 185, 129, 0.35);
+        }
+        .pricing-slider:active::-webkit-slider-thumb {
+          transform: scale(1.03);
+          box-shadow: 0 10px 20px rgba(16, 185, 129, 0.4);
+        }
+        .pricing-slider:active::-moz-range-thumb {
+          transform: scale(1.03);
+          box-shadow: 0 10px 20px rgba(16, 185, 129, 0.4);
+        }
+        @media (max-width: 640px) {
+          .pricing-slider {
+            height: 22px;
+          }
+          .pricing-slider::-webkit-slider-runnable-track,
+          .pricing-slider::-moz-range-track {
+            height: 22px;
+          }
+          .pricing-slider::-webkit-slider-thumb,
+          .pricing-slider::-moz-range-thumb {
+            width: 36px;
+            height: 36px;
+            margin-top: -7px;
+          }
+        }
+      `}</style>
     </section>
   )
 }
