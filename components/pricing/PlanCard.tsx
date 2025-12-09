@@ -148,7 +148,7 @@ export function PlanCard({
         </div>
         {((isYearly ? coffeeLineYearly : coffeeLineMonthly) ?? '').length > 0 && (
           <div className="text-lg sm:text-2xl font-bold text-gray-900 mb-1 flex items-center justify-center gap-1">
-            {renderCoffeeLine(isYearly ? coffeeLineYearly : coffeeLineMonthly)}
+            {renderCoffeeLine((isYearly ? coffeeLineYearly : coffeeLineMonthly) ?? '')}
           </div>
         )}
         {priceLabel && priceLabel !== formattedTotal && (
