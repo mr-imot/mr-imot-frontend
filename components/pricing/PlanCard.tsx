@@ -65,6 +65,33 @@ export function PlanCard({
   const regularFeatures = plan.features.filter((f) => !f.bonus)
   const bonusFeatures = plan.features.filter((f) => f.bonus)
 
+  const renderCoffeeLine = (text: string) => {
+    const parts = text.split('☕')
+    if (parts.length === 1) return text
+    
+    return (
+      <span className="inline-flex items-center whitespace-nowrap">
+        <span className="leading-tight">{parts[0].trimEnd()}</span>
+        <svg
+          className="inline-block w-5 h-5 sm:w-6 sm:h-6 align-middle ml-1"
+          viewBox="0 0 491.52 491.52"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <path fill="#D15241" d="M386.404,38.983H105.116v-23.75C105.116,6.82,111.936,0,120.348,0h250.824c8.413,0,15.232,6.82,15.232,15.233V38.983z" />
+          <path fill="#E56353" d="M423.124,62.405l-7.71-28.086c-0.879-3.203-3.792-5.425-7.114-5.425H83.22c-3.322,0-6.234,2.222-7.114,5.425l-7.71,28.086c-1.29,4.695,2.244,9.329,7.114,9.329h340.5C420.879,71.734,424.412,67.101,423.124,62.405z" />
+          <path fill="#FCD462" d="M139.444,470.852c1.554,11.826,11.635,20.668,23.563,20.668h165.506c11.929,0,22.008-8.842,23.563-20.668l13.217-100.513H126.227L139.444,470.852z" />
+          <polygon fill="#FCD462" points="404.556,71.734 86.964,71.734 102.898,192.915 388.623,192.915" />
+          <polygon fill="#DC8744" points="102.898,192.915 126.227,370.339 365.293,370.339 388.623,192.915" />
+          <path fill="#AD6636" d="M283.105,318.973c21.366-21.366,28.643-50.291,19.94-71.526c-17.089-0.313-34.147,8.023-44.231,21.865c-3.501,4.804-6.228,10.208-9.115,15.928c-1.119,2.215-2.238,4.43-3.404,6.616c-6.961,13.05-15.629,25.132-25.759,35.904c-1.975,2.099-6.165,6.534-11.807,9.873C230.164,348.258,260.768,341.31,283.105,318.973z" />
+          <path fill="#AD6636" d="M210.676,318.491c9.314-9.903,17.28-21.006,23.679-33.002c1.118-2.096,2.19-4.222,3.263-6.345c3.005-5.952,6.111-12.106,10.258-17.798c10.925-14.997,28.377-24.835,46.741-26.986c-20.625-20.624-58.874-15.814-85.433,10.745c-25.908,25.908-31.108,62.932-12.202,83.877C200.397,327.526,205.152,324.365,210.676,318.491z" />
+          <path fill="#995B30" d="M220.535,327.761c10.131-10.772,18.798-22.854,25.759-35.904c1.166-2.186,2.285-4.4,3.404-6.616c2.887-5.72,5.615-11.124,9.115-15.928c10.083-13.843,27.142-22.178,44.231-21.865c-1.975-4.821-4.78-9.24-8.427-13.089c-18.364,2.151-35.816,11.99-46.741,26.986c-4.148,5.693-7.254,11.847-10.258,17.798c-1.072,2.123-2.145,4.249-3.263,6.345c-6.399,11.997-14.365,23.1-23.679,33.002c-5.525,5.874-10.279,9.035-14.461,9.671c3.278,3.278,7.005,5.908,11.056,7.916C214.371,334.294,218.56,329.86,220.535,327.761z" />
+        </svg>
+        <span className="leading-tight">{parts[1].trimStart()}</span>
+      </span>
+    )
+  }
+
   return (
     <div className={isYearly ? 'rounded-3xl bg-gradient-to-r from-amber-200/70 via-sky-200/60 to-emerald-200/70 p-[3px]' : ''}>
       <div className={`card p-8 h-full flex flex-col relative overflow-visible rounded-3xl bg-white ${highlight ? 'shadow-2xl' : ''}`}>
@@ -120,8 +147,8 @@ export function PlanCard({
           {formattedTotal}{priceSuffix}
         </div>
         {((isYearly ? coffeeLineYearly : coffeeLineMonthly) ?? '').length > 0 && (
-          <div className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">
-            {isYearly ? coffeeLineYearly : coffeeLineMonthly}
+          <div className="text-lg sm:text-2xl font-bold text-gray-900 mb-1 flex items-center justify-center gap-1">
+            {renderCoffeeLine(isYearly ? coffeeLineYearly : coffeeLineMonthly)}
           </div>
         )}
         {priceLabel && priceLabel !== formattedTotal && (
