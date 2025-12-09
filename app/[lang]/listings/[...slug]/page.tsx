@@ -7,7 +7,7 @@ import { brandForLang, formatTitleWithBrand } from '@/lib/seo'
 
 interface PageProps {
   params: Promise<{
-    lang: 'en' | 'bg'
+    lang: 'en' | 'bg' | 'ru'
     slug: string[]
   }>
 }
@@ -150,6 +150,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   // Active project - return full SEO metadata
   const fullProject = project as Project
   const isBg = lang === 'bg'
+  const isRu = lang === 'ru'
   const brand = brandForLang(lang)
   const projectTitle = fullProject.title || fullProject.name || 'New Construction Project'
   const projectDescription = fullProject.description 
@@ -167,9 +168,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const urlPath = fullProject.slug || projectId || identifier
   const canonicalUrl = isBg 
     ? `${baseUrl}/bg/obiavi/${urlPath}`
-    : `${baseUrl}/listings/${urlPath}`
+    : isRu
+      ? `${baseUrl}/ru/obyavleniya/${urlPath}`
+      : `${baseUrl}/listings/${urlPath}`
   
-  const ogLocale = isBg ? 'bg_BG' : 'en_US'
+  const ogLocale = isBg ? 'bg_BG' : isRu ? 'ru_RU' : 'en_US'
   const rawImage =
     fullProject.cover_image_url ||
     fullProject.images?.[0]?.image_url
@@ -194,6 +197,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       languages: {
         en: `${baseUrl}/listings/${urlPath}`,
         bg: `${baseUrl}/bg/obiavi/${urlPath}`,
+        ru: `${baseUrl}/ru/obyavleniya/${urlPath}`,
         'x-default': `${baseUrl}/listings/${urlPath}`,
       },
     },
@@ -203,7 +207,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       url: canonicalUrl,
       siteName: brand,
       locale: ogLocale,
-      alternateLocale: ['en_US', 'bg_BG'],
+      alternateLocale: ['en_US', 'bg_BG', 'ru_RU'],
       type: 'website',
       images: [
         {

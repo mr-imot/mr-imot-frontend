@@ -8,7 +8,7 @@ interface DeveloperStructuredDataProps {
 
 export default function DeveloperStructuredData({ developer, lang, baseUrl }: DeveloperStructuredDataProps) {
   const isBg = lang === 'bg'
-  const localizedPath = lang === 'bg' ? 'bg/stroiteli' : 'developers'
+  const localizedPath = lang === 'bg' ? 'bg/stroiteli' : lang === 'ru' ? 'ru/zastroyshchiki' : 'developers'
   const developerPath = developer.slug || developer.id
   
   // LocalBusiness Schema (only for verified developers)

@@ -6,7 +6,7 @@ import type { Metadata } from 'next'
 
 interface AboutPageProps {
   params: Promise<{
-    lang: 'en' | 'bg'
+    lang: 'en' | 'bg' | 'ru'
   }>
 }
 
@@ -16,28 +16,37 @@ export async function generateMetadata({ params }: AboutPageProps): Promise<Meta
   const baseUrl = siteUrl.replace(/\/$/, '')
   
   const isBg = lang === 'bg'
+  const isRu = lang === 'ru'
   const brand = brandForLang(lang)
   const socialImage = 'https://ik.imagekit.io/ts59gf2ul/Logo/mister-imot-waving-hi-with-bg.png?tr=w-1200,h-630,cm-pad_resize,bg-FFFFFF,fo-auto,q-85,f-auto&v=20241205'
   
   const rawTitle = isBg
     ? `За Нас – ${brand} | Платформа за ново строителство в България`
-    : `About Us – ${brand} | New Construction Platform in Bulgaria`
+    : isRu
+      ? `О нас – ${brand} | Платформа новостроек в Болгарии`
+      : `About Us – ${brand} | New Construction Platform in Bulgaria`
   const title = formatTitleWithBrand(rawTitle, lang)
   
   const description = isBg
     ? `Научете повече за ${brand} – платформата, която модернизира пазара на ново строителство в България. Директна връзка със строители, без брокери и без комисионни. Нашата мисия, подход и роудмап за развитие.`
-    : `Learn more about ${brand} – the platform modernizing Bulgaria's new construction market. Connect directly with developers, no brokers and 0% commissions. Our mission, approach, and development roadmap.`
+    : isRu
+      ? `Узнайте больше о ${brand} – платформе, которая модернизирует рынок новостроек в Болгарии. Общайтесь напрямую с застройщиками, без брокеров и комиссий. Наша миссия, подход и планы развития.`
+      : `Learn more about ${brand} – the platform modernizing Bulgaria's new construction market. Connect directly with developers, no brokers and 0% commissions. Our mission, approach, and development roadmap.`
   
-  // Use pretty URL for Bulgarian, canonical for English
+  // Use pretty URL for Bulgarian and Russian, canonical for English
   const canonicalUrl = isBg 
     ? `${baseUrl}/bg/za-mistar-imot`
-    : `${baseUrl}/about-mister-imot`
+    : isRu
+      ? `${baseUrl}/ru/o-mister-imot`
+      : `${baseUrl}/about-mister-imot`
   
-  const ogLocale = isBg ? 'bg_BG' : 'en_US'
+  const ogLocale = isBg ? 'bg_BG' : isRu ? 'ru_RU' : 'en_US'
   
   const keywords = isBg
     ? 'за нас, мистър имот, ново строителство, България, платформа, имоти, строители, без брокери, мисия, роудмап'
-    : 'about us, mister imot, new construction, Bulgaria, platform, real estate, developers, no brokers, mission, roadmap'
+    : isRu
+      ? 'о нас, мистер имот, новостройки, болгария, платформа, недвижимость, застройщики, без брокеров, миссия, планы'
+      : 'about us, mister imot, new construction, Bulgaria, platform, real estate, developers, no brokers, mission, roadmap'
 
   return {
     title,
@@ -53,6 +62,7 @@ export async function generateMetadata({ params }: AboutPageProps): Promise<Meta
       languages: {
         en: `${baseUrl}/about-mister-imot`,
         bg: `${baseUrl}/bg/za-mistar-imot`,
+        ru: `${baseUrl}/ru/o-mister-imot`,
         'x-default': `${baseUrl}/about-mister-imot`,
       },
     },
@@ -62,7 +72,7 @@ export async function generateMetadata({ params }: AboutPageProps): Promise<Meta
       url: canonicalUrl,
       siteName: brand,
       locale: ogLocale,
-      alternateLocale: ['en_US', 'bg_BG'],
+      alternateLocale: ['en_US', 'bg_BG', 'ru_RU'],
       type: 'website',
       images: [
         {

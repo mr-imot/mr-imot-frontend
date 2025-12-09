@@ -5,7 +5,7 @@ import type { Metadata } from 'next'
 
 interface DevelopersPageProps {
   params: Promise<{
-    lang: 'en' | 'bg'
+    lang: 'en' | 'bg' | 'ru'
   }>
 }
 
@@ -15,24 +15,31 @@ export async function generateMetadata({ params }: DevelopersPageProps): Promise
   const baseUrl = siteUrl.replace(/\/$/, '')
   
   const isBg = lang === 'bg'
+  const isRu = lang === 'ru'
   const brand = brandForLang(lang)
   const socialImage = 'https://ik.imagekit.io/ts59gf2ul/Logo/mister-imot-waving-hi-with-bg.png?tr=w-1200,h-630,cm-pad_resize,bg-FFFFFF,fo-auto,q-85,f-auto&v=20241205'
   
   const rawTitle = isBg
     ? `Верифицирани Строители – ${brand} | Платформа за Ново Строителство`
-    : `Verified Developers – ${brand} | New Construction Platform`
+    : isRu
+      ? `Застройщики – ${brand} | Новостройки в Болгарии`
+      : `Verified Developers – ${brand} | New Construction Platform`
   const title = formatTitleWithBrand(rawTitle, lang)
   
   const description = isBg
     ? `Открийте верифицирани строители в България. Директна връзка с компании за ново строителство, без посредници. Прегледайте портфолиото и проектите на всеки строител.`
-    : `Discover verified developers in Bulgaria. Connect directly with new construction companies, no middlemen. Browse each developer's portfolio and projects.`
+    : isRu
+      ? `Найдите проверенных застройщиков в Болгарии. Общайтесь напрямую, без посредников и комиссий. Смотрите портфолио и проекты каждого застройщика.`
+      : `Discover verified developers in Bulgaria. Connect directly with new construction companies, no middlemen. Browse each developer's portfolio and projects.`
   
-  // Use pretty URL for Bulgarian, canonical for English
+  // Use pretty URL for Bulgarian and Russian, canonical for English
   const canonicalUrl = isBg 
     ? `${baseUrl}/bg/stroiteli`
-    : `${baseUrl}/developers`
+    : isRu
+      ? `${baseUrl}/ru/zastroyshchiki`
+      : `${baseUrl}/developers`
   
-  const ogLocale = isBg ? 'bg_BG' : 'en_US'
+  const ogLocale = isBg ? 'bg_BG' : isRu ? 'ru_RU' : 'en_US'
   return {
     title,
     description,
@@ -44,8 +51,9 @@ export async function generateMetadata({ params }: DevelopersPageProps): Promise
     alternates: {
       canonical: canonicalUrl,
       languages: {
-      en: `${baseUrl}/developers`,
+        en: `${baseUrl}/developers`,
         bg: `${baseUrl}/bg/stroiteli`,
+        ru: `${baseUrl}/ru/zastroyshchiki`,
       'x-default': `${baseUrl}/developers`,
       },
     },
@@ -55,7 +63,7 @@ export async function generateMetadata({ params }: DevelopersPageProps): Promise
       url: canonicalUrl,
       siteName: brand,
       locale: ogLocale,
-      alternateLocale: ['en_US', 'bg_BG'],
+      alternateLocale: ['en_US', 'bg_BG', 'ru_RU'],
       type: 'website',
       images: [
         {

@@ -7,7 +7,7 @@ import { brandForLang, formatTitleWithBrand } from '@/lib/seo'
 
 interface PageProps {
   params: Promise<{
-    lang: 'en' | 'bg'
+    lang: 'en' | 'bg' | 'ru'
     slug: string
   }>
 }
@@ -59,6 +59,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
   
   const isBg = lang === 'bg'
+  const isRu = lang === 'ru'
   const brand = brandForLang(lang)
   const companyName = developer.company_name
   const developerPath = developer.slug || slug
@@ -66,18 +67,24 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   
   const rawTitle = isBg
     ? `${companyName} – Верифициран Строител | ${brand}`
-    : `${companyName} – Verified Developer | ${brand}`
+    : isRu
+      ? `${companyName} – Проверенный застройщик | ${brand}`
+      : `${companyName} – Verified Developer | ${brand}`
   const title = formatTitleWithBrand(rawTitle, lang)
   
   const description = isBg
     ? `Открийте ${companyName} в ${brand}. Верифициран строител с ${activeProjects} активни проекта. Директна връзка без посредници.`
-    : `Discover ${companyName} on ${brand}. Verified developer with ${activeProjects} active projects. Connect directly, no middlemen.`
+    : isRu
+      ? `Узнайте о ${companyName} на ${brand}. Проверенный застройщик с ${activeProjects} активными проектами. Прямой контакт без посредников.`
+      : `Discover ${companyName} on ${brand}. Verified developer with ${activeProjects} active projects. Connect directly, no middlemen.`
   
   const canonicalUrl = isBg 
     ? `${baseUrl}/bg/stroiteli/${developerPath}`
-    : `${baseUrl}/developers/${developerPath}`
+    : isRu
+      ? `${baseUrl}/ru/zastroyshchiki/${developerPath}`
+      : `${baseUrl}/developers/${developerPath}`
   
-  const ogLocale = isBg ? 'bg_BG' : 'en_US'
+  const ogLocale = isBg ? 'bg_BG' : isRu ? 'ru_RU' : 'en_US'
   return {
     title,
     description,
@@ -90,6 +97,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       languages: {
         en: `${baseUrl}/developers/${developerPath}`,
         bg: `${baseUrl}/bg/stroiteli/${developerPath}`,
+        ru: `${baseUrl}/ru/zastroyshchiki/${developerPath}`,
         'x-default': `${baseUrl}/developers/${developerPath}`,
       },
     },
