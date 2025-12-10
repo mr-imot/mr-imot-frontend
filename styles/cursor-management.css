@@ -1,0 +1,60 @@
+/* ===== CURSOR AND CARET MANAGEMENT ===== */
+/* Moved from globals.css - import only where needed */
+
+/* Text cursor for input fields */
+input[type="text"], 
+input[type="email"], 
+input[type="password"], 
+input[type="search"], 
+input[type="tel"],
+input[type="url"],
+input[type="number"],
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"],
+input[type="month"],
+input[type="week"],
+textarea,
+[contenteditable="true"],
+[role="textbox"],
+[role="searchbox"],
+[role="combobox"],
+[role="spinbutton"] {
+  cursor: text !important;
+  caret-color: auto !important;
+}
+
+/* Pointer cursor for interactive elements */
+button, 
+a, 
+[role="button"], 
+[role="link"],
+[role="menuitem"],
+[role="tab"],
+[role="option"],
+.clickable,
+[data-clickable="true"] {
+  cursor: pointer !important;
+}
+
+/* Disabled elements */
+button:disabled,
+input:disabled,
+textarea:disabled,
+[aria-disabled="true"],
+.disabled {
+  cursor: not-allowed !important;
+}
+
+/* Images - no text cursor */
+img, video, canvas, svg, picture {
+  cursor: default;
+  user-select: none;
+}
+
+/* Interactive images */
+a img, a svg, button img, button svg, [role="button"] img, [role="button"] svg,
+.cursor-pointer {
+  cursor: pointer !important;
+}
+

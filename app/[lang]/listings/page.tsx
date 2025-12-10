@@ -1,4 +1,5 @@
 import "@/styles/mobile-optimizations.css"
+import "@/styles/maps.css"
 import { getDictionary } from "../dictionaries"
 import { LocalizedListingsPage } from "./localized-listings-page"
 import { brandForLang, formatTitleWithBrand } from "@/lib/seo"
