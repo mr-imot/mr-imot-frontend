@@ -43,7 +43,7 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
             </div>
             
             {/* Subtitle + Promise */}
-            <div className="mt-4 sm:mt-6 lg:mt-8">
+            <div className="mt-4 sm:mt-6 lg:mt-8" style={{ marginTop: 'clamp(0.75rem, 2vh, 2rem)' }}>
               <p className={clsx("font-normal leading-relaxed font-sans text-gray-600", styles.heroSubtitle)}>
                 <span className="font-semibold text-gray-800">{dict.hero.description.intro}</span> {dict.hero.description.platform} <span className="font-semibold text-gray-800">{dict.hero.description.noBrokers}</span>.
               </p>
@@ -138,10 +138,10 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
               priority
               className={clsx("w-auto h-auto transition-all duration-700 hover:scale-105 hover:rotate-1", styles.heroImage)}
               style={{
-                width: 'clamp(300px, min(45vw, 800px), 800px)',
+                width: 'clamp(300px, min(40vw, 700px), 800px)',
                 height: 'auto'
               }}
-              sizes="(max-width: 1024px) 0vw, min(45vw, 800px)"
+              sizes="(max-width: 1024px) 0vw, min(40vw, 700px)"
             />
           </div>
         </div>

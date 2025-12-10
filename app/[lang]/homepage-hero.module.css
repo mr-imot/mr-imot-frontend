@@ -2,10 +2,11 @@
 .heroSection {
   position: relative;
   overflow: visible;
-  /* Use viewport-based height that adapts to all screen sizes */
+  /* Use min-height to allow content to flow and account for taskbars/browser chrome */
   min-height: calc(100dvh - var(--header-height, 80px) - env(safe-area-inset-bottom, 0px));
-  padding-top: clamp(1rem, 3vh, 2rem);
-  padding-bottom: clamp(1rem, 3vh, 2rem);
+  padding-top: clamp(1rem, 2.5vh, 2rem);
+  /* Extra bottom padding to account for taskbars and ensure CTA is always visible */
+  padding-bottom: clamp(2rem, 5vh, 3rem);
   display: flex;
   align-items: center;
 }
@@ -13,18 +14,30 @@
 /* Fallback for browsers without dvh support */
 @supports not (min-height: 100dvh) {
   .heroSection {
-    min-height: calc(var(--fixed-vh, 100vh) - var(--header-height, 80px));
+    min-height: calc(var(--fixed-vh, 100vh) - var(--header-height, 80px) - 60px);
+    padding-bottom: clamp(2.5rem, 6vh, 4rem);
   }
 }
 
-/* Desktop: Adaptive height based on viewport */
+/* Desktop: Adaptive min-height that accounts for taskbars */
 @media (min-width: 768px) {
   .heroSection {
-    height: calc(100dvh - var(--header-height, 80px));
-    min-height: clamp(500px, 85vh, 900px);
-    max-height: clamp(700px, 95vh, 1000px);
-    padding-top: clamp(1rem, 2vh, 2rem);
-    padding-bottom: clamp(1rem, 2vh, 2rem);
+    /* Use min-height instead of fixed height to prevent cutting off content */
+    min-height: calc(100dvh - var(--header-height, 80px) - 50px);
+    /* Conservative max-height to ensure content fits */
+    max-height: none;
+    padding-top: clamp(1.5rem, 3vh, 2.5rem);
+    /* Extra padding at bottom for taskbars - very important */
+    padding-bottom: clamp(2.5rem, 6vh, 4rem);
+  }
+}
+
+/* Smaller screens (13-15 inch laptops): More conservative spacing */
+@media (min-width: 768px) and (max-height: 900px) {
+  .heroSection {
+    min-height: calc(100dvh - var(--header-height, 80px) - 40px);
+    padding-top: clamp(1rem, 2vh, 1.5rem);
+    padding-bottom: clamp(2rem, 5vh, 3rem);
   }
 }
 
@@ -43,11 +56,20 @@
   display: flex;
   flex-direction: column;
   transform: translateZ(0);
+  /* Ensure content can shrink if needed */
+  min-height: 0;
 }
 
 @media (min-width: 1024px) {
   .heroContent {
     justify-content: center;
+  }
+}
+
+/* Smaller viewports: Reduce spacing between elements */
+@media (min-width: 768px) and (max-height: 900px) {
+  .heroContent {
+    gap: clamp(0.5rem, 1.5vh, 1rem);
   }
 }
 
@@ -64,6 +86,14 @@
     line-height: 1 !important;
     /* Better scaling for desktop - uses both viewport width and height */
     font-size: clamp(2.25rem, 3.5vw + 1.5rem, 4.75rem) !important;
+  }
+}
+
+/* Smaller viewports: Reduce title size to fit better */
+@media (min-width: 768px) and (max-height: 900px) {
+  .heroTitle {
+    font-size: clamp(2rem, 3vw + 1rem, 3.5rem) !important;
+    margin-bottom: clamp(0.25rem, 1vh, 0.5rem);
   }
 }
 
@@ -90,15 +120,39 @@
   }
 }
 
+/* Smaller viewports: Reduce subtitle spacing */
+@media (min-width: 768px) and (max-height: 900px) {
+  .heroSubtitle {
+    margin-top: clamp(0.5rem, 1.5vh, 1rem) !important;
+    font-size: clamp(0.95rem, 1vw + 0.5rem, 1.1rem);
+  }
+}
+
 .heroCta {
   /* Desktop only */
 }
 
 /* Desktop: Fluid CTA button sizing */
 @media (min-width: 768px) {
+  .heroCta {
+    margin-top: clamp(1rem, 2vh, 2rem) !important;
+  }
+  
   .heroCta button {
     padding: clamp(0.875rem, 1.5vh, 1.25rem) clamp(1.5rem, 3vw, 2.5rem);
     font-size: clamp(1rem, 1.2vw + 0.5rem, 1.75rem) !important;
+  }
+}
+
+/* Smaller viewports: Reduce CTA spacing and size */
+@media (min-width: 768px) and (max-height: 900px) {
+  .heroCta {
+    margin-top: clamp(0.75rem, 1.5vh, 1.25rem) !important;
+  }
+  
+  .heroCta button {
+    padding: clamp(0.75rem, 1.2vh, 1rem) clamp(1.25rem, 2.5vw, 2rem);
+    font-size: clamp(0.95rem, 1vw + 0.5rem, 1.5rem) !important;
   }
 }
 
@@ -135,6 +189,22 @@
   }
 }
 
+/* Smaller viewports: Reduce image size to fit better */
+@media (min-width: 768px) and (max-height: 900px) {
+  .heroImage {
+    max-width: min(40vw, 600px);
+    max-height: min(65vh, 500px);
+  }
+}
+
+/* Very small viewports (13 inch): Even more conservative */
+@media (min-width: 768px) and (max-height: 800px) {
+  .heroImage {
+    max-width: min(35vw, 500px);
+    max-height: min(60vh, 450px);
+  }
+}
+
 /* Very wide screens: prevent image from getting too large */
 @media (min-width: 1920px) {
   .heroImage {
@@ -142,15 +212,31 @@
   }
 }
 
-/* Short screens: tighten spacing */
+/* Short screens: tighten spacing even more */
 @media (max-height: 650px) {
   .heroSection {
     padding-top: 1rem;
-    padding-bottom: 1rem;
+    padding-bottom: 2rem;
+    min-height: calc(100dvh - var(--header-height, 80px) - 30px);
   }
   
   .heroTitle {
-    font-size: clamp(1.75rem, 5vw, 2.5rem) !important;
+    font-size: clamp(1.75rem, 4vw, 2.5rem) !important;
+    margin-bottom: 0.25rem;
+  }
+  
+  .heroSubtitle {
+    margin-top: 0.5rem !important;
+    font-size: clamp(0.9rem, 1vw + 0.4rem, 1rem);
+  }
+  
+  .heroCta {
+    margin-top: 0.75rem !important;
+  }
+  
+  .heroImage {
+    max-width: min(35vw, 450px);
+    max-height: min(55vh, 400px);
   }
 }
 
