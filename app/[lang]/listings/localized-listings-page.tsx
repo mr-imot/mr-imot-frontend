@@ -562,30 +562,9 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
     initMobileMap()
   }, [propertyTypeFilter, getOrCreateFetchController])
   
-  // Recenter when city changes
+  // Recenter map ONLY when city changes (not when filter changes)
   useEffect(() => {
-    // Get city bounds for cache lookup
-    const cityBounds = CITY_BOUNDS[selectedCity]
-    
-    // Check cache FIRST and show data immediately if available
-    const cached = boundsCache.getCachedData(
-      cityBounds.sw_lat,
-      cityBounds.sw_lng,
-      cityBounds.ne_lat,
-      cityBounds.ne_lng,
-      propertyTypeFilter
-    )
-    
-    if (cached && cached.length > 0) {
-      // Show cached data INSTANTLY (no blocking!)
-      const local = new Map<string, PropertyData>()
-      cached.forEach((p) => local.set(String(p.id), p))
-      propertyCacheRef.current = local
-      setCacheVersion((v) => v + 1)
-      setIsInitialLoading(false)
-    }
-    
-    // Pan map (animation happens in parallel with data display)
+    // Pan map to city center
     if (googleMapRef.current) {
       googleMapRef.current.panTo(CITY_COORDINATES[selectedCity])
       googleMapRef.current.setZoom(CITY_COORDINATES[selectedCity].zoom)
@@ -596,7 +575,6 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
     }
     
     // Update bounds after short delay (map needs time to animate)
-    // This uses getBounds() from existing map, not new google.maps.* constructors
     const timeoutId = setTimeout(() => {
       if (typeof window !== 'undefined' && window.innerWidth >= 1024 && googleMapRef.current) {
         const newBounds = googleMapRef.current.getBounds()
@@ -628,7 +606,37 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
     }, 300) // Short delay for map animation
     
     return () => clearTimeout(timeoutId)
-  }, [selectedCity, propertyTypeFilter, getOrCreateFetchController])
+  }, [selectedCity]) // Only re-run when city changes, not filter
+  
+  // Refetch data when filter changes (without panning the map)
+  useEffect(() => {
+    // Get current bounds and refetch with new filter
+    if (typeof window !== 'undefined' && window.innerWidth >= 1024 && googleMapRef.current) {
+      const bounds = googleMapRef.current.getBounds()
+      if (bounds) {
+        const sw = bounds.getSouthWest()
+        const ne = bounds.getNorthEast()
+        getOrCreateFetchController().schedule(
+          sw.lat(), sw.lng(), ne.lat(), ne.lng(),
+          propertyTypeFilter as MapPropertyTypeFilter,
+          { immediate: true }
+        )
+      }
+    }
+    
+    if (typeof window !== 'undefined' && window.innerWidth < 1024 && mobileGoogleMapRef.current) {
+      const bounds = mobileGoogleMapRef.current.getBounds()
+      if (bounds) {
+        const sw = bounds.getSouthWest()
+        const ne = bounds.getNorthEast()
+        getOrCreateFetchController().schedule(
+          sw.lat(), sw.lng(), ne.lat(), ne.lng(),
+          propertyTypeFilter as MapPropertyTypeFilter,
+          { immediate: true }
+        )
+      }
+    }
+  }, [propertyTypeFilter, getOrCreateFetchController])
 
   // Build filtered list - MOBILE & DESKTOP both use bounds-based filtering
   // Helper to check if point is within bounds (no Google Maps dependency)
@@ -1071,7 +1079,17 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
                   <div className="flex-1 overflow-y-auto p-4">
                     <AirbnbSearch
                       defaultExpanded
-                      onPlaceSelected={({ lat, lng, zoom }) => {
+                      onPlaceSelected={({ lat, lng, zoom, name }) => {
+                        // Update selectedCity state if it matches a predefined city
+                        const normalizedName = name.toLowerCase().trim()
+                        if (normalizedName.includes('sofia') || normalizedName.includes('софия')) {
+                          setSelectedCity('Sofia')
+                        } else if (normalizedName.includes('plovdiv') || normalizedName.includes('пловдив')) {
+                          setSelectedCity('Plovdiv')
+                        } else if (normalizedName.includes('varna') || normalizedName.includes('варна')) {
+                          setSelectedCity('Varna')
+                        }
+                        
                         if (mobileGoogleMapRef.current) {
                           mobileGoogleMapRef.current.panTo({ lat, lng })
                           mobileGoogleMapRef.current.setZoom(zoom)
@@ -1251,7 +1269,17 @@ export function LocalizedListingsPage({ dict, lang }: LocalizedListingsPageProps
               <Card className="shadow-lg border" style={{backgroundColor: '#ffffff', borderColor: 'var(--brand-gray-200)'}}>
                 <CardContent className="p-4 laptop:p-4 xl:p-6">
                   <DesktopSearch
-                    onPlaceSelected={({ lat, lng, zoom }) => {
+                    onPlaceSelected={({ lat, lng, zoom, name }) => {
+                      // Update selectedCity state if it matches a predefined city
+                      const normalizedName = name.toLowerCase().trim()
+                      if (normalizedName.includes('sofia') || normalizedName.includes('софия')) {
+                        setSelectedCity('Sofia')
+                      } else if (normalizedName.includes('plovdiv') || normalizedName.includes('пловдив')) {
+                        setSelectedCity('Plovdiv')
+                      } else if (normalizedName.includes('varna') || normalizedName.includes('варна')) {
+                        setSelectedCity('Varna')
+                      }
+                      
                       if (googleMapRef.current) {
                         googleMapRef.current.panTo({ lat, lng })
                         googleMapRef.current.setZoom(zoom)
