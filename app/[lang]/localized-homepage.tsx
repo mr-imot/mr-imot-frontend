@@ -41,7 +41,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
       <section
         className="py-16 sm:py-20 md:py-24 lg:py-32 relative overflow-hidden"
         style={{
-          background: 'linear-gradient(180deg, #f6f8fb 0%, #eef2f7 100%)'
+          background: 'linear-gradient(180deg, #e4ecf4 0%, #dae4ef 100%)'
         }}
       >
 
@@ -396,33 +396,15 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
       <TestimonialsSection lang={lang} />
 
       {/* Ready to publish section - moved under testimonials */}
-      <section className="py-16 sm:py-20 md:py-24">
+      <section className="py-16 sm:py-20 md:py-24" style={{ background: 'linear-gradient(180deg, #2a4a5a 0%, #1e3a47 100%)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
           <div className="text-center">
-            <div className="bg-gray-50 rounded-2xl p-12">
-              <h3 className="text-2xl sm:text-3xl font-bold mb-6 font-serif" style={{
-                color: 'var(--brand-text-primary)'
-              }}>
+            <div className="rounded-2xl p-12">
+              <h3 className="text-2xl sm:text-3xl font-bold mb-6 font-serif text-white">
                 {dict.developerJoin.finalCta.heading}
               </h3>
               <Link href={`/${lang}/register?type=developer`}>
-                <button className="group relative px-10 py-4 rounded-2xl bg-charcoal-500 text-white font-bold tracking-wider uppercase hover:bg-charcoal-600 transition-all duration-300 shadow-xl hover:shadow-2xl active:scale-95 overflow-hidden">
-                  {/* Liquid Glass Overlay - GPU-accelerated */}
-                  <div className="absolute inset-0 liquid-flow-bg-charcoal opacity-100 transition-opacity duration-300 ease-out" style={{
-                    borderRadius: '16px',
-                    animation: 'liquidFlow 2s ease-in-out infinite',
-                    willChange: 'opacity, transform',
-                    transform: 'translateZ(0)',
-                    backfaceVisibility: 'hidden'
-                  }} />
-
-                  {/* Shimmer Effect - Always Visible */}
-                  <div className="absolute inset-0 opacity-100 transition-opacity duration-500 ease-out" style={{
-                    background: 'linear-gradient(90deg, transparent 0%, rgba(38, 70, 83, 0.4) 50%, transparent 100%)',
-                    transform: 'translateX(-100%)',
-                    animation: 'shimmer 1.5s ease-in-out infinite'
-                  }} />
-
+                <button className="group relative px-10 py-4 rounded-2xl bg-white text-charcoal-700 font-bold tracking-wider uppercase hover:bg-gray-100 transition-all duration-300 shadow-xl hover:shadow-2xl active:scale-95 overflow-hidden">
                   <span className="relative z-10">{dict.developerJoin.finalCta.button}</span>
                 </button>
               </Link>

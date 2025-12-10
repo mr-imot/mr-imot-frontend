@@ -79,7 +79,7 @@ const FaqSection = ({
   ],
 }: FaqSectionProps) => {
   return (
-    <section className="py-12 sm:py-16 md:py-20 lg:py-24" style={{backgroundColor: 'var(--brand-glass-primary)'}}>
+    <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-white">
       <div className="container max-w-4xl mx-auto px-4">
         <div className="text-center mb-8 sm:mb-10 md:mb-12">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4" style={{color: 'var(--brand-text-primary)'}}>

@@ -75,8 +75,7 @@ export function RecentListingsSection({ dict, lang }: RecentListingsSectionProps
   return (
     <section
       ref={containerRef}
-      className="py-16 sm:py-20 md:py-24"
-      style={{ background: 'linear-gradient(180deg, #f7f9fc 0%, #eef2f7 100%)' }}
+      className="py-16 sm:py-20 md:py-24 bg-white"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
         <div className="text-center mb-10">

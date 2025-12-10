@@ -1,0 +1,122 @@
+.heroSection {
+  position: relative;
+  overflow: visible;
+  height: calc(100vh - var(--header-height, 0px));
+}
+
+@supports (height: 100dvh) {
+  .heroSection {
+    height: calc(100dvh - var(--header-height, 0px));
+  }
+}
+
+.heroGrid {
+  height: 100%;
+}
+
+.heroContent {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  transform: translateZ(0);
+}
+
+.heroTitle {
+  line-height: 1 !important;
+  padding-bottom: 0.15em !important;
+  letter-spacing: -0.025em;
+}
+
+@media (min-width: 1024px) {
+  .heroTitle {
+    line-height: 0.92 !important;
+  }
+}
+
+.heroSubtitle {
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  line-height: 1.6;
+  max-width: 520px;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  color: #4b5563;
+}
+
+.heroCta {
+  margin-top: auto;
+}
+
+.heroVisual {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .heroVisual {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    height: 100%;
+  }
+}
+
+.heroImage {
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  max-height: clamp(160px, 32vh, 300px);
+  filter: drop-shadow(0 4px 15px rgba(0, 0, 0, 0.1));
+  will-change: transform;
+  transform: translateZ(0);
+  animation: float 6s ease-in-out infinite;
+}
+
+@media (min-width: 1024px) {
+  .heroImage {
+    max-height: clamp(250px, 40vh, 500px);
+  }
+}
+
+@media (max-height: 700px) {
+  .heroTitle {
+    font-size: clamp(1.5rem, 3vw, 2.75rem) !important;
+  }
+
+  .heroCta button {
+    font-size: clamp(0.85rem, 1.6vw, 1rem) !important;
+    padding: 0.6rem 1.25rem !important;
+  }
+}
+
+.liquidFlowBgCharcoal {
+  background: linear-gradient(135deg, rgba(38, 70, 83, 0.1) 0%, rgba(38, 70, 83, 0.2) 50%, rgba(38, 70, 83, 0.1) 100%);
+  animation: liquidFlow 2s ease-in-out infinite;
+  transform: translateZ(0);
+}
+
+.ctaShimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(38, 70, 83, 0.4) 50%, transparent 100%);
+  transform: translateX(-100%);
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes liquidFlow {
+  0%,
+  100% {
+    opacity: 0.1;
+    transform: translateZ(0) scale(1);
+  }
+  50% {
+    opacity: 0.2;
+    transform: translateZ(0) scale(1.02);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  50%,
+  100% {
+    transform: translateX(100%);
+  }
+}
+
