@@ -17,6 +17,15 @@
   }
 }
 
+/* Medium screens: Better proportions for tablets and small laptops */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .heroSection {
+    min-height: calc(100dvh - var(--header-height, 80px));
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+}
+
 /* Desktop: Fixed height for balanced mascot layout */
 @media (min-width: 1024px) {
   .heroSection {
@@ -25,6 +34,14 @@
     max-height: 900px;
     padding-top: 0;
     padding-bottom: 0;
+  }
+}
+
+/* Smaller desktop screens: Adjust proportions */
+@media (min-width: 1024px) and (max-width: 1280px) {
+  .heroSection {
+    min-height: 550px;
+    max-height: 800px;
   }
 }
 
@@ -62,6 +79,13 @@
   }
 }
 
+/* Smaller desktop screens: Slightly reduce title size */
+@media (min-width: 1024px) and (max-width: 1280px) {
+  .heroTitle {
+    font-size: clamp(2rem, 4.5vw, 4rem) !important;
+  }
+}
+
 .heroSubtitle {
   font-size: clamp(0.9rem, 2.5vw, 1.15rem);
   line-height: 1.6;
@@ -70,8 +94,31 @@
   color: #4b5563;
 }
 
+/* Medium screens: Adjust subtitle width */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .heroSubtitle {
+    max-width: 100%;
+    font-size: clamp(1rem, 2vw, 1.1rem);
+  }
+}
+
+/* Smaller desktop: Slightly reduce subtitle width */
+@media (min-width: 1024px) and (max-width: 1280px) {
+  .heroSubtitle {
+    max-width: 480px;
+  }
+}
+
 .heroCta {
   /* Desktop only */
+}
+
+/* Smaller desktop screens: Adjust CTA button size */
+@media (min-width: 1024px) and (max-width: 1280px) {
+  .heroCta button {
+    padding: 1rem 2rem;
+    font-size: clamp(1rem, 1.5vw, 1.5rem) !important;
+  }
 }
 
 .heroVisual {
@@ -94,6 +141,13 @@
   will-change: transform;
   transform: translateZ(0);
   animation: float 6s ease-in-out infinite;
+}
+
+/* Smaller desktop screens: Scale down image proportionally */
+@media (min-width: 1024px) and (max-width: 1280px) {
+  .heroImage {
+    max-width: 90%;
+  }
 }
 
 /* Short screens: tighten spacing */

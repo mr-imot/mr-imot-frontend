@@ -15,7 +15,7 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
     }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 h-full">
         <div className={clsx(
-          "grid lg:grid-cols-2 gap-4 lg:gap-8 items-center w-full h-full",
+          "grid lg:grid-cols-2 gap-4 lg:gap-6 xl:gap-8 items-center w-full h-full",
           styles.heroGrid
         )}>
           {/* Left Column - Content */}
@@ -139,10 +139,10 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
               priority
               className={clsx("w-auto h-auto transition-all duration-700 hover:scale-105 hover:rotate-1", styles.heroImage)}
               style={{
-                width: 'clamp(500px, 45vw, 800px)',
+                width: 'clamp(400px, 40vw, 800px)',
                 height: 'auto'
               }}
-              sizes="(max-width: 1024px) 0vw, 45vw"
+              sizes="(max-width: 1024px) 0vw, (max-width: 1280px) 40vw, 45vw"
             />
           </div>
         </div>
