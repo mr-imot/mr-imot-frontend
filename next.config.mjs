@@ -22,8 +22,8 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
     legacyBrowsers: false,
-    transpilePackages: [],
   },
+  transpilePackages: [],
   // Enable build caching for better performance
   onDemandEntries: {
     // period (in ms) where the server will keep pages in the buffer

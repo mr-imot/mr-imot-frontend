@@ -7,15 +7,6 @@ import { brandForLang, formatTitleWithBrand } from "@/lib/seo"
 import type { Metadata } from "next"
 import ViewportLock from "@/components/ViewportLock"
 
-const Preconnects = () => (
-  <>
-    <link rel="preconnect" href="https://ik.imagekit.io" crossOrigin="anonymous" />
-    <link rel="dns-prefetch" href="https://ik.imagekit.io" />
-    <link rel="preconnect" href="https://flagcdn.com" crossOrigin="anonymous" />
-    <link rel="dns-prefetch" href="https://flagcdn.com" />
-  </>
-)
-
 export async function generateStaticParams() {
   return [{ lang: 'en' }, { lang: 'bg' }]
 }
@@ -99,19 +90,16 @@ export default async function RootLayout({
     const translations = await getDictionary(lang)
     
     return (
-      <>
-        <Preconnects />
-        <LocaleProvider locale={lang} translations={translations}>
-          <div className="relative flex min-h-screen flex-col">
-            <SiteHeader />
-            {/* Global viewport fixes: mobile height lock and header height sync */}
-            <ViewportLock />
-            <main className="flex-1">{children}</main>
-            <Footer />
-          </div>
-          <FeedbackButton />
-        </LocaleProvider>
-      </>
+      <LocaleProvider locale={lang} translations={translations}>
+        <div className="relative flex min-h-screen flex-col">
+          <SiteHeader />
+          {/* Global viewport fixes: mobile height lock and header height sync */}
+          <ViewportLock />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </div>
+        <FeedbackButton />
+      </LocaleProvider>
     )
   } catch (error) {
     console.error('Failed to load dictionary:', error)
@@ -119,17 +107,14 @@ export default async function RootLayout({
     const fallbackTranslations = await getDictionary('en')
     
     return (
-      <>
-        <Preconnects />
-        <LocaleProvider locale="en" translations={fallbackTranslations}>
-          <div className="relative flex min-h-screen flex-col">
-            <SiteHeader />
-            <main className="flex-1">{children}</main>
-            <Footer />
-          </div>
-          <FeedbackButton />
-        </LocaleProvider>
-      </>
+      <LocaleProvider locale="en" translations={fallbackTranslations}>
+        <div className="relative flex min-h-screen flex-col">
+          <SiteHeader />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </div>
+        <FeedbackButton />
+      </LocaleProvider>
     )
   }
 }

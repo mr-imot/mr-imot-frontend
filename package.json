@@ -9,11 +9,14 @@
     "start": "next start"
   },
   "browserslist": [
-    "last 2 chrome versions",
-    "last 2 edge versions",
-    "last 2 firefox versions",
-    "last 2 safari versions",
-    "not ie <= 11"
+    "defaults",
+    "not ie <= 11",
+    "chrome >= 90",
+    "safari >= 15",
+    "firefox >= 90",
+    "edge >= 90",
+    "ios >= 15",
+    "android >= 100"
   ],
   "dependencies": {
     "@formatjs/intl-localematcher": "^0.6.1",

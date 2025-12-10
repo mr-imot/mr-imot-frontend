@@ -111,10 +111,10 @@ export default async function RootLayout({
     <html lang={lang} suppressHydrationWarning className={cn(GeistSans.variable, GeistMono.variable, geist.variable, inter.variable)}>
       <head>
         {/* Preconnect to ImageKit for faster image loading (310ms LCP savings) */}
-        <link rel="preconnect" href="https://ik.imagekit.io" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://ik.imagekit.io" />
         <link rel="dns-prefetch" href="https://ik.imagekit.io" />
         {/* Preconnect to FlagCDN for faster flag assets (LCP savings) */}
-        <link rel="preconnect" href="https://flagcdn.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://flagcdn.com" />
         <link rel="dns-prefetch" href="https://flagcdn.com" />
         
         {/* Mobile Viewport Meta Tags */}
