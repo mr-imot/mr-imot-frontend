@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { getProjects } from "@/lib/api"
@@ -26,11 +26,32 @@ interface RecentListingsSectionProps {
 }
 
 export function RecentListingsSection({ dict, lang }: RecentListingsSectionProps) {
+  const [visible, setVisible] = useState(false)
   const [recentListings, setRecentListings] = useState<any[]>([])
   const [isLoadingListings, setIsLoadingListings] = useState(true)
+  const containerRef = useRef<HTMLDivElement>(null)
   
-  // Defer fetching listings until after initial paint and hydration
+  // Wait until section is near viewport before fetching
   useEffect(() => {
+    const node = containerRef.current
+    if (!node) return
+
+    const onIntersect: IntersectionObserverCallback = (entries, observer) => {
+      if (entries[0]?.isIntersecting) {
+        setVisible(true)
+        observer.disconnect()
+      }
+    }
+
+    const observer = new IntersectionObserver(onIntersect, { rootMargin: "200px" })
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [])
+
+  // Defer fetching listings until after initial paint, hydration, and intersection
+  useEffect(() => {
+    if (!visible) return
+
     const fetchRecentListings = async () => {
       try {
         setIsLoadingListings(true)
@@ -61,10 +82,10 @@ export function RecentListingsSection({ dict, lang }: RecentListingsSectionProps
     requestAnimationFrame(() => {
       setTimeout(deferFetch, 100)
     })
-  }, [])
+  }, [visible])
 
   return (
-    <section className="py-16 sm:py-20 md:py-24 bg-white">
+    <section ref={containerRef} className="py-16 sm:py-20 md:py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
         <div className="text-center mb-10">
           <h3 className="headline-gradient text-4xl sm:text-5xl font-bold font-serif">

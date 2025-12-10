@@ -5,7 +5,7 @@ import { HomepageHero } from "./homepage-hero"
 import { MobileMascotSection } from "./sections/mobile-mascot-section"
 import { ThreeStepProcessSection } from "./sections/three-step-process-section"
 import { RecentListingsSection } from "./sections/recent-listings-section"
-import { EtchedGlassBackground, LazyPricingSection } from "./components/client-islands"
+import { EtchedGlassBackgroundClient, LazyPricingSection } from "./components/client-islands"
 
 // Lazy load heavy components to reduce initial bundle size (ssr: true is allowed in server components)
 const FaqSection = dynamic(
@@ -28,8 +28,8 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
   return (
     <>
       <div className="min-h-screen relative overflow-visible">
-        {/* Etched Glass Background - Deferred loading */}
-        <EtchedGlassBackground />
+        {/* Etched Glass Background - Deferred loading, skipped on mobile */}
+        <EtchedGlassBackgroundClient />
       
         {/* Hero Section - Server Component (zero client JS) */}
         <HomepageHero dict={dict} lang={lang} />
