@@ -81,5 +81,25 @@ export default async function HomePage({ params }: HomePageProps) {
   const { lang } = await params
   const dict = await getDictionary(lang)
 
-  return <LocalizedHomePage dict={dict} lang={lang} />
+  return (
+    <>
+      {/* Critical CSS for above-the-fold hero section */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        .hero-section{min-height:100vh;position:relative}
+        .hero-section .max-w-7xl{margin-left:auto;margin-right:auto;max-width:80rem}
+        .hero-section .px-4{padding-left:1rem;padding-right:1rem}
+        @media(min-width:640px){.hero-section .sm\\:px-6{padding-left:1.5rem;padding-right:1.5rem}}
+        @media(min-width:768px){.hero-section .md\\:px-8{padding-left:2rem;padding-right:2rem}}
+        .hero-grid{display:grid;grid-template-rows:auto 1fr;gap:0.5rem;align-items:center;width:100%}
+        @media(min-width:1024px){.hero-grid{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:none;gap:2rem}}
+        .hero-content{order:2;display:flex;flex-direction:column}
+        @media(min-width:1024px){.hero-content{order:unset}}
+        .hero-title{line-height:0.72;letter-spacing:-0.025em;font-family:var(--font-serif);font-size:clamp(2.75rem,6vw,4.75rem)}
+        .hero-subtitle{font-size:clamp(1.2rem,3vw,1.25rem);line-height:1.6;max-width:clamp(320px,90%,520px);font-family:var(--font-sans)}
+        .hero-cta button{width:100%;padding:clamp(1.125rem,2.75vw,1.75rem) clamp(2.25rem,5.5vw,3.5rem);border-radius:1rem;background-color:#264653;color:#fff;font-weight:700;text-transform:uppercase;font-size:clamp(1.25rem,3.5vw,1.75rem);font-family:var(--font-sans);cursor:pointer}
+        @media(min-width:640px){.hero-cta button{width:auto}}
+      ` }} />
+      <LocalizedHomePage dict={dict} lang={lang} />
+    </>
+  )
 }

@@ -41,7 +41,7 @@ export function TestimonialsSection({ lang, heading, subheading, items }: Testim
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
         <div className="text-center mb-12">
           <p className="text-xs font-semibold tracking-widest text-blue-700 mb-2">{lang === 'bg' ? 'ОТЗИВ' : 'TESTIMONIALS'}</p>
-          <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold" style={{ fontFamily: 'Playfair Display, serif' }}>
+          <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold font-serif">
             {heading || (lang === 'bg' ? 'Не вярвай само на нас' : "Don't just take our word for it")}
           </h3>
           {subheading && (

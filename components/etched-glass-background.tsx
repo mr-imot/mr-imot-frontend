@@ -1,34 +1,77 @@
 'use client'
 
 import { StaticMeshGradient, Waves } from '@paper-design/shaders-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 
 export function EtchedGlassBackground() {
   const [mounted, setMounted] = useState(false)
   const [hasError, setHasError] = useState(false)
   const [webglSupported, setWebglSupported] = useState(true)
+  const [shouldLoadShaders, setShouldLoadShaders] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const initRef = useRef(false)
 
   useEffect(() => {
-    setMounted(true)
+    // Check for reduced motion preference
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    
+    if (prefersReducedMotion) {
+      // Skip shader initialization if user prefers reduced motion
+      setMounted(true)
+      setHasError(true) // Use CSS fallback
+      return
+    }
 
-    // Check WebGL support
-    const checkWebGLSupport = () => {
-      try {
-        const canvas = document.createElement('canvas')
-        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl')
-        if (!gl) {
-          console.warn('WebGL not supported, using CSS fallback')
+    // Defer shader initialization using requestIdleCallback or IntersectionObserver
+    const initShaders = () => {
+      if (initRef.current) return
+      initRef.current = true
+
+      // Check WebGL support
+      const checkWebGLSupport = () => {
+        try {
+          const canvas = document.createElement('canvas')
+          const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl')
+          if (!gl) {
+            setWebglSupported(false)
+            setHasError(true)
+            return
+          }
+          setWebglSupported(true)
+        } catch (error) {
           setWebglSupported(false)
           setHasError(true)
         }
-      } catch (error) {
-        console.warn('WebGL check failed, using CSS fallback:', error)
-        setWebglSupported(false)
-        setHasError(true)
+      }
+
+      checkWebGLSupport()
+      setMounted(true)
+      
+      // Use IntersectionObserver to only load shaders when visible
+      if (containerRef.current) {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            if (entries[0]?.isIntersecting) {
+              setShouldLoadShaders(true)
+              observer.disconnect()
+            }
+          },
+          { threshold: 0.1 }
+        )
+        observer.observe(containerRef.current)
+      } else {
+        // Fallback: load after a short delay if IntersectionObserver isn't available
+        setShouldLoadShaders(true)
       }
     }
 
-    checkWebGLSupport()
+    // Use requestIdleCallback with fallback
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(initShaders, { timeout: 2000 })
+    } else {
+      // Fallback to setTimeout
+      setTimeout(initShaders, 100)
+    }
   }, [])
 
   // Enhanced CSS fallback that mimics the etched glass effect
@@ -66,26 +109,31 @@ export function EtchedGlassBackground() {
     </div>
   )
 
-  if (!mounted || hasError || !webglSupported) {
-    return <ErrorFallback />
+  // Always render the container for IntersectionObserver
+  const containerStyle = {
+    position: 'fixed' as const,
+    inset: 0,
+    width: '100vw',
+    height: 'var(--fixed-vh, 100dvh)',
+    backgroundColor: '#e8edf0',
+    overflow: 'hidden' as const,
+    zIndex: -2,
+    pointerEvents: 'none' as const,
+    backfaceVisibility: 'hidden' as const,
+    willChange: 'opacity' as const
+  }
+
+  if (!mounted || hasError || !webglSupported || !shouldLoadShaders) {
+    return (
+      <div ref={containerRef} style={containerStyle}>
+        <ErrorFallback />
+      </div>
+    )
   }
 
   try {
     return (
-      <div 
-        style={{
-          position: 'fixed',
-          inset: 0,
-          width: '100vw',
-          height: 'var(--fixed-vh, 100dvh)',
-          backgroundColor: '#e8edf0', // A cool, professional light gray
-          overflow: 'hidden',
-          zIndex: -2,
-          pointerEvents: 'none',
-          backfaceVisibility: 'hidden',
-          willChange: 'opacity'
-        }}
-      >
+      <div ref={containerRef} style={containerStyle}>
         {/* Base Layer: The frosted glass pane */}
         <StaticMeshGradient
           colors={['#eaf0f2', '#f0f4f6', '#e8edf0']}
@@ -96,16 +144,15 @@ export function EtchedGlassBackground() {
             height: 'var(--fixed-vh, 100dvh)'
           }}
           onError={() => {
-            console.warn('StaticMeshGradient error, falling back to CSS')
             setHasError(true)
           }}
         />
         
         {/* Top Layer: The subtle, static etched lines */}
         <Waves
-          colors={['#FFFFFF00', '#FFFFFF']} // From transparent to a faint white
-          scale={18} // Very high scale creates wide, almost-straight lines
-          speed={0} // Completely static
+          colors={['#FFFFFF00', '#FFFFFF']}
+          scale={18}
+          speed={0}
           style={{ 
             position: 'absolute', 
             inset: 0,
@@ -114,14 +161,16 @@ export function EtchedGlassBackground() {
             opacity: 0.05 
           }}
           onError={() => {
-            console.warn('Waves shader error, falling back to CSS')
             setHasError(true)
           }}
         />
       </div>
     )
   } catch (error) {
-    console.warn('EtchedGlassBackground: Shader error, falling back to CSS gradient:', error)
-    return <ErrorFallback />
+    return (
+      <div ref={containerRef} style={containerStyle}>
+        <ErrorFallback />
+      </div>
+    )
   }
 }

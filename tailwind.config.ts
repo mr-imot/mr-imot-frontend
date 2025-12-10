@@ -190,8 +190,8 @@ const config = {
   			serif: 'var(--font-serif)',
   			mono: 'var(--font-mono)',
   			ds: 'var(--font-sans)',
-  			outfit: 'var(--font-outfit)',
-  			'source-sans': 'var(--font-source-sans)'
+  			geist: 'var(--font-geist)',
+  			inter: 'var(--font-inter)'
   		},
   		fontSize: {
   			'ds-xs': [

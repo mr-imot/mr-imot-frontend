@@ -17,8 +17,9 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { EtchedGlassBackground } from "@/components/etched-glass-background"
 import { FaqSection } from "@/components/faq-section"
-import { PricingSection } from "@/components/pricing/PricingSection"
 import { TestimonialsSection } from "@/components/TestimonialsSection"
+import { LazyPricingSection } from "@/components/pricing/LazyPricingSection"
+import { HomepageHero } from "./homepage-hero"
 import { getProjects } from "@/lib/api"
 import { getListingUrl } from "@/lib/utils"
 
@@ -31,14 +32,10 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
   // State for recently added listings
   const [recentListings, setRecentListings] = useState<any[]>([])
   const [isLoadingListings, setIsLoadingListings] = useState(true)
-  const [isMobile, setIsMobile] = useState(false)
   
+  // Defer fetching listings until after initial paint
   useEffect(() => {
-    setIsMobile(window.matchMedia('(pointer: coarse)').matches)
-  }, [])
-  
-  // Fetch recently added listings
-  useEffect(() => {
+    // Use requestIdleCallback to defer non-critical data fetching
     const fetchRecentListings = async () => {
       try {
         setIsLoadingListings(true)
@@ -55,7 +52,12 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
       }
     }
     
-    fetchRecentListings()
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(fetchRecentListings, { timeout: 2000 })
+    } else {
+      // Fallback: delay by 500ms to allow initial paint
+      setTimeout(fetchRecentListings, 500)
+    }
   }, [])
 
   // FAQ Schema for SEO
@@ -184,152 +186,25 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
       />
       
       <div className="min-h-screen relative overflow-visible">
-        {/* Etched Glass Background */}
+        {/* Etched Glass Background - Deferred loading */}
         <EtchedGlassBackground />
       
-      {/* Hero Section */}
-      <section className="hero-section">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-          <div className="hero-grid grid grid-rows-[auto_1fr] lg:grid-cols-2 lg:grid-rows-none gap-2 sm:gap-4 md:gap-6 lg:gap-8 items-center w-full">
-            {/* Left Column - Content */}
-            <div className="hero-content order-2 lg:order-none flex flex-col" style={{ 
-              // Ensure entire hero fits in viewport with proper CTA spacing
-              height: isMobile 
-                ? 'calc(var(--fixed-vh, 100vh) - var(--header-height, 80px))'
-                : 'calc(100vh - var(--header-height, 80px))',
-              paddingBottom: 'clamp(1.5rem, 6vh, 3rem)', // Consistent bottom padding for CTA
-              justifyContent: 'space-between'
-            }}>
-              {/* Top Section - Title + Subtitle */}
-              <div className="flex-1 flex flex-col justify-center" style={{ paddingTop: 'clamp(1rem, 4vh, 2rem)' }}>
-              {/* Main Headline - premium gradient text */}
-              <div className="space-y-1">
-                <h1 className="headline-gradient hero-title leading-[0.72] tracking-tight font-serif" style={{
-                  fontSize: 'clamp(2.75rem, 6vw, 4.75rem)'
-                }}>
-                  <span className="font-normal italic text-slate-900/70 drop-shadow-sm mr-2">
-                    {dict.hero.title.find}
-                  </span>
-                  {dict.hero.title.your}
-                  <br />
-                  <span className="font-semibold">{dict.hero.title.perfectProperty}</span>
-                  <br />
-                  <span className="font-medium">{dict.hero.title.directlyFromDevelopers}</span>
-                </h1>
-              </div>
-              
-                {/* Combined Subtitle + Promise */}
-                <div className="space-y-2" style={{ marginTop: 'clamp(16px, 4vh, 32px)' }}>
-                <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-normal text-gray-600 leading-relaxed font-sans" style={{
-                    fontSize: 'clamp(1.2rem, 3vw, 1.25rem)',
-                    lineHeight: '1.6',
-                    maxWidth: 'clamp(320px, 90%, 520px)'
-                  }}>
-                    <span className="font-semibold text-gray-800">{dict.hero.description.intro}</span> {dict.hero.description.platform} <span className="font-semibold text-gray-800">{dict.hero.description.noBrokers}</span>.
-                  </p>
-                  
-                  {/* Promise - Separate line like CloudCart */}
-                  <div style={{ marginTop: 'clamp(16px, 4vh, 32px)' }}>
-                    <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-normal text-gray-600 leading-relaxed font-sans" style={{
-                      fontSize: 'clamp(1.2rem, 3vw, 1.25rem)',
-                      lineHeight: '1.6',
-                      maxWidth: 'clamp(320px, 90%, 520px)'
-                    }}>
-                      <p className="font-semibold text-gray-800 mb-3">{dict.hero.promises.heading}</p>
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-3">
-                          <div className="rounded-full bg-green-600 flex items-center justify-center flex-shrink-0" style={{ width: 'clamp(1rem, 2vw, 1.25rem)', height: 'clamp(1rem, 2vw, 1.25rem)' }}>
-                            <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
-                            </svg>
-                          </div>
-                          <span>{dict.hero.promises.noFakeListings}</span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <div className="rounded-full bg-green-600 flex items-center justify-center flex-shrink-0" style={{ width: 'clamp(1rem, 2vw, 1.25rem)', height: 'clamp(1rem, 2vw, 1.25rem)' }}>
-                            <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
-                            </svg>
-                          </div>
-                          <span>{dict.hero.promises.noWastedTime}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Bottom Section - CTA Button */}
-              <div className="flex-shrink-0 hero-cta" style={{ 
-                marginTop: 'clamp(0.75rem, 3vh, 1.5rem)',
-                marginBottom: '0' // Remove bottom margin since we have paddingBottom on container
-              }}>
-                <Link href={`/${lang}/listings`}>
-                  <button className="w-full sm:w-auto px-10 py-5 rounded-2xl text-white font-bold uppercase transition-all duration-300 ease-in-out hover:shadow-2xl hover:scale-105 active:scale-[0.98] cursor-pointer tracking-wider relative overflow-hidden group bg-charcoal-700 hover:bg-charcoal-800 focus:ring-2 focus:ring-charcoal-300 font-sans" style={{ fontSize: 'clamp(1.25rem, 3.5vw, 1.75rem)', padding: 'clamp(1.125rem, 2.75vw, 1.75rem) clamp(2.25rem, 5.5vw, 3.5rem)' }}>
-                    {/* Liquid Glass Overlay - Always Visible */}
-                    <div className="absolute inset-0 opacity-100 transition-opacity duration-300 ease-out" style={{
-                      background: 'linear-gradient(135deg, rgba(38, 70, 83, 0.1) 0%, rgba(38, 70, 83, 0.2) 25%, rgba(38, 70, 83, 0.1) 50%, rgba(38, 70, 83, 0.05) 75%, rgba(38, 70, 83, 0.1) 100%)',
-                      borderRadius: '16px',
-                      animation: 'liquidFlow 2s ease-in-out infinite'
-                    }} />
-
-                    {/* Shimmer Effect - Always Visible */}
-                    <div className="absolute inset-0 opacity-100 transition-opacity duration-500 ease-out" style={{
-                      background: 'linear-gradient(90deg, transparent 0%, rgba(38, 70, 83, 0.4) 50%, transparent 100%)',
-                      transform: 'translateX(-100%)',
-                      animation: 'shimmer 1.5s ease-in-out infinite'
-                    }} />
-
-                    <span className="relative z-10">
-                      {dict.hero.cta}
-                    </span>
-                  </button>
-                </Link>
-              </div>
-            </div>
-
-            {/* Right Column - Supporting Mascot (Desktop Only) */}
-            <div className="hero-visual hidden lg:flex lg:items-center lg:justify-end lg:h-full">
-              {/* Hero Image - Original Size + Dynamic Scaling */}
-              <div className="w-full flex justify-center lg:justify-end">
-                <img
-                  src={lang === 'bg' 
-                    ? "https://ik.imagekit.io/ts59gf2ul/Logo/0_-komisionna-mr-imot.png?updatedAt=1760104535412&tr=f-auto,q-90"
-                    : "https://ik.imagekit.io/ts59gf2ul/Logo/0_-commissions-mr-imot.png?updatedAt=1760108287952&tr=f-auto,q-90"
-                  }
-                  alt={lang === 'bg' ? dict.hero.imageAlt : 'Mister Imot mascot holding flag with 0% commissions message for real estate platform'}
-                  className="w-auto h-auto transition-all duration-700 hover:scale-105 hover:rotate-1"
-                  style={{
-                    willChange: 'transform',
-                    transform: 'translateZ(0)',
-                    filter: 'drop-shadow(0 4px 15px rgba(0, 0, 0, 0.1))',
-                    // Responsive width to scale proportionally across desktop/laptop
-                    width: 'clamp(1250px, 60vw, 1800px)',
-                    height: 'auto',
-                    animation: 'float 6s ease-in-out infinite'
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Right Column - Video on large screens, hidden on mobile/tablet */}
-            <div className="hidden lg:block">
-              {/* This space allows the EtchedGlassBackground to be clearly visible on large screens */}
-            </div>
-          </div>
-        </div>
-      </section>
+        {/* Hero Section - Server Component (zero client JS) */}
+        <HomepageHero dict={dict} lang={lang} />
 
       {/* Mobile Mascot Section - Below Hero with Plain White Background */}
       <section className="lg:hidden py-16 sm:py-20 md:py-24 bg-white">
         <div className="container mx-auto px-3 sm:px-6 md:px-8 w-full">
           <div className="flex justify-center">
-            <img
+            <Image
               src={lang === 'bg' 
-                ? "https://ik.imagekit.io/ts59gf2ul/Logo/0_-komisionna-mr-imot.png?updatedAt=1760104535412&tr=f-auto,q-90"
-                : "https://ik.imagekit.io/ts59gf2ul/Logo/0_-commissions-mr-imot.png?updatedAt=1760108287952&tr=f-auto,q-90"
+                ? "https://ik.imagekit.io/ts59gf2ul/Logo/0_-komisionna-mr-imot.png?updatedAt=1760104535412&tr=f-auto,q-80,w-320,h-auto,dpr=auto"
+                : "https://ik.imagekit.io/ts59gf2ul/Logo/0_-commissions-mr-imot.png?updatedAt=1760108287952&tr=f-auto,q-80,w-320,h-auto,dpr=auto"
               }
               alt={lang === 'bg' ? dict.hero.imageAlt : 'Mister Imot mascot holding flag with 0% commissions message for real estate platform'}
+              width={320}
+              height={240}
+              loading="lazy"
               className="w-auto h-auto transition-all duration-700 hover:scale-105 hover:rotate-1 drop-shadow-xl"
               style={{
                 willChange: 'transform',
@@ -340,6 +215,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                 animation: 'float 6s ease-in-out infinite',
                 marginTop: 'clamp(8px, 2vh, 16px)'
               }}
+              sizes="(max-width: 1024px) 68vw, 0vw"
             />
           </div>
         </div>
@@ -1011,7 +887,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
 
           {/* 2️⃣ Section: "Pricing / Subscription Plans" */}
           <div className="mt-8 sm:mt-12 md:mt-16 lg:mt-20">
-            <PricingSection lang={lang} dict={dict} />
+            <LazyPricingSection lang={lang} dict={dict} />
           </div>
 
 

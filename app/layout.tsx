@@ -2,7 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 import { GeistSans } from "geist/font/sans"
 import { GeistMono } from "geist/font/mono"
-import { Figtree, Instrument_Serif, Outfit, Source_Sans_3, Playfair_Display, Inter, Lora } from "next/font/google"
+import { Geist, Inter } from "next/font/google"
 import "./globals.css"
 import "../styles/mobile-optimizations.css"
 import { cn } from "@/lib/utils"
@@ -13,60 +13,21 @@ import ViewportLock from "@/components/ViewportLock"
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme-provider"
 
-
-
-const figtree = Figtree({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-figtree",
-  display: "swap",
-})
-
-const instrumentSerif = Instrument_Serif({
-  subsets: ["latin"],
-  weight: ["400"],
-  style: ["normal", "italic"],
-  variable: "--font-instrument-serif",
-  display: "swap",
-})
-
-const outfit = Outfit({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-outfit",
-  display: "swap",
-})
-
-const sourceSans = Source_Sans_3({
+// Geist for hero/headings with Cyrillic support
+const geist = Geist({
   subsets: ["latin", "cyrillic"],
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-source-sans",
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-geist",
   display: "swap",
 })
 
-const playfairDisplay = Playfair_Display({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800", "900"],
-  style: ["normal", "italic"],
-  variable: "--font-playfair-display",
-  display: "swap",
-})
-
+// Inter for body text with Cyrillic support
 const inter = Inter({
   subsets: ["latin", "cyrillic"],
-  weight: ["300", "400", "500", "600", "700", "800", "900"],
+  weight: ["400", "500", "600"],
   variable: "--font-inter",
   display: "swap",
 })
-
-const lora = Lora({
-  subsets: ["latin", "cyrillic"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-lora",
-  display: "swap",
-})
-
-// Geist fonts are configured via CSS variables in globals.css
 
 export const metadata: Metadata = {
   title: "Real Estate Development Directory",
@@ -148,7 +109,7 @@ export default async function RootLayout({
   const lang = await getLanguageFromPath()
   
   return (
-    <html lang={lang} suppressHydrationWarning className={cn(GeistSans.variable, GeistMono.variable, figtree.variable, instrumentSerif.variable, playfairDisplay.variable, inter.variable, lora.variable)}>
+    <html lang={lang} suppressHydrationWarning className={cn(GeistSans.variable, GeistMono.variable, geist.variable, inter.variable)}>
       <head>
         {/* Mobile Viewport Meta Tags */}
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes, viewport-fit=cover" />
@@ -162,23 +123,20 @@ export default async function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="Mr. Imot" />
         
+        {/* Font preloading is handled automatically by next/font/google */}
+        
         <style>{`
 html {
   font-family: ${inter.style.fontFamily};
   --font-sans: ${inter.variable};
-  --font-serif: ${lora.variable};
+  --font-serif: ${geist.variable};
   --font-mono: ${GeistMono.variable};
-  --font-figtree: ${figtree.variable};
-  --font-instrument-serif: ${instrumentSerif.variable};
-  --font-outfit: ${outfit.variable};
-  --font-source-sans: ${sourceSans.variable};
-  --font-playfair-display: ${playfairDisplay.variable};
+  --font-geist: ${geist.variable};
   --font-inter: ${inter.variable};
-  --font-lora: ${lora.variable};
 }
         `}</style>
       </head>
-      <body className={cn("min-h-screen font-sans antialiased", inter.variable, lora.variable, outfit.variable, sourceSans.variable, playfairDisplay.variable)}>      
+      <body className={cn("min-h-screen font-sans antialiased", inter.variable, geist.variable)}>      
         {/* Global viewport fixes: mobile height lock and header height sync */}
         <ViewportLock />
         <ThemeProvider>
