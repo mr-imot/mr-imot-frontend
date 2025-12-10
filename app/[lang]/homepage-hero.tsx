@@ -23,14 +23,16 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
             <div className="flex-1 flex flex-col justify-center" style={{ paddingTop: 'clamp(1rem, 4vh, 2rem)' }}>
               {/* Main Headline - gradient text matching other sections */}
               <div className="space-y-1">
-                <h1 className="hero-title leading-[0.72] tracking-tight font-serif" style={{
-                  fontSize: 'clamp(2.75rem, 6vw, 4.75rem)'
+                <h1 className="hero-title tracking-tight font-serif" style={{
+                  fontSize: 'clamp(2.75rem, 6vw, 4.75rem)',
+                  lineHeight: '1.1'
                 }}>
-                  <span className="font-normal italic drop-shadow-sm mr-2" style={{ 
+                  <span className="font-normal italic drop-shadow-sm" style={{ 
                     background: 'linear-gradient(135deg, #264653 0%, #3f7489 100%)',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
-                    backgroundClip: 'text'
+                    backgroundClip: 'text',
+                    paddingRight: '0.15em'
                   }}>
                     {dict.hero.title.find}
                   </span>

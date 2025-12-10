@@ -38,7 +38,12 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
         <ThreeStepProcessSection dict={dict} lang={lang} />
 
         {/* Platform Principles Section - Why We're Different */}
-      <section className="py-16 sm:py-20 md:py-24 lg:py-32 relative overflow-hidden">
+      <section
+        className="py-16 sm:py-20 md:py-24 lg:py-32 relative overflow-hidden"
+        style={{
+          background: 'linear-gradient(180deg, #f6f8fb 0%, #eef2f7 100%)'
+        }}
+      >
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 relative">
           {/* Section Header */}
@@ -61,7 +66,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 max-w-6xl mx-auto">
             {/* Principle 1: Verified Developers */}
             <div className="group">
-              <div className="bg-white rounded-3xl p-8 lg:p-10 shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 hover:border-gray-300 group-hover:-translate-y-2 h-full">
+              <div className="bg-white rounded-3xl p-8 lg:p-10 shadow-md hover:shadow-2xl transition-all duration-500 border border-gray-100 hover:border-gray-300 group-hover:-translate-y-2 h-full">
                 <div className="text-center h-full flex flex-col">
                   {/* Icon */}
                   <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300 bg-charcoal-500 relative overflow-hidden">
@@ -105,7 +110,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
 
             {/* Principle 2: No Financial Bias */}
             <div className="group">
-              <div className="bg-white rounded-3xl p-8 lg:p-10 shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 hover:border-gray-300 group-hover:-translate-y-2 h-full">
+              <div className="bg-white rounded-3xl p-8 lg:p-10 shadow-md hover:shadow-2xl transition-all duration-500 border border-gray-100 hover:border-gray-300 group-hover:-translate-y-2 h-full">
                 <div className="text-center h-full flex flex-col">
                   {/* Icon */}
                   <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300 bg-accent relative overflow-hidden">
@@ -149,7 +154,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
 
             {/* Principle 3: Clean Experience */}
             <div className="group">
-              <div className="bg-white rounded-3xl p-8 lg:p-10 shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 hover:border-gray-300 group-hover:-translate-y-2 h-full">
+              <div className="bg-white rounded-3xl p-8 lg:p-10 shadow-md hover:shadow-2xl transition-all duration-500 border border-gray-100 hover:border-gray-300 group-hover:-translate-y-2 h-full">
                 <div className="text-center h-full flex flex-col">
                   {/* Icon */}
                   <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300 bg-accent relative overflow-hidden">
@@ -193,7 +198,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
 
             {/* Principle 4: Honest Brokers */}
             <div className="group">
-              <div className="bg-white rounded-3xl p-8 lg:p-10 shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 hover:border-gray-300 group-hover:-translate-y-2 h-full">
+              <div className="bg-white rounded-3xl p-8 lg:p-10 shadow-md hover:shadow-2xl transition-all duration-500 border border-gray-100 hover:border-gray-300 group-hover:-translate-y-2 h-full">
                 <div className="text-center h-full flex flex-col">
                   {/* Icon */}
                   <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300 bg-charcoal-500 relative overflow-hidden">

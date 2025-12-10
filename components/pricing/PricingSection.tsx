@@ -105,7 +105,10 @@ export function PricingSection({ lang, dict }: PricingSectionProps) {
       : 'Only €1.25/day per listing — less than a coffee')
 
   return (
-    <section className="mb-16">
+    <section
+      className="py-16 sm:py-20 md:py-24"
+      style={{ background: 'linear-gradient(180deg, #f6f8fb 0%, #eef2f7 100%)' }}
+    >
       <div className="text-center mb-6 sm:mb-8">
         <h3 className="headline-gradient text-4xl sm:text-5xl md:text-6xl font-bold font-serif">
           {pricingDict?.heading || (lang === 'bg' ? 'Прозрачно Ценообразуване' : 'Transparent Pricing')}

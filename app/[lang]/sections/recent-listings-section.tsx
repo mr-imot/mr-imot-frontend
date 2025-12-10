@@ -48,7 +48,7 @@ export function RecentListingsSection({ dict, lang }: RecentListingsSectionProps
     return () => observer.disconnect()
   }, [])
 
-  // Defer fetching listings until after initial paint, hydration, and intersection
+  // Fetch listings when section becomes visible
   useEffect(() => {
     if (!visible) return
 
@@ -68,24 +68,16 @@ export function RecentListingsSection({ dict, lang }: RecentListingsSectionProps
       }
     }
     
-    // Defer even more aggressively - wait for both idle time AND a delay
-    const deferFetch = () => {
-      if ('requestIdleCallback' in window) {
-        requestIdleCallback(fetchRecentListings, { timeout: 3000 })
-      } else {
-        // Fallback: delay by 1.5s to allow hydration to complete
-        setTimeout(fetchRecentListings, 1500)
-      }
-    }
-    
-    // Wait for next frame to ensure hydration is complete
-    requestAnimationFrame(() => {
-      setTimeout(deferFetch, 100)
-    })
+    // Fetch immediately when visible - intersection observer already handles deferral
+    fetchRecentListings()
   }, [visible])
 
   return (
-    <section ref={containerRef} className="py-16 sm:py-20 md:py-24 bg-white">
+    <section
+      ref={containerRef}
+      className="py-16 sm:py-20 md:py-24"
+      style={{ background: 'linear-gradient(180deg, #f7f9fc 0%, #eef2f7 100%)' }}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
         <div className="text-center mb-10">
           <h3 className="headline-gradient text-4xl sm:text-5xl font-bold font-serif">
@@ -124,8 +116,9 @@ export function RecentListingsSection({ dict, lang }: RecentListingsSectionProps
                             src={imageUrl}
                             alt={listing.name || 'Property'}
                             fill
+                            loading="eager"
                             className="object-cover cursor-pointer"
-                            sizes="320px"
+                            sizes="400px"
                             onError={(e) => {
                               // Fallback to placeholder if image fails to load
                               const target = e.target as HTMLImageElement;
