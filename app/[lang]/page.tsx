@@ -81,8 +81,131 @@ export default async function HomePage({ params }: HomePageProps) {
   const { lang } = await params
   const dict = await getDictionary(lang)
 
+  // Generate JSON-LD schemas on server
+  const organizationSchema = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: lang === 'bg' ? 'Мистър Имот' : 'Mister Imot',
+    url: lang === 'bg' ? 'https://mrimot.com/bg' : 'https://mrimot.com/en',
+    inLanguage: lang === 'bg' ? 'bg' : 'en',
+    logo: 'https://ik.imagekit.io/ts59gf2ul/Logo/mr-imot-logo.png',
+    sameAs: [
+      'https://www.facebook.com/misterimot/',
+      'https://x.com/mister_imot',
+      'https://www.instagram.com/mister_imot',
+      'https://www.youtube.com/@MisterImot',
+      'https://www.tiktok.com/@mister_imot'
+    ]
+  }
+
+  const websiteSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: lang === 'bg' ? 'Мистър Имот' : 'Mister Imot',
+    url: lang === 'bg' ? 'https://mrimot.com/bg' : 'https://mrimot.com/en',
+    inLanguage: lang === 'bg' ? 'bg' : 'en',
+    potentialAction: {
+      "@type": "SearchAction",
+      target: `https://mrimot.com/${lang}/listings?query={search_term_string}`,
+      "query-input": "required name=search_term_string"
+    }
+  }
+
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": dict.faq?.question1?.question || '',
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": dict.faq?.question1?.answer || ''
+        }
+      },
+      {
+        "@type": "Question",
+        "name": dict.faq?.question2?.question || '',
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": dict.faq?.question2?.answer || ''
+        }
+      },
+      {
+        "@type": "Question",
+        "name": dict.faq?.question3?.question || '',
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": dict.faq?.question3?.answer || ''
+        }
+      },
+      {
+        "@type": "Question",
+        "name": dict.faq?.question4?.question || '',
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": dict.faq?.question4?.answer || ''
+        }
+      },
+      {
+        "@type": "Question",
+        "name": dict.faq?.question5?.question || '',
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": dict.faq?.question5?.answer || ''
+        }
+      },
+      {
+        "@type": "Question",
+        "name": dict.faq?.question6?.question || '',
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": dict.faq?.question6?.answer || ''
+        }
+      },
+      {
+        "@type": "Question",
+        "name": dict.faq?.question7?.question || '',
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": dict.faq?.question7?.answer || ''
+        }
+      },
+      {
+        "@type": "Question",
+        "name": dict.faq?.question8?.question || '',
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": dict.faq?.question8?.answer || ''
+        }
+      },
+      {
+        "@type": "Question",
+        "name": dict.faq?.question9?.question || '',
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": dict.faq?.question9?.answer || ''
+        }
+      }
+    ]
+  }
+
   return (
     <>
+      {/* JSON-LD Schemas - Server-rendered */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
+      
       {/* Critical CSS for above-the-fold hero section */}
       <style dangerouslySetInnerHTML={{ __html: `
         .hero-section{min-height:100vh;position:relative}

@@ -3,25 +3,51 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import {
-  Shield,
-  MapPin,
-  DollarSign,
-  ExternalLink,
-  Search,
-  Phone,
-  CheckCircle,
-  Loader2,
-} from "lucide-react"
-import { Badge } from "@/components/ui/badge"
-import { EtchedGlassBackground } from "@/components/etched-glass-background"
-import { FaqSection } from "@/components/faq-section"
-import { TestimonialsSection } from "@/components/TestimonialsSection"
-import { LazyPricingSection } from "@/components/pricing/LazyPricingSection"
+import dynamic from "next/dynamic"
 import { HomepageHero } from "./homepage-hero"
 import { getProjects } from "@/lib/api"
 import { getListingUrl } from "@/lib/utils"
+
+// Lazy load heavy components to reduce initial bundle size
+const EtchedGlassBackground = dynamic(
+  () => import("@/components/etched-glass-background").then((mod) => ({ default: mod.EtchedGlassBackground })),
+  { ssr: false }
+)
+
+const FaqSection = dynamic(
+  () => import("@/components/faq-section").then((mod) => ({ default: mod.FaqSection })),
+  { ssr: true }
+)
+
+const TestimonialsSection = dynamic(
+  () => import("@/components/TestimonialsSection").then((mod) => ({ default: mod.TestimonialsSection })),
+  { ssr: true }
+)
+
+const LazyPricingSection = dynamic(
+  () => import("@/components/pricing/LazyPricingSection").then((mod) => ({ default: mod.LazyPricingSection })),
+  { ssr: false }
+)
+
+// Inline SVG icons to avoid loading lucide-react library
+const MapPinIcon = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+  </svg>
+)
+
+const ExternalLinkIcon = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+  </svg>
+)
+
+const CheckCircleIcon = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+  </svg>
+)
 
 interface LocalizedHomePageProps {
   dict: any
@@ -33,7 +59,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
   const [recentListings, setRecentListings] = useState<any[]>([])
   const [isLoadingListings, setIsLoadingListings] = useState(true)
   
-  // Defer fetching listings until after initial paint
+  // Defer fetching listings until after initial paint and hydration
   useEffect(() => {
     // Use requestIdleCallback to defer non-critical data fetching
     const fetchRecentListings = async () => {
@@ -52,139 +78,24 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
       }
     }
     
-    if ('requestIdleCallback' in window) {
-      requestIdleCallback(fetchRecentListings, { timeout: 2000 })
-    } else {
-      // Fallback: delay by 500ms to allow initial paint
-      setTimeout(fetchRecentListings, 500)
-    }
-  }, [])
-
-  // FAQ Schema for SEO
-  const faqSchema = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      {
-        "@type": "Question",
-        "name": dict.faq.question1.question,
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": dict.faq.question1.answer
-        }
-      },
-      {
-        "@type": "Question",
-        "name": dict.faq.question2.question,
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": dict.faq.question2.answer
-        }
-      },
-      {
-        "@type": "Question",
-        "name": dict.faq.question3.question,
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": dict.faq.question3.answer
-        }
-      },
-      {
-        "@type": "Question",
-        "name": dict.faq.question4.question,
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": dict.faq.question4.answer
-        }
-      },
-      {
-        "@type": "Question",
-        "name": dict.faq.question5.question,
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": dict.faq.question5.answer
-        }
-      },
-      {
-        "@type": "Question",
-        "name": dict.faq.question6.question,
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": dict.faq.question6.answer
-        }
-      },
-      {
-        "@type": "Question",
-        "name": dict.faq.question7.question,
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": dict.faq.question7.answer
-        }
-      },
-      {
-        "@type": "Question",
-        "name": dict.faq.question8.question,
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": dict.faq.question8.answer
-        }
-      },
-      {
-        "@type": "Question",
-        "name": dict.faq.question9.question,
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": dict.faq.question9.answer
-        }
+    // Defer even more aggressively - wait for both idle time AND a delay
+    const deferFetch = () => {
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(fetchRecentListings, { timeout: 3000 })
+      } else {
+        // Fallback: delay by 1.5s to allow hydration to complete
+        setTimeout(fetchRecentListings, 1500)
       }
-    ]
-  };
+    }
+    
+    // Wait for next frame to ensure hydration is complete
+    requestAnimationFrame(() => {
+      setTimeout(deferFetch, 100)
+    })
+  }, [])
 
   return (
     <>
-      {/* JSON-LD Schema for SEO */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Organization",
-            name: lang === 'bg' ? 'Мистър Имот' : 'Mister Imot',
-            url: lang === 'bg' ? 'https://mrimot.com/bg' : 'https://mrimot.com/en',
-            inLanguage: lang === 'bg' ? 'bg' : 'en',
-            logo: 'https://ik.imagekit.io/ts59gf2ul/Logo/mr-imot-logo.png',
-            sameAs: [
-              'https://www.facebook.com/misterimot/',
-              'https://x.com/mister_imot',
-              'https://www.instagram.com/mister_imot',
-              'https://www.youtube.com/@MisterImot',
-              'https://www.tiktok.com/@mister_imot'
-            ]
-          })
-        }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "WebSite",
-            name: lang === 'bg' ? 'Мистър Имот' : 'Mister Imot',
-            url: lang === 'bg' ? 'https://mrimot.com/bg' : 'https://mrimot.com/en',
-            inLanguage: lang === 'bg' ? 'bg' : 'en',
-            potentialAction: {
-              "@type": "SearchAction",
-              target: 'https://mrimot.com/{lang}/listings?query={search_term_string}',
-              "query-input": "required name=search_term_string"
-            }
-          })
-        }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-      />
-      
       <div className="min-h-screen relative overflow-visible">
         {/* Etched Glass Background - Deferred loading */}
         <EtchedGlassBackground />
@@ -684,7 +595,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                             />
                           ) : (
                             <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                              <MapPin className="w-12 h-12 text-gray-400" />
+                              <MapPinIcon className="w-12 h-12 text-gray-400" />
                             </div>
                           );
                         })()}
@@ -693,7 +604,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                         {listing.name || (lang === 'bg' ? 'Проект' : 'Project')}
                       </h4>
                       <p className="text-muted-foreground text-sm flex items-center gap-1">
-                        <MapPin className="w-3 h-3" />
+                        <MapPinIcon className="w-3 h-3" />
                         {listing.city || (lang === 'bg' ? 'България' : 'Bulgaria')}
                       </p>
                     </article>
@@ -706,7 +617,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                 >
                   <article className="card p-6 h-full flex flex-col items-center justify-center text-center hover:-translate-y-1 transition-transform cursor-pointer">
                     <div className="w-full h-48 md:h-56 lg:h-64 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl mb-4 grid place-items-center">
-                      <ExternalLink className="w-10 h-10 text-gray-500" />
+                      <ExternalLinkIcon className="w-10 h-10 text-gray-500" />
                     </div>
                     <h4 className="font-semibold text-lg mb-1">
                       {lang === 'bg' ? 'Виж повече' : 'View more'}
@@ -746,7 +657,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
 
                 <span className="relative z-10 flex items-center justify-center">
                   {dict.whatMakesDifferent.cta}
-                  <ExternalLink className="ml-2 w-5 h-5" />
+                  <ExternalLinkIcon className="ml-2 w-5 h-5" />
                 </span>
               </button>
             </Link>
@@ -1061,7 +972,7 @@ function PremiumStandardCard({ dict, lang }: { dict: any, lang: string }) {
         <ul className="text-left space-y-3 mb-6">
           {features.map((f: string, i: number) => (
             <li key={i} className="flex items-center gap-3 text-gray-700">
-              <CheckCircle className="w-5 h-5 text-indigo-600" />
+              <CheckCircleIcon className="w-5 h-5 text-indigo-600" />
               <span className="text-sm">{f}</span>
             </li>
           ))}

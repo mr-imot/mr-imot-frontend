@@ -9,6 +9,8 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  // Compress output
+  compress: true,
   // Enable build caching for better performance
   onDemandEntries: {
     // period (in ms) where the server will keep pages in the buffer

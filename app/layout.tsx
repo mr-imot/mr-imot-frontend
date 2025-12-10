@@ -149,6 +149,7 @@ html {
           </AuthProvider>
         </GlobalMaintenanceWrapper>
         </ThemeProvider>
+        {/* Analytics and SpeedInsights are already optimized by Vercel */}
         <Analytics />
         <SpeedInsights />
       </body>
