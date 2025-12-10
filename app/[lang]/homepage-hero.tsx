@@ -105,23 +105,23 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
             <div className="w-full flex justify-center lg:justify-end">
               <Image
                 src={lang === 'bg' 
-                  ? "https://ik.imagekit.io/ts59gf2ul/Logo/0_-komisionna-mr-imot.png?updatedAt=1760104535412&tr=f-webp,q-80,w-1800,h-auto,dpr=auto"
-                  : "https://ik.imagekit.io/ts59gf2ul/Logo/0_-commissions-mr-imot.png?updatedAt=1760108287952&tr=f-webp,q-80,w-1800,h-auto,dpr=auto"
+                  ? "https://ik.imagekit.io/ts59gf2ul/Logo/0_-komisionna-mr-imot.png?updatedAt=1760104535412&tr=f-webp,q-80,w-960,h-auto,dpr=auto"
+                  : "https://ik.imagekit.io/ts59gf2ul/Logo/0_-commissions-mr-imot.png?updatedAt=1760108287952&tr=f-webp,q-80,w-960,h-auto,dpr=auto"
                 }
                 alt={lang === 'bg' ? dict.hero.imageAlt : 'Mister Imot mascot holding flag with 0% commissions message for real estate platform'}
-                width={1800}
-                height={1200}
+                width={960}
+                height={640}
                 priority
                 className="w-auto h-auto transition-all duration-700 hover:scale-105 hover:rotate-1"
                 style={{
                   willChange: 'transform',
                   transform: 'translateZ(0)',
                   filter: 'drop-shadow(0 4px 15px rgba(0, 0, 0, 0.1))',
-                  width: 'clamp(1250px, 60vw, 1800px)',
+                  width: 'clamp(720px, 50vw, 960px)',
                   height: 'auto',
                   animation: 'float 6s ease-in-out infinite'
                 }}
-                sizes="(max-width: 1024px) 0vw, (max-width: 1920px) 60vw, 1080px"
+                    sizes="(max-width: 1024px) 0vw, (max-width: 1920px) 50vw, 720px"
               />
             </div>
           </div>
