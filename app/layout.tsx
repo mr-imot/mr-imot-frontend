@@ -12,18 +12,18 @@ import ViewportLock from "@/components/ViewportLock"
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme-provider"
 
-// Geist for hero/headings with Cyrillic support
+// Geist for hero/headings with Cyrillic support (trimmed weights)
 const geist = Geist({
   subsets: ["latin", "cyrillic"],
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["500", "600", "700"],
   variable: "--font-geist",
   display: "swap",
 })
 
-// Inter for body text with Cyrillic support
+// Inter for body text with Cyrillic support (trimmed weights)
 const inter = Inter({
   subsets: ["latin", "cyrillic"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "600"],
   variable: "--font-inter",
   display: "swap",
 })
