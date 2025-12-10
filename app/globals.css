@@ -132,6 +132,27 @@
   .scrollbar-thin::-webkit-scrollbar-track { background: #f3f4f6; border-radius: 6px; }
   .scrollbar-thin::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 6px; }
   
+  .scrollbar-medium {
+    scrollbar-width: auto;
+    scrollbar-color: #9ca3af #f3f4f6;
+  }
+  .scrollbar-medium::-webkit-scrollbar { 
+    width: 0.75rem; 
+    height: 0.875rem; 
+  }
+  .scrollbar-medium::-webkit-scrollbar-track { 
+    background: #f3f4f6; 
+    border-radius: 8px; 
+  }
+  .scrollbar-medium::-webkit-scrollbar-thumb { 
+    background: #9ca3af; 
+    border-radius: 8px; 
+    border: 2px solid #f3f4f6;
+  }
+  .scrollbar-medium::-webkit-scrollbar-thumb:hover { 
+    background: #6b7280; 
+  }
+  
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;

@@ -95,7 +95,7 @@ export function RecentListingsSection({ dict, lang }: RecentListingsSectionProps
               ))}
             </div>
           ) : recentListings.length > 0 ? (
-            <div className="flex gap-6 lg:gap-8 overflow-x-auto snap-x snap-mandatory pb-2 edge-fade-l edge-fade-r scrollbar-thin" style={{ scrollSnapType: 'x mandatory' }}>
+            <div className="flex gap-6 lg:gap-8 overflow-x-auto snap-x snap-mandatory pb-4 edge-fade-l edge-fade-r scrollbar-medium" style={{ scrollSnapType: 'x mandatory' }}>
               {(recentListings.slice(0, 5)).map((listing) => (
                 <Link 
                   key={listing.id} 
