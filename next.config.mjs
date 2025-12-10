@@ -21,7 +21,6 @@ const nextConfig = {
   // Experimental: Optimize for modern browsers only
   experimental: {
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
-    legacyBrowsers: false,
   },
   transpilePackages: [],
   // Enable build caching for better performance
