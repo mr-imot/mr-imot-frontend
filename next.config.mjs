@@ -18,10 +18,11 @@ const nextConfig = {
       exclude: ['error', 'warn'],
     } : false,
   },
-  // Experimental: Optimize for modern browsers (ES2020+)
+  // Experimental: Optimize for modern browsers only
   experimental: {
-    // Reduce transpilation for modern browsers
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
+    legacyBrowsers: false,
+    transpilePackages: [],
   },
   // Enable build caching for better performance
   onDemandEntries: {

@@ -5,18 +5,6 @@
 /* Import palette CSS variables */
 @import '../styles/colors.css';
 
-/* Etched glass background sizing */
-.etched-glass-bg {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: var(--fixed-vh, 100vh);
-  overflow: hidden;
-  pointer-events: none;
-  z-index: -2;
-}
-
 /* Liquid Glass CTA Animations - GPU-accelerated version */
 @keyframes liquidFlow {
   0%, 100% {
@@ -61,22 +49,6 @@
   }
   100% {
     transform: translateX(100%);
-  }
-}
-
-/* CSS Fallback Animation for Paper Shaders Background */
-@keyframes subtleShift {
-  0%, 100% { 
-    transform: translate(0, 0); 
-  }
-  25% { 
-    transform: translate(1px, -1px); 
-  }
-  50% { 
-    transform: translate(-1px, 1px); 
-  }
-  75% { 
-    transform: translate(1px, 1px); 
   }
 }
 
@@ -142,10 +114,6 @@
   --brand-white-overlay-10: rgba(255, 255, 255, 0.1);
   --brand-white-overlay-20: rgba(255, 255, 255, 0.2);
   --brand-white-overlay-90: rgba(255, 255, 255, 0.9);
-}
-
-.instrument {
-  font-family: var(--font-instrument-serif), serif;
 }
 
 @layer base {
