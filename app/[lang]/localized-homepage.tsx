@@ -5,13 +5,9 @@ import { HomepageHero } from "./homepage-hero"
 import { MobileMascotSection } from "./sections/mobile-mascot-section"
 import { ThreeStepProcessSection } from "./sections/three-step-process-section"
 import { RecentListingsSection } from "./sections/recent-listings-section"
+import { EtchedGlassBackground, LazyPricingSection } from "./components/client-islands"
 
-// Lazy load heavy components to reduce initial bundle size
-const EtchedGlassBackground = dynamic(
-  () => import("@/components/etched-glass-background").then((mod) => ({ default: mod.EtchedGlassBackground })),
-  { ssr: false }
-)
-
+// Lazy load heavy components to reduce initial bundle size (ssr: true is allowed in server components)
 const FaqSection = dynamic(
   () => import("@/components/faq-section").then((mod) => ({ default: mod.FaqSection })),
   { ssr: true }
@@ -20,11 +16,6 @@ const FaqSection = dynamic(
 const TestimonialsSection = dynamic(
   () => import("@/components/TestimonialsSection").then((mod) => ({ default: mod.TestimonialsSection })),
   { ssr: true }
-)
-
-const LazyPricingSection = dynamic(
-  () => import("@/components/pricing/LazyPricingSection").then((mod) => ({ default: mod.LazyPricingSection })),
-  { ssr: false }
 )
 
 interface LocalizedHomePageProps {
