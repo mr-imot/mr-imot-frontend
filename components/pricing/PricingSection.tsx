@@ -207,7 +207,7 @@ export function PricingSection({ lang, dict }: PricingSectionProps) {
             savingsText={savingsText}
             isYearly={cycle === 'yearly'}
             tenPlusNotice={units >= 10 ? pricingDict?.overTenNotice : undefined}
-            locale={lang === 'bg' ? 'bg-BG' : 'en-US'}
+            locale={lang === 'bg' ? 'bg-BG' : lang === 'ru' ? 'ru-RU' : 'en-US'}
           />
         </div>
       </div>

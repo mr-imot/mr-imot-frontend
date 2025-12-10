@@ -60,7 +60,7 @@ export function PlanCard({
 
   const numberFormatter = new Intl.NumberFormat(locale || 'en-US', { maximumFractionDigits: 2, minimumFractionDigits: 0 })
   const formattedTotal = totalCost != null ? `€${numberFormatter.format(totalCost)}` : priceLabel
-  const priceSuffix = locale === 'bg-BG' ? '/месец' : '/month'
+  const priceSuffix = locale === 'bg-BG' ? '/месец' : locale === 'ru-RU' ? '/мес' : '/month'
 
   const regularFeatures = plan.features.filter((f) => !f.bonus)
   const bonusFeatures = plan.features.filter((f) => f.bonus)
@@ -70,10 +70,10 @@ export function PlanCard({
     if (parts.length === 1) return text
     
     return (
-      <span className="inline-flex items-center whitespace-nowrap">
+      <span className="inline-flex items-center flex-wrap justify-center gap-1">
         <span className="leading-tight">{parts[0].trimEnd()}</span>
         <svg
-          className="inline-block w-5 h-5 sm:w-6 sm:h-6 align-middle ml-1"
+          className="inline-block w-5 h-5 sm:w-6 sm:h-6 align-middle flex-shrink-0"
           viewBox="0 0 491.52 491.52"
           xmlns="http://www.w3.org/2000/svg"
           aria-hidden="true"
@@ -94,7 +94,7 @@ export function PlanCard({
 
   return (
     <div className={isYearly ? 'rounded-3xl bg-gradient-to-r from-amber-200/70 via-sky-200/60 to-emerald-200/70 p-[3px]' : ''}>
-      <div className={`card p-8 h-full flex flex-col relative overflow-visible rounded-3xl bg-white ${highlight ? 'shadow-2xl' : ''}`}>
+      <div className={`card p-4 sm:p-6 md:p-8 h-full flex flex-col relative overflow-visible rounded-3xl bg-white ${highlight ? 'shadow-2xl' : ''}`}>
       {/* Mascot overlay inside the card */}
       <div className="pointer-events-none absolute right-2 bottom-4 md:right-3 md:top-1/2 md:-translate-y-1/2 z-0 opacity-45 md:opacity-60 blur-[0.5px]">
         <div className="relative h-[120px] w-[90px] md:h-[190px] md:w-[140px]">
@@ -131,7 +131,7 @@ export function PlanCard({
         </div>
       )}
 
-      <div className="text-center flex-1 flex flex-col relative z-10">
+      <div className="text-center flex-1 flex flex-col relative z-10 min-w-0 overflow-hidden">
         <h4 className="text-xl font-bold text-gray-900 mb-1">
           {plan.name}
         </h4>
@@ -143,11 +143,12 @@ export function PlanCard({
           </div>
         )}
 
-        <div className="text-7xl font-black text-black leading-none mb-1 mt-1">
-          {formattedTotal}{priceSuffix}
+        <div className="text-5xl sm:text-6xl md:text-7xl font-black text-black leading-none mb-1 mt-1" style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>
+          <span className="inline-block">{formattedTotal}</span>
+          <span className="inline-block text-3xl sm:text-4xl md:text-5xl ml-1">{priceSuffix}</span>
         </div>
         {((isYearly ? coffeeLineYearly : coffeeLineMonthly) ?? '').length > 0 && (
-          <div className="text-lg sm:text-2xl font-bold text-gray-900 mb-1 flex items-center justify-center gap-1">
+          <div className="text-lg sm:text-2xl font-bold text-gray-900 mb-1 flex items-center justify-center gap-1 px-2 min-w-0">
             {renderCoffeeLine((isYearly ? coffeeLineYearly : coffeeLineMonthly) ?? '')}
           </div>
         )}
