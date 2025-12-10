@@ -208,6 +208,18 @@ export default async function HomePage({ params }: HomePageProps) {
       
       {/* Critical CSS for above-the-fold hero section - Expanded for better LCP */}
       <style dangerouslySetInnerHTML={{ __html: `
+        :root, body {
+          font-family: var(--font-inter), system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+          margin: 0;
+          padding: 0;
+          color: #0f172a;
+          background-color: #f8fafc;
+          -webkit-font-smoothing: antialiased;
+          text-rendering: optimizeLegibility;
+        }
+        h1,h2,h3,h4,h5,h6 { margin: 0; }
+        p { margin: 0; }
+
         .hero-section{min-height:100vh;position:relative}
         .hero-section .max-w-7xl{margin-left:auto;margin-right:auto;max-width:80rem}
         .hero-section .px-4{padding-left:1rem;padding-right:1rem}
