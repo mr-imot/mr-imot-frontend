@@ -11,6 +11,14 @@ const nextConfig = {
   },
   // Compress output
   compress: true,
+  // Use SWC minification (faster and better)
+  swcMinify: true,
+  // Configure compiler to not transpile modern features unnecessarily
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production' ? {
+      exclude: ['error', 'warn'],
+    } : false,
+  },
   // Enable build caching for better performance
   onDemandEntries: {
     // period (in ms) where the server will keep pages in the buffer

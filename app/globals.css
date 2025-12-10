@@ -31,20 +31,39 @@
   z-index: -2;
 }
 
-/* Liquid Glass CTA Animations */
+/* Liquid Glass CTA Animations - GPU-accelerated version */
 @keyframes liquidFlow {
   0%, 100% {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.2) 25%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.1) 100%);
+    opacity: 0.1;
+    transform: translateZ(0) scale(1);
   }
   25% {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.25) 25%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.1) 75%, rgba(255, 255, 255, 0.15) 100%);
+    opacity: 0.15;
+    transform: translateZ(0) scale(1.01);
   }
   50% {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.3) 25%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0.15) 75%, rgba(255, 255, 255, 0.2) 100%);
+    opacity: 0.2;
+    transform: translateZ(0) scale(1.02);
   }
   75% {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.25) 25%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.1) 75%, rgba(255, 255, 255, 0.15) 100%);
+    opacity: 0.15;
+    transform: translateZ(0) scale(1.01);
   }
+}
+
+/* Base gradients for liquidFlow - GPU-accelerated */
+.liquid-flow-bg-white {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.2) 25%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.1) 100%);
+  will-change: opacity, transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.liquid-flow-bg-charcoal {
+  background: linear-gradient(135deg, rgba(38, 70, 83, 0.1) 0%, rgba(38, 70, 83, 0.2) 25%, rgba(38, 70, 83, 0.1) 50%, rgba(38, 70, 83, 0.05) 75%, rgba(38, 70, 83, 0.1) 100%);
+  will-change: opacity, transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 @keyframes shimmer {

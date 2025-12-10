@@ -40,7 +40,7 @@ export function SiteHeader() {
           <Link href="/" className="flex items-center space-x-3 group clickable cursor-pointer">
             <div className="relative w-14 h-14 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-200 border border-white/20 cursor-pointer logo-circle">
               <Image
-                src="/images/mr-imot-logo-no-background.png"
+                src="https://ik.imagekit.io/ts59gf2ul/Logo/mr-imot-logo-no-background.png?tr=w-112,h-112,f-webp,q-85,fo-auto"
                 alt={
                   locale === 'bg'
                     ? 'Лого на Мистър Имот'
@@ -52,6 +52,7 @@ export function SiteHeader() {
                 height={56}
                 className="object-contain drop-shadow-lg cursor-pointer"
                 priority
+                sizes="56px"
                 style={{
                   filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))'
                 }}

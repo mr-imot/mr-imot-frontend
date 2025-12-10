@@ -109,8 +109,8 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
           <div className="flex justify-center">
             <Image
               src={lang === 'bg' 
-                ? "https://ik.imagekit.io/ts59gf2ul/Logo/0_-komisionna-mr-imot.png?updatedAt=1760104535412&tr=f-auto,q-80,w-320,h-auto,dpr=auto"
-                : "https://ik.imagekit.io/ts59gf2ul/Logo/0_-commissions-mr-imot.png?updatedAt=1760108287952&tr=f-auto,q-80,w-320,h-auto,dpr=auto"
+                ? "https://ik.imagekit.io/ts59gf2ul/Logo/0_-komisionna-mr-imot.png?updatedAt=1760104535412&tr=f-webp,q-80,w-320,h-auto,dpr=auto"
+                : "https://ik.imagekit.io/ts59gf2ul/Logo/0_-commissions-mr-imot.png?updatedAt=1760108287952&tr=f-webp,q-80,w-320,h-auto,dpr=auto"
               }
               alt={lang === 'bg' ? dict.hero.imageAlt : 'Mister Imot mascot holding flag with 0% commissions message for real estate platform'}
               width={320}
@@ -126,7 +126,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                 animation: 'float 6s ease-in-out infinite',
                 marginTop: 'clamp(8px, 2vh, 16px)'
               }}
-              sizes="(max-width: 1024px) 68vw, 0vw"
+              sizes="(max-width: 640px) 68vw, (max-width: 1024px) 50vw, 0vw"
             />
           </div>
         </div>
@@ -164,11 +164,13 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                        {/* Icon with Liquid Glass Effect */}
                        <div className="relative">
                          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300 bg-accent relative overflow-hidden">
-                           {/* Liquid Glass Overlay */}
-                           <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out" style={{
-                             background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.2) 25%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.1) 100%)',
+                           {/* Liquid Glass Overlay - GPU-accelerated */}
+                           <div className="absolute inset-0 liquid-flow-bg-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out" style={{
                              borderRadius: '16px',
-                             animation: 'liquidFlow 2s ease-in-out infinite'
+                             animation: 'liquidFlow 2s ease-in-out infinite',
+                             willChange: 'opacity, transform',
+                             transform: 'translateZ(0)',
+                             backfaceVisibility: 'hidden'
                            }} />
                            
                            {/* Shimmer Effect */}
@@ -212,11 +214,13 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                        {/* Icon with Liquid Glass Effect */}
                        <div className="relative">
                          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300 bg-accent relative overflow-hidden">
-                           {/* Liquid Glass Overlay */}
-                           <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out" style={{
-                             background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.2) 25%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.1) 100%)',
+                           {/* Liquid Glass Overlay - GPU-accelerated */}
+                           <div className="absolute inset-0 liquid-flow-bg-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out" style={{
                              borderRadius: '16px',
-                             animation: 'liquidFlow 2s ease-in-out infinite'
+                             animation: 'liquidFlow 2s ease-in-out infinite',
+                             willChange: 'opacity, transform',
+                             transform: 'translateZ(0)',
+                             backfaceVisibility: 'hidden'
                            }} />
                            
                            {/* Shimmer Effect */}
@@ -260,11 +264,13 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                        {/* Icon with Liquid Glass Effect */}
                        <div className="relative">
                          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300 bg-accent relative overflow-hidden">
-                           {/* Liquid Glass Overlay */}
-                           <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out" style={{
-                             background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.2) 25%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.1) 100%)',
+                           {/* Liquid Glass Overlay - GPU-accelerated */}
+                           <div className="absolute inset-0 liquid-flow-bg-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out" style={{
                              borderRadius: '16px',
-                             animation: 'liquidFlow 2s ease-in-out infinite'
+                             animation: 'liquidFlow 2s ease-in-out infinite',
+                             willChange: 'opacity, transform',
+                             transform: 'translateZ(0)',
+                             backfaceVisibility: 'hidden'
                            }} />
                            
                            {/* Shimmer Effect */}
@@ -368,11 +374,13 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                 <div className="text-center h-full flex flex-col">
                   {/* Icon */}
                   <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300 bg-charcoal-500 relative overflow-hidden">
-                    {/* Liquid Glass Overlay */}
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out" style={{
-                      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.2) 25%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.1) 100%)',
+                    {/* Liquid Glass Overlay - GPU-accelerated */}
+                    <div className="absolute inset-0 liquid-flow-bg-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out" style={{
                       borderRadius: '16px',
-                      animation: 'liquidFlow 2s ease-in-out infinite'
+                      animation: 'liquidFlow 2s ease-in-out infinite',
+                      willChange: 'opacity, transform',
+                      transform: 'translateZ(0)',
+                      backfaceVisibility: 'hidden'
                     }} />
                     
                     {/* Shimmer Effect */}
@@ -410,11 +418,13 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                 <div className="text-center h-full flex flex-col">
                   {/* Icon */}
                   <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300 bg-accent relative overflow-hidden">
-                    {/* Liquid Glass Overlay */}
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out" style={{
-                      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.2) 25%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.1) 100%)',
+                    {/* Liquid Glass Overlay - GPU-accelerated */}
+                    <div className="absolute inset-0 liquid-flow-bg-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out" style={{
                       borderRadius: '16px',
-                      animation: 'liquidFlow 2s ease-in-out infinite'
+                      animation: 'liquidFlow 2s ease-in-out infinite',
+                      willChange: 'opacity, transform',
+                      transform: 'translateZ(0)',
+                      backfaceVisibility: 'hidden'
                     }} />
                     
                     {/* Shimmer Effect */}
@@ -452,11 +462,13 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                 <div className="text-center h-full flex flex-col">
                   {/* Icon */}
                   <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300 bg-accent relative overflow-hidden">
-                    {/* Liquid Glass Overlay */}
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out" style={{
-                      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.2) 25%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.1) 100%)',
+                    {/* Liquid Glass Overlay - GPU-accelerated */}
+                    <div className="absolute inset-0 liquid-flow-bg-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out" style={{
                       borderRadius: '16px',
-                      animation: 'liquidFlow 2s ease-in-out infinite'
+                      animation: 'liquidFlow 2s ease-in-out infinite',
+                      willChange: 'opacity, transform',
+                      transform: 'translateZ(0)',
+                      backfaceVisibility: 'hidden'
                     }} />
                     
                     {/* Shimmer Effect */}
@@ -494,11 +506,13 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                 <div className="text-center h-full flex flex-col">
                   {/* Icon */}
                   <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300 bg-charcoal-500 relative overflow-hidden">
-                    {/* Liquid Glass Overlay */}
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out" style={{
-                      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.2) 25%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.1) 100%)',
+                    {/* Liquid Glass Overlay - GPU-accelerated */}
+                    <div className="absolute inset-0 liquid-flow-bg-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out" style={{
                       borderRadius: '16px',
-                      animation: 'liquidFlow 2s ease-in-out infinite'
+                      animation: 'liquidFlow 2s ease-in-out infinite',
+                      willChange: 'opacity, transform',
+                      transform: 'translateZ(0)',
+                      backfaceVisibility: 'hidden'
                     }} />
                     
                     {/* Shimmer Effect */}
@@ -641,11 +655,13 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
           <div className="mt-10 flex justify-center">
             <Link href={`/${lang}/listings`}>
               <button className="w-full sm:w-auto px-8 py-4 rounded-2xl text-white font-bold text-lg transition-all duration-300 ease-in-out hover:shadow-2xl hover:scale-105 active:scale-[0.98] cursor-pointer uppercase tracking-wide relative overflow-hidden group bg-charcoal-700 hover:bg-charcoal-800 focus:ring-2 focus:ring-charcoal-300 font-sans">
-                {/* Liquid Glass Overlay - Always Visible */}
-                <div className="absolute inset-0 opacity-100 transition-opacity duration-300 ease-out" style={{
-                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.2) 25%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.1) 100%)',
+                {/* Liquid Glass Overlay - GPU-accelerated */}
+                <div className="absolute inset-0 liquid-flow-bg-white opacity-100 transition-opacity duration-300 ease-out" style={{
                   borderRadius: '16px',
-                  animation: 'liquidFlow 2s ease-in-out infinite'
+                  animation: 'liquidFlow 2s ease-in-out infinite',
+                  willChange: 'opacity, transform',
+                  transform: 'translateZ(0)',
+                  backfaceVisibility: 'hidden'
                 }} />
 
                 {/* Shimmer Effect - Always Visible */}
@@ -694,12 +710,15 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
                     {/* Left Side - Mascot */}
                     <div className="flex justify-center lg:justify-start order-2 lg:order-1">
-                      <img
+                      <Image
                         src={lang === 'bg' 
-                          ? "https://ik.imagekit.io/ts59gf2ul/Logo/stani-chats-ot-nas-mr-imot.png?updatedAt=1760104490964&tr=f-auto,q-90"
-                          : "https://ik.imagekit.io/ts59gf2ul/Logo/join-us-mr-imot.png?updatedAt=1760105808199&tr=f-auto,q-90"
+                          ? "https://ik.imagekit.io/ts59gf2ul/Logo/stani-chats-ot-nas-mr-imot.png?updatedAt=1760104490964&tr=f-webp,q-85,w-320,h-auto,dpr=auto"
+                          : "https://ik.imagekit.io/ts59gf2ul/Logo/join-us-mr-imot.png?updatedAt=1760105808199&tr=f-webp,q-85,w-320,h-auto,dpr=auto"
                         }
                         alt={lang === 'bg' ? dict.developerJoin.imageAlt : 'Mister Imot mascot inviting developers to join real estate platform with join us flag'}
+                        width={320}
+                        height={240}
+                        loading="lazy"
                         className="w-auto h-auto mx-auto transition-all duration-700 hover:scale-110 hover:rotate-2"
                         style={{
                           willChange: 'transform',
@@ -708,6 +727,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                           width: 'clamp(200px, 20vw, 320px)',
                           height: 'auto'
                         }}
+                        sizes="(max-width: 1024px) 50vw, 320px"
                       />
                     </div>
 
@@ -821,11 +841,13 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
               </h3>
               <Link href={`/${lang}/register?type=developer`}>
                 <button className="group relative px-10 py-4 rounded-2xl bg-charcoal-500 text-white font-bold tracking-wider uppercase hover:bg-charcoal-600 transition-all duration-300 shadow-xl hover:shadow-2xl active:scale-95 overflow-hidden">
-                  {/* Liquid Glass Overlay - Always Visible */}
-                  <div className="absolute inset-0 opacity-100 transition-opacity duration-300 ease-out" style={{
-                    background: 'linear-gradient(135deg, rgba(38, 70, 83, 0.1) 0%, rgba(38, 70, 83, 0.2) 25%, rgba(38, 70, 83, 0.1) 50%, rgba(38, 70, 83, 0.05) 75%, rgba(38, 70, 83, 0.1) 100%)',
+                  {/* Liquid Glass Overlay - GPU-accelerated */}
+                  <div className="absolute inset-0 liquid-flow-bg-charcoal opacity-100 transition-opacity duration-300 ease-out" style={{
                     borderRadius: '16px',
-                    animation: 'liquidFlow 2s ease-in-out infinite'
+                    animation: 'liquidFlow 2s ease-in-out infinite',
+                    willChange: 'opacity, transform',
+                    transform: 'translateZ(0)',
+                    backfaceVisibility: 'hidden'
                   }} />
 
                   {/* Shimmer Effect - Always Visible */}

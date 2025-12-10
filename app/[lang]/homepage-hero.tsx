@@ -75,11 +75,13 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
             }}>
               <Link href={`/${lang}/listings`}>
                 <button className="w-full sm:w-auto px-10 py-5 rounded-2xl text-white font-bold uppercase transition-all duration-300 ease-in-out hover:shadow-2xl hover:scale-105 active:scale-[0.98] cursor-pointer tracking-wider relative overflow-hidden group bg-charcoal-700 hover:bg-charcoal-800 focus:ring-2 focus:ring-charcoal-300 font-sans" style={{ fontSize: 'clamp(1.25rem, 3.5vw, 1.75rem)', padding: 'clamp(1.125rem, 2.75vw, 1.75rem) clamp(2.25rem, 5.5vw, 3.5rem)' }}>
-                  {/* Liquid Glass Overlay - Always Visible */}
-                  <div className="absolute inset-0 opacity-100 transition-opacity duration-300 ease-out" style={{
-                    background: 'linear-gradient(135deg, rgba(38, 70, 83, 0.1) 0%, rgba(38, 70, 83, 0.2) 25%, rgba(38, 70, 83, 0.1) 50%, rgba(38, 70, 83, 0.05) 75%, rgba(38, 70, 83, 0.1) 100%)',
+                  {/* Liquid Glass Overlay - GPU-accelerated */}
+                  <div className="absolute inset-0 liquid-flow-bg-charcoal opacity-100 transition-opacity duration-300 ease-out" style={{
                     borderRadius: '16px',
-                    animation: 'liquidFlow 2s ease-in-out infinite'
+                    animation: 'liquidFlow 2s ease-in-out infinite',
+                    willChange: 'opacity, transform',
+                    transform: 'translateZ(0)',
+                    backfaceVisibility: 'hidden'
                   }} />
 
                   {/* Shimmer Effect - Always Visible */}
@@ -103,8 +105,8 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
             <div className="w-full flex justify-center lg:justify-end">
               <Image
                 src={lang === 'bg' 
-                  ? "https://ik.imagekit.io/ts59gf2ul/Logo/0_-komisionna-mr-imot.png?updatedAt=1760104535412&tr=f-auto,q-80,w-1800,h-auto,dpr=auto"
-                  : "https://ik.imagekit.io/ts59gf2ul/Logo/0_-commissions-mr-imot.png?updatedAt=1760108287952&tr=f-auto,q-80,w-1800,h-auto,dpr=auto"
+                  ? "https://ik.imagekit.io/ts59gf2ul/Logo/0_-komisionna-mr-imot.png?updatedAt=1760104535412&tr=f-webp,q-80,w-1800,h-auto,dpr=auto"
+                  : "https://ik.imagekit.io/ts59gf2ul/Logo/0_-commissions-mr-imot.png?updatedAt=1760108287952&tr=f-webp,q-80,w-1800,h-auto,dpr=auto"
                 }
                 alt={lang === 'bg' ? dict.hero.imageAlt : 'Mister Imot mascot holding flag with 0% commissions message for real estate platform'}
                 width={1800}
@@ -119,7 +121,7 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
                   height: 'auto',
                   animation: 'float 6s ease-in-out infinite'
                 }}
-                sizes="(max-width: 1024px) 0vw, 60vw"
+                sizes="(max-width: 1024px) 0vw, (max-width: 1920px) 60vw, 1080px"
               />
             </div>
           </div>
