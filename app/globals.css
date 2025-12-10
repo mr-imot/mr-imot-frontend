@@ -2,20 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Embla Carousel Styles */
-.embla {
-  overflow: hidden;
-}
-
-.embla__container {
-  display: flex;
-}
-
-.embla__slide {
-  flex: 0 0 100%;
-  min-width: 0;
-}
-
 /* Import palette CSS variables */
 @import '../styles/colors.css';
 
@@ -160,88 +146,6 @@
 
 .instrument {
   font-family: var(--font-instrument-serif), serif;
-}
-
-/* Enhanced Gooey Effects */
-.gooey-nav {
-  filter: url(#gooey-filter);
-}
-
-.gooey-nav a {
-  transition: all 0.3s ease;
-}
-
-.gooey-nav a:hover {
-  transform: scale(1.1);
-}
-
-/* Navigation items that blob together on hover */
-.nav-blob {
-  position: relative;
-  display: inline-block;
-  transition: all 0.3s ease;
-}
-
-.nav-blob::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  transition: all 0.3s ease;
-  z-index: -1;
-}
-
-.nav-blob:hover::before {
-  width: 120%;
-  height: 200%;
-  border-radius: 50px;
-}
-
-/* Enhanced button morphing */
-.morph-button {
-  filter: url(#gooey-filter);
-  transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
-}
-
-.morph-button:hover {
-  transform: scale(1.05);
-}
-
-/* Airbnb-style map price pills for AdvancedMarkerElement */
-.map-price-pill {
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 6px 10px;
-  font-weight: 600;
-  font-size: 13px;
-  line-height: 1.125rem; /* 18px */
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-  will-change: transform;
-  user-select: none;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-.map-price-pill:hover {
-  transform: scale(1.06);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
-  cursor: pointer;
-}
-
-.map-price-pill--active {
-  outline: 2px solid var(--brand-gray-900);
-  outline-offset: 2px;
-}
-
-.map-price-pill--cluster {
-  background: var(--subtle);
-  color: #ffffff;
-  border-color: var(--subtle);
 }
 
 @layer base {

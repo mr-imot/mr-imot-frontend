@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect, useMemo, useState, useRef } from 'react'
+import "@/styles/components/map.css"
 import { ensureGoogleMaps, createSvgMarkerIcon } from '@/lib/google-maps'
 import { PropertyMapCard } from './property-map-card'
 

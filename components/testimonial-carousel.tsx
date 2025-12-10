@@ -2,6 +2,7 @@
 
 import type React from "react"
 import { useState, useEffect, useRef, useCallback, useMemo } from "react"
+import "@/styles/components/embla.css"
 import { TestimonialCard } from "@/components/testimonial-card"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight } from "lucide-react"
