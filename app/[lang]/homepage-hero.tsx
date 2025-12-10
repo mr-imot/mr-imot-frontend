@@ -15,7 +15,7 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
     }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 h-full">
         <div className={clsx(
-          "grid lg:grid-cols-2 gap-4 lg:gap-6 xl:gap-8 items-center w-full h-full",
+          "grid lg:grid-cols-2 items-center w-full h-full",
           styles.heroGrid
         )}>
           {/* Left Column - Content */}
@@ -23,7 +23,6 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
             {/* Main Headline */}
             <div className="space-y-1">
               <h1 className={clsx("tracking-tight font-serif", styles.heroTitle)} style={{
-                fontSize: 'clamp(2.25rem, 5.5vw, 4.75rem)',
                 lineHeight: '1.1'
               }}>
                 <span className="font-normal italic drop-shadow-sm" style={{ 
@@ -112,7 +111,7 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
             {/* Desktop CTA */}
             <div className={clsx("mt-8 hidden lg:block", styles.heroCta)}>
               <Link href={`/${lang}/listings`}>
-                <button className="px-10 py-5 rounded-2xl text-white font-bold uppercase transition-all duration-300 ease-in-out hover:shadow-2xl hover:scale-105 active:scale-[0.98] cursor-pointer tracking-wider relative overflow-hidden group bg-charcoal-700 hover:bg-charcoal-800 focus:ring-2 focus:ring-charcoal-300 font-sans" style={{ fontSize: 'clamp(1.25rem, 2vw, 1.75rem)' }}>
+                <button className="px-10 py-5 rounded-2xl text-white font-bold uppercase transition-all duration-300 ease-in-out hover:shadow-2xl hover:scale-105 active:scale-[0.98] cursor-pointer tracking-wider relative overflow-hidden group bg-charcoal-700 hover:bg-charcoal-800 focus:ring-2 focus:ring-charcoal-300 font-sans">
                   <div className={clsx("absolute inset-0 opacity-100 transition-opacity duration-300 ease-out", styles.liquidFlowBgCharcoal)} style={{
                     borderRadius: '16px',
                     willChange: 'opacity, transform',
@@ -139,10 +138,10 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
               priority
               className={clsx("w-auto h-auto transition-all duration-700 hover:scale-105 hover:rotate-1", styles.heroImage)}
               style={{
-                width: 'clamp(400px, 40vw, 800px)',
+                width: 'clamp(300px, min(45vw, 800px), 800px)',
                 height: 'auto'
               }}
-              sizes="(max-width: 1024px) 0vw, (max-width: 1280px) 40vw, 45vw"
+              sizes="(max-width: 1024px) 0vw, min(45vw, 800px)"
             />
           </div>
         </div>
