@@ -1,5 +1,5 @@
 import { getDictionary } from '@/app/[lang]/dictionaries'
-import AnalyticsClient from './analytics-client'
+import { AnalyticsWrapper } from './analytics-wrapper'
 
 interface AnalyticsPageProps {
   params: Promise<{
@@ -11,5 +11,5 @@ export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
   const { lang } = await params
   const dict = await getDictionary(lang)
 
-  return <AnalyticsClient dict={dict} lang={lang} />
+  return <AnalyticsWrapper dict={dict} lang={lang} />
 }

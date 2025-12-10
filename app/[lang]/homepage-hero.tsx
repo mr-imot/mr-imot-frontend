@@ -8,7 +8,9 @@ interface HomepageHeroProps {
 
 export function HomepageHero({ dict, lang }: HomepageHeroProps) {
   return (
-    <section className="hero-section">
+    <section className="hero-section" style={{ 
+      background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%)'
+    }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
         <div className="hero-grid grid grid-rows-[auto_1fr] lg:grid-cols-2 lg:grid-rows-none gap-2 sm:gap-4 md:gap-6 lg:gap-8 items-center w-full">
           {/* Left Column - Content */}
@@ -19,19 +21,24 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
           }}>
             {/* Top Section - Title + Subtitle */}
             <div className="flex-1 flex flex-col justify-center" style={{ paddingTop: 'clamp(1rem, 4vh, 2rem)' }}>
-              {/* Main Headline - premium gradient text */}
+              {/* Main Headline - gradient text matching other sections */}
               <div className="space-y-1">
-                <h1 className="headline-gradient hero-title leading-[0.72] tracking-tight font-serif" style={{
+                <h1 className="hero-title leading-[0.72] tracking-tight font-serif" style={{
                   fontSize: 'clamp(2.75rem, 6vw, 4.75rem)'
                 }}>
-                  <span className="font-normal italic text-slate-900/70 drop-shadow-sm mr-2">
+                  <span className="font-normal italic drop-shadow-sm mr-2" style={{ 
+                    background: 'linear-gradient(135deg, #264653 0%, #3f7489 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text'
+                  }}>
                     {dict.hero.title.find}
                   </span>
-                  {dict.hero.title.your}
+                  <span className="headline-gradient">{dict.hero.title.your}</span>
                   <br />
-                  <span className="font-semibold">{dict.hero.title.perfectProperty}</span>
+                  <span className="headline-gradient font-semibold">{dict.hero.title.perfectProperty}</span>
                   <br />
-                  <span className="font-medium">{dict.hero.title.directlyFromDevelopers}</span>
+                  <span className="headline-gradient font-medium">{dict.hero.title.directlyFromDevelopers}</span>
                 </h1>
               </div>
               

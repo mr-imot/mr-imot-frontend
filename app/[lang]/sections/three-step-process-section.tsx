@@ -9,7 +9,7 @@ export function ThreeStepProcessSection({ dict, lang }: ThreeStepProcessSectionP
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 relative">
         {/* Section Header */}
         <div className="text-center mb-12 sm:mb-16 md:mb-20 lg:mb-24">
-          <div className="inline-block px-4 py-2 rounded-full text-sm font-medium mb-8 uppercase tracking-wide border-2 bg-slate-900/5 text-slate-500 border-slate-900/10" dangerouslySetInnerHTML={{ __html: dict.threeSteps.badge }}>
+          <div className="inline-block px-4 py-2 rounded-full text-sm font-semibold mb-8 uppercase tracking-wide border-2 bg-charcoal-500 text-white border-charcoal-600" dangerouslySetInnerHTML={{ __html: dict.threeSteps.badge }}>
           </div>
           <h2 className="headline-gradient text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 font-serif" style={{
             lineHeight: '1.1',
@@ -30,13 +30,13 @@ export function ThreeStepProcessSection({ dict, lang }: ThreeStepProcessSectionP
                 {/* Number + Icon Container */}
                 <div className="flex items-center justify-center gap-4 mb-6">
                   {/* Number */}
-                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-full text-xl font-bold text-white bg-accent">
+                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-full text-xl font-bold text-white bg-charcoal-500">
                     {dict.threeSteps.step1.number}
                   </div>
                   
                   {/* Icon with Liquid Glass Effect */}
                   <div className="relative">
-                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300 bg-accent relative overflow-hidden">
+                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300 bg-saffron-500 relative overflow-hidden">
                       {/* Liquid Glass Overlay - GPU-accelerated */}
                       <div className="absolute inset-0 liquid-flow-bg-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out" style={{
                         borderRadius: '16px',
@@ -53,8 +53,8 @@ export function ThreeStepProcessSection({ dict, lang }: ThreeStepProcessSectionP
                         animation: 'shimmer 1.5s ease-in-out infinite'
                       }} />
                       
-                      {/* Original Map SVG with White Color */}
-                      <svg className="w-10 h-10 text-charcoal-500 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      {/* Original Map SVG */}
+                      <svg className="w-10 h-10 text-charcoal-600 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
                       </svg>
                     </div>
@@ -80,13 +80,13 @@ export function ThreeStepProcessSection({ dict, lang }: ThreeStepProcessSectionP
                 {/* Number + Icon Container */}
                 <div className="flex items-center justify-center gap-4 mb-6">
                   {/* Number */}
-                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-full text-xl font-bold text-white bg-accent">
+                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-full text-xl font-bold text-white bg-charcoal-500">
                     {dict.threeSteps.step2.number}
                   </div>
                   
                   {/* Icon with Liquid Glass Effect */}
                   <div className="relative">
-                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300 bg-accent relative overflow-hidden">
+                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300 bg-saffron-500 relative overflow-hidden">
                       {/* Liquid Glass Overlay - GPU-accelerated */}
                       <div className="absolute inset-0 liquid-flow-bg-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out" style={{
                         borderRadius: '16px',
@@ -104,7 +104,7 @@ export function ThreeStepProcessSection({ dict, lang }: ThreeStepProcessSectionP
                       }} />
                       
                       {/* SVG Icon */}
-                      <svg className="w-10 h-10 text-charcoal-500 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-10 h-10 text-charcoal-600 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1 1 21 9z"/>
                       </svg>
                     </div>
@@ -130,13 +130,13 @@ export function ThreeStepProcessSection({ dict, lang }: ThreeStepProcessSectionP
                 {/* Number + Icon Container */}
                 <div className="flex items-center justify-center gap-4 mb-6">
                   {/* Number */}
-                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-full text-xl font-bold text-white bg-accent">
+                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-full text-xl font-bold text-white bg-charcoal-500">
                     {dict.threeSteps.step3.number}
                   </div>
                   
                   {/* Icon with Liquid Glass Effect */}
                   <div className="relative">
-                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300 bg-accent relative overflow-hidden">
+                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300 bg-saffron-500 relative overflow-hidden">
                       {/* Liquid Glass Overlay - GPU-accelerated */}
                       <div className="absolute inset-0 liquid-flow-bg-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out" style={{
                         borderRadius: '16px',
@@ -154,7 +154,7 @@ export function ThreeStepProcessSection({ dict, lang }: ThreeStepProcessSectionP
                       }} />
                       
                       {/* SVG Icon */}
-                      <svg className="w-10 h-10 text-charcoal-500 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-10 h-10 text-charcoal-600 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                       </svg>

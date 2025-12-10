@@ -1,5 +1,5 @@
 import { getDictionary } from '@/app/[lang]/dictionaries'
-import DeveloperDashboardClient from './dashboard-client'
+import { DashboardWrapper } from './dashboard-wrapper'
 
 interface DeveloperDashboardPageProps {
   params: Promise<{
@@ -11,5 +11,5 @@ export default async function DeveloperDashboardPage({ params }: DeveloperDashbo
   const { lang } = await params
   const dict = await getDictionary(lang)
 
-  return <DeveloperDashboardClient dict={dict} lang={lang} />
+  return <DashboardWrapper dict={dict} lang={lang} />
 }
