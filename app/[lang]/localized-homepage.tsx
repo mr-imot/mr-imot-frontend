@@ -2,7 +2,6 @@ import Link from "next/link"
 import Image from "next/image"
 import dynamic from "next/dynamic"
 import { HomepageHero } from "./homepage-hero"
-import { MobileMascotSection } from "./sections/mobile-mascot-section"
 import { ThreeStepProcessSection } from "./sections/three-step-process-section"
 import { RecentListingsSection } from "./sections/recent-listings-section"
 import { LazyPricingSection } from "./components/client-islands"
@@ -30,9 +29,6 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
       <div className="min-h-screen relative overflow-visible">
         {/* Hero Section - Server Component (zero client JS) */}
         <HomepageHero dict={dict} lang={lang} />
-
-        {/* Mobile Mascot Section - Server Component */}
-        <MobileMascotSection dict={dict} lang={lang} />
 
         {/* 3-Step Process Section - Server Component */}
         <ThreeStepProcessSection dict={dict} lang={lang} />
