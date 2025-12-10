@@ -11,13 +11,17 @@ const nextConfig = {
   },
   // Compress output
   compress: true,
-  // Use SWC minification (faster and better)
-  swcMinify: true,
+  // SWC minification is enabled by default in Next.js 15
   // Configure compiler to not transpile modern features unnecessarily
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production' ? {
       exclude: ['error', 'warn'],
     } : false,
+  },
+  // Experimental: Optimize for modern browsers (ES2020+)
+  experimental: {
+    // Reduce transpilation for modern browsers
+    optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
   },
   // Enable build caching for better performance
   onDemandEntries: {

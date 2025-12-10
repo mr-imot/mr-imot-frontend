@@ -1,0 +1,39 @@
+import Image from "next/image"
+
+interface MobileMascotSectionProps {
+  dict: any
+  lang: string
+}
+
+export function MobileMascotSection({ dict, lang }: MobileMascotSectionProps) {
+  return (
+    <section className="lg:hidden py-16 sm:py-20 md:py-24 bg-white">
+      <div className="container mx-auto px-3 sm:px-6 md:px-8 w-full">
+        <div className="flex justify-center">
+          <Image
+            src={lang === 'bg' 
+              ? "https://ik.imagekit.io/ts59gf2ul/Logo/0_-komisionna-mr-imot.png?updatedAt=1760104535412&tr=f-webp,q-80,w-320,h-auto,dpr=auto"
+              : "https://ik.imagekit.io/ts59gf2ul/Logo/0_-commissions-mr-imot.png?updatedAt=1760108287952&tr=f-webp,q-80,w-320,h-auto,dpr=auto"
+            }
+            alt={lang === 'bg' ? dict.hero.imageAlt : 'Mister Imot mascot holding flag with 0% commissions message for real estate platform'}
+            width={320}
+            height={240}
+            loading="lazy"
+            className="w-auto h-auto transition-all duration-700 hover:scale-105 hover:rotate-1 drop-shadow-xl"
+            style={{
+              willChange: 'transform',
+              transform: 'translateZ(0)',
+              filter: 'drop-shadow(0 4px 15px rgba(0, 0, 0, 0.1))',
+              width: 'clamp(180px, 68vw, 320px)',
+              height: 'auto',
+              animation: 'float 6s ease-in-out infinite',
+              marginTop: 'clamp(8px, 2vh, 16px)'
+            }}
+            sizes="(max-width: 640px) 68vw, (max-width: 1024px) 50vw, 0vw"
+          />
+        </div>
+      </div>
+    </section>
+  )
+}
+

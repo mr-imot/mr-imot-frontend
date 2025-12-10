@@ -206,7 +206,7 @@ export default async function HomePage({ params }: HomePageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
       
-      {/* Critical CSS for above-the-fold hero section */}
+      {/* Critical CSS for above-the-fold hero section - Expanded for better LCP */}
       <style dangerouslySetInnerHTML={{ __html: `
         .hero-section{min-height:100vh;position:relative}
         .hero-section .max-w-7xl{margin-left:auto;margin-right:auto;max-width:80rem}
@@ -219,8 +219,11 @@ export default async function HomePage({ params }: HomePageProps) {
         @media(min-width:1024px){.hero-content{order:unset}}
         .hero-title{line-height:0.72;letter-spacing:-0.025em;font-family:var(--font-serif);font-size:clamp(2.75rem,6vw,4.75rem)}
         .hero-subtitle{font-size:clamp(1.2rem,3vw,1.25rem);line-height:1.6;max-width:clamp(320px,90%,520px);font-family:var(--font-sans)}
-        .hero-cta button{width:100%;padding:clamp(1.125rem,2.75vw,1.75rem) clamp(2.25rem,5.5vw,3.5rem);border-radius:1rem;background-color:#264653;color:#fff;font-weight:700;text-transform:uppercase;font-size:clamp(1.25rem,3.5vw,1.75rem);font-family:var(--font-sans);cursor:pointer}
+        .hero-cta button{width:100%;padding:clamp(1.125rem,2.75vw,1.75rem) clamp(2.25rem,5.5vw,3.5rem);border-radius:1rem;background-color:#264653;color:#fff;font-weight:700;text-transform:uppercase;font-size:clamp(1.25rem,3.5vw,1.75rem);font-family:var(--font-sans);cursor:pointer;border:none}
         @media(min-width:640px){.hero-cta button{width:auto}}
+        .hero-visual{display:none}
+        @media(min-width:1024px){.hero-visual{display:flex;align-items:center;justify-content:flex-end;height:100%}}
+        img{max-width:100%;height:auto}
       ` }} />
       <LocalizedHomePage dict={dict} lang={lang} />
     </>
