@@ -1,11 +1,12 @@
 import { getDictionary } from './dictionaries'
 import { formatTitleWithBrand } from '@/lib/seo'
 import { Metadata } from 'next'
+import { headers, cookies } from 'next/headers'
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { Home, Search, AlertCircle } from "lucide-react"
+import { Home, Search } from "lucide-react"
 import { GoBackButton } from './not-found-client-button'
 
 // ImageKit URL helper with optimizations for 404 mascot
@@ -28,33 +29,27 @@ const getImageKitUrl = (originalUrl: string, width: number, height: number, qual
   return `${originalUrl}${separator}tr=${transformations}`
 }
 
-interface NotFoundProps {
-  params?: Promise<{
-    lang: 'en' | 'bg'
-  }>
-}
+const SUPPORTED_LOCALES = ['en', 'bg', 'ru', 'gr'] as const
+type SupportedLocale = (typeof SUPPORTED_LOCALES)[number]
 
-// Helper to extract lang from params
-// During static generation, params are available, so we don't need headers()
-async function getLang(params?: Promise<{ lang: 'en' | 'bg' }>): Promise<'en' | 'bg'> {
-  // Get lang from params if available
-  if (params) {
-    try {
-      const resolved = await params
-      if (resolved?.lang && (resolved.lang === 'en' || resolved.lang === 'bg')) {
-        return resolved.lang
-      }
-    } catch (error) {
-      console.error('Error resolving params:', error)
-    }
-  }
-  
-  // Default fallback to English
+const isSupportedLocale = (value?: string | null): value is SupportedLocale =>
+  !!value && SUPPORTED_LOCALES.includes(value as SupportedLocale)
+
+// Resolve locale from middleware header, then cookie, then fallback to English
+function resolveLocale(): SupportedLocale {
+  const headerLocale = headers().get('x-locale')
+  if (isSupportedLocale(headerLocale)) return headerLocale
+
+  const cookieLocale = cookies().get('NEXT_LOCALE')?.value
+  if (isSupportedLocale(cookieLocale)) return cookieLocale
+
   return 'en'
 }
 
-export async function generateMetadata({ params }: NotFoundProps): Promise<Metadata> {
-  const lang = await getLang(params)
+export const dynamic = 'force-dynamic'
+
+export async function generateMetadata(): Promise<Metadata> {
+  const lang = resolveLocale()
   const dict = await getDictionary(lang)
   
   const title = formatTitleWithBrand(
@@ -71,13 +66,22 @@ export async function generateMetadata({ params }: NotFoundProps): Promise<Metad
   }
 }
 
-export default async function NotFound({ params }: NotFoundProps) {
-  const lang = await getLang(params)
+export default async function NotFound() {
+  const lang = resolveLocale()
   const dict = await getDictionary(lang)
 
   // Helper function to generate localized URLs
-  const href = (en: string, bg: string) => {
-    return lang === 'bg' ? `/bg/${bg}` : `/${en}`
+  const href = (en: string, bg?: string, ru?: string, gr?: string) => {
+    const path =
+      lang === 'bg' ? bg ?? en :
+      lang === 'ru' ? ru ?? en :
+      lang === 'gr' ? gr ?? en :
+      en
+
+    // Ensure we don't end up with double slashes
+    if (!path) return lang === 'en' ? '/' : `/${lang}`
+    const normalized = path.startsWith('/') ? path.slice(1) : path
+    return lang === 'en' ? `/${normalized}` : `/${lang}/${normalized}`
   }
 
   const mascotUrl = getImageKitUrl(
@@ -97,7 +101,7 @@ export default async function NotFound({ params }: NotFoundProps) {
               <div className="relative w-48 h-48 sm:w-64 sm:h-64">
                 <Image
                   src={mascotUrl}
-                  alt="404 - Page Not Found"
+                  alt={dict.notFound?.title || "404 - Page Not Found"}
                   fill
                   className="object-contain"
                   priority
@@ -127,7 +131,7 @@ export default async function NotFound({ params }: NotFoundProps) {
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
               <Button asChild size="lg" className="w-full sm:w-auto">
-                <Link href={href('', '')}>
+                <Link href={href('')}>
                   <Home className="mr-2 h-4 w-4" />
                   {dict.notFound?.goHome || "Go to Homepage"}
                 </Link>

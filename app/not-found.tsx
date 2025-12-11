@@ -1,6 +1,7 @@
 import { getDictionary } from './[lang]/dictionaries'
 import { formatTitleWithBrand } from '@/lib/seo'
 import { Metadata } from 'next'
+import { headers, cookies } from 'next/headers'
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
@@ -8,12 +9,26 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Home, Search } from "lucide-react"
 import { GoBackButton } from './[lang]/not-found-client-button'
 
+const SUPPORTED_LOCALES = ['en', 'bg', 'ru', 'gr'] as const
+type SupportedLocale = (typeof SUPPORTED_LOCALES)[number]
+
+const isSupportedLocale = (value?: string | null): value is SupportedLocale =>
+  !!value && SUPPORTED_LOCALES.includes(value as SupportedLocale)
+
+// Resolve locale from middleware header, then cookie, then fallback to English
+function resolveLocale(): SupportedLocale {
+  const headerLocale = headers().get('x-locale')
+  if (isSupportedLocale(headerLocale)) return headerLocale
+
+  const cookieLocale = cookies().get('NEXT_LOCALE')?.value
+  if (isSupportedLocale(cookieLocale)) return cookieLocale
+
+  return 'en'
+}
+
 // Generate metadata for root not-found page
-// Default to 'en' during static generation since headers() is not available
 export async function generateMetadata(): Promise<Metadata> {
-  // Default to English during static generation
-  // The actual language will be determined at runtime by middleware
-  const lang = 'en'
+  const lang = resolveLocale()
   const dict = await getDictionary(lang)
   
   const title = formatTitleWithBrand(
@@ -52,14 +67,19 @@ const getImageKitUrl = (originalUrl: string, width: number, height: number, qual
 export const dynamic = 'force-dynamic'
 
 export default async function RootNotFound() {
-  // Default to English during static generation
-  // At runtime, middleware will handle language detection
-  const lang: 'en' | 'bg' = 'en'
+  const lang = resolveLocale()
   const dict = await getDictionary(lang)
 
-  const href = (en: string, bg: string) => {
-    // Always use English for not-found page since we can't detect language here
-    return `/${en}`
+  const href = (en: string, bg?: string, ru?: string, gr?: string) => {
+    const path =
+      lang === 'bg' ? bg ?? en :
+      lang === 'ru' ? ru ?? en :
+      lang === 'gr' ? gr ?? en :
+      en
+
+    if (!path) return lang === 'en' ? '/' : `/${lang}`
+    const normalized = path.startsWith('/') ? path.slice(1) : path
+    return lang === 'en' ? `/${normalized}` : `/${lang}/${normalized}`
   }
 
   const mascotUrl = getImageKitUrl(
@@ -78,7 +98,7 @@ export default async function RootNotFound() {
               <div className="relative w-48 h-48 sm:w-64 sm:h-64">
                 <Image
                   src={mascotUrl}
-                  alt="404 - Page Not Found"
+                  alt={dict.notFound?.title || "404 - Page Not Found"}
                   fill
                   className="object-contain"
                   priority
@@ -108,7 +128,7 @@ export default async function RootNotFound() {
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
               <Button asChild size="lg" className="w-full sm:w-auto">
-                <Link href={href('', '')}>
+                <Link href={href('')}>
                   <Home className="mr-2 h-4 w-4" />
                   {dict.notFound?.goHome || "Go to Homepage"}
                 </Link>
