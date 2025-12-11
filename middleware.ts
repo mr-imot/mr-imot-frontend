@@ -11,7 +11,7 @@ interface VercelRequest extends NextRequest {
   }
 }
 
-const SUPPORTED_LOCALES = ['en', 'bg', 'ru']
+const SUPPORTED_LOCALES = ['en', 'bg', 'ru', 'gr']
 const DEFAULT_LOCALE = 'en'
 
 function getLocale(request: NextRequest) {
@@ -23,16 +23,19 @@ function getLocale(request: NextRequest) {
     
     // Filter out invalid locales (wildcards, malformed codes, etc.)
     // Only keep valid locale codes that match our supported format (2-letter codes)
-    const validLanguages = languages.filter((lang) => {
+    const validLanguages = languages.map((lang) => {
       // Remove wildcards and invalid characters
       if (lang === '*' || !lang || typeof lang !== 'string') {
-        return false
+        return ''
       }
       // Extract base locale (e.g., 'en-US' -> 'en', 'bg' -> 'bg')
       const baseLocale = lang.split('-')[0].toLowerCase()
       // Only allow valid 2-letter locale codes
-      return baseLocale.length === 2 && /^[a-z]{2}$/.test(baseLocale)
-    })
+      if (!(baseLocale.length === 2 && /^[a-z]{2}$/.test(baseLocale))) return ''
+      // Normalize Greek accept-language (el) to gr locale code used by the app
+      if (baseLocale === 'el') return 'gr'
+      return baseLocale
+    }).filter(Boolean)
     
     // If no valid languages found, return default
     if (validLanguages.length === 0) {
@@ -65,9 +68,11 @@ export function middleware(request: NextRequest) {
     pathname === '/en/not-found' ||
     pathname === '/bg/not-found' ||
     pathname === '/ru/not-found' ||
+    pathname === '/gr/not-found' ||
     pathname === '/en/__404__' ||
     pathname === '/bg/__404__' ||
     pathname === '/ru/__404__' ||
+    pathname === '/gr/__404__' ||
     pathname === '/og-image.png' || // Explicitly exclude og-image.png
     pathname === '/favicon.ico' ||
     pathname === '/robots.txt' ||
@@ -121,7 +126,7 @@ export function middleware(request: NextRequest) {
     if (type !== 'developer') {
       // Check cookie preference for locale
       const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value
-      const locale = cookieLocale === 'bg' ? 'bg' : cookieLocale === 'ru' ? 'ru' : 'en'
+      const locale = cookieLocale === 'bg' ? 'bg' : cookieLocale === 'ru' ? 'ru' : cookieLocale === 'gr' ? 'gr' : 'en'
       // Redirect to a route that doesn't exist to trigger not-found naturally
       return NextResponse.redirect(new URL(`/${locale}/__404__`, request.url))
     }
@@ -132,6 +137,8 @@ export function middleware(request: NextRequest) {
       url.pathname = '/bg/register'
     } else if (cookieLocale === 'ru') {
       url.pathname = '/ru/register'
+    } else if (cookieLocale === 'gr') {
+      url.pathname = '/gr/register'
     } else {
       // Rewrite to /en/register internally
       url.pathname = '/en/register'
@@ -150,6 +157,8 @@ export function middleware(request: NextRequest) {
       url.pathname = '/bg/forgot-password'
     } else if (cookieLocale === 'ru') {
       url.pathname = '/ru/forgot-password'
+    } else if (cookieLocale === 'gr') {
+      url.pathname = '/gr/forgot-password'
     } else {
       // Rewrite to /en/forgot-password internally
       url.pathname = '/en/forgot-password'
@@ -179,6 +188,18 @@ export function middleware(request: NextRequest) {
     if (type !== 'developer') {
       // Redirect to non-existent route to trigger not-found naturally
       return NextResponse.redirect(new URL('/ru/__404__', request.url))
+    }
+  }
+
+  // Handle /gr/register - block access without type=developer
+  if (pathname === '/gr/register') {
+    const url = request.nextUrl.clone()
+    const type = url.searchParams.get('type')
+    
+    // Only allow developer registration - redirect others to trigger not-found
+    if (type !== 'developer') {
+      // Redirect to non-existent route to trigger not-found naturally
+      return NextResponse.redirect(new URL('/gr/__404__', request.url))
     }
   }
 
@@ -245,6 +266,22 @@ export function middleware(request: NextRequest) {
     }
   }
 
+  // Greek aliases → canonical GR pretty URLs
+  const greekAliasMap: Record<string, string> = {
+    '/gr/listings': '/gr/aggelies',
+    '/gr/developers': '/gr/kataskeuastes',
+    '/gr/about-us': '/gr/sxetika-me-to-mister-imot',
+    '/gr/about-mister-imot': '/gr/sxetika-me-to-mister-imot',
+    '/gr/contact': '/gr/epikoinonia',
+  }
+  for (const [from, to] of Object.entries(greekAliasMap)) {
+    if (pathname === from || pathname.startsWith(from + '/')) {
+      const url = request.nextUrl.clone()
+      url.pathname = pathname.replace(from, to)
+      return NextResponse.redirect(url)
+    }
+  }
+
   // English canonical slugs (no prefix) → internal /en routes for rendering
   if (!pathname.startsWith('/bg/')) {
     const englishRewriteMap: Record<string, string> = {
@@ -300,6 +337,24 @@ export function middleware(request: NextRequest) {
       }
     }
   }
+
+  // Greek pretty slugs → internal canonical paths
+  if (pathname.startsWith('/gr/')) {
+    const map: Record<string, string> = {
+      '/gr/aggelies': '/gr/listings',
+      '/gr/kataskeuastes': '/gr/developers',
+      '/gr/sxetika-me-to-mister-imot': '/gr/about-us',
+      '/gr/epikoinonia': '/gr/contact',
+      '/gr/login': '/gr/login',
+    }
+    for (const [from, to] of Object.entries(map)) {
+      if (pathname === from || pathname.startsWith(from + '/')) {
+        const url = request.nextUrl.clone()
+        url.pathname = pathname.replace(from, to)
+        return NextResponse.rewrite(url)
+      }
+    }
+  }
   
   // Skip middleware for API routes, static assets, internal Next.js paths, and non-localized pages
   // This is a redundant check (already handled above), but kept for safety
@@ -336,9 +391,10 @@ export function middleware(request: NextRequest) {
   const pathnameHasBgLocale = pathname.startsWith('/bg/') || pathname === '/bg'
   const pathnameHasEnLocale = pathname.startsWith('/en/') || pathname === '/en'
   const pathnameHasRuLocale = pathname.startsWith('/ru/') || pathname === '/ru'
-  const isNotFoundPage = pathname === '/not-found' || pathname === '/en/not-found' || pathname === '/bg/not-found' || pathname === '/ru/not-found'
+  const pathnameHasGrLocale = pathname.startsWith('/gr/') || pathname === '/gr'
+  const isNotFoundPage = pathname === '/not-found' || pathname === '/en/not-found' || pathname === '/bg/not-found' || pathname === '/ru/not-found' || pathname === '/gr/not-found'
 
-  if (pathnameHasBgLocale || pathnameHasEnLocale || pathnameHasRuLocale || isNotFoundPage) {
+  if (pathnameHasBgLocale || pathnameHasEnLocale || pathnameHasRuLocale || pathnameHasGrLocale || isNotFoundPage) {
     const response = NextResponse.next()
     // Set language header based on pathname
     if (pathnameHasBgLocale) {
@@ -347,6 +403,8 @@ export function middleware(request: NextRequest) {
       response.headers.set('x-locale', 'en')
     } else if (pathnameHasRuLocale) {
       response.headers.set('x-locale', 'ru')
+    } else if (pathnameHasGrLocale) {
+      response.headers.set('x-locale', 'gr')
     } else {
       // For not-found pages, default to English
       response.headers.set('x-locale', 'en')
@@ -363,7 +421,8 @@ export function middleware(request: NextRequest) {
     pathname !== '/not-found' &&
     !pathname.startsWith('/en/not-found') &&
     !pathname.startsWith('/bg/not-found') &&
-    !pathname.startsWith('/ru/not-found')
+    !pathname.startsWith('/ru/not-found') &&
+    !pathname.startsWith('/gr/not-found')
   ) {
     if (cookieLocale === 'bg') {
       const response = NextResponse.redirect(new URL(`/bg${pathname}`, request.url))
@@ -372,6 +431,10 @@ export function middleware(request: NextRequest) {
     } else if (cookieLocale === 'ru') {
       const response = NextResponse.redirect(new URL(`/ru${pathname}`, request.url))
       response.headers.set('x-locale', 'ru')
+      return response
+    } else if (cookieLocale === 'gr') {
+      const response = NextResponse.redirect(new URL(`/gr${pathname}`, request.url))
+      response.headers.set('x-locale', 'gr')
       return response
     }
     // For English (default), rewrite internally to /en for [lang] route handling
@@ -427,7 +490,7 @@ export function middleware(request: NextRequest) {
 
   // 4. Fallback to default locale (English) - rewrite internally to /en
   // BUT exclude not-found pages and paths that already start with /en/
-  if (!isNotFoundPage && !pathname.startsWith('/en/') && !pathnameHasRuLocale && !pathnameHasBgLocale) {
+  if (!isNotFoundPage && !pathname.startsWith('/en/') && !pathnameHasRuLocale && !pathnameHasBgLocale && !pathnameHasGrLocale) {
     const url = request.nextUrl.clone()
     url.pathname = `/en${pathname}`
     const response = NextResponse.rewrite(url)
@@ -443,7 +506,9 @@ export function middleware(request: NextRequest) {
     ? 'bg'
     : pathname.startsWith('/ru/') || pathname === '/ru'
       ? 'ru'
-      : 'en'
+      : pathname.startsWith('/gr/') || pathname === '/gr'
+        ? 'gr'
+        : 'en'
   response.headers.set('x-locale', detectedLang)
   return response
 }

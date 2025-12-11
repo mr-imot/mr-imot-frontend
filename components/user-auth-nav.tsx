@@ -26,6 +26,18 @@ export function UserAuthNav() {
       }
       return `/ru/${ruMap[en] ?? en}`
     }
+    if (locale === 'gr') {
+      const grMap: Record<string, string> = {
+        'login': 'login',
+        'developer/dashboard': 'developer/dashboard',
+        'register?type=developer': 'register?type=developer',
+        'listings': 'aggelies',
+        'developers': 'kataskeuastes',
+        'about-mister-imot': 'sxetika-me-to-mister-imot',
+        'contact': 'epikoinonia',
+      }
+      return `/gr/${grMap[en] ?? en}`
+    }
     return `/${en}`
   }
 

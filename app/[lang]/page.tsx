@@ -4,7 +4,7 @@ import { brandForLang, formatTitleWithBrand } from "@/lib/seo"
 import type { Metadata } from 'next'
 
 interface HomePageProps {
-  params: Promise<{ lang: 'en' | 'bg' }>
+  params: Promise<{ lang: 'en' | 'bg' | 'ru' | 'gr' }>
 }
 
 export async function generateMetadata({ params }: HomePageProps): Promise<Metadata> {
@@ -13,6 +13,7 @@ export async function generateMetadata({ params }: HomePageProps): Promise<Metad
   const baseUrl = siteUrl.replace(/\/$/, '')
   const dict = await getDictionary(lang)
   const isBg = lang === 'bg'
+  const isRu = lang === 'ru'
   const brand = brandForLang(lang)
   const socialImage = 'https://ik.imagekit.io/ts59gf2ul/Logo/mister-imot-waving-hi-with-bg.png?tr=w-1200,h-630,cm-pad_resize,bg-FFFFFF,fo-auto,q-85,f-auto&v=20241205'
 
@@ -31,7 +32,7 @@ export async function generateMetadata({ params }: HomePageProps): Promise<Metad
   const keywords = Array.isArray(seoContent?.keywords) ? seoContent?.keywords : undefined
 
   const canonicalUrl = `${baseUrl}/${lang}`
-  const ogLocale = isBg ? 'bg_BG' : 'en_US'
+  const ogLocale = isBg ? 'bg_BG' : isRu ? 'ru_RU' : 'en_US'
   return {
     title,
     description,
@@ -46,6 +47,8 @@ export async function generateMetadata({ params }: HomePageProps): Promise<Metad
       languages: {
         en: `${baseUrl}/en`,
         bg: `${baseUrl}/bg`,
+        ru: `${baseUrl}/ru`,
+        gr: `${baseUrl}/gr`,
         'x-default': `${baseUrl}/en`,
       },
     },
@@ -55,7 +58,7 @@ export async function generateMetadata({ params }: HomePageProps): Promise<Metad
       url: canonicalUrl,
       siteName: brand,
       locale: ogLocale,
-      alternateLocale: ['en_US', 'bg_BG'],
+      alternateLocale: ['en_US', 'bg_BG', 'ru_RU'],
       type: 'website',
       images: [
         {

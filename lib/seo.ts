@@ -1,8 +1,9 @@
-type Lang = 'en' | 'bg' | 'ru' | undefined
+type Lang = 'en' | 'bg' | 'ru' | 'gr' | undefined
 
 export const brandForLang = (lang: Lang) => {
   if (lang === 'bg') return 'Мистър Имот'
   if (lang === 'ru') return 'Мистер Имот'
+  if (lang === 'gr') return 'Mister Imot'
   return 'Mister Imot'
 }
 
@@ -13,7 +14,11 @@ export const brandForLang = (lang: Lang) => {
  * - Appends the correct suffix: " | Мистър Имот" or " | Mister Imot".
  */
 export const formatTitleWithBrand = (rawTitle: string, lang: Lang) => {
-  const suffix = lang === 'bg' ? ' | Мистър Имот' : lang === 'ru' ? ' | Мистер Имот' : ' | Mister Imot'
+  const suffix = lang === 'bg'
+    ? ' | Мистър Имот'
+    : lang === 'ru'
+      ? ' | Мистер Имот'
+      : ' | Mister Imot'
   if (!rawTitle) return brandForLang(lang) + suffix
 
   const stripped = rawTitle

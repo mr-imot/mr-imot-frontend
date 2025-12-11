@@ -22,6 +22,9 @@ export default function robots(): MetadataRoute.Robots {
     allow: [
       '/',
       '/bg/',
+      '/blog/',
+      '/bg/blog/',
+      '/ru/blog/',
       '/listings/',
       '/bg/obiavi/', // Bulgarian pretty URL for listings
       '/developers/',

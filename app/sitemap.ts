@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next'
 import { getDevelopers, getProjects, DevelopersListResponse, ProjectListResponse } from '@/lib/api'
+import { getAllPostsMeta } from '@/lib/blog'
 
 // Refresh sitemap periodically to pick up new content
 export const revalidate = 3600 // 1 hour
@@ -186,6 +187,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'monthly' as const,
       priority: 0.5,
     },
+    // Blog indexes
+    {
+      url: `${baseUrl}/blog`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/bg/blog`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/ru/blog`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    },
   ]
 
   // Dynamic routes - fetch all active projects (filtered by status)
@@ -227,6 +247,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }))
   )
 
-  return [...staticRoutes, ...projectRoutes, ...developerRoutes]
+  const blogPosts = await Promise.all(
+    languages.map(async (lang) => {
+      const posts = await getAllPostsMeta(lang as 'en' | 'bg' | 'ru')
+      return posts.map((post) => ({
+        url: lang === 'en' ? `${baseUrl}/blog/${post.slug}` : `${baseUrl}/${lang}/blog/${post.slug}`,
+        lastModified: post.date ? new Date(post.date) : new Date(),
+        changeFrequency: 'weekly' as const,
+        priority: 0.6,
+      }))
+    })
+  )
+
+  const blogRoutes = blogPosts.flat()
+
+  return [...staticRoutes, ...projectRoutes, ...developerRoutes, ...blogRoutes]
 }
 

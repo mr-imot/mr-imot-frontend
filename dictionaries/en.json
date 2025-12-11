@@ -260,6 +260,7 @@
   "navigation": {
     "listings": "Listings",
     "developers": "Developers", 
+    "blog": "Blog",
     "aboutUs": "About Mister Imot",
     "contact": "Contact",
     "login": "Login",
@@ -574,7 +575,6 @@
     "companyNameAndContact": "Company name and contact person",
     "companyEmailAndPhone": "Company email and phone",
     "officeAddressAndWebsite": "Office address and optional website",
-    "officeAddress": "Office address",
     "optionalWebsite": "optional website",
     "websiteOffer": "As our client, take advantage of the most competitive prices for website development from",
     "abilityToVerifyOwnership": "Ability to verify ownership when requested"

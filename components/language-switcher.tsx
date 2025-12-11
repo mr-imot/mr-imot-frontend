@@ -30,6 +30,12 @@ const languages = [
     name: 'Russian',
     flag: 'https://flagcdn.com/w20/ru.png',
     nativeName: 'Русский'
+  },
+  {
+    code: 'gr',
+    name: 'Greek',
+    flag: 'https://flagcdn.com/w20/gr.png',
+    nativeName: 'Ελληνικά'
   }
 ]
 
@@ -60,7 +66,8 @@ export function LanguageSwitcher() {
     let pathWithoutLocale = pathname
       .replace(/^\/en(?=\/|$)/, '')
       .replace(/^\/bg(?=\/|$)/, '')
-      .replace(/^\/ru(?=\/|$)/, '') || '/'
+      .replace(/^\/ru(?=\/|$)/, '')
+      .replace(/^\/gr(?=\/|$)/, '') || '/'
 
     // 3. Normalize any localized "pretty" URLs back to canonical paths first
     const prettyToCanonical: Record<string, string> = {
@@ -72,6 +79,10 @@ export function LanguageSwitcher() {
       '/zastroyshchiki': '/developers',
       '/o-mister-imot': '/about-mister-imot',
       '/kontakty': '/contact',
+      '/aggelies': '/listings',
+      '/kataskeuastes': '/developers',
+      '/sxetika-me-to-mister-imot': '/about-mister-imot',
+      '/epikoinonia': '/contact',
     }
     for (const [from, to] of Object.entries(prettyToCanonical)) {
       if (pathWithoutLocale === from || pathWithoutLocale.startsWith(from + '/')) {
@@ -107,13 +118,26 @@ export function LanguageSwitcher() {
           break
         }
       }
+    } else if (newLocale === 'gr') {
+      const canonicalToGr: Record<string, string> = {
+        '/listings': '/aggelies',
+        '/developers': '/kataskeuastes',
+        '/about-mister-imot': '/sxetika-me-to-mister-imot',
+        '/contact': '/epikoinonia',
+      }
+      for (const [from, to] of Object.entries(canonicalToGr)) {
+        if (pathWithoutLocale === from || pathWithoutLocale.startsWith(from + '/')) {
+          pathWithoutLocale = pathWithoutLocale.replace(from, to)
+          break
+        }
+      }
     }
 
     // 4. For English, use clean URLs without /en/ prefix (middleware rewrites internally)
     // For Bulgarian, prefix with /bg/
     const newPath = newLocale === 'en' 
       ? pathWithoutLocale  // Clean URL: /listings/[id] (middleware rewrites to /en/listings/[id] internally)
-      : `/${newLocale}${pathWithoutLocale}`  // Bulgarian: /bg/obiavi/[id]
+      : `/${newLocale}${pathWithoutLocale}`  // Localized prefixes: /bg/obiavi/[id], /ru/..., /gr/...
     
     // 5. Preserve query parameters (e.g., ?type=developer)
     const queryString = searchParams.toString()

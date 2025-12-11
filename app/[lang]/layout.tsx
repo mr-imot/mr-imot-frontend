@@ -8,15 +8,17 @@ import type { Metadata } from "next"
 import ViewportLock from "@/components/ViewportLock"
 
 export async function generateStaticParams() {
-  return [{ lang: 'en' }, { lang: 'bg' }]
+  return [{ lang: 'en' }, { lang: 'bg' }, { lang: 'ru' }, { lang: 'gr' }]
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ lang: 'en' | 'bg' | 'ru' }> }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ lang: 'en' | 'bg' | 'ru' | 'gr' }> }): Promise<Metadata> {
   const { lang } = await params
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mrimot.com'
   const socialImage = 'https://ik.imagekit.io/ts59gf2ul/Logo/mister-imot-waving-hi-with-bg.png?tr=w-1200,h-630,cm-pad_resize,bg-FFFFFF,fo-auto,q-85,f-auto'
 
   const isBg = lang === 'bg'
+  const isGr = lang === 'gr'
+  const isRu = lang === 'ru'
   const brand = brandForLang(lang)
 
   const rawTitle = isBg
@@ -29,7 +31,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: 'en
     : `${brand}: Bulgaria’s platform for new construction – connect directly with developers, no brokers and 0% commissions.`
 
   const url = `${siteUrl}/${lang}`
-  const ogLocale = isBg ? 'bg_BG' : 'en_US'
+  const ogLocale = isBg ? 'bg_BG' : isGr ? 'el_GR' : isRu ? 'ru_RU' : 'en_US'
 
   return {
     title,
@@ -46,6 +48,8 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: 'en
       languages: {
         en: `${siteUrl}/en`,
         bg: `${siteUrl}/bg`,
+        ru: `${siteUrl}/ru`,
+        gr: `${siteUrl}/gr`,
         'x-default': `${siteUrl}/en`,
       },
     },
@@ -55,7 +59,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: 'en
       url,
       siteName: brand,
       locale: ogLocale,
-      alternateLocale: ['en_US', 'bg_BG'],
+      alternateLocale: ['en_US', 'bg_BG', 'ru_RU', 'el_GR'],
       type: 'website',
       images: [
         {
@@ -64,7 +68,9 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: 'en
           height: 630,
           alt: isBg
             ? 'Мистър Имот – Имоти директно от строители'
-            : 'Mister Imot – Off-plan properties directly from developers',
+            : isGr
+              ? 'Mister Imot – Ακίνητα εκτός σχεδίου απευθείας από κατασκευαστές'
+              : 'Mister Imot – Off-plan properties directly from developers',
         },
       ],
     },
@@ -82,7 +88,7 @@ export default async function RootLayout({
   params,
 }: Readonly<{
   children: React.ReactNode
-  params: Promise<{ lang: 'en' | 'bg' | 'ru' }>
+  params: Promise<{ lang: 'en' | 'bg' | 'ru' | 'gr' }>
 }>) {
   const { lang } = await params
   

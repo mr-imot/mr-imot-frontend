@@ -91,7 +91,7 @@ export function generateViewport() {
 // Get language from middleware header for HTML lang attribute
 // This function must never throw errors - it's called during SSR and static generation
 // During static generation, we default to 'en' since headers() is not available
-async function getLanguageFromPath(): Promise<'en' | 'bg' | 'ru'> {
+async function getLanguageFromPath(): Promise<'en' | 'bg' | 'ru' | 'gr'> {
   // Default to English - safe fallback for all contexts
   // During static generation, headers() is not available, so we always default to 'en'
   // The actual language will be set by the [lang]/layout.tsx which uses params

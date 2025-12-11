@@ -93,7 +93,8 @@ function MobileLanguageSwitcher({ onLinkClick }: { onLinkClick: () => void }) {
   const languages = [
     { code: 'en', name: 'English', flag: 'https://flagcdn.com/w20/us.png', nativeName: 'English' },
     { code: 'bg', name: 'Bulgarian', flag: 'https://flagcdn.com/w20/bg.png', nativeName: 'Български' },
-    { code: 'ru', name: 'Russian', flag: 'https://flagcdn.com/w20/ru.png', nativeName: 'Русский' }
+    { code: 'ru', name: 'Russian', flag: 'https://flagcdn.com/w20/ru.png', nativeName: 'Русский' },
+    { code: 'gr', name: 'Greek', flag: 'https://flagcdn.com/w20/gr.png', nativeName: 'Ελληνικά' }
   ]
 
   const handleLanguageChange = (newLocale: string) => {
@@ -113,7 +114,8 @@ function MobileLanguageSwitcher({ onLinkClick }: { onLinkClick: () => void }) {
     let pathWithoutLocale = pathname
       .replace(/^\/en(?=\/|$)/, '')
       .replace(/^\/bg(?=\/|$)/, '')
-      .replace(/^\/ru(?=\/|$)/, '') || '/'
+      .replace(/^\/ru(?=\/|$)/, '')
+      .replace(/^\/gr(?=\/|$)/, '') || '/'
 
     // 3. Normalize any localized "pretty" URLs back to canonical paths first
     const prettyToCanonical: Record<string, string> = {
@@ -125,6 +127,10 @@ function MobileLanguageSwitcher({ onLinkClick }: { onLinkClick: () => void }) {
       '/zastroyshchiki': '/developers',
       '/o-mister-imot': '/about-mister-imot',
       '/kontakty': '/contact',
+      '/aggelies': '/listings',
+      '/kataskeuastes': '/developers',
+      '/sxetika-me-to-mister-imot': '/about-mister-imot',
+      '/epikoinonia': '/contact',
     }
     for (const [from, to] of Object.entries(prettyToCanonical)) {
       if (pathWithoutLocale === from || pathWithoutLocale.startsWith(from + '/')) {
@@ -140,6 +146,7 @@ function MobileLanguageSwitcher({ onLinkClick }: { onLinkClick: () => void }) {
         '/developers': '/stroiteli',
         '/about-mister-imot': '/za-mistar-imot',
         '/contact': '/kontakt',
+        '/blog': '/blog',
       }
       for (const [from, to] of Object.entries(canonicalToBg)) {
         if (pathWithoutLocale === from || pathWithoutLocale.startsWith(from + '/')) {
@@ -153,8 +160,23 @@ function MobileLanguageSwitcher({ onLinkClick }: { onLinkClick: () => void }) {
         '/developers': '/zastroyshchiki',
         '/about-mister-imot': '/o-mister-imot',
         '/contact': '/kontakty',
+        '/blog': '/blog',
       }
       for (const [from, to] of Object.entries(canonicalToRu)) {
+        if (pathWithoutLocale === from || pathWithoutLocale.startsWith(from + '/')) {
+          pathWithoutLocale = pathWithoutLocale.replace(from, to)
+          break
+        }
+      }
+    } else if (newLocale === 'gr') {
+      const canonicalToGr: Record<string, string> = {
+        '/listings': '/aggelies',
+        '/developers': '/kataskeuastes',
+        '/about-mister-imot': '/sxetika-me-to-mister-imot',
+        '/contact': '/epikoinonia',
+        '/blog': '/blog',
+      }
+      for (const [from, to] of Object.entries(canonicalToGr)) {
         if (pathWithoutLocale === from || pathWithoutLocale.startsWith(from + '/')) {
           pathWithoutLocale = pathWithoutLocale.replace(from, to)
           break
@@ -166,7 +188,7 @@ function MobileLanguageSwitcher({ onLinkClick }: { onLinkClick: () => void }) {
     // For Bulgarian, prefix with /bg/
     const newPath = newLocale === 'en' 
       ? pathWithoutLocale  // Clean URL: /listings/[id] (middleware rewrites to /en/listings/[id] internally)
-      : `/${newLocale}${pathWithoutLocale}`  // Localized prefix: /bg/obiavi/[id], /ru/listings/[id]
+      : `/${newLocale}${pathWithoutLocale}`  // Localized prefix: /bg/obiavi/[id], /ru/..., /gr/...
     
     // 5. Preserve query parameters (e.g., ?type=developer)
     const queryString = searchParams.toString()
@@ -221,10 +243,23 @@ export function MobileNav() {
         'developers': 'zastroyshchiki',
         'about-mister-imot': 'o-mister-imot',
         'contact': 'kontakty',
+        'blog': 'blog',
         'register?type=developer': 'register?type=developer',
         'login': 'login',
       }
       return `/ru/${ruMap[en] ?? en}`
+    }
+    if (locale === 'gr') {
+      const grMap: Record<string, string> = {
+        'listings': 'aggelies',
+        'developers': 'kataskeuastes',
+        'about-mister-imot': 'sxetika-me-to-mister-imot',
+        'contact': 'epikoinonia',
+        'blog': 'blog',
+        'register?type=developer': 'register?type=developer',
+        'login': 'login',
+      }
+      return `/gr/${grMap[en] ?? en}`
     }
     return `/${en}`
   }
@@ -232,6 +267,7 @@ export function MobileNav() {
   const navItems = [
     { href: href('listings', 'obiavi'), label: t.listings },
     { href: href('developers', 'stroiteli'), label: t.developers },
+    { href: href('blog', 'blog'), label: t.blog ?? 'Blog' },
     { href: href('about-mister-imot', 'za-mistar-imot'), label: t.aboutUs },
   ]
 

@@ -260,6 +260,107 @@ const config = {
   		transitionTimingFunction: {
   			soft: 'cubic-bezier(.2,.8,.2,1)'
   		},
+		typography: ({ theme }) => ({
+			DEFAULT: {
+				css: {
+					color: theme('colors.charcoal.400'),
+					a: {
+						color: theme('colors.charcoal.500'),
+						fontWeight: '600',
+						textDecoration: 'none',
+						borderBottom: `1px solid ${theme('colors.charcoal.200')}`,
+						transition: 'color 150ms ease, border-color 150ms ease',
+						'&:hover': {
+							color: theme('colors.charcoal.600'),
+							borderColor: theme('colors.charcoal.400')
+						}
+					},
+					h1: {
+						color: theme('colors.charcoal.500'),
+						fontWeight: '700',
+						letterSpacing: '-0.02em'
+					},
+					h2: {
+						color: theme('colors.charcoal.500'),
+						fontWeight: '700',
+						letterSpacing: '-0.015em'
+					},
+					h3: {
+						color: theme('colors.charcoal.500'),
+						fontWeight: '600'
+					},
+					h4: {
+						color: theme('colors.charcoal.500'),
+						fontWeight: '600'
+					},
+					p: {
+						color: theme('colors.charcoal.400')
+					},
+					strong: {
+						color: theme('colors.charcoal.500'),
+						fontWeight: '700'
+					},
+					blockquote: {
+						color: theme('colors.charcoal.500'),
+						borderLeftColor: theme('colors.charcoal.300'),
+						backgroundColor: theme('colors.muted'),
+						padding: '1.25rem 1.5rem',
+						borderRadius: theme('borderRadius.xl')
+					},
+					code: {
+						backgroundColor: theme('colors.gray.100'),
+						color: theme('colors.charcoal.500'),
+						padding: '0.2rem 0.35rem',
+						borderRadius: theme('borderRadius.md'),
+						fontWeight: '600'
+					},
+					pre: {
+						backgroundColor: theme('colors.gray.900'),
+						color: theme('colors.gray.100'),
+						borderRadius: theme('borderRadius.xl'),
+						padding: '1rem 1.25rem',
+						lineHeight: '1.7'
+					},
+					hr: {
+						borderColor: theme('colors.border')
+					},
+					'ul li::marker': {
+						color: theme('colors.charcoal.400')
+					},
+					'ol li::marker': {
+						color: theme('colors.charcoal.400')
+					},
+					'figure img': {
+						borderRadius: theme('borderRadius.xl'),
+						boxShadow: '0 12px 30px rgba(0,0,0,0.08)'
+					},
+					figcaption: {
+						color: theme('colors.charcoal.400'),
+						textAlign: 'center'
+					},
+					table: {
+						color: theme('colors.charcoal.400')
+					}
+				}
+			},
+			invert: {
+				css: {
+					color: theme('colors.gray.200'),
+					a: {
+						color: theme('colors.gray.50'),
+						borderColor: theme('colors.gray.600')
+					},
+					blockquote: {
+						backgroundColor: theme('colors.charcoal.200'),
+						borderLeftColor: theme('colors.charcoal.400')
+					},
+					code: {
+						backgroundColor: theme('colors.gray.800'),
+						color: theme('colors.gray.100')
+					}
+				}
+			}
+		}),
   		keyframes: {
 			'accordion-down': {
 				from: {
@@ -304,7 +405,10 @@ const config = {
 		}
   	}
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    require("tailwindcss-animate"),
+    require("@tailwindcss/typography"),
+  ],
 } satisfies Config
 
 export default config

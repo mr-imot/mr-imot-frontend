@@ -28,6 +28,15 @@ export function MainNav() {
       }
       return `/ru/${ruMap[en] ?? en}`
     }
+    if (locale === 'gr') {
+      const grMap: Record<string, string> = {
+        'listings': 'aggelies',
+        'developers': 'kataskeuastes',
+        'about-mister-imot': 'sxetika-me-to-mister-imot',
+        'contact': 'epikoinonia',
+      }
+      return `/gr/${grMap[en] ?? en}`
+    }
     return `/${en}`
   }
 
