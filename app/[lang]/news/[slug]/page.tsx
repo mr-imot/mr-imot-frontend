@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import BlogPostLayout from "@/components/news/blog-post-layout"
 import { ArticleAlternateSlugs } from "@/components/news/article-alternate-slugs"
+import { ArticleStructuredData } from "@/components/news/article-structured-data"
 import {
   BLOG_LANGS,
   type BlogLang,
@@ -52,6 +53,9 @@ export async function generateMetadata({ params }: BlogPostParams): Promise<Meta
   const description = post.description
   const brand = brandForLang(lang)
 
+  // Author name based on language
+  const authorName = post.author?.name || (lang === "bg" ? "Мистър Имот" : "Mister Imot")
+
   return {
     title,
     description,
@@ -65,13 +69,19 @@ export async function generateMetadata({ params }: BlogPostParams): Promise<Meta
       url: canonical,
       siteName: brand,
       type: "article",
+      locale: lang === "bg" ? "bg_BG" : lang === "ru" ? "ru_RU" : lang === "gr" ? "el_GR" : "en_US",
+      publishedTime: post.date || undefined,
+      modifiedTime: post.date || undefined,
+      authors: [authorName],
+      section: post.category || "News",
+      tags: post.tags || [],
       images: post.coverImage
         ? [
             {
               url: post.coverImage,
               width: 1200,
               height: 630,
-              alt: post.title,
+              alt: post.coverImageAlt || post.title,
             },
           ]
         : undefined,
@@ -96,8 +106,19 @@ export default async function BlogPostPage({ params }: BlogPostParams) {
   // Get alternate slugs for language switching
   const alternateSlugs = await getAlternateSlugs(post.translationKey)
 
+  // Build canonical URL for structured data
+  const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://mrimot.com").replace(/\/$/, "")
+  const articleUrl = lang === "en"
+    ? `${baseUrl}/news/${slug}`
+    : lang === "bg"
+      ? `${baseUrl}/bg/novini/${slug}`
+      : lang === "ru"
+        ? `${baseUrl}/ru/novosti/${slug}`
+        : `${baseUrl}/gr/eidhseis/${slug}`
+
   return (
     <>
+      <ArticleStructuredData post={post} lang={lang} url={articleUrl} />
       <ArticleAlternateSlugs slugs={alternateSlugs} />
       <BlogPostLayout post={post} lang={lang}>
         {post.content}
