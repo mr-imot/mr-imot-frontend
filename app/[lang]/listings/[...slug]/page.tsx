@@ -4,6 +4,7 @@ import ListingPageContent from '../[id]/listing-page-content'
 import NotFoundPage from '../[id]/not-found-page'
 import { Project, PausedProject, DeletedProject } from '@/lib/api'
 import { brandForLang, formatTitleWithBrand } from '@/lib/seo'
+import { ModalClientWrapper } from '../@modal/(.)[id]/modal-client-wrapper'
 
 interface PageProps {
   params: Promise<{
@@ -288,6 +289,10 @@ export default async function ListingPage({ params }: PageProps) {
       })()
   
   // Pass project data directly to avoid second fetch in ListingPageContent
-  return <ListingPageContent lang={lang} id={projectId} initialProject={project} />
+  return (
+    <ModalClientWrapper>
+      <ListingPageContent lang={lang} id={projectId} initialProject={project} />
+    </ModalClientWrapper>
+  )
 }
 

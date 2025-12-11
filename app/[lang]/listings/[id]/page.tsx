@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import ListingPageContent from './listing-page-content'
 import { Project, PausedProject, DeletedProject } from '@/lib/api'
 import { brandForLang, formatTitleWithBrand } from '@/lib/seo'
+import { ModalClientWrapper } from '../@modal/(.)[id]/modal-client-wrapper'
 
 interface PageProps {
   params: Promise<{
@@ -200,5 +201,9 @@ export default async function ListingPage({ params }: PageProps) {
   }
   
   // Fallback: if no slug exists (legacy projects), render with ID
-  return <ListingPageContent lang={lang} id={id} />
+  return (
+    <ModalClientWrapper>
+      <ListingPageContent lang={lang} id={id} />
+    </ModalClientWrapper>
+  )
 }

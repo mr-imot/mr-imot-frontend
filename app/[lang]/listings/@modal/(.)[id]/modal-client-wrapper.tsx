@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState, useRef } from "react"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { ArrowLeft, Share2, Building } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -36,6 +36,7 @@ export function ModalNotFound({ lang }: { lang: 'en' | 'bg' }) {
 
 export function ModalClientWrapper({ children }: ModalClientWrapperProps) {
   const router = useRouter()
+  const pathname = usePathname()
   const scrollPositionRef = useRef<number>(0)
   
   // Mobile detection - check on initial render to avoid flash
@@ -64,6 +65,20 @@ export function ModalClientWrapper({ children }: ModalClientWrapperProps) {
         console.log('Error copying to clipboard:', error)
       }
     }
+  }
+
+  const handleBack = () => {
+    const isInitialEntry = typeof window !== 'undefined' ? window.history.length <= 1 : false
+    if (isInitialEntry) {
+      const baseListingsPath = pathname?.startsWith('/bg')
+        ? '/bg/obiavi'
+        : pathname?.startsWith('/ru')
+          ? '/ru/obyavleniya'
+          : '/listings'
+      router.push(baseListingsPath)
+      return
+    }
+    router.back()
   }
 
   // Mobile detection - update on resize, using 1024px breakpoint (matches ListingCard)
@@ -111,7 +126,7 @@ export function ModalClientWrapper({ children }: ModalClientWrapperProps) {
       {/* Modal Header with Back Button and Share Button - Airbnb style */}
       <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b border-gray-200 px-4 py-3 flex items-center justify-between flex-shrink-0">
         <button
-          onClick={() => router.back()}
+          onClick={handleBack}
           className="flex items-center justify-center w-10 h-10 bg-white rounded-full shadow-lg ring-1 ring-black/10 hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-200 touch-manipulation"
           aria-label="Back"
         >
