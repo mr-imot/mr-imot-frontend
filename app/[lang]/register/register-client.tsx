@@ -20,11 +20,12 @@ import { ERROR_MESSAGES, SUCCESS_MESSAGES } from "@/lib/auth-constants"
 import { createAuthError, getErrorDisplayMessage } from "@/lib/auth-errors"
 import { useAuth } from "@/lib/auth-context"
 import { ensureGoogleMaps } from "@/lib/google-maps"
+import { AddressSearchField } from "@/components/address-search-field"
 import { preventEnterSubmit } from "@/lib/form-utils"
 import Link from "next/link"
 import { Suspense } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
-import { Eye, EyeOff, CheckCircle, AlertCircle, Shield, Sparkles, UserPlus, ArrowLeft, Building2, Check, Clock, BarChart3, LayoutDashboard, Mail, PhoneCall, UserCheck, Loader2, MapPin, Headphones, Maximize2, X } from "lucide-react"
+import { Eye, EyeOff, CheckCircle, AlertCircle, Shield, Sparkles, UserPlus, ArrowLeft, Building2, Check, Clock, BarChart3, LayoutDashboard, Mail, PhoneCall, UserCheck, Loader2, Headphones, Maximize2, X } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { HybridTooltip } from "@/components/ui/hybrid-tooltip"
@@ -77,8 +78,6 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
   
   const [addressSelected, setAddressSelected] = useState(false)
   const [geocodingBlocked, setGeocodingBlocked] = useState(false)
-  const [placesBlocked, setPlacesBlocked] = useState(false)
-  const [autocompleteOpen, setAutocompleteOpen] = useState(false)
   const [isMapExpanded, setIsMapExpanded] = useState(false)
   
   // Default center for Sofia
@@ -199,109 +198,6 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
     initMap()
   }, [isDeveloper, defaultCenter])
 
-  // Places Autocomplete setup
-  useEffectHook(() => {
-    if (!isDeveloper || !mapInstanceRef.current || !addressInputRef.current) return
-    
-    let checkInterval: NodeJS.Timeout | null = null
-    const inputElement = addressInputRef.current
-    let startCheckingDropdown: (() => void) | null = null
-    
-    const initAutocomplete = async () => {
-      try {
-        const google = await ensureGoogleMaps()
-        
-        if (placesBlocked) {
-          return
-        }
-        
-        const autocomplete = new google.maps.places.Autocomplete(addressInputRef.current!, {
-          componentRestrictions: { country: "bg" },
-          fields: ["address_components", "formatted_address", "geometry", "place_id"],
-          types: ["geocode"] // Includes addresses, cities, villages, and other geographic locations
-        })
-
-        // Track when autocomplete dropdown opens/closes
-        startCheckingDropdown = () => {
-          if (checkInterval) return
-          checkInterval = setInterval(() => {
-            const pacContainer = document.querySelector('.pac-container') as HTMLElement
-            if (pacContainer) {
-              const isVisible = pacContainer.style.display !== 'none' && 
-                               pacContainer.offsetParent !== null
-              setAutocompleteOpen(isVisible)
-              if (!isVisible && checkInterval) {
-                clearInterval(checkInterval)
-                checkInterval = null
-              }
-            } else {
-              setAutocompleteOpen(false)
-              if (checkInterval) {
-                clearInterval(checkInterval)
-                checkInterval = null
-              }
-            }
-          }, 100)
-        }
-
-        inputElement.addEventListener('focus', startCheckingDropdown)
-        inputElement.addEventListener('input', startCheckingDropdown)
-
-        // Handle place selection
-        autocomplete.addListener('place_changed', () => {
-          // Stop checking dropdown
-          if (checkInterval) {
-            clearInterval(checkInterval)
-            checkInterval = null
-          }
-          setAutocompleteOpen(false)
-          const place = autocomplete.getPlace()
-          
-          if (place.geometry && place.geometry.location && mapInstanceRef.current && markerRef.current) {
-            const location = place.geometry.location
-            const newCenter = { lat: location.lat(), lng: location.lng() }
-            const formattedAddress = place.formatted_address || (addressInputRef.current?.value || '')
-            
-            // Update map and marker
-            mapInstanceRef.current.setCenter(newCenter)
-            mapInstanceRef.current.setZoom(16)
-            markerRef.current.position = newCenter
-            
-            // Update form values - ensure input field is synced
-            setFormData(prev => ({
-              ...prev,
-              officeLatitude: newCenter.lat,
-              officeLongitude: newCenter.lng,
-              officeAddress: formattedAddress
-            }))
-            
-            // Also update the input field directly to ensure UI sync
-            if (addressInputRef.current) {
-              addressInputRef.current.value = formattedAddress
-            }
-            
-            setAddressSelected(true)
-          }
-        })
-      } catch (error) {
-        console.error('Failed to initialize Places Autocomplete:', error)
-        setPlacesBlocked(true)
-      }
-    }
-
-    initAutocomplete()
-
-    // Cleanup function
-    return () => {
-      if (checkInterval) {
-        clearInterval(checkInterval)
-      }
-      if (inputElement && startCheckingDropdown) {
-        inputElement.removeEventListener('focus', startCheckingDropdown)
-        inputElement.removeEventListener('input', startCheckingDropdown)
-      }
-    }
-  }, [isDeveloper, placesBlocked])
 
   // Handle Escape key to close fullscreen map
   useEffect(() => {
@@ -362,46 +258,24 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
     }
   }
 
-  // Forward geocode function for manual address input
-  const forwardGeocode = async (address: string) => {
-    try {
-      const google = await ensureGoogleMaps()
-      const geocoder = new google.maps.Geocoder()
-      
-      geocoder.geocode({ address }, (results, status) => {
-        if (status === 'OK' && results && results[0] && mapInstanceRef.current && markerRef.current) {
-          const location = results[0].geometry.location
-          const newPosition = { lat: location.lat(), lng: location.lng() }
-          const formattedAddress = results[0].formatted_address || address
-          
-          // Update map and marker
-          mapInstanceRef.current.setCenter(newPosition)
-          mapInstanceRef.current.setZoom(16)
-          markerRef.current.position = newPosition
-          
-          // Update form values - IMPORTANT: Update the address field too
-          setFormData(prev => ({
-            ...prev,
-            officeLatitude: newPosition.lat,
-            officeLongitude: newPosition.lng,
-            officeAddress: formattedAddress
-          }))
-          
-          // Also update the input field directly to ensure UI sync
-          if (addressInputRef.current) {
-            addressInputRef.current.value = formattedAddress
-          }
-          
-          setAddressSelected(true)
-        } else if (status === 'REQUEST_DENIED' || status === 'OVER_QUERY_LIMIT') {
-          console.warn('Geocoding request denied or quota exceeded. Enable "Geocoding API" for this key in Google Cloud Console.')
-        } else if (status !== 'ZERO_RESULTS') {
-          console.warn('Geocoding failed with status:', status)
-        }
-      })
-    } catch (error) {
-      console.error('Error forward geocoding:', error)
+  const handleAddressSelect = ({ lat, lng, address }: { lat: number; lng: number; address: string }) => {
+    if (!mapInstanceRef.current || !markerRef.current) return
+    const newCenter = { lat, lng }
+    mapInstanceRef.current.setCenter(newCenter)
+    mapInstanceRef.current.setZoom(16)
+    markerRef.current.position = newCenter
+
+    setFormData((prev) => ({
+      ...prev,
+      officeLatitude: lat,
+      officeLongitude: lng,
+      officeAddress: address,
+    }))
+
+    if (addressInputRef.current) {
+      addressInputRef.current.value = address
     }
+    setAddressSelected(true)
   }
 
   const handleInputChange = (field: keyof FormData, value: string | boolean) => {
@@ -701,49 +575,18 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
                 <div className="space-y-4">
                   <div className="space-y-2 min-h-[44px]">
                     <Label htmlFor="officeAddress">{dict.register?.officeAddress || "Office Address"} <span className="text-destructive">*</span></Label>
-                    <div className="relative">
-                      <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input 
-                        id="officeAddress" 
-                        ref={addressInputRef}
-                        value={formData.officeAddress} 
-                        onChange={(e) => {
-                          handleInputChange("officeAddress", e.target.value)
-                          setAddressSelected(false) // Reset when user types
-                        }}
-                        onKeyDown={(e) => {
-                          // Always prevent form submission when Enter is pressed in address field
-                          if (e.key === 'Enter') {
-                            e.preventDefault()
-                            
-                            const inputValue = e.currentTarget.value
-                            
-                            // If autocomplete dropdown is open, Google's autocomplete will handle selecting the suggestion
-                            // If dropdown is NOT open and there's a value, geocode it to load the address
-                            if (!autocompleteOpen && inputValue && !addressSelected) {
-                              forwardGeocode(inputValue)
-                            }
-                            // User must use the submit button to submit the form
-                          }
-                        }}
-                        onBlur={(e) => {
-                          if (e.target.value && !addressSelected) {
-                            forwardGeocode(e.target.value)
-                          }
-                        }}
-                        className="pl-10"
-                        placeholder={dict.register?.searchForOfficeAddress || "Search for office address"} 
-                        autoComplete="street-address" 
-                        disabled={isLoading} 
-                        required 
-                      />
-                    </div>
+                    <AddressSearchField
+                      value={formData.officeAddress}
+                      onChange={(v) => {
+                        handleInputChange("officeAddress", v)
+                        setAddressSelected(false)
+                      }}
+                      onSelect={({ lat, lng, address }) => handleAddressSelect({ lat, lng, address })}
+                      placeholder={dict.register?.searchForOfficeAddress || "Search for office address"}
+                      regionCodes={["bg"]}
+                      className="w-full"
+                    />
                     {getFieldError(errors, "officeAddress") && (<p className="text-sm text-destructive">{getFieldError(errors, "officeAddress")}</p>)}
-                    {placesBlocked && (
-                      <p className="text-sm text-amber-600">
-                        {dict.register?.addressSearchNotAvailable || "Address search is not available. You can still enter the address manually."}
-                      </p>
-                    )}
                   </div>
                   
                   {/* Map Display */}

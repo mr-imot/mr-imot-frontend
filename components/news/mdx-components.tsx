@@ -71,17 +71,17 @@ const Img = (props: React.ImgHTMLAttributes<HTMLImageElement>) => {
   const parsedHeight = typeof height === "string" ? parseInt(height, 10) : height || 630
 
   return (
-    <figure className="my-8 overflow-hidden rounded-2xl border border-gray-100 shadow-lg">
+    <span className="not-prose block my-8">
       <Image
         src={src}
         alt={alt}
         width={parsedWidth}
         height={parsedHeight}
-        className="h-auto w-full object-cover"
+        className="h-auto w-full overflow-hidden rounded-2xl border border-gray-100 object-cover shadow-lg"
         sizes="(max-width: 1024px) 100vw, 1024px"
       />
-      {alt && <figcaption className="bg-white px-4 py-3 text-center text-sm text-muted-foreground">{alt}</figcaption>}
-    </figure>
+      {alt && <span className="mt-2 block text-center text-sm text-muted-foreground">{alt}</span>}
+    </span>
   )
 }
 

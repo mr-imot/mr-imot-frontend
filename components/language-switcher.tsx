@@ -83,6 +83,11 @@ export function LanguageSwitcher() {
       '/kataskeuastes': '/developers',
       '/sxetika-me-to-mister-imot': '/about-mister-imot',
       '/epikoinonia': '/contact',
+      '/news': '/news',
+      '/novini': '/news',
+      '/novosti': '/news',
+      '/nea': '/news',
+      '/eidhseis': '/news',
     }
     for (const [from, to] of Object.entries(prettyToCanonical)) {
       if (pathWithoutLocale === from || pathWithoutLocale.startsWith(from + '/')) {
@@ -98,6 +103,7 @@ export function LanguageSwitcher() {
         '/developers': '/stroiteli',
         '/about-mister-imot': '/za-mistar-imot',
         '/contact': '/kontakt',
+        '/news': '/novini',
       }
       for (const [from, to] of Object.entries(canonicalToBg)) {
         if (pathWithoutLocale === from || pathWithoutLocale.startsWith(from + '/')) {
@@ -111,6 +117,7 @@ export function LanguageSwitcher() {
         '/developers': '/zastroyshchiki',
         '/about-mister-imot': '/o-mister-imot',
         '/contact': '/kontakty',
+        '/news': '/novosti',
       }
       for (const [from, to] of Object.entries(canonicalToRu)) {
         if (pathWithoutLocale === from || pathWithoutLocale.startsWith(from + '/')) {
@@ -124,6 +131,7 @@ export function LanguageSwitcher() {
         '/developers': '/kataskeuastes',
         '/about-mister-imot': '/sxetika-me-to-mister-imot',
         '/contact': '/epikoinonia',
+        '/news': '/eidhseis',
       }
       for (const [from, to] of Object.entries(canonicalToGr)) {
         if (pathWithoutLocale === from || pathWithoutLocale.startsWith(from + '/')) {

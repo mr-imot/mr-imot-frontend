@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next'
 import { getDevelopers, getProjects, DevelopersListResponse, ProjectListResponse } from '@/lib/api'
-import { getAllPostsMeta } from '@/lib/blog'
+import { getAllPostsMeta } from '@/lib/news'
 
 // Refresh sitemap periodically to pick up new content
 export const revalidate = 3600 // 1 hour
@@ -94,7 +94,7 @@ async function getAllDevelopers(): Promise<{ id: string; slug?: string }[]> {
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = getBaseUrl()
-  const languages = ['en', 'bg', 'ru']
+  const languages = ['en', 'bg', 'ru', 'gr']
 
   // Static routes
   const staticRoutes: MetadataRoute.Sitemap = [
@@ -105,7 +105,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'daily' as const,
       priority: 1.0,
     },
-    // Language-specific homepage for Bulgarian only (avoid duplicate EN root)
+    // Language-specific homepages (avoid duplicate EN root)
     {
       url: `${baseUrl}/bg`,
       lastModified: new Date(),
@@ -114,6 +114,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: `${baseUrl}/ru`,
+      lastModified: new Date(),
+      changeFrequency: 'daily' as const,
+      priority: 1.0,
+    },
+    {
+      url: `${baseUrl}/gr`,
       lastModified: new Date(),
       changeFrequency: 'daily' as const,
       priority: 1.0,
@@ -187,21 +193,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'monthly' as const,
       priority: 0.5,
     },
-    // Blog indexes
+    // News indexes (localized slugs)
     {
-      url: `${baseUrl}/blog`,
+      url: `${baseUrl}/news`,
       lastModified: new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.7,
     },
     {
-      url: `${baseUrl}/bg/blog`,
+      url: `${baseUrl}/bg/novini`,
       lastModified: new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.7,
     },
     {
-      url: `${baseUrl}/ru/blog`,
+      url: `${baseUrl}/ru/novosti`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/gr/eidhseis`,
       lastModified: new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.7,
@@ -218,7 +230,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         ? `${baseUrl}/bg/obiavi/${urlPath}`
         : lang === 'ru'
           ? `${baseUrl}/ru/obyavleniya/${urlPath}`
-          : `${baseUrl}/listings/${urlPath}` // Clean English URL without /en/
+          : lang === 'gr'
+            ? `${baseUrl}/gr/aggelies/${urlPath}`
+            : `${baseUrl}/listings/${urlPath}` // Clean English URL without /en/
       
       // Use updated_at if available, otherwise use current date
       const lastModified = project.updated_at 
@@ -239,7 +253,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const developerRoutes: MetadataRoute.Sitemap = developers.flatMap((developer) =>
     languages.map((lang): MetadataRoute.Sitemap[0] => ({
       url: `${baseUrl}/${
-        lang === 'bg' ? 'bg/stroiteli' : lang === 'ru' ? 'ru/zastroyshchiki' : 'developers'
+        lang === 'bg'
+          ? 'bg/stroiteli'
+          : lang === 'ru'
+            ? 'ru/zastroyshchiki'
+            : lang === 'gr'
+              ? 'gr/kataskeuastes'
+              : 'developers'
       }/${developer.slug || developer.id}`,
       lastModified: new Date(),
       changeFrequency: 'monthly' as const,
@@ -247,11 +267,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }))
   )
 
-  const blogPosts = await Promise.all(
+  const newsPosts = await Promise.all(
     languages.map(async (lang) => {
-      const posts = await getAllPostsMeta(lang as 'en' | 'bg' | 'ru')
+      const posts = await getAllPostsMeta(lang as 'en' | 'bg' | 'ru' | 'gr')
       return posts.map((post) => ({
-        url: lang === 'en' ? `${baseUrl}/blog/${post.slug}` : `${baseUrl}/${lang}/blog/${post.slug}`,
+        url:
+          lang === 'en'
+            ? `${baseUrl}/news/${post.slug}`
+            : lang === 'bg'
+              ? `${baseUrl}/bg/novini/${post.slug}`
+              : lang === 'ru'
+                ? `${baseUrl}/ru/novosti/${post.slug}`
+                : `${baseUrl}/gr/eidhseis/${post.slug}`,
         lastModified: post.date ? new Date(post.date) : new Date(),
         changeFrequency: 'weekly' as const,
         priority: 0.6,
@@ -259,8 +286,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })
   )
 
-  const blogRoutes = blogPosts.flat()
+  const newsRoutes = newsPosts.flat()
 
-  return [...staticRoutes, ...projectRoutes, ...developerRoutes, ...blogRoutes]
+  return [...staticRoutes, ...projectRoutes, ...developerRoutes, ...newsRoutes]
 }
 

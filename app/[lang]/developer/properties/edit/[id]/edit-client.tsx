@@ -17,6 +17,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { getProject, updateProject, attachProjectImages, deleteProjectImage, getProjectImages, type Project } from "@/lib/api"
 import { upload } from "@imagekit/next";
 import { ensureGoogleMaps } from "@/lib/google-maps"
+import { AddressSearchField } from "@/components/address-search-field"
 import { Info, Loader, Upload, X, Move, Star, Image as ImageIcon, Plus, ArrowLeft, Maximize2 } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
 import { FeaturesSelector } from "@/components/FeaturesSelector"
@@ -135,7 +136,6 @@ export default function EditProjectPage({ dict, lang, params }: EditPropertyClie
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [geocodingBlocked, setGeocodingBlocked] = useState(false)
   const [placesBlocked, setPlacesBlocked] = useState(false)
-  const [autocompleteOpen, setAutocompleteOpen] = useState(false)
   const [isMapExpanded, setIsMapExpanded] = useState(false)
 
   const defaultCenter = useMemo(() => ({ lat: 42.6977, lng: 23.3219 }), [])

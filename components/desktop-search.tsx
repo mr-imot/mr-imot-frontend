@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import { Search, X, MapPin, Navigation, Building, Home, SlidersHorizontal } from "lucide-react"
-import { ensureGoogleMaps } from "@/lib/google-maps"
+import { ensureGoogleMaps, ensurePlacesLibrary } from "@/lib/google-maps"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 
 interface CityOption {
@@ -89,11 +89,26 @@ export function DesktopSearch({
   const [filteredCities, setFilteredCities] = useState<CityOption[]>(SUGGESTED_CITIES)
   const [selectedCityName, setSelectedCityName] = useState("")
 
-  // Custom Places Autocomplete
-  const predictionsRef = useRef<google.maps.places.AutocompletePrediction[]>([])
+  // Custom Places Autocomplete (new Place AutocompleteSuggestion API)
+  type NormalizedPrediction = {
+    placeId: string
+    mainText: string
+    secondaryText?: string
+    description: string
+  }
+
+  const predictionsRef = useRef<NormalizedPrediction[]>([])
   const [predictionsVersion, setPredictionsVersion] = useState(0)
   const sessionTokenRef = useRef<google.maps.places.AutocompleteSessionToken | null>(null)
-  const placesServiceRef = useRef<google.maps.places.PlacesService | null>(null)
+  const autocompleteSuggestionRef = useRef<typeof google.maps.places.AutocompleteSuggestion | null>(null)
+  const placesLibraryRef = useRef<google.maps.PlacesLibrary | null>(null)
+
+  const getPlacesLibrary = async () => {
+    if (!placesLibraryRef.current) {
+      placesLibraryRef.current = await ensurePlacesLibrary()
+    }
+    return placesLibraryRef.current
+  }
 
   function debounce<T extends (...args: any[]) => void>(fn: T, wait: number) {
     let t: any
@@ -130,13 +145,14 @@ export function DesktopSearch({
     )
   }
 
-  // Initialize PlacesService and session token
+  // Initialize Places library and session token
   useEffect(() => {
     const init = async () => {
       try {
         await ensureGoogleMaps()
-        if (!placesServiceRef.current) {
-          placesServiceRef.current = new google.maps.places.PlacesService(document.createElement('div'))
+        await getPlacesLibrary()
+        if (!autocompleteSuggestionRef.current) {
+          autocompleteSuggestionRef.current = google.maps.places.AutocompleteSuggestion
         }
         sessionTokenRef.current = new google.maps.places.AutocompleteSessionToken()
       } catch (e) {
@@ -147,20 +163,45 @@ export function DesktopSearch({
   }, [])
 
   const fetchPredictions = useRef(
-    debounce((query: string) => {
-      if (!query || !placesServiceRef.current) return
-      const service = new google.maps.places.AutocompleteService()
-      service.getPlacePredictions(
-        {
-          input: query,
-          componentRestrictions: { country: ['bg'] },
-          sessionToken: sessionTokenRef.current || undefined,
-        },
-        (preds) => {
-          predictionsRef.current = preds || []
-          setPredictionsVersion((v) => v + 1)
+    debounce(async (query: string) => {
+      if (!query || !autocompleteSuggestionRef.current) return
+      try {
+        // Reuse token within a session; create if missing
+        if (!sessionTokenRef.current) {
+          sessionTokenRef.current = new google.maps.places.AutocompleteSessionToken()
         }
-      )
+
+        const { suggestions = [] } = await autocompleteSuggestionRef.current.fetchAutocompleteSuggestions({
+          input: query,
+          sessionToken: sessionTokenRef.current,
+          includedRegionCodes: ['bg'], // mimic previous country restriction
+        })
+
+        predictionsRef.current = suggestions
+          .map((s: any) => s.placePrediction)
+          .filter(Boolean)
+          .map((p: any) => ({
+            placeId: p.placeId || p.place_id,
+            mainText:
+              p.text?.text ||
+              p.structuredFormat?.mainText?.text ||
+              p.structured_formatting?.main_text ||
+              '',
+            secondaryText:
+              p.secondaryText?.text ||
+              p.structuredFormat?.secondaryText?.text ||
+              p.structured_formatting?.secondary_text,
+            description:
+              p.text?.text ||
+              p.structuredFormat?.mainText?.text ||
+              p.description ||
+              '',
+          }))
+
+        setPredictionsVersion((v) => v + 1)
+      } catch (error) {
+        console.error('Failed to fetch autocomplete suggestions', error)
+      }
     }, 200)
   ).current
 
@@ -348,31 +389,38 @@ export function DesktopSearch({
               <div className="border-t border-gray-100">
                 {predictionsRef.current.map((p) => (
                   <button
-                    key={p.place_id}
-                    onClick={() => {
-                      if (!placesServiceRef.current) return
-                      placesServiceRef.current.getDetails(
-                        {
-                          placeId: p.place_id,
-                          fields: ['name', 'geometry'],
+                    key={p.placeId}
+                    onClick={async () => {
+                      try {
+                        const placesLibrary = await getPlacesLibrary()
+                        const place = new placesLibrary.Place({ id: p.placeId })
+
+                        await place.fetchFields({
+                          fields: ['displayName', 'location'],
                           sessionToken: sessionTokenRef.current || undefined,
-                        },
-                        (place) => {
-                          if (place && place.geometry && place.geometry.location) {
-                            onPlaceSelected({
-                              lat: place.geometry.location.lat(),
-                              lng: place.geometry.location.lng(),
-                              zoom: 12,
-                              name: place.name || p.description,
-                            })
-                            setSelectedCityName(place.name || p.description)
-                            setValue("")
-                            setIsExpanded(false)
-                            inputRef.current?.blur()
-                            sessionTokenRef.current = null
-                          }
+                        } as any)
+
+                        const location = place.location
+                        if (location) {
+                          const lat = (typeof location.lat === 'function' ? location.lat() : location.lat) as number
+                          const lng = (typeof location.lng === 'function' ? location.lng() : location.lng) as number
+                          const name = (place as any).displayName?.text || p.description
+
+                          onPlaceSelected({
+                            lat,
+                            lng,
+                            zoom: 16,
+                            name,
+                          })
+                          setSelectedCityName(name)
+                          setValue("")
+                          setIsExpanded(false)
+                          inputRef.current?.blur()
+                          sessionTokenRef.current = null
                         }
-                      )
+                      } catch (error) {
+                        console.error('Failed to fetch place details', error)
+                      }
                     }}
                     className="w-full flex items-center gap-4 px-5 py-3 hover:bg-gray-50 transition-colors text-left"
                   >
@@ -380,9 +428,9 @@ export function DesktopSearch({
                       <MapPin className="w-4 h-4 text-gray-600" />
                     </div>
                     <div className="flex-1">
-                      <p className="font-medium text-sm text-gray-900">{p.structured_formatting?.main_text || p.description}</p>
-                      {p.structured_formatting?.secondary_text && (
-                        <p className="text-xs text-gray-500">{p.structured_formatting.secondary_text}</p>
+                      <p className="font-medium text-sm text-gray-900">{p.mainText || p.description}</p>
+                      {p.secondaryText && (
+                        <p className="text-xs text-gray-500">{p.secondaryText}</p>
                       )}
                     </div>
                   </button>

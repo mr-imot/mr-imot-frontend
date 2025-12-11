@@ -123,14 +123,18 @@ function MobileLanguageSwitcher({ onLinkClick }: { onLinkClick: () => void }) {
       '/stroiteli': '/developers',
       '/za-mistar-imot': '/about-mister-imot',
       '/kontakt': '/contact',
+      '/novini': '/news',
       '/obyavleniya': '/listings',
       '/zastroyshchiki': '/developers',
       '/o-mister-imot': '/about-mister-imot',
       '/kontakty': '/contact',
+      '/novosti': '/news',
       '/aggelies': '/listings',
       '/kataskeuastes': '/developers',
       '/sxetika-me-to-mister-imot': '/about-mister-imot',
       '/epikoinonia': '/contact',
+      '/nea': '/news',
+      '/eidhseis': '/news',
     }
     for (const [from, to] of Object.entries(prettyToCanonical)) {
       if (pathWithoutLocale === from || pathWithoutLocale.startsWith(from + '/')) {
@@ -146,7 +150,7 @@ function MobileLanguageSwitcher({ onLinkClick }: { onLinkClick: () => void }) {
         '/developers': '/stroiteli',
         '/about-mister-imot': '/za-mistar-imot',
         '/contact': '/kontakt',
-        '/blog': '/blog',
+        '/news': '/novini',
       }
       for (const [from, to] of Object.entries(canonicalToBg)) {
         if (pathWithoutLocale === from || pathWithoutLocale.startsWith(from + '/')) {
@@ -160,7 +164,7 @@ function MobileLanguageSwitcher({ onLinkClick }: { onLinkClick: () => void }) {
         '/developers': '/zastroyshchiki',
         '/about-mister-imot': '/o-mister-imot',
         '/contact': '/kontakty',
-        '/blog': '/blog',
+        '/news': '/novosti',
       }
       for (const [from, to] of Object.entries(canonicalToRu)) {
         if (pathWithoutLocale === from || pathWithoutLocale.startsWith(from + '/')) {
@@ -174,7 +178,7 @@ function MobileLanguageSwitcher({ onLinkClick }: { onLinkClick: () => void }) {
         '/developers': '/kataskeuastes',
         '/about-mister-imot': '/sxetika-me-to-mister-imot',
         '/contact': '/epikoinonia',
-        '/blog': '/blog',
+        '/news': '/eidhseis',
       }
       for (const [from, to] of Object.entries(canonicalToGr)) {
         if (pathWithoutLocale === from || pathWithoutLocale.startsWith(from + '/')) {
@@ -243,7 +247,7 @@ export function MobileNav() {
         'developers': 'zastroyshchiki',
         'about-mister-imot': 'o-mister-imot',
         'contact': 'kontakty',
-        'blog': 'blog',
+        'news': 'novosti',
         'register?type=developer': 'register?type=developer',
         'login': 'login',
       }
@@ -255,7 +259,7 @@ export function MobileNav() {
         'developers': 'kataskeuastes',
         'about-mister-imot': 'sxetika-me-to-mister-imot',
         'contact': 'epikoinonia',
-        'blog': 'blog',
+        'news': 'eidhseis',
         'register?type=developer': 'register?type=developer',
         'login': 'login',
       }
@@ -267,7 +271,7 @@ export function MobileNav() {
   const navItems = [
     { href: href('listings', 'obiavi'), label: t.listings },
     { href: href('developers', 'stroiteli'), label: t.developers },
-    { href: href('blog', 'blog'), label: t.blog ?? 'Blog' },
+    { href: href('news', 'novini'), label: (t as any).news ?? t.blog ?? 'News' },
     { href: href('about-mister-imot', 'za-mistar-imot'), label: t.aboutUs },
   ]
 

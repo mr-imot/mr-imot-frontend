@@ -1,13 +1,13 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
-import BlogPostLayout from "@/components/blog/blog-post-layout"
+import BlogPostLayout from "@/components/news/blog-post-layout"
 import {
   BLOG_LANGS,
   type BlogLang,
   getAllPostsMeta,
   getAlternateSlugs,
   getPostBySlug,
-} from "@/lib/blog"
+} from "@/lib/news"
 import { brandForLang, formatTitleWithBrand } from "@/lib/seo"
 
 export const revalidate = 600
@@ -36,13 +36,16 @@ export async function generateMetadata({ params }: BlogPostParams): Promise<Meta
   const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://mrimot.com").replace(/\/$/, "")
   const alternates = await getAlternateSlugs(post.translationKey)
 
-  const languages = {
-    en: `${baseUrl}/blog/${alternates.en || slug}`,
-    bg: `${baseUrl}/bg/blog/${alternates.bg || slug}`,
-    ru: `${baseUrl}/ru/blog/${alternates.ru || slug}`,
-    "x-default": `${baseUrl}/blog/${alternates.en || slug}`,
+  const languages: Record<string, string> = {
+    en: `${baseUrl}/news/${alternates.en || slug}`,
+    bg: `${baseUrl}/bg/novini/${alternates.bg || slug}`,
+    ru: `${baseUrl}/ru/novosti/${alternates.ru || slug}`,
+    gr: `${baseUrl}/gr/eidhseis/${alternates.gr || slug}`,
+    el: `${baseUrl}/gr/eidhseis/${alternates.gr || slug}`,
+    "x-default": `${baseUrl}/news/${slug}`,
   }
-  const canonical = languages[lang]
+  const canonical =
+    languages[lang === "gr" ? "el" : lang] || languages[lang] || languages["x-default"]
 
   const title = formatTitleWithBrand(post.title, lang)
   const description = post.description

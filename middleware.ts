@@ -250,6 +250,13 @@ export function middleware(request: NextRequest) {
     }
   }
 
+  // Canonical BG news → pretty BG news (keep URL bar localized)
+  if (pathname === '/bg/news' || pathname.startsWith('/bg/news/')) {
+    const url = request.nextUrl.clone()
+    url.pathname = pathname.replace('/bg/news', '/bg/novini')
+    return NextResponse.redirect(url)
+  }
+
   // Russian aliases → canonical RU pretty URLs
   const russianAliasMap: Record<string, string> = {
     '/ru/listings': '/ru/obyavleniya',
@@ -266,6 +273,13 @@ export function middleware(request: NextRequest) {
     }
   }
 
+  // Canonical RU news → pretty RU news
+  if (pathname === '/ru/news' || pathname.startsWith('/ru/news/')) {
+    const url = request.nextUrl.clone()
+    url.pathname = pathname.replace('/ru/news', '/ru/novosti')
+    return NextResponse.redirect(url)
+  }
+
   // Greek aliases → canonical GR pretty URLs
   const greekAliasMap: Record<string, string> = {
     '/gr/listings': '/gr/aggelies',
@@ -280,6 +294,13 @@ export function middleware(request: NextRequest) {
       url.pathname = pathname.replace(from, to)
       return NextResponse.redirect(url)
     }
+  }
+
+  // Canonical GR news → pretty GR news
+  if (pathname === '/gr/news' || pathname.startsWith('/gr/news/')) {
+    const url = request.nextUrl.clone()
+    url.pathname = pathname.replace('/gr/news', '/gr/eidhseis')
+    return NextResponse.redirect(url)
   }
 
   // English canonical slugs (no prefix) → internal /en routes for rendering
@@ -304,6 +325,7 @@ export function middleware(request: NextRequest) {
       '/bg/za-mistar-imot': '/bg/about-us',
       '/bg/kontakt': '/bg/contact',
       '/bg/login': '/bg/login',
+      '/bg/novini': '/bg/news',
     }
     for (const [from, to] of Object.entries(map)) {
       if (pathname === from || pathname.startsWith(from + '/')) {
@@ -328,6 +350,7 @@ export function middleware(request: NextRequest) {
       '/ru/o-mister-imot': '/ru/about-us',
       '/ru/kontakty': '/ru/contact',
       '/ru/login': '/ru/login',
+      '/ru/novosti': '/ru/news',
     }
     for (const [from, to] of Object.entries(map)) {
       if (pathname === from || pathname.startsWith(from + '/')) {
@@ -346,6 +369,7 @@ export function middleware(request: NextRequest) {
       '/gr/sxetika-me-to-mister-imot': '/gr/about-us',
       '/gr/epikoinonia': '/gr/contact',
       '/gr/login': '/gr/login',
+      '/gr/eidhseis': '/gr/news',
     }
     for (const [from, to] of Object.entries(map)) {
       if (pathname === from || pathname.startsWith(from + '/')) {

@@ -23,6 +23,7 @@ export function UserAuthNav() {
         'developers': 'zastroyshchiki',
         'about-mister-imot': 'o-mister-imot',
         'contact': 'kontakty',
+        'news': 'novosti',
       }
       return `/ru/${ruMap[en] ?? en}`
     }
@@ -35,6 +36,7 @@ export function UserAuthNav() {
         'developers': 'kataskeuastes',
         'about-mister-imot': 'sxetika-me-to-mister-imot',
         'contact': 'epikoinonia',
+        'news': 'nea',
       }
       return `/gr/${grMap[en] ?? en}`
     }

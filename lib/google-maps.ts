@@ -28,10 +28,11 @@ export async function ensureGoogleMaps(): Promise<typeof google> {
   }
 
   if (!loadPromise) {
-    // Load both maps and marker libraries since we use AdvancedMarkerElement
+    // Load maps, markers, and places (Place class, autocomplete, etc.)
     loadPromise = Promise.all([
       importLibrary("maps"),
-      importLibrary("marker")
+      importLibrary("marker"),
+      importLibrary("places"),
     ]).then(() => window.google)
   }
 
@@ -42,6 +43,12 @@ export async function ensureGoogleMaps(): Promise<typeof google> {
     console.error("Failed to load Google Maps:", error)
     throw error
   }
+}
+
+// Ensure the Places library is available and return its exports (Place, Autocomplete, etc.)
+export async function ensurePlacesLibrary(): Promise<google.maps.PlacesLibrary> {
+  const google = await ensureGoogleMaps()
+  return google.maps.importLibrary("places") as Promise<google.maps.PlacesLibrary>
 }
 
 // Create house/apartment SVG icon for markers with white fill and black outlines

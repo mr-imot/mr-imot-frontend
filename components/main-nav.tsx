@@ -25,6 +25,7 @@ export function MainNav() {
         'developers': 'zastroyshchiki',
         'about-mister-imot': 'o-mister-imot',
         'contact': 'kontakty',
+        'news': 'novosti',
       }
       return `/ru/${ruMap[en] ?? en}`
     }
@@ -34,6 +35,7 @@ export function MainNav() {
         'developers': 'kataskeuastes',
         'about-mister-imot': 'sxetika-me-to-mister-imot',
         'contact': 'epikoinonia',
+        'news': 'nea',
       }
       return `/gr/${grMap[en] ?? en}`
     }
@@ -43,6 +45,7 @@ export function MainNav() {
   const navItems = [
     { href: href('listings', 'obiavi'), label: "Listings" },
     { href: href('developers', 'stroiteli'), label: "Developers" },
+    { href: href('news', 'novini'), label: "News" },
     { href: href('about-mister-imot', 'za-mistar-imot'), label: "About Us" },
   ]
 

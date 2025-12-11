@@ -260,7 +260,7 @@
   "navigation": {
     "listings": "Listings",
     "developers": "Developers", 
-    "blog": "Blog",
+    "blog": "News",
     "aboutUs": "About Mister Imot",
     "contact": "Contact",
     "login": "Login",
@@ -1182,6 +1182,21 @@
       "contactUs": "Contact Us",
       "questions": "If you have questions about our Cookie Policy, please contact us at:",
       "copyright": "© 2025 Mister Imot. All rights reserved."
+    },
+    "newsPage": {
+      "metaTitle": "Mister Imot News – market updates, guides, and analytics",
+      "metaDescription": "Daily market updates, price charts, and guides for buying new-build homes directly from developers in Bulgaria.",
+      "latest": "Latest",
+      "news": "News",
+      "guides": "Guides",
+      "searchPlaceholder": "Search news, guides, tags…",
+      "searchCta": "Search",
+      "noResults": "No results for",
+      "noResultsHint": "Try a different keyword.",
+      "marketChart": "Market chart",
+      "viewAll": "View all",
+      "tags": "Tags",
+      "noTags": "No tags yet."
     }
   }
 }

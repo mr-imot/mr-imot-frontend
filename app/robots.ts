@@ -22,17 +22,28 @@ export default function robots(): MetadataRoute.Robots {
     allow: [
       '/',
       '/bg/',
-      '/blog/',
-      '/bg/blog/',
-      '/ru/blog/',
+      '/ru/',
+      '/gr/',
+      '/news/',
+      '/bg/novini/',
+      '/ru/novosti/',
+      '/gr/eidhseis/',
       '/listings/',
       '/bg/obiavi/', // Bulgarian pretty URL for listings
+      '/ru/obyavleniya/', // Russian pretty URL for listings
+      '/gr/aggelies/', // Greek pretty URL for listings
       '/developers/',
       '/bg/stroiteli/', // Bulgarian pretty URL for developers
+      '/ru/zastroyshchiki/', // Russian pretty URL for developers
+      '/gr/kataskeuastes/', // Greek pretty URL for developers
       '/about-mister-imot/',
       '/bg/za-mistar-imot/', // Bulgarian pretty URL for about
+      '/ru/o-mister-imot/', // Russian pretty URL for about
+      '/gr/sxetika-me-to-mister-imot/', // Greek pretty URL for about
       '/contact/',
       '/bg/kontakt/', // Bulgarian pretty URL for contact
+      '/ru/kontakty/', // Russian pretty URL for contact
+      '/gr/epikoinonia/', // Greek pretty URL for contact
       '/api/v1/projects/',
     ],
     disallow: [

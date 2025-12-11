@@ -7,7 +7,7 @@ import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import { compileMDX } from 'next-mdx-remote/rsc'
 import { cache } from 'react'
 import type React from 'react'
-import { mdxComponents } from '@/components/blog/mdx-components'
+import { mdxComponents } from '@/components/news/mdx-components'
 
 export type BlogLang = 'en' | 'bg' | 'ru' | 'gr'
 
@@ -42,7 +42,8 @@ export type BlogPost = BlogPostMeta & {
 
 export const BLOG_LANGS: BlogLang[] = ['en', 'bg', 'ru', 'gr']
 
-const BLOG_ROOT = path.join(process.cwd(), 'content', 'blog')
+// Use the shared news content directory across locales
+const BLOG_ROOT = path.join(process.cwd(), 'content', 'news')
 const WORDS_PER_MINUTE = 200
 
 const cyrillicMap: Record<string, string> = {
@@ -110,6 +111,7 @@ function formatReadingLabel(lang: BlogLang, minutes: number) {
   const rounded = Math.max(1, Math.round(minutes))
   if (lang === 'bg') return `${rounded} мин четене`
   if (lang === 'ru') return `${rounded} мин чтения`
+  if (lang === 'gr') return `${rounded} λεπτά ανάγνωσης`
   return `${rounded} min read`
 }
 
@@ -145,8 +147,17 @@ function stripExtension(filename: string) {
 }
 
 function buildBlogPath(lang: BlogLang, slug?: string) {
-  if (!slug) return lang === 'en' ? '/blog' : `/${lang}/blog`
-  return lang === 'en' ? `/blog/${slug}` : `/${lang}/blog/${slug}`
+  const base =
+    lang === 'en'
+      ? '/news'
+      : lang === 'bg'
+        ? '/bg/novini'
+        : lang === 'ru'
+          ? '/ru/novosti'
+          : '/gr/eidhseis'
+
+  if (!slug) return base
+  return `${base}/${slug}`
 }
 
 export function formatBlogDate(date: string | undefined, lang: BlogLang) {
