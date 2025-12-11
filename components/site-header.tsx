@@ -51,7 +51,7 @@ export function SiteHeader() {
         {/* Logo (always visible) */}
         <div className={`flex items-center justify-start`}>
           <Link href="/" className="flex items-center space-x-3 group clickable cursor-pointer">
-            <div className="relative w-14 h-14 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-200 border border-white/20 cursor-pointer logo-circle">
+            <div className="relative w-14 h-14 flex items-center justify-center rounded-full bg-white text-charcoal-800 shadow-[0_10px_24px_rgba(0,0,0,0.12)] border border-slate-200 hover:shadow-[0_12px_28px_rgba(0,0,0,0.16)] transition-all duration-200 cursor-pointer logo-circle">
               <Image
                 src="https://ik.imagekit.io/ts59gf2ul/Logo/mr-imot-logo-no-background.png?tr=w-112,h-112,f-webp,q-85,fo-auto"
                 alt={
