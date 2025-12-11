@@ -18,15 +18,27 @@ export function SiteHeader() {
     if (locale === 'bg') return `/bg/${bg}`
     if (locale === 'ru') {
       const ruMap: Record<string, string> = {
-        'listings': 'obyavleniya',
-        'developers': 'zastroyshchiki',
+        listings: 'obyavleniya',
+        developers: 'zastroyshchiki',
         'about-mister-imot': 'o-mister-imot',
-        'contact': 'kontakty',
-        'blog': 'blog',
+        contact: 'kontakty',
+        news: 'novosti',
         'register?type=developer': 'register?type=developer',
-        'login': 'login',
+        login: 'login',
       }
       return `/ru/${ruMap[en] ?? en}`
+    }
+    if (locale === 'gr') {
+      const grMap: Record<string, string> = {
+        listings: 'aggelies',
+        developers: 'kataskeuastes',
+        'about-mister-imot': 'sxetika-me-to-mister-imot',
+        contact: 'epikoinonia',
+        news: 'eidhseis',
+        'register?type=developer': 'register?type=developer',
+        login: 'login',
+      }
+      return `/gr/${grMap[en] ?? en}`
     }
     return `/${en}`
   }
@@ -35,7 +47,7 @@ export function SiteHeader() {
     <>
       
       <header className={`header-glass flex items-center justify-between pl-4 pr-0 sm:pl-6 sm:pr-6 md:px-8 py-4 ${isListingsPage ? 'hidden xl:flex' : ''}`}>
-        <div className="w-full flex items-center justify-between md:grid md:grid-cols-3">
+        <div className="w-full flex items-center justify-between md:grid md:grid-cols-[auto,1fr,auto] md:gap-4">
         {/* Logo (always visible) */}
         <div className={`flex items-center justify-start`}>
           <Link href="/" className="flex items-center space-x-3 group clickable cursor-pointer">
@@ -63,28 +75,28 @@ export function SiteHeader() {
         </div>
 
         {/* Desktop Navigation - Visible from md and up */}
-        <nav className="hidden md:flex items-center justify-center space-x-4">
+        <nav className="hidden md:flex items-center justify-start gap-3 lg:justify-center lg:gap-4">
           <a
             href={href('listings', 'obiavi')}
-            className="text-white hover:text-white text-sm font-medium px-5 py-2.5 rounded-full bg-charcoal-500 border border-charcoal-600 shadow-sm hover:bg-charcoal-600 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-charcoal-300 active:scale-95"
+            className="text-white hover:text-white text-sm font-medium px-4 lg:px-5 py-2.5 rounded-full bg-charcoal-500 border border-charcoal-600 shadow-sm hover:bg-charcoal-600 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-charcoal-300 active:scale-95"
           >
             {t.listings}
           </a>
           <a
             href={href('developers', 'stroiteli')}
-            className="text-white hover:text-white text-sm font-medium px-5 py-2.5 rounded-full bg-charcoal-500 border border-charcoal-600 shadow-sm hover:bg-charcoal-600 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-charcoal-300 active:scale-95"
+            className="text-white hover:text-white text-sm font-medium px-4 lg:px-5 py-2.5 rounded-full bg-charcoal-500 border border-charcoal-600 shadow-sm hover:bg-charcoal-600 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-charcoal-300 active:scale-95"
           >
             {t.developers}
           </a>
           <a
-            href={href('blog', 'blog')}
-            className="text-white hover:text-white text-sm font-medium px-5 py-2.5 rounded-full bg-charcoal-500 border border-charcoal-600 shadow-sm hover:bg-charcoal-600 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-charcoal-300 active:scale-95"
+            href={href('news', 'novini')}
+            className="text-white hover:text-white text-sm font-medium px-4 lg:px-5 py-2.5 rounded-full bg-charcoal-500 border border-charcoal-600 shadow-sm hover:bg-charcoal-600 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-charcoal-300 active:scale-95"
           >
-            {t.blog ?? 'Blog'}
+            {t.blog ?? 'News'}
           </a>
           <a
             href={href('about-mister-imot', 'za-mistar-imot')}
-            className="text-white hover:text-white text-sm font-medium px-5 py-2.5 rounded-full bg-charcoal-500 border border-charcoal-600 shadow-sm hover:bg-charcoal-600 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-charcoal-300 active:scale-95"
+            className="text-white hover:text-white text-sm font-medium px-4 lg:px-5 py-2.5 rounded-full bg-charcoal-500 border border-charcoal-600 shadow-sm hover:bg-charcoal-600 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-charcoal-300 active:scale-95"
           >
             {t.aboutUs}
           </a>

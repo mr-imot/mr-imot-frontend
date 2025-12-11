@@ -1196,7 +1196,10 @@
       "marketChart": "Market chart",
       "viewAll": "View all",
       "tags": "Tags",
-      "noTags": "No tags yet."
+      "noTags": "No tags yet.",
+      "topStories": "Top stories",
+      "moreStories": "More stories",
+      "noMoreStories": "More stories coming soon."
     }
   }
 }

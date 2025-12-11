@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { brandForLang, formatTitleWithBrand } from "@/lib/seo"
-import { BLOG_LANGS, type BlogLang, getAllPostsMeta, getRelativeUrl } from "@/lib/news"
+import { BLOG_LANGS, type BlogLang, getAllPostsMeta, getRelativeUrl, formatBlogDate } from "@/lib/news"
 import PostCard from "@/components/news/post-card"
 import { getDictionary } from "../dictionaries"
 
@@ -214,21 +214,30 @@ export default async function BlogIndexPage({ params, searchParams }: BlogIndexP
           </div>
         ) : (
           <>
-            {/* Top rail: chart + latest */}
-            <div className="grid gap-8 lg:grid-cols-[1.4fr,1fr]">
-              <div className="overflow-hidden rounded-3xl border border-muted bg-white shadow-sm">
-                <div className="border-b border-muted px-5 py-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                  {t("marketChart", lang === "ru" ? "Рыночный график" : lang === "bg" ? "Пазарна графика" : "Market chart")}
-                </div>
-                <div className="aspect-[5/3] w-full bg-muted/30">
-                  <iframe
-                    src="https://api.tradingeconomics.com/embed/embed?country=Bulgaria&indicator=Building%20Permits&freq=Monthly&bg=ffffff&color=16a34a&cor=333333&header=true&h=360&w=100%25&title=true"
-                    title="Market chart"
-                    className="h-full w-full border-0"
-                    loading="lazy"
-                  />
-                </div>
-              </div>
+            {/* Hero + Latest rail */}
+            <div className="grid gap-6 lg:grid-cols-[2fr,1fr]">
+              {featured && (
+                <article className="overflow-hidden rounded-3xl border border-muted bg-white shadow-lg transition hover:-translate-y-1 hover:shadow-2xl">
+                  <Link href={featured.href} className="block">
+                    <div className="relative aspect-[16/9] w-full overflow-hidden">
+                      {featured.coverImage ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={featured.coverImage} alt={featured.title} className="h-full w-full object-cover transition duration-500 hover:scale-105" />
+                      ) : (
+                        <div className="h-full w-full bg-muted" />
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
+                      <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                        <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-white/20 px-3 py-1 text-xs font-semibold uppercase tracking-wide">
+                          {featured.category || t("news", "News")}
+                        </div>
+                        <h2 className="text-3xl font-semibold leading-snug md:text-4xl">{featured.title}</h2>
+                        {featured.description && <p className="mt-3 text-sm text-white/85 line-clamp-2">{featured.description}</p>}
+                      </div>
+                    </div>
+                  </Link>
+                </article>
+              )}
 
               <div className="rounded-3xl border border-muted bg-white shadow-sm">
                 <div className="flex items-center justify-between border-b border-muted px-5 py-4">
@@ -243,7 +252,7 @@ export default async function BlogIndexPage({ params, searchParams }: BlogIndexP
                       <div className="mt-1 h-2 w-2 rounded-full bg-primary" />
                       <div className="space-y-1">
                         <p className="text-sm font-semibold text-foreground line-clamp-2">{post.title}</p>
-                        {post.date && <p className="text-xs text-muted-foreground">{post.date}</p>}
+                        {post.date && <p className="text-xs text-muted-foreground">{formatBlogDate(post.date, lang)}</p>}
                       </div>
                     </Link>
                   ))}
@@ -251,36 +260,32 @@ export default async function BlogIndexPage({ params, searchParams }: BlogIndexP
               </div>
             </div>
 
-            {/* Feature + grid */}
-            <div className="grid gap-6 lg:grid-cols-[1.4fr,1fr]">
+            {/* Secondary + sidebar */}
+            <div className="grid gap-6 lg:grid-cols-[2fr,1fr]">
               <div className="space-y-6">
-                {featured && (
-                  <article className="overflow-hidden rounded-3xl border border-muted bg-white shadow-lg transition hover:-translate-y-1 hover:shadow-2xl">
-                    <Link href={featured.href} className="block">
-                      <div className="relative aspect-[16/9] w-full overflow-hidden">
-                        {featured.coverImage ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={featured.coverImage} alt={featured.title} className="h-full w-full object-cover transition duration-500 hover:scale-105" />
-                        ) : (
-                          <div className="h-full w-full bg-muted" />
-                        )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent" />
-                        <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                          <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-white/20 px-3 py-1 text-xs font-semibold uppercase tracking-wide">
-                            {featured.category || t("news", "News")}
-                          </div>
-                          <h2 className="text-2xl font-semibold leading-snug">{featured.title}</h2>
-                          {featured.description && <p className="mt-2 text-sm text-white/85 line-clamp-2">{featured.description}</p>}
-                        </div>
-                      </div>
-                    </Link>
-                  </article>
-                )}
+                {/* Secondary stories */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold text-foreground">{t("topStories", "Top stories")}</h3>
+                  </div>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    {filtered.slice(1, 5).map((post) => (
+                      <PostCard key={`${post.lang}-${post.slug}-secondary`} post={post} lang={lang} />
+                    ))}
+                  </div>
+                </div>
 
-                <div className="grid gap-4 md:grid-cols-3">
-                  {filtered.slice(1, 7).map((post) => (
-                    <PostCard key={`${post.lang}-${post.slug}`} post={post} lang={lang} />
-                  ))}
+                {/* More stories grid */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold text-foreground">{t("moreStories", "More stories")}</h3>
+                  </div>
+                  <div className="grid gap-4 md:grid-cols-3">
+                    {filtered.slice(5, 14).map((post) => (
+                      <PostCard key={`${post.lang}-${post.slug}-more`} post={post} lang={lang} />
+                    ))}
+                    {filtered.length <= 5 && <p className="text-sm text-muted-foreground">{t("noMoreStories", "More stories coming soon.")}</p>}
+                  </div>
                 </div>
               </div>
 

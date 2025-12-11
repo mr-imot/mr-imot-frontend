@@ -48,7 +48,7 @@ export async function generateMetadata({ params }: HomePageProps): Promise<Metad
         en: `${baseUrl}/en`,
         bg: `${baseUrl}/bg`,
         ru: `${baseUrl}/ru`,
-        gr: `${baseUrl}/gr`,
+          el: `${baseUrl}/gr`,
         'x-default': `${baseUrl}/en`,
       },
     },

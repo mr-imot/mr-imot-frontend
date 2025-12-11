@@ -49,7 +49,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: 'en
         en: `${siteUrl}/en`,
         bg: `${siteUrl}/bg`,
         ru: `${siteUrl}/ru`,
-        gr: `${siteUrl}/gr`,
+        el: `${siteUrl}/gr`,
         'x-default': `${siteUrl}/en`,
       },
     },
