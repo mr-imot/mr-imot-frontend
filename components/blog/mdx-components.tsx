@@ -1,0 +1,102 @@
+import Image from "next/image"
+import Link from "next/link"
+import type { AnchorHTMLAttributes, HTMLAttributes, PropsWithChildren } from "react"
+
+type CalloutProps = PropsWithChildren<{
+  type?: "info" | "warning" | "success"
+  title?: string
+}>
+
+const Callout = ({ type = "info", title, children }: CalloutProps) => {
+  const styles: Record<NonNullable<CalloutProps["type"]>, string> = {
+    info: "bg-blue-50 text-blue-900 border-blue-100",
+    warning: "bg-amber-50 text-amber-900 border-amber-100",
+    success: "bg-emerald-50 text-emerald-900 border-emerald-100",
+  }
+
+  return (
+    <div className={`not-prose mt-6 rounded-2xl border px-4 py-3 sm:px-6 ${styles[type]}`}>
+      {title && <p className="mb-1 text-sm font-semibold uppercase tracking-wide">{title}</p>}
+      <div className="prose prose-sm sm:prose-base">
+        {children}
+      </div>
+    </div>
+  )
+}
+
+const YouTube = ({ id, title }: { id: string; title?: string }) => (
+  <div className="not-prose relative mt-8 overflow-hidden rounded-2xl shadow-xl">
+    <div className="aspect-video">
+      <iframe
+        title={title || "YouTube video"}
+        src={`https://www.youtube.com/embed/${id}`}
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+        className="h-full w-full border-0"
+      />
+    </div>
+  </div>
+)
+
+const Anchor = (props: AnchorHTMLAttributes<HTMLAnchorElement>) => {
+  const { href = "", children, ...rest } = props
+  const isInternal = href.startsWith("/")
+
+  if (isInternal) {
+    return (
+      <Link href={href} {...rest} className="font-semibold text-charcoal-500 underline decoration-charcoal-200 underline-offset-[6px] hover:text-charcoal-600">
+        {children}
+      </Link>
+    )
+  }
+
+  return (
+    <a
+      href={href}
+      {...rest}
+      className="font-semibold text-charcoal-500 underline decoration-charcoal-200 underline-offset-[6px] hover:text-charcoal-600"
+      rel="noreferrer noopener"
+      target="_blank"
+    >
+      {children}
+    </a>
+  )
+}
+
+const Img = (props: React.ImgHTMLAttributes<HTMLImageElement>) => {
+  const { src, alt = "", width, height } = props
+  if (!src) return null
+
+  const parsedWidth = typeof width === "string" ? parseInt(width, 10) : width || 1200
+  const parsedHeight = typeof height === "string" ? parseInt(height, 10) : height || 630
+
+  return (
+    <figure className="my-8 overflow-hidden rounded-2xl border border-gray-100 shadow-lg">
+      <Image
+        src={src}
+        alt={alt}
+        width={parsedWidth}
+        height={parsedHeight}
+        className="h-auto w-full object-cover"
+        sizes="(max-width: 1024px) 100vw, 1024px"
+      />
+      {alt && <figcaption className="bg-white px-4 py-3 text-center text-sm text-muted-foreground">{alt}</figcaption>}
+    </figure>
+  )
+}
+
+const Pre = (props: HTMLAttributes<HTMLPreElement>) => (
+  <pre
+    {...props}
+    className="not-prose mt-6 overflow-x-auto rounded-2xl bg-slate-900 p-4 text-sm text-slate-100 shadow-lg"
+  />
+)
+
+export const mdxComponents = {
+  a: Anchor,
+  img: Img,
+  Callout,
+  YouTube,
+  pre: Pre,
+}
+
