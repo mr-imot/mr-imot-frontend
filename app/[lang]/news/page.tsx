@@ -192,7 +192,7 @@ export default async function BlogIndexPage({ params, searchParams }: BlogIndexP
   // 1. Hero: Featured (1st) + Side Stories (2nd, 3rd, 4th)
   const heroFeatured = filtered[0]
   const heroSide = filtered.slice(1, 4)
-  const remaining = filtered.slice(4)
+  const heroSlugs = new Set([heroFeatured?.slug, ...heroSide.map(p => p.slug)].filter(Boolean))
 
   // 2. Sections
   const categories = NAV_CATEGORIES[lang] || []
@@ -202,13 +202,17 @@ export default async function BlogIndexPage({ params, searchParams }: BlogIndexP
 
   const t = (key: string, fallback?: string) => (copy?.[key] as string) || fallback || ""
 
-  // Helper to get posts for a category from the *remaining* pool (to avoid duplicates in hero)
+  // Helper to get posts for a category from ALL posts (excluding hero posts to avoid duplicates)
   const getPostsForCat = (cat: string) => {
     const equivalents = findEquivalentCategories(cat).map((c) => c.toLowerCase())
-    return remaining
+    return allPosts
+      .filter((p) => !heroSlugs.has(p.slug)) // Exclude hero posts
       .filter((p) => equivalents.includes((p.category || "").toLowerCase()))
       .slice(0, 4)
   }
+  
+  // Check if a section has posts
+  const sectionHasPosts = (cat: string) => getPostsForCat(cat).length > 0
 
   return (
     <div className="min-h-screen bg-white font-sans text-charcoal-500 selection:bg-primary/20">
@@ -217,26 +221,26 @@ export default async function BlogIndexPage({ params, searchParams }: BlogIndexP
       <NewsTicker lang={lang} rates={rates} />
 
       {/* Main Content */}
-      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         
         {/* Header & Nav */}
-        <div className="mb-8 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+        <div className="mb-6 sm:mb-8 flex flex-col gap-4 sm:gap-6 md:flex-row md:items-end md:justify-between">
             <div>
-                 <h1 className="text-4xl font-black uppercase tracking-tight text-foreground md:text-5xl">
+                 <h1 className="text-2xl sm:text-4xl font-black uppercase tracking-tight text-foreground md:text-5xl">
                     {t("newsTitle", lang === "bg" ? "Пазарен Обзор" : "Market Watch")}
                 </h1>
-                <p className="mt-2 text-lg text-muted-foreground">
+                <p className="mt-1 sm:mt-2 text-sm sm:text-lg text-muted-foreground">
                     {t("newsSubtitle", lang === "bg" ? "Недвижими имоти, финанси и новини от платформата" : "Real estate, finance, and platform updates")}
                 </p>
             </div>
             
             {/* Search */}
-            <form className="relative w-full max-w-xs" action="" method="get">
+            <form className="relative w-full md:max-w-xs" action="" method="get">
                  <input
                     type="search"
                     name="q"
                     defaultValue={q}
-                    placeholder={t("searchPlaceholder", "Search news...")}
+                    placeholder={t("searchPlaceholder", lang === "bg" ? "Търси новини..." : "Search news...")}
                     className="w-full border-b-2 border-muted bg-transparent py-2 text-sm font-semibold outline-none focus:border-primary transition-colors"
                  />
                  <button type="submit" className="absolute right-0 top-2 text-muted-foreground hover:text-primary">
@@ -245,18 +249,22 @@ export default async function BlogIndexPage({ params, searchParams }: BlogIndexP
             </form>
         </div>
 
-        {/* Categories Nav */}
-        <nav className="mb-10 flex flex-wrap gap-x-6 gap-y-2 border-y border-muted py-3 text-sm font-bold uppercase tracking-wider text-muted-foreground">
-            <Link href={getRelativeUrl(lang)} className={`${!categoryFilter ? "text-primary" : "hover:text-foreground"}`}>All</Link>
-            {categories.map(cat => (
-                <Link 
-                    key={cat} 
-                    href={`${getRelativeUrl(lang)}?category=${encodeURIComponent(cat)}`}
-                    className={`${categoryFilter === cat ? "text-primary" : "hover:text-foreground"}`}
-                >
-                    {cat}
+        {/* Categories Nav - Scrollable on mobile */}
+        <nav className="mb-6 sm:mb-10 -mx-4 sm:mx-0 px-4 sm:px-0 overflow-x-auto scrollbar-hide">
+            <div className="flex gap-x-4 sm:gap-x-6 gap-y-2 sm:flex-wrap border-y border-muted py-3 text-xs sm:text-sm font-bold uppercase tracking-wider text-muted-foreground min-w-max sm:min-w-0">
+                <Link href={getRelativeUrl(lang)} className={`whitespace-nowrap ${!categoryFilter ? "text-primary" : "hover:text-foreground"}`}>
+                    {lang === 'bg' ? 'Всички' : 'All'}
                 </Link>
-            ))}
+                {categories.map(cat => (
+                    <Link 
+                        key={cat} 
+                        href={`${getRelativeUrl(lang)}?category=${encodeURIComponent(cat)}`}
+                        className={`whitespace-nowrap ${categoryFilter === cat ? "text-primary" : "hover:text-foreground"}`}
+                    >
+                        {cat}
+                    </Link>
+                ))}
+            </div>
         </nav>
 
         {filtered.length === 0 ? (
@@ -278,63 +286,93 @@ export default async function BlogIndexPage({ params, searchParams }: BlogIndexP
                     <NewsHero featured={heroFeatured} sideStories={heroSide} lang={lang} />
                 )}
 
-                <div className="grid gap-10 lg:grid-cols-12">
+                <div className="grid gap-8 lg:gap-10 lg:grid-cols-12">
                     
                     {/* Main Feed Column */}
-                    <div className="lg:col-span-8 space-y-12">
+                    <div className="lg:col-span-8 space-y-8 sm:space-y-12">
                         
                         {isFilteredView ? (
-                             <div className="grid gap-6 md:grid-cols-2">
+                             <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2">
                                 {filtered.map(post => (
                                     <PostCard key={post.slug} post={post} lang={lang} />
                                 ))}
                              </div>
                         ) : (
                             <>
-                                {/* Real Estate Section */}
-                                <section>
-                                    <SectionHeader title={lang === 'bg' ? "Имоти" : "Real Estate"} href={`${getRelativeUrl(lang)}?category=${encodeURIComponent(lang === 'bg' ? "Имоти" : "Real Estate")}`} />
-                                    <div className="grid gap-6 md:grid-cols-2">
-                                        {getPostsForCat(lang === 'bg' ? "Имоти" : "Real Estate").map(post => (
+                                {/* Local News Section */}
+                                {sectionHasPosts(lang === 'bg' ? "Местни" : "Local News") && (
+                                  <section>
+                                    <SectionHeader title={lang === 'bg' ? "Местни Новини" : "Local News"} href={`${getRelativeUrl(lang)}?category=${encodeURIComponent(lang === 'bg' ? "Местни" : "Local News")}`} />
+                                    <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2">
+                                        {getPostsForCat(lang === 'bg' ? "Местни" : "Local News").map(post => (
                                             <PostCard key={post.slug} post={post} lang={lang} />
                                         ))}
                                     </div>
-                                </section>
+                                  </section>
+                                )}
 
                                 {/* Money/Finance Section */}
-                                <section>
+                                {sectionHasPosts(lang === 'bg' ? "Пари" : "Money") && (
+                                  <section>
                                     <SectionHeader title={lang === 'bg' ? "Пари" : "Money"} href={`${getRelativeUrl(lang)}?category=${encodeURIComponent(lang === 'bg' ? "Пари" : "Money")}`} />
-                                    <div className="grid gap-6 md:grid-cols-2">
+                                    <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2">
                                         {getPostsForCat(lang === 'bg' ? "Пари" : "Money").map(post => (
                                             <PostCard key={post.slug} post={post} lang={lang} />
                                         ))}
                                     </div>
-                                </section>
+                                  </section>
+                                )}
+
+                                {/* Global News Section */}
+                                {sectionHasPosts(lang === 'bg' ? "Световни" : "Global News") && (
+                                  <section>
+                                    <SectionHeader title={lang === 'bg' ? "Световни Новини" : "Global News"} href={`${getRelativeUrl(lang)}?category=${encodeURIComponent(lang === 'bg' ? "Световни" : "Global News")}`} />
+                                    <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2">
+                                        {getPostsForCat(lang === 'bg' ? "Световни" : "Global News").map(post => (
+                                            <PostCard key={post.slug} post={post} lang={lang} />
+                                        ))}
+                                    </div>
+                                  </section>
+                                )}
 
                                 {/* Platform News */}
-                                <section>
+                                {sectionHasPosts(lang === 'bg' ? "Новини за Платформата" : "Platform News") && (
+                                  <section>
                                     <SectionHeader title={lang === 'bg' ? "Новини за Платформата" : "Platform News"} href={`${getRelativeUrl(lang)}?category=${encodeURIComponent(lang === 'bg' ? "Новини за Платформата" : "Platform News")}`} />
-                                    <div className="grid gap-6 md:grid-cols-2">
+                                    <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2">
                                          {getPostsForCat(lang === 'bg' ? "Новини за Платформата" : "Platform News").map(post => (
                                             <PostCard key={post.slug} post={post} lang={lang} />
                                         ))}
                                     </div>
-                                </section>
+                                  </section>
+                                )}
+
+                                {/* Real Estate Section */}
+                                {sectionHasPosts(lang === 'bg' ? "Имоти" : "Real Estate") && (
+                                  <section>
+                                    <SectionHeader title={lang === 'bg' ? "Имоти" : "Real Estate"} href={`${getRelativeUrl(lang)}?category=${encodeURIComponent(lang === 'bg' ? "Имоти" : "Real Estate")}`} />
+                                    <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2">
+                                        {getPostsForCat(lang === 'bg' ? "Имоти" : "Real Estate").map(post => (
+                                            <PostCard key={post.slug} post={post} lang={lang} />
+                                        ))}
+                                    </div>
+                                  </section>
+                                )}
                             </>
                         )}
                     </div>
 
                     {/* Sidebar */}
-                    <aside className="lg:col-span-4 space-y-10">
+                    <aside className="lg:col-span-4 space-y-6 sm:space-y-10">
                         {/* Latest News */}
-                         <div className="bg-muted/30 p-6 rounded-xl border border-muted">
-                            <h3 className="font-black uppercase tracking-wider text-xl mb-6 flex items-center gap-2">
+                         <div className="bg-muted/30 p-4 sm:p-6 rounded-xl border border-muted">
+                            <h3 className="font-black uppercase tracking-wider text-lg sm:text-xl mb-4 sm:mb-6 flex items-center gap-2">
                                 <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
-                                {t("latest", "Latest News")}
+                                {t("latest", lang === "bg" ? "Последни новини" : "Latest News")}
                             </h3>
-                            <div className="space-y-6 divide-y divide-muted/50">
+                            <div className="space-y-4 sm:space-y-6 divide-y divide-muted/50">
                                 {allPosts.slice(0, 6).map(post => (
-                                    <div key={post.slug} className="pt-4 first:pt-0">
+                                    <div key={post.slug} className="pt-3 sm:pt-4 first:pt-0">
                                         <CompactPostCard post={post} lang={lang} hideImage dense />
                                     </div>
                                 ))}
@@ -343,13 +381,13 @@ export default async function BlogIndexPage({ params, searchParams }: BlogIndexP
 
                          {/* Tags Cloud */}
                          <div>
-                            <SectionHeader title={t("tags", "Tags")} />
+                            <SectionHeader title={t("tags", lang === "bg" ? "Етикети" : "Tags")} />
                             <div className="flex flex-wrap gap-2">
                                 {Array.from(new Set(allPosts.flatMap(p => p.tags || []))).slice(0, 20).map(tag => (
                                     <Link 
                                         key={tag} 
                                         href={`${getRelativeUrl(lang)}?tag=${encodeURIComponent(tag)}`}
-                                        className={`px-3 py-1.5 text-xs font-bold uppercase tracking-wide border rounded-md transition-colors ${tagFilter === tag ? 'bg-primary text-white border-primary' : 'bg-white border-muted hover:border-primary hover:text-primary'}`}
+                                        className={`px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs font-bold uppercase tracking-wide border rounded-md transition-colors ${tagFilter === tag ? 'bg-primary text-white border-primary' : 'bg-white border-muted hover:border-primary hover:text-primary'}`}
                                     >
                                         {tag}
                                     </Link>
@@ -358,10 +396,10 @@ export default async function BlogIndexPage({ params, searchParams }: BlogIndexP
                          </div>
 
                          {/* Ad / Promo Placeholder */}
-                         <div className="bg-charcoal-500 text-white p-8 rounded-xl text-center">
-                            <h4 className="text-xl font-bold mb-2">Mister Imot</h4>
+                         <div className="bg-charcoal-500 text-white p-6 sm:p-8 rounded-xl text-center">
+                            <h4 className="text-lg sm:text-xl font-bold mb-2">{lang === 'bg' ? "Мистър Имот" : "Mister Imot"}</h4>
                             <p className="text-white/80 text-sm mb-4">{lang === 'bg' ? "Намери своя нов дом днес." : "Find your new home today."}</p>
-                            <Link href={`/${lang}`} className="inline-block bg-white text-charcoal-500 font-bold px-6 py-2 rounded-full hover:bg-gray-100 transition">
+                            <Link href={`/${lang}`} className="inline-block bg-white text-charcoal-500 font-bold px-5 sm:px-6 py-2 rounded-full hover:bg-gray-100 transition text-sm sm:text-base">
                                 {lang === 'bg' ? "Разгледай имоти" : "Browse Properties"}
                             </Link>
                          </div>

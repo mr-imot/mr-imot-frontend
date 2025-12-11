@@ -314,12 +314,12 @@ export function MobileNav() {
           <span className="sr-only">Toggle menu</span>
         </Button>
       </SheetTrigger>
-      <SheetContent side="right" className="w-80">
-        <SheetHeader className="text-left">
+      <SheetContent side="right" className="w-80 flex flex-col h-full">
+        <SheetHeader className="text-left flex-shrink-0">
           <SheetTitle className="text-xl font-bold">{t.navigation}</SheetTitle>
         </SheetHeader>
 
-        <div className="flex flex-col space-y-6 mt-8">
+        <div className="flex flex-col space-y-6 mt-8 flex-1 overflow-y-auto pb-6">
           {/* Navigation Links */}
           <nav className="flex flex-col space-y-4">
             {navItems.map((item) => (
@@ -352,7 +352,7 @@ export function MobileNav() {
           <AuthActionsSection onLinkClick={handleLinkClick} t={t} />
 
           {/* Footer Info */}
-          <div className="mt-auto pt-8 border-t">
+          <div className="pt-8 border-t">
             <p className="text-sm text-muted-foreground text-center">{t.connectDirectly}</p>
           </div>
         </div>
