@@ -3,7 +3,6 @@ import path from 'path'
 import matter from 'gray-matter'
 import remarkGfm from 'remark-gfm'
 import rehypeSlug from 'rehype-slug'
-import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import { compileMDX } from 'next-mdx-remote/rsc'
 import { cache } from 'react'
 import type React from 'react'
@@ -16,6 +15,7 @@ export type BlogFrontMatter = {
   description?: string
   date?: string
   coverImage?: string
+  coverImageAlt?: string
   category?: string
   tags?: string[]
   author?: {
@@ -207,6 +207,7 @@ const loadPostMeta = cache(async (lang: BlogLang): Promise<BlogPostMeta[]> => {
         description: typeof data.description === 'string' ? data.description : undefined,
         date: typeof data.date === 'string' ? data.date : undefined,
         coverImage: typeof data.coverImage === 'string' ? data.coverImage : undefined,
+        coverImageAlt: typeof data.coverImageAlt === 'string' ? data.coverImageAlt : undefined,
         category: typeof data.category === 'string' ? data.category : undefined,
         tags: normalizeTags(data.tags),
         author: normalizeAuthor(data.author),
@@ -247,15 +248,6 @@ export async function getPostBySlug(lang: BlogLang, slug: string): Promise<BlogP
         remarkPlugins: [remarkGfm],
         rehypePlugins: [
           rehypeSlug,
-          [
-            rehypeAutolinkHeadings,
-            {
-              behavior: 'wrap',
-              properties: {
-                className: ['anchor-heading'],
-              },
-            },
-          ],
         ],
       },
     },

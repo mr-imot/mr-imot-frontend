@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import BlogPostLayout from "@/components/news/blog-post-layout"
+import { ArticleAlternateSlugs } from "@/components/news/article-alternate-slugs"
 import {
   BLOG_LANGS,
   type BlogLang,
@@ -92,10 +93,16 @@ export default async function BlogPostPage({ params }: BlogPostParams) {
     return notFound()
   }
 
+  // Get alternate slugs for language switching
+  const alternateSlugs = await getAlternateSlugs(post.translationKey)
+
   return (
-    <BlogPostLayout post={post} lang={lang}>
-      {post.content}
-    </BlogPostLayout>
+    <>
+      <ArticleAlternateSlugs slugs={alternateSlugs} />
+      <BlogPostLayout post={post} lang={lang}>
+        {post.content}
+      </BlogPostLayout>
+    </>
   )
 }
 

@@ -20,9 +20,10 @@ export function PostCard({ post, lang }: PostCardProps) {
         <div className="relative h-48 w-full overflow-hidden">
           <Image
             src={post.coverImage}
-            alt={post.title}
+            alt={post.coverImageAlt || post.title}
             fill
             className="object-cover transition duration-300 group-hover:scale-[1.02]"
+            unoptimized
             sizes="(max-width: 768px) 100vw, 480px"
             loading="lazy"
           />

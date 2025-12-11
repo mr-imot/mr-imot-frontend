@@ -3,6 +3,7 @@ import { getDictionary } from "./dictionaries"
 import { SiteHeader } from "@/components/site-header"
 import { Footer } from "@/components/footer"
 import { FeedbackButton } from "@/components/feedback-button"
+import CookieConsent from "@/components/cookie-consent"
 import { brandForLang, formatTitleWithBrand } from "@/lib/seo"
 import type { Metadata } from "next"
 import ViewportLock from "@/components/ViewportLock"
@@ -105,6 +106,7 @@ export default async function RootLayout({
           <Footer />
         </div>
         <FeedbackButton />
+        <CookieConsent />
       </LocaleProvider>
     )
   } catch (error) {
@@ -120,6 +122,7 @@ export default async function RootLayout({
           <Footer />
         </div>
         <FeedbackButton />
+        <CookieConsent />
       </LocaleProvider>
     )
   }

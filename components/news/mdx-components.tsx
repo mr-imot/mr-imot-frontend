@@ -1,6 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import type { AnchorHTMLAttributes, HTMLAttributes, PropsWithChildren } from "react"
+import { FollowUs } from "./follow-us"
 
 type CalloutProps = PropsWithChildren<{
   type?: "info" | "warning" | "success"
@@ -98,5 +99,6 @@ export const mdxComponents = {
   Callout,
   YouTube,
   pre: Pre,
+  FollowUs,
 }
 

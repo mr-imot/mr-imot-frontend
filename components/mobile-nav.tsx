@@ -143,6 +143,33 @@ function MobileLanguageSwitcher({ onLinkClick }: { onLinkClick: () => void }) {
       }
     }
 
+    // 3b. Check if we're on an article page and have alternate slugs available
+    const alternateSlugs = (window as unknown as { __articleAlternateSlugs?: Record<string, string> }).__articleAlternateSlugs
+    const isNewsArticle = pathWithoutLocale.startsWith('/news/') && pathWithoutLocale !== '/news/'
+    
+    if (isNewsArticle && alternateSlugs) {
+      // Extract the current slug and replace with the target locale's slug
+      const targetSlug = alternateSlugs[newLocale as keyof typeof alternateSlugs]
+      if (targetSlug) {
+        // Build the news path for the target locale
+        const newsPathMap: Record<string, string> = {
+          en: '/news',
+          bg: '/novini',
+          ru: '/novosti',
+          gr: '/eidhseis',
+        }
+        const newsPath = newsPathMap[newLocale] || '/news'
+        const newPath = newLocale === 'en' 
+          ? `${newsPath}/${targetSlug}`
+          : `/${newLocale}${newsPath}/${targetSlug}`
+        
+        const queryString = searchParams.toString()
+        const finalPath = queryString ? `${newPath}?${queryString}` : newPath
+        window.location.href = finalPath
+        return
+      }
+    }
+
     // 4. Map canonical paths to the target locale's pretty URLs
     if (newLocale === 'bg') {
       const canonicalToBg: Record<string, string> = {

@@ -9,7 +9,6 @@ import GlobalMaintenanceWrapper from "@/components/maintenance/global-maintenanc
 import { AuthProvider } from "@/lib/auth-context"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import ViewportLock from "@/components/ViewportLock"
-import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme-provider"
 
 // Geist for hero/headings with Cyrillic support (trimmed weights)
@@ -155,8 +154,7 @@ html {
           </AuthProvider>
         </GlobalMaintenanceWrapper>
         </ThemeProvider>
-        {/* Analytics and SpeedInsights are already optimized by Vercel */}
-        <Analytics />
+        {/* Analytics gated by CookieConsent in [lang]/layout; SpeedInsights remains */}
         <SpeedInsights />
       </body>
     </html>
