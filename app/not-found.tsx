@@ -16,11 +16,13 @@ const isSupportedLocale = (value?: string | null): value is SupportedLocale =>
   !!value && SUPPORTED_LOCALES.includes(value as SupportedLocale)
 
 // Resolve locale from middleware header, then cookie, then fallback to English
-function resolveLocale(): SupportedLocale {
-  const headerLocale = headers().get('x-locale')
+async function resolveLocale(): Promise<SupportedLocale> {
+  const headersList = await headers()
+  const headerLocale = headersList.get('x-locale')
   if (isSupportedLocale(headerLocale)) return headerLocale
 
-  const cookieLocale = cookies().get('NEXT_LOCALE')?.value
+  const cookieStore = await cookies()
+  const cookieLocale = cookieStore.get('NEXT_LOCALE')?.value
   if (isSupportedLocale(cookieLocale)) return cookieLocale
 
   return 'en'
@@ -28,7 +30,7 @@ function resolveLocale(): SupportedLocale {
 
 // Generate metadata for root not-found page
 export async function generateMetadata(): Promise<Metadata> {
-  const lang = resolveLocale()
+  const lang = await resolveLocale()
   const dict = await getDictionary(lang)
   
   const title = formatTitleWithBrand(
@@ -67,7 +69,7 @@ const getImageKitUrl = (originalUrl: string, width: number, height: number, qual
 export const dynamic = 'force-dynamic'
 
 export default async function RootNotFound() {
-  const lang = resolveLocale()
+  const lang = await resolveLocale()
   const dict = await getDictionary(lang)
 
   const href = (en: string, bg?: string, ru?: string, gr?: string) => {

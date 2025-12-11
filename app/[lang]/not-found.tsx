@@ -36,11 +36,13 @@ const isSupportedLocale = (value?: string | null): value is SupportedLocale =>
   !!value && SUPPORTED_LOCALES.includes(value as SupportedLocale)
 
 // Resolve locale from middleware header, then cookie, then fallback to English
-function resolveLocale(): SupportedLocale {
-  const headerLocale = headers().get('x-locale')
+async function resolveLocale(): Promise<SupportedLocale> {
+  const headersList = await headers()
+  const headerLocale = headersList.get('x-locale')
   if (isSupportedLocale(headerLocale)) return headerLocale
 
-  const cookieLocale = cookies().get('NEXT_LOCALE')?.value
+  const cookieStore = await cookies()
+  const cookieLocale = cookieStore.get('NEXT_LOCALE')?.value
   if (isSupportedLocale(cookieLocale)) return cookieLocale
 
   return 'en'
@@ -49,7 +51,7 @@ function resolveLocale(): SupportedLocale {
 export const dynamic = 'force-dynamic'
 
 export async function generateMetadata(): Promise<Metadata> {
-  const lang = resolveLocale()
+  const lang = await resolveLocale()
   const dict = await getDictionary(lang)
   
   const title = formatTitleWithBrand(
@@ -67,7 +69,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function NotFound() {
-  const lang = resolveLocale()
+  const lang = await resolveLocale()
   const dict = await getDictionary(lang)
 
   // Helper function to generate localized URLs
