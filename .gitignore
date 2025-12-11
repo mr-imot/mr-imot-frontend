@@ -2,7 +2,6 @@
 
 # dependencies
 /node_modules
-pnpm-lock.yaml
 pnpm-workspace.yaml
 
 # next.js
