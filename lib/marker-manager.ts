@@ -50,34 +50,29 @@ export class MarkerManager {
 
   }
 
-  // Main method to render all markers with clustering
+  // Main method to render all markers (clustering disabled for now)
   renderMarkers(force: boolean = false) {
-    // Get zoom from the first available map
-    const currentZoom = this.config.maps[0]?.getZoom() || 10
-    const shouldCluster = currentZoom < 12 && this.config.properties.length > 3
+    // Always render individual markers - clustering disabled
+    // TODO: Re-enable clustering when property count grows significantly
+    const shouldCluster = false // Disabled: was `currentZoom < 12 && this.config.properties.length > 3`
 
-    // Skip re-render if clustering state hasn't changed and not forced
-    if (!force && this.previousShouldCluster === shouldCluster && this.isInitialized) {
+    // Skip re-render if already initialized and not forced
+    if (!force && this.isInitialized && this.previousShouldCluster === shouldCluster) {
+      // Just update marker states for hover/selection
+      this.updateMarkerStates()
       return
     }
 
-    // Only clear markers if clustering state is actually changing
-    if (this.previousShouldCluster !== shouldCluster && this.previousShouldCluster !== null) {
-      // Clustering state changed - need to transition
-      this.clearAllMarkers()
-    } else if (!this.isInitialized || force) {
-      // First render or forced - clear everything
+    // Clear and re-render on force or first init
+    if (!this.isInitialized || force) {
       this.clearAllMarkers()
     }
 
     // Update clustering state
     this.previousShouldCluster = shouldCluster
 
-    if (shouldCluster) {
-      this.renderClustered()
-    } else {
-      this.renderIndividual()
-    }
+    // Always render individual markers
+    this.renderIndividual()
 
     this.isInitialized = true
   }

@@ -409,7 +409,6 @@ export function ListingsClientContent({
     prevPropertyIdsRef.current = currentPropertyIds
     
     // Always update or create marker manager, even with empty properties
-    // This ensures markers are cleared when switching cities
     if (!markerManagerRef.current) {
       markerManagerRef.current = new MarkerManager({
         maps: availableMaps,
@@ -426,23 +425,23 @@ export function ListingsClientContent({
         selectedPropertyId,
         hoveredPropertyId,
       })
-      // First render - force it
+      // First render
       markerManagerRef.current.renderMarkers(true)
     } else {
+      // Update config with new state
       markerManagerRef.current.updateConfig({
         maps: availableMaps,
         properties: filteredProperties,
         selectedPropertyId,
         hoveredPropertyId,
       })
-      // Force re-render if properties changed, otherwise just update states
+      
       if (propertiesChanged) {
-        // Clear cache and force full re-render when properties change (e.g. city switch)
-        markerManagerRef.current.clearCache()
-        markerManagerRef.current.renderMarkers(true)
+        // Use incremental update - shows/hides markers without clearing all
+        markerManagerRef.current.updateProperties(filteredProperties)
       } else {
-        // Just update selection/hover states
-        markerManagerRef.current.renderMarkers()
+        // Just update hover/selection visual states
+        markerManagerRef.current.updateMarkerStates()
       }
     }
   }, [filteredProperties, desktopMapReady, mobileMapReady, selectedPropertyId, hoveredPropertyId])
