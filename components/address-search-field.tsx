@@ -20,6 +20,7 @@ export interface AddressSearchFieldProps {
   regionCodes?: string[] // default ['bg']
   className?: string
   inputClassName?: string
+  onBlur?: (value: string) => void
 }
 
 export function AddressSearchField({
@@ -30,6 +31,7 @@ export function AddressSearchField({
   regionCodes = ["bg"],
   className,
   inputClassName,
+  onBlur,
 }: AddressSearchFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -175,6 +177,11 @@ export function AddressSearchField({
               if (predictions[0]) {
                 handleSelect(predictions[0])
               }
+            }
+          }}
+          onBlur={() => {
+            if (onBlur && value) {
+              onBlur(value)
             }
           }}
           placeholder={placeholder}

@@ -258,6 +258,53 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
     }
   }
 
+  // Forward geocode function for manual address input
+  const forwardGeocode = async (address: string): Promise<{ lat: number; lng: number } | null> => {
+    if (!address || !address.trim()) return null
+    
+    try {
+      const google = await ensureGoogleMaps()
+      const geocoder = new google.maps.Geocoder()
+      
+      return new Promise((resolve) => {
+        geocoder.geocode({ address }, (results, status) => {
+          if (status === 'OK' && results && results[0] && mapInstanceRef.current && markerRef.current) {
+            const location = results[0].geometry.location
+            const newPosition = { lat: location.lat(), lng: location.lng() }
+            const formattedAddress = results[0].formatted_address || address
+            
+            // Update map and marker
+            mapInstanceRef.current.setCenter(newPosition)
+            mapInstanceRef.current.setZoom(16)
+            markerRef.current.position = newPosition
+            
+            // Update form data
+            setFormData(prev => ({
+              ...prev,
+              officeLatitude: newPosition.lat,
+              officeLongitude: newPosition.lng,
+              officeAddress: formattedAddress,
+            }))
+            
+            setAddressSelected(true)
+            resolve(newPosition)
+          } else if (status === 'REQUEST_DENIED' || status === 'OVER_QUERY_LIMIT') {
+            console.warn('Geocoding request denied or quota exceeded. Enable "Geocoding API" for this key in Google Cloud Console.')
+            resolve(null)
+          } else if (status !== 'ZERO_RESULTS') {
+            console.warn('Geocoding failed with status:', status)
+            resolve(null)
+          } else {
+            resolve(null)
+          }
+        })
+      })
+    } catch (error) {
+      console.error('Error forward geocoding:', error)
+      return null
+    }
+  }
+
   const handleAddressSelect = ({ lat, lng, address }: { lat: number; lng: number; address: string }) => {
     if (!mapInstanceRef.current || !markerRef.current) return
     const newCenter = { lat, lng }
@@ -295,28 +342,54 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    // Validate form
-    const validationErrors = validateForm(formData, dict)
-    if (validationErrors.length > 0) {
-      setErrors(validationErrors)
-      return
-    }
-
     setIsLoading(true)
     setSubmitStatus({ type: null, message: "" })
 
+    // If address is provided but coordinates are missing, try to geocode first
+    let finalLatitude = formData.officeLatitude
+    let finalLongitude = formData.officeLongitude
+    
+    if (formData.officeAddress && (!finalLatitude || !finalLongitude)) {
+      const geocodeResult = await forwardGeocode(formData.officeAddress.trim())
+      if (geocodeResult) {
+        finalLatitude = geocodeResult.lat
+        finalLongitude = geocodeResult.lng
+        // Update form data with geocoded coordinates
+        setFormData(prev => ({
+          ...prev,
+          officeLatitude: finalLatitude,
+          officeLongitude: finalLongitude
+        }))
+      }
+    }
+    
+    // Create updated form data with final coordinates for validation
+    const updatedFormData = {
+      ...formData,
+      officeLatitude: finalLatitude,
+      officeLongitude: finalLongitude
+    }
+    
+    // Validate form
+    const validationErrors = validateForm(updatedFormData, dict)
+    if (validationErrors.length > 0) {
+      setErrors(validationErrors)
+      setIsLoading(false)
+      return
+    }
+
     try {
       const response = await registerDeveloper({
-        company_name: formData.companyName.trim(),
-        contact_person: formData.contactPerson.trim(),
-        email: formData.email.trim(),
-        phone: formData.phone.trim(),
-        office_address: formData.officeAddress.trim(),
-        password: formData.password,
-        accept_terms: formData.acceptTerms,
-        website: formData.website?.trim() || undefined,
-        office_latitude: formData.officeLatitude,
-        office_longitude: formData.officeLongitude
+        company_name: updatedFormData.companyName.trim(),
+        contact_person: updatedFormData.contactPerson.trim(),
+        email: updatedFormData.email.trim(),
+        phone: updatedFormData.phone.trim(),
+        office_address: updatedFormData.officeAddress.trim(),
+        password: updatedFormData.password,
+        accept_terms: updatedFormData.acceptTerms,
+        website: updatedFormData.website?.trim() || undefined,
+        office_latitude: finalLatitude,
+        office_longitude: finalLongitude
       })
 
       setSubmitStatus({
@@ -582,6 +655,12 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
                         setAddressSelected(false)
                       }}
                       onSelect={({ lat, lng, address }) => handleAddressSelect({ lat, lng, address })}
+                      onBlur={(address) => {
+                        // If coordinates are not set, try to geocode the address
+                        if (address && (!formData.officeLatitude || !formData.officeLongitude)) {
+                          forwardGeocode(address)
+                        }
+                      }}
                       placeholder={dict.register?.searchForOfficeAddress || "Search for office address"}
                       regionCodes={["bg"]}
                       className="w-full"

@@ -16,6 +16,7 @@ import { ensureGoogleMaps } from "@/lib/google-maps"
 import { useAuth } from "@/lib/auth-context"
 import { getCurrentDeveloper, updateDeveloperProfile, changeDeveloperPassword } from "@/lib/api"
 import { Loader, MapPin, Building, User, Phone, Mail, Globe, Lock, Save, Eye, EyeOff, Upload, Camera, X, Maximize2 } from "lucide-react"
+import { AddressSearchField } from "@/components/address-search-field"
 import { Badge } from "@/components/ui/badge"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { upload } from "@imagekit/next"
@@ -79,7 +80,6 @@ export default function DeveloperProfilePage({ dict, lang }: ProfileClientProps)
   const mapRef = useRef<HTMLDivElement | null>(null)
   const markerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null)
   const mapInstanceRef = useRef<google.maps.Map | null>(null)
-  const addressInputRef = useRef<HTMLInputElement | null>(null)
 
   // State
   const [profile, setProfile] = useState<DeveloperProfile | null>(null)
@@ -97,10 +97,7 @@ export default function DeveloperProfilePage({ dict, lang }: ProfileClientProps)
   })
   const [addressSelected, setAddressSelected] = useState(false)
   const [geocodingBlocked, setGeocodingBlocked] = useState(false)
-  const [placesBlocked, setPlacesBlocked] = useState(false)
-  const [autocompleteOpen, setAutocompleteOpen] = useState(false)
   const [isMapExpanded, setIsMapExpanded] = useState(false)
-  const autocompleteInstanceRef = useRef<google.maps.places.Autocomplete | null>(null)
   
   // Image upload state
   const [imageUploading, setImageUploading] = useState(false)
@@ -274,116 +271,21 @@ export default function DeveloperProfilePage({ dict, lang }: ProfileClientProps)
     }
   }, [profile, defaultCenter, profileForm])
 
-  // Initialize address autocomplete
-  useEffect(() => {
-    if (!mapInstanceRef.current || !addressInputRef.current) return
+  // Handle address selection from AddressSearchField
+  const handleAddressSelect = ({ lat, lng, address }: { lat: number; lng: number; address: string }) => {
+    if (!mapInstanceRef.current || !markerRef.current) return
+    const newCenter = { lat, lng }
+    mapInstanceRef.current.setCenter(newCenter)
+    mapInstanceRef.current.setZoom(16)
+    markerRef.current.position = newCenter
     
-    let checkInterval: NodeJS.Timeout | null = null
-    const inputElement = addressInputRef.current
-    let startCheckingDropdown: (() => void) | null = null
+    // Update form values
+    profileForm.setValue("office_latitude", newCenter.lat, { shouldValidate: true })
+    profileForm.setValue("office_longitude", newCenter.lng, { shouldValidate: true })
+    profileForm.setValue("office_address", address, { shouldValidate: true })
     
-    const initAutocomplete = async () => {
-      try {
-        const google = await ensureGoogleMaps()
-        
-        if (placesBlocked) {
-          return
-        }
-        
-        const autocomplete = new google.maps.places.Autocomplete(addressInputRef.current!, {
-          componentRestrictions: { country: "bg" }, // Restrict to Bulgaria
-          fields: ["address_components", "formatted_address", "geometry", "place_id"],
-          types: ["geocode"] // Includes addresses, cities, villages, and other geographic locations
-        })
-
-        autocompleteInstanceRef.current = autocomplete
-
-        // Track when autocomplete dropdown opens/closes
-        // Note: Google Places Autocomplete doesn't have direct events for dropdown visibility
-        // We'll use a workaround by checking if pac-container is visible
-        startCheckingDropdown = () => {
-          if (checkInterval) return
-          checkInterval = setInterval(() => {
-            // Check if pac-container (Google's autocomplete dropdown) is visible
-            const pacContainer = document.querySelector('.pac-container') as HTMLElement
-            if (pacContainer) {
-              const isVisible = pacContainer.style.display !== 'none' && 
-                               pacContainer.offsetParent !== null
-              setAutocompleteOpen(isVisible)
-              if (!isVisible && checkInterval) {
-                clearInterval(checkInterval)
-                checkInterval = null
-              }
-            } else {
-              setAutocompleteOpen(false)
-              if (checkInterval) {
-                clearInterval(checkInterval)
-                checkInterval = null
-              }
-            }
-          }, 100)
-        }
-
-        // Start checking when user focuses or types
-        inputElement.addEventListener('focus', startCheckingDropdown)
-        inputElement.addEventListener('input', startCheckingDropdown)
-
-        // Handle place selection
-        autocomplete.addListener('place_changed', () => {
-          const place = autocomplete.getPlace()
-          
-          // Stop checking dropdown
-          if (checkInterval) {
-            clearInterval(checkInterval)
-            checkInterval = null
-          }
-          setAutocompleteOpen(false)
-          
-          if (place.geometry && place.geometry.location && mapInstanceRef.current && markerRef.current) {
-            const location = place.geometry.location
-            const newCenter = { lat: location.lat(), lng: location.lng() }
-            const formattedAddress = place.formatted_address || (addressInputRef.current?.value || '')
-            
-            // Update map and marker
-            mapInstanceRef.current.setCenter(newCenter)
-            mapInstanceRef.current.setZoom(16)
-            markerRef.current.position = newCenter
-            
-            // Update form values - ensure input field is synced
-            profileForm.setValue("office_latitude", newCenter.lat, { shouldValidate: true })
-            profileForm.setValue("office_longitude", newCenter.lng, { shouldValidate: true })
-            profileForm.setValue("office_address", formattedAddress, { shouldValidate: true })
-            
-            // Also update the input field directly to ensure UI sync
-            if (addressInputRef.current) {
-              addressInputRef.current.value = formattedAddress
-            }
-            
-            setAddressSelected(true)
-          }
-        })
-      } catch (error) {
-        console.error('Error initializing autocomplete:', error)
-        setPlacesBlocked(true)
-      }
-    }
-
-    initAutocomplete()
-
-    // Cleanup function
-    return () => {
-      if (checkInterval) {
-        clearInterval(checkInterval)
-      }
-      if (inputElement && startCheckingDropdown) {
-        inputElement.removeEventListener('focus', startCheckingDropdown)
-        inputElement.removeEventListener('input', startCheckingDropdown)
-      }
-      if (autocompleteInstanceRef.current && typeof window !== 'undefined' && window.google) {
-        window.google.maps.event.clearInstanceListeners(autocompleteInstanceRef.current)
-      }
-    }
-  }, [mapInstanceRef.current, addressInputRef.current, placesBlocked, profileForm])
+    setAddressSelected(true)
+  }
 
   // Handle Escape key to close fullscreen map
   useEffect(() => {
@@ -425,10 +327,6 @@ export default function DeveloperProfilePage({ dict, lang }: ProfileClientProps)
           const address = results[0].formatted_address
           // Update form value
           profileForm.setValue("office_address", address, { shouldValidate: true })
-          // Also update the input field directly to ensure UI sync
-          if (addressInputRef.current) {
-            addressInputRef.current.value = address
-          }
           setAddressSelected(true)
         } else if (status === 'REQUEST_DENIED' || status === 'OVER_QUERY_LIMIT') {
           console.warn('Geocoding request denied or quota exceeded. Enable "Geocoding API" for this key in Google Cloud Console.')
@@ -464,12 +362,6 @@ export default function DeveloperProfilePage({ dict, lang }: ProfileClientProps)
           profileForm.setValue("office_latitude", newPosition.lat, { shouldValidate: true })
           profileForm.setValue("office_longitude", newPosition.lng, { shouldValidate: true })
           profileForm.setValue("office_address", formattedAddress, { shouldValidate: true })
-          
-          // Also update the input field directly to ensure UI sync
-          if (addressInputRef.current) {
-            addressInputRef.current.value = formattedAddress
-          }
-          
           setAddressSelected(true)
         } else if (status === 'REQUEST_DENIED' || status === 'OVER_QUERY_LIMIT') {
           console.warn('Geocoding request denied or quota exceeded. Enable "Geocoding API" for this key in Google Cloud Console.')
@@ -845,46 +737,27 @@ export default function DeveloperProfilePage({ dict, lang }: ProfileClientProps)
                         <FormItem>
                           <FormLabel>{t.officeAddress || "Office Address"}</FormLabel>
                           <FormControl>
-                            <div className="relative">
-                              <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                              <Input
-                                {...field}
-                                ref={addressInputRef}
-                                className="pl-10"
-                                placeholder={t.searchOfficeAddress || "Search for office address"}
-                                onChange={(e) => {
-                                  field.onChange(e)
-                                  setAddressSelected(false) // Reset when user types
-                                }}
-                                onKeyDown={(e) => {
-                                  // Always prevent form submission when Enter is pressed in address field
-                                  if (e.key === 'Enter') {
-                                    e.preventDefault()
-                                    
-                                    const inputValue = e.currentTarget.value
-                                    
-                                    // If autocomplete dropdown is open, Google's autocomplete will handle selecting the suggestion
-                                    // If dropdown is NOT open and there's a value, geocode it to load the address
-                                    if (!autocompleteOpen && inputValue && !addressSelected) {
-                                      forwardGeocode(inputValue)
-                                    }
-                                    // User must use the "Save Changes" button to submit the form
-                                  }
-                                }}
-                                onBlur={(e) => {
-                                  if (e.target.value && !addressSelected) {
-                                    forwardGeocode(e.target.value)
-                                  }
-                                }}
-                              />
-                            </div>
+                            <AddressSearchField
+                              value={field.value || ""}
+                              onChange={(value) => {
+                                field.onChange(value)
+                                setAddressSelected(false)
+                              }}
+                              onSelect={handleAddressSelect}
+                              onBlur={(address) => {
+                                // If coordinates are not set, try to geocode the address
+                                const currentLat = profileForm.getValues("office_latitude")
+                                const currentLng = profileForm.getValues("office_longitude")
+                                if (address && (!currentLat || !currentLng)) {
+                                  forwardGeocode(address)
+                                }
+                              }}
+                              placeholder={t.searchOfficeAddress || "Search for office address"}
+                              regionCodes={["bg"]}
+                              className="w-full"
+                            />
                           </FormControl>
                           <FormMessage />
-                          {placesBlocked && (
-                            <p className="text-sm text-amber-600">
-                              Address search is not available. You can still enter the address manually.
-                            </p>
-                          )}
                         </FormItem>
                       )}
                     />
