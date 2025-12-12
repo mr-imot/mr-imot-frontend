@@ -87,6 +87,14 @@ export class MapFetchController {
     propertyType: PropertyTypeFilter,
     options?: { immediate?: boolean }
   ): void {
+    // Guard: Reject zero-sized or invalid bounds (map not ready)
+    const latDiff = Math.abs(ne_lat - sw_lat)
+    const lngDiff = Math.abs(ne_lng - sw_lng)
+    if (latDiff < 0.001 || lngDiff < 0.001) {
+      console.log(`⚠️ [MapFetchController] SKIPPED - bounds too small: ${latDiff.toFixed(4)}x${lngDiff.toFixed(4)}`)
+      return
+    }
+
     // Store pending bounds
     this.pendingBounds = { sw_lat, sw_lng, ne_lat, ne_lng, propertyType }
 

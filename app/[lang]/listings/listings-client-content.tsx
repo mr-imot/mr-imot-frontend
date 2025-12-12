@@ -292,22 +292,8 @@ export function ListingsClientContent({
         googleMapRef.current = map
         setDesktopMapReady(true)
         
-        // Immediate initial fetch when map is ready (no delay)
-        google.maps.event.addListenerOnce(map, 'idle', () => {
-          const bounds = map.getBounds()
-          if (bounds && typeof window !== 'undefined' && window.innerWidth >= 1024) {
-            const sw = bounds.getSouthWest()
-            const ne = bounds.getNorthEast()
-            getOrCreateFetchController().schedule(
-              sw.lat(), sw.lng(), ne.lat(), ne.lng(),
-              propertyTypeFilterRef.current as MapPropertyTypeFilter,
-              { immediate: true }
-            )
-          }
-        })
-        
-        // Bounds change listener - use ref to get current filter value
-        // Skip fetch if we already have properties in cache for this area
+        // Single idle listener - handles both initial and subsequent fetches
+        // With SSR data hydrated, we have properties immediately; fetch updates via debounce
         google.maps.event.addListener(map, "idle", () => {
           const bounds = map.getBounds()
           if (bounds) {
@@ -316,17 +302,16 @@ export function ListingsClientContent({
               const sw = bounds.getSouthWest()
               const ne = bounds.getNorthEast()
               // Only fetch if we don't have enough cached data
-              // This prevents redundant fetches when panning within cached area
               const cachedCount = propertyCacheRef.current.size
               if (cachedCount === 0) {
-                // No data at all - fetch immediately
+                // No SSR data - fetch immediately
                 getOrCreateFetchController().schedule(
                   sw.lat(), sw.lng(), ne.lat(), ne.lng(),
                   propertyTypeFilterRef.current as MapPropertyTypeFilter,
                   { immediate: true }
                 )
               } else {
-                // Have some data - use debounced fetch for updates
+                // Have SSR/cached data - use debounced fetch for updates
                 getOrCreateFetchController().schedule(
                   sw.lat(), sw.lng(), ne.lat(), ne.lng(),
                   propertyTypeFilterRef.current as MapPropertyTypeFilter
