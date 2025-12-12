@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { getProjects } from "@/lib/api"
@@ -26,32 +26,11 @@ interface RecentListingsSectionProps {
 }
 
 export function RecentListingsSection({ dict, lang }: RecentListingsSectionProps) {
-  const [visible, setVisible] = useState(false)
   const [recentListings, setRecentListings] = useState<any[]>([])
-  const [isLoadingListings, setIsLoadingListings] = useState(true)
-  const containerRef = useRef<HTMLDivElement>(null)
+  const [isLoadingListings, setIsLoadingListings] = useState(false)
   
-  // Wait until section is near viewport before fetching
+  // Fetch listings immediately when component mounts (already lazy loaded via dynamic import)
   useEffect(() => {
-    const node = containerRef.current
-    if (!node) return
-
-    const onIntersect: IntersectionObserverCallback = (entries, observer) => {
-      if (entries[0]?.isIntersecting) {
-        setVisible(true)
-        observer.disconnect()
-      }
-    }
-
-    const observer = new IntersectionObserver(onIntersect, { rootMargin: "200px" })
-    observer.observe(node)
-    return () => observer.disconnect()
-  }, [])
-
-  // Fetch listings when section becomes visible
-  useEffect(() => {
-    if (!visible) return
-
     const fetchRecentListings = async () => {
       try {
         setIsLoadingListings(true)
@@ -68,13 +47,11 @@ export function RecentListingsSection({ dict, lang }: RecentListingsSectionProps
       }
     }
     
-    // Fetch immediately when visible - intersection observer already handles deferral
     fetchRecentListings()
-  }, [visible])
+  }, [])
 
   return (
     <section
-      ref={containerRef}
       className="py-16 sm:py-20 md:py-24 bg-white"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">

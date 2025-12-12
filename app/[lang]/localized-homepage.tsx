@@ -3,7 +3,6 @@ import Image from "next/image"
 import dynamic from "next/dynamic"
 import { HomepageHero } from "./homepage-hero"
 import { ThreeStepProcessSection } from "./sections/three-step-process-section"
-import { RecentListingsSection } from "./sections/recent-listings-section"
 import { LazyPricingSection } from "./components/client-islands"
 
 // Lazy load heavy components to reduce initial bundle size (ssr: true is allowed in server components)
@@ -14,6 +13,11 @@ const FaqSection = dynamic(
 
 const TestimonialsSection = dynamic(
   () => import("@/components/TestimonialsSection").then((mod) => ({ default: mod.TestimonialsSection })),
+  { ssr: true }
+)
+
+const RecentListingsSection = dynamic(
+  () => import("./sections/recent-listings-section").then((mod) => ({ default: mod.RecentListingsSection })),
   { ssr: true }
 )
 
