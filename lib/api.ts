@@ -197,11 +197,13 @@ class ApiClient {
         
         // Handle 401 Unauthorized - user not authenticated
         if (response.status === 401) {
-          // Redirect to login - the auth context will handle this properly
-          if (typeof window !== 'undefined') {
-            window.location.href = '/login';
-          }
-          throw new Error('Authentication required');
+          // Don't redirect automatically - let the auth context or component handle it
+          // This prevents unexpected logouts during uploads or long operations
+          const authError = new Error('Authentication required');
+          (authError as any).statusCode = 401;
+          (authError as any).isAuthError = true;
+          console.warn('401 Unauthorized response - session may have expired');
+          throw authError;
         }
         
         // Handle 403 Forbidden - user authenticated but not authorized

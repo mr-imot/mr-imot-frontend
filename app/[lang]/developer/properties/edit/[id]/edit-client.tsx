@@ -229,9 +229,14 @@ export default function EditProjectPage({ dict, lang, params }: EditPropertyClie
         }
 
         setAddressSelected(true)
-      } catch (err) {
+      } catch (err: any) {
         console.error('Failed to load project:', err)
-        setSubmitError('Failed to load project. Please try again.')
+        if (err?.statusCode === 401 || err?.isAuthError) {
+          setSubmitError('Your session has expired. Please log in again.')
+          setTimeout(() => router.push('/login'), 2000)
+        } else {
+          setSubmitError('Failed to load project. Please try again.')
+        }
       } finally {
         setLoading(false)
       }
@@ -540,9 +545,14 @@ export default function EditProjectPage({ dict, lang, params }: EditPropertyClie
       // Show success message briefly
       setSubmitSuccess('Image deleted successfully')
       setTimeout(() => setSubmitSuccess(null), 2000)
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to delete image:', error)
-      setSubmitError('Failed to delete image. Please try again.')
+      if (error?.statusCode === 401 || error?.isAuthError) {
+        setSubmitError('Your session has expired. Please log in again.')
+        setTimeout(() => router.push('/login'), 2000)
+      } else {
+        setSubmitError('Failed to delete image. Please try again.')
+      }
     }
   }
 
@@ -551,6 +561,48 @@ export default function EditProjectPage({ dict, lang, params }: EditPropertyClie
       ...img,
       isMain: img.id === targetImage.id
     })))
+  }
+
+  // Reorder images function
+  const reorderImages = (fromIndex: number, toIndex: number) => {
+    setImages(prev => {
+      const newImages = [...prev]
+      const [movedImage] = newImages.splice(fromIndex, 1)
+      newImages.splice(toIndex, 0, movedImage)
+      
+      // Update order property
+      newImages.forEach((img, index) => {
+        img.order = index
+      })
+      
+      return newImages
+    })
+  }
+
+  // Drag and drop handlers
+  const handleDragStart = (e: React.DragEvent, image: ImageFile) => {
+    setDraggedImage(image)
+    e.dataTransfer.effectAllowed = 'move'
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+  }
+
+  const handleDrop = (e: React.DragEvent, targetIndex: number) => {
+    e.preventDefault()
+    if (draggedImage) {
+      const currentIndex = images.findIndex(img => img.id === draggedImage.id)
+      if (currentIndex !== -1) {
+        reorderImages(currentIndex, targetIndex)
+      }
+    }
+    setDraggedImage(null)
+  }
+
+  const handleDragEnd = () => {
+    setDraggedImage(null)
   }
 
   const uploadImagesToProject = async (projectId: string, newImages: ImageFile[]) => {
@@ -599,9 +651,14 @@ export default function EditProjectPage({ dict, lang, params }: EditPropertyClie
         router.push('/developer/properties')
       }, 2000)
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to upload images:', error)
-      setSubmitError('Failed to upload images. Please try again.')
+      if (error?.statusCode === 401 || error?.isAuthError) {
+        setSubmitError('Your session has expired. Please log in again.')
+        setTimeout(() => router.push('/login'), 2000)
+      } else {
+        setSubmitError('Failed to upload images. Please try again.')
+      }
     } finally {
       setLoading(false)
     }
@@ -639,9 +696,17 @@ export default function EditProjectPage({ dict, lang, params }: EditPropertyClie
         }, 2000)
       }
       
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to update project:', err)
-      setSubmitError('Failed to update project. Please try again.')
+      // Check if it's an auth error
+      if (err?.statusCode === 401 || err?.isAuthError) {
+        setSubmitError('Your session has expired. Please log in again.')
+        setTimeout(() => {
+          router.push('/login')
+        }, 2000)
+      } else {
+        setSubmitError('Failed to update project. Please try again.')
+      }
     } finally {
       setIsSubmitting(false)
     }
@@ -859,10 +924,17 @@ export default function EditProjectPage({ dict, lang, params }: EditPropertyClie
                     {/* Image Preview Grid */}
                     {images.length > 0 && (
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        {images.map((image) => (
+                        {images.map((image, index) => (
                           <div
                             key={image.id}
-                            className="relative group aspect-square rounded-lg overflow-hidden border"
+                            className={`relative group aspect-square rounded-lg overflow-hidden border-2 cursor-move transition-all ${
+                              image.isMain ? 'border-yellow-500 ring-2 ring-yellow-200' : 'border-gray-200'
+                            } ${draggedImage?.id === image.id ? 'opacity-50' : ''}`}
+                            draggable
+                            onDragStart={(e) => handleDragStart(e, image)}
+                            onDragOver={(e) => handleDragOver(e)}
+                            onDrop={(e) => handleDrop(e, index)}
+                            onDragEnd={handleDragEnd}
                           >
                             <img
                               src={image.preview}
@@ -870,16 +942,21 @@ export default function EditProjectPage({ dict, lang, params }: EditPropertyClie
                               className="w-full h-full object-cover"
                             />
                             
+                            {/* Drag indicator */}
+                            <div className="absolute top-2 left-2 bg-black/50 text-white p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                              <Move className="h-4 w-4" />
+                            </div>
+                            
                             {/* Main image indicator */}
                             {image.isMain && (
-                              <div className="absolute top-2 left-2 bg-yellow-500 text-white px-2 py-1 rounded text-xs font-medium">
+                              <div className="absolute bottom-2 left-2 bg-yellow-500 text-white px-2 py-1 rounded text-xs font-medium">
                                 <Star className="h-3 w-3 inline mr-1" />
                                 Main
                               </div>
                             )}
                             
                             {/* Action buttons */}
-                            <div className="absolute top-2 right-2 flex gap-1">
+                            <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                               {!image.isMain && (
                                 <Button
                                   type="button"
@@ -904,8 +981,8 @@ export default function EditProjectPage({ dict, lang, params }: EditPropertyClie
                             
                             {/* Existing image indicator */}
                             {image.existing && (
-                              <div className="absolute bottom-2 left-2 bg-blue-500 text-white px-2 py-1 rounded text-xs">
-                                Existing
+                              <div className="absolute bottom-2 right-2 bg-blue-500 text-white px-2 py-1 rounded text-xs">
+                                Saved
                               </div>
                             )}
                           </div>

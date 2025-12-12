@@ -455,7 +455,12 @@ export default function NewPropertyPage({ dict, lang }: NewPropertyClientProps) 
       form.setValue("coverImage", undefined)
       form.setValue("galleryImages", undefined)
     } catch (error: any) {
-      setSubmitError("Failed to upload images. Please try again.")
+      if (error?.statusCode === 401 || error?.isAuthError) {
+        setSubmitError('Your session has expired. Please log in again.')
+        setTimeout(() => router.push('/login'), 2000)
+      } else {
+        setSubmitError("Failed to upload images. Please try again.")
+      }
     } finally {
       setLoading(false)
     }
@@ -625,6 +630,14 @@ export default function NewPropertyPage({ dict, lang }: NewPropertyClientProps) 
     } catch (err: any) {
       console.error("Failed to create project", err)
       let errorMessage = dict.developer?.properties?.failedToCreateProject || "Неуспешно създаване на проект. Моля, опитайте отново."
+      
+      // Handle auth errors first
+      if (err?.statusCode === 401 || err?.isAuthError) {
+        setSubmitError('Your session has expired. Please log in again.')
+        setTimeout(() => router.push('/login'), 2000)
+        setLoading(false)
+        return
+      }
       
       // Handle specific error types
       if (err.message && err.message.includes("Invalid request format")) {
