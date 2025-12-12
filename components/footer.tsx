@@ -50,7 +50,7 @@ export function Footer() {
   const legalLinks = [
   { href: href('privacy-policy', 'privacy-policy'), label: t.privacyPolicy },
   { href: href('terms-of-service', 'terms-of-service'), label: t.termsOfService },
-  { href: href('cookie-policy', 'cookie-policy'), label: t.cookiePolicy },
+  { href: '#cookie-settings', label: t.cookiePolicy }, // Opens cookie preferences banner
 ]
 
   // TikTok Icon Component (lucide-react doesn't have TikTok icon)
@@ -161,17 +161,34 @@ export function Footer() {
 
             {/* Right side: Legal Links */}
             <nav className="flex flex-wrap justify-center md:justify-end gap-x-8 gap-y-2 text-sm">
-              {legalLinks.map((link, index) => (
-                <Link
-                  key={index}
-                  href={link.href}
-                  className="text-muted-foreground hover:text-foreground transition-colors duration-200"
-                  target={link.href.startsWith('http') ? '_blank' : undefined}
-                  rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                >
-                  {link.label}
-                </Link>
-              ))}
+              {legalLinks.map((link, index) => {
+                // Special handling for cookie settings link
+                if (link.href === '#cookie-settings') {
+                  return (
+                    <button
+                      key={index}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        window.dispatchEvent(new CustomEvent('mi-open-cookie-settings'))
+                      }}
+                      className="text-muted-foreground hover:text-foreground transition-colors duration-200"
+                    >
+                      {link.label}
+                    </button>
+                  )
+                }
+                return (
+                  <Link
+                    key={index}
+                    href={link.href}
+                    className="text-muted-foreground hover:text-foreground transition-colors duration-200"
+                    target={link.href.startsWith('http') ? '_blank' : undefined}
+                    rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                  >
+                    {link.label}
+                  </Link>
+                )
+              })}
             </nav>
           </div>
         </div>

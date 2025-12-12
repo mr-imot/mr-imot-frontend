@@ -172,6 +172,35 @@ export default function CookieConsent() {
     setIsReady(true)
   }, [])
 
+  // Separate effect for event listeners
+  useEffect(() => {
+    if (typeof window === "undefined" || !isReady) return
+
+    const checkHash = () => {
+      if (window.location.hash === "#cookie-settings") {
+        setIsOpen(true)
+        setShowPreferences(true)
+        // Clean up the hash from URL
+        window.history.replaceState(null, "", window.location.pathname + window.location.search)
+      }
+    }
+    
+    // Listen for custom event to open cookie settings (from footer link)
+    const handleOpenCookieSettings = () => {
+      setIsOpen(true)
+      setShowPreferences(true)
+    }
+    
+    checkHash() // Check on mount
+    window.addEventListener("hashchange", checkHash)
+    window.addEventListener("mi-open-cookie-settings", handleOpenCookieSettings)
+    
+    return () => {
+      window.removeEventListener("hashchange", checkHash)
+      window.removeEventListener("mi-open-cookie-settings", handleOpenCookieSettings)
+    }
+  }, [isReady])
+
   useEffect(() => {
     if (consent) {
       persistConsent(consent)
@@ -202,18 +231,6 @@ export default function CookieConsent() {
   return (
     <>
       {consent?.analytics ? <VercelAnalytics /> : null}
-
-      {consent && !isOpen ? (
-        <button
-          type="button"
-          onClick={() => setIsOpen(true)}
-          className={cn(
-            "fixed bottom-4 left-4 z-40 rounded-full border border-border bg-white/90 px-4 py-2 text-sm font-medium text-charcoal-500 shadow-card backdrop-blur hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-          )}
-        >
-          {t.manage}
-        </button>
-      ) : null}
 
       {shouldShowBanner ? (
         <div className="fixed bottom-4 left-1/2 z-50 w-[calc(100%-1.5rem)] max-w-4xl -translate-x-1/2 md:w-auto md:min-w-[640px]">

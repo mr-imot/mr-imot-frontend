@@ -122,3 +122,4 @@ export function BlogPostLayout({ post, lang, children }: BlogPostLayoutProps) {
 
 export default BlogPostLayout
 
+
