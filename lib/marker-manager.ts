@@ -194,40 +194,62 @@ export class MarkerManager {
   // Update properties without recreating markers
   updateProperties(newProperties: PropertyData[]) {
     const newPropertyIds = new Set(newProperties.map(p => p.id))
+    const primaryMap = this.config.maps[0]
+    if (!primaryMap) return
     
-    // 1) Show or create markers for properties in the new list
+    // Batch 1: Identify what needs to be done (no DOM operations yet)
+    const toShow: PropertyData[] = []
+    const toCreate: PropertyData[] = []
+    const toHide: string[] = []
+    
+    // Check which existing markers need to be shown or hidden
+    Object.keys(this.markers).forEach(id => {
+      if (!newPropertyIds.has(id)) {
+        toHide.push(id)
+      }
+    })
+    
+    // Check which new properties need markers shown or created
     newProperties.forEach(property => {
       const existing = this.markers[property.id]
       if (existing) {
-        // Ensure marker is visible on the first map
-        const primaryMap = this.config.maps[0]
-        if (primaryMap) {
-          if ('setMap' in existing) {
-            existing.setMap(primaryMap)
-          } else {
-            existing.map = primaryMap
-          }
-        }
+        toShow.push(property)
       } else {
-        this.createSingleMarker(property)
+        toCreate.push(property)
       }
     })
     
-    // 2) Hide markers for properties not present in the new list (but DO NOT delete)
-    Object.keys(this.markers).forEach(id => {
-      if (!newPropertyIds.has(id)) {
-        const marker = this.markers[id]
-        if (marker) {
-          if ('setMap' in marker) {
-            marker.setMap(null)
-          } else {
-            marker.map = null
-          }
+    // Batch 2: Execute all DOM operations together
+    // Hide markers first (fast - just setting map to null)
+    toHide.forEach(id => {
+      const marker = this.markers[id]
+      if (marker) {
+        if ('setMap' in marker) {
+          marker.setMap(null)
+        } else {
+          marker.map = null
         }
       }
     })
     
-    // 3) Update marker states
+    // Show existing markers (fast - just setting map reference)
+    toShow.forEach(property => {
+      const marker = this.markers[property.id]
+      if (marker) {
+        if ('setMap' in marker) {
+          marker.setMap(primaryMap)
+        } else {
+          marker.map = primaryMap
+        }
+      }
+    })
+    
+    // Create new markers (slower - creates DOM elements)
+    toCreate.forEach(property => {
+      this.createSingleMarker(property)
+    })
+    
+    // Update marker states once at the end
     this.updateMarkerStates()
   }
 
@@ -305,9 +327,21 @@ export class MarkerManager {
 
   private renderIndividual() {
     this.clusters = []
-    this.config.properties.forEach((property) => {
+    
+    // Batch create all markers for better performance
+    // Use requestAnimationFrame to avoid blocking the main thread
+    const properties = this.config.properties
+    
+    if (properties.length === 0) return
+    
+    // Create all markers synchronously for instant display
+    // This is faster than using requestAnimationFrame which causes staggered appearance
+    properties.forEach((property) => {
       this.createSingleMarker(property)
     })
+    
+    // Update all marker states in one pass
+    this.updateMarkerStates()
   }
 
   private createSingleMarker(property: PropertyData) {

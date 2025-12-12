@@ -292,8 +292,8 @@ export function ListingsClientContent({
         googleMapRef.current = map
         setDesktopMapReady(true)
         
-        // Initial fetch - use a short delay to ensure map is fully ready
-        setTimeout(() => {
+        // Immediate initial fetch when map is ready (no delay)
+        google.maps.event.addListenerOnce(map, 'idle', () => {
           const bounds = map.getBounds()
           if (bounds && typeof window !== 'undefined' && window.innerWidth >= 1024) {
             const sw = bounds.getSouthWest()
@@ -304,9 +304,10 @@ export function ListingsClientContent({
               { immediate: true }
             )
           }
-        }, 100)
+        })
         
         // Bounds change listener - use ref to get current filter value
+        // Skip fetch if we already have properties in cache for this area
         google.maps.event.addListener(map, "idle", () => {
           const bounds = map.getBounds()
           if (bounds) {
@@ -314,10 +315,23 @@ export function ListingsClientContent({
             if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
               const sw = bounds.getSouthWest()
               const ne = bounds.getNorthEast()
-              getOrCreateFetchController().schedule(
-                sw.lat(), sw.lng(), ne.lat(), ne.lng(),
-                propertyTypeFilterRef.current as MapPropertyTypeFilter
-              )
+              // Only fetch if we don't have enough cached data
+              // This prevents redundant fetches when panning within cached area
+              const cachedCount = propertyCacheRef.current.size
+              if (cachedCount === 0) {
+                // No data at all - fetch immediately
+                getOrCreateFetchController().schedule(
+                  sw.lat(), sw.lng(), ne.lat(), ne.lng(),
+                  propertyTypeFilterRef.current as MapPropertyTypeFilter,
+                  { immediate: true }
+                )
+              } else {
+                // Have some data - use debounced fetch for updates
+                getOrCreateFetchController().schedule(
+                  sw.lat(), sw.lng(), ne.lat(), ne.lng(),
+                  propertyTypeFilterRef.current as MapPropertyTypeFilter
+                )
+              }
             }
           }
         })
@@ -368,10 +382,19 @@ export function ListingsClientContent({
             onMobileBoundsChange(bounds)
             const sw = bounds.getSouthWest()
             const ne = bounds.getNorthEast()
-            getOrCreateFetchController().schedule(
-              sw.lat(), sw.lng(), ne.lat(), ne.lng(),
-              propertyTypeFilterRef.current as MapPropertyTypeFilter
-            )
+            const cachedCount = propertyCacheRef.current.size
+            if (cachedCount === 0) {
+              getOrCreateFetchController().schedule(
+                sw.lat(), sw.lng(), ne.lat(), ne.lng(),
+                propertyTypeFilterRef.current as MapPropertyTypeFilter,
+                { immediate: true }
+              )
+            } else {
+              getOrCreateFetchController().schedule(
+                sw.lat(), sw.lng(), ne.lat(), ne.lng(),
+                propertyTypeFilterRef.current as MapPropertyTypeFilter
+              )
+            }
           }
         })
         

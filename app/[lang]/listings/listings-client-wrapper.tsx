@@ -72,18 +72,13 @@ export function ListingsClientWrapper({
   const fetchControllerRef = useRef<MapFetchController | null>(null)
   
   // Property cache (using Map for O(1) lookups)
-  const propertyCacheRef = useRef<Map<string, PropertyData>>(new Map())
-  
-  // Initialize cache with server-provided data
-  useEffect(() => {
-    if (initialProperties.length > 0 && propertyCacheRef.current.size === 0) {
-      initialProperties.forEach(p => {
-        propertyCacheRef.current.set(String(p.id), p)
-      })
-      setCacheVersion(v => v + 1)
-      setIsLoading(false)
-    }
-  }, [initialProperties])
+  // Initialize with SSR data immediately (computed once on first render)
+  const [initialCache] = useState(() => {
+    const cache = new Map<string, PropertyData>()
+    initialProperties.forEach(p => cache.set(String(p.id), p))
+    return cache
+  })
+  const propertyCacheRef = useRef<Map<string, PropertyData>>(initialCache)
   
   // ─────────────────────────────────────────────────────────────────────────
   // MEMOIZED CALLBACKS - Stable references
