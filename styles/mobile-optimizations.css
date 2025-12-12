@@ -2,10 +2,10 @@
 
 /* Mobile-specific optimizations for listings page */
 
-/* Ensure smooth scrolling on mobile */
+/* Mobile scrolling optimizations */
 @media (max-width: 63.9375em) { /* 1023px */
   html {
-    scroll-behavior: smooth;
+    /* Removed scroll-behavior: smooth - conflicts with Next.js navigation */
     -webkit-overflow-scrolling: touch;
   }
 
