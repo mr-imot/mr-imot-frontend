@@ -97,7 +97,8 @@ export class MapFetchController {
     }
 
     if (options?.immediate) {
-      this.executeScheduled()
+      // Bypass throttle for immediate requests (city change, filter change)
+      this.executeScheduled(true)
       return
     }
 
@@ -140,22 +141,24 @@ export class MapFetchController {
   // Private
   // ───────────────────────────────────────────────────────────────────────────
 
-  private async executeScheduled(): Promise<void> {
+  private async executeScheduled(skipThrottle: boolean = false): Promise<void> {
     if (!this.pendingBounds) return
 
     const { sw_lat, sw_lng, ne_lat, ne_lng, propertyType } = this.pendingBounds
     this.pendingBounds = null
 
-    // Throttle check
-    const now = Date.now()
-    const timeSinceLast = now - this.lastFetchTime
-    if (timeSinceLast < this.throttleMs) {
-      // Re-schedule after remaining throttle time
-      this.pendingBounds = { sw_lat, sw_lng, ne_lat, ne_lng, propertyType }
-      this.debounceTimer = setTimeout(() => {
-        this.executeScheduled()
-      }, this.throttleMs - timeSinceLast)
-      return
+    // Throttle check (skip for immediate requests like city/filter changes)
+    if (!skipThrottle) {
+      const now = Date.now()
+      const timeSinceLast = now - this.lastFetchTime
+      if (timeSinceLast < this.throttleMs) {
+        // Re-schedule after remaining throttle time
+        this.pendingBounds = { sw_lat, sw_lng, ne_lat, ne_lng, propertyType }
+        this.debounceTimer = setTimeout(() => {
+          this.executeScheduled()
+        }, this.throttleMs - timeSinceLast)
+        return
+      }
     }
 
     // ─── Check cache first ───────────────────────────────────────────────────

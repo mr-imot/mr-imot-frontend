@@ -93,8 +93,8 @@ export function ListingsClientWrapper({
   const getOrCreateFetchController = useCallback(() => {
     if (!fetchControllerRef.current) {
       fetchControllerRef.current = new MapFetchController({
-        debounceMs: 600,
-        throttleMs: 1500,
+        debounceMs: 300,  // Reduced from 600 for faster response
+        throttleMs: 800,  // Reduced from 1500 for faster updates
         onDataUpdate: (properties) => {
           const cache = new Map<string, PropertyData>()
           properties.forEach((p) => cache.set(String(p.id), p))
@@ -244,3 +244,4 @@ export function ListingsClientWrapper({
     />
   )
 }
+

@@ -129,3 +129,4 @@ export const CITY_BOUNDS = {
 
 export type CityType = keyof typeof CITY_COORDINATES
 export type PropertyTypeFilter = "all" | "apartments" | "houses"
+

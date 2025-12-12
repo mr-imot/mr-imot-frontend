@@ -140,6 +140,10 @@ export function ListingsClientContent({
   const listContainerRef = useRef<HTMLDivElement>(null)
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   
+  // Refs to track current filter values for map idle callbacks (avoids stale closures)
+  const propertyTypeFilterRef = useRef(propertyTypeFilter)
+  propertyTypeFilterRef.current = propertyTypeFilter
+  
   // ─────────────────────────────────────────────────────────────────────────
   // DERIVED STATE
   // ─────────────────────────────────────────────────────────────────────────
@@ -288,19 +292,21 @@ export function ListingsClientContent({
         googleMapRef.current = map
         setDesktopMapReady(true)
         
-        // Initial fetch
-        const initialBounds = map.getBounds()
-        if (initialBounds && typeof window !== 'undefined' && window.innerWidth >= 1024) {
-          const sw = initialBounds.getSouthWest()
-          const ne = initialBounds.getNorthEast()
-          getOrCreateFetchController().schedule(
-            sw.lat(), sw.lng(), ne.lat(), ne.lng(),
-            propertyTypeFilter as MapPropertyTypeFilter,
-            { immediate: true }
-          )
-        }
+        // Initial fetch - use a short delay to ensure map is fully ready
+        setTimeout(() => {
+          const bounds = map.getBounds()
+          if (bounds && typeof window !== 'undefined' && window.innerWidth >= 1024) {
+            const sw = bounds.getSouthWest()
+            const ne = bounds.getNorthEast()
+            getOrCreateFetchController().schedule(
+              sw.lat(), sw.lng(), ne.lat(), ne.lng(),
+              propertyTypeFilterRef.current as MapPropertyTypeFilter,
+              { immediate: true }
+            )
+          }
+        }, 100)
         
-        // Bounds change listener
+        // Bounds change listener - use ref to get current filter value
         google.maps.event.addListener(map, "idle", () => {
           const bounds = map.getBounds()
           if (bounds) {
@@ -310,7 +316,7 @@ export function ListingsClientContent({
               const ne = bounds.getNorthEast()
               getOrCreateFetchController().schedule(
                 sw.lat(), sw.lng(), ne.lat(), ne.lng(),
-                propertyTypeFilter as MapPropertyTypeFilter
+                propertyTypeFilterRef.current as MapPropertyTypeFilter
               )
             }
           }
@@ -355,7 +361,7 @@ export function ListingsClientContent({
         mobileGoogleMapRef.current = mobileMap
         setMobileMapReady(true)
         
-        // Bounds listener
+        // Bounds listener - use ref to get current filter value
         mobileMap.addListener('idle', () => {
           const bounds = mobileMap.getBounds()
           if (bounds) {
@@ -364,7 +370,7 @@ export function ListingsClientContent({
             const ne = bounds.getNorthEast()
             getOrCreateFetchController().schedule(
               sw.lat(), sw.lng(), ne.lat(), ne.lng(),
-              propertyTypeFilter as MapPropertyTypeFilter
+              propertyTypeFilterRef.current as MapPropertyTypeFilter
             )
           }
         })
@@ -377,18 +383,33 @@ export function ListingsClientContent({
     initMobileMap()
   }, [])
   
+  // Track previous properties length to detect changes
+  const prevPropertiesLengthRef = useRef(0)
+  const prevPropertyIdsRef = useRef<Set<string>>(new Set())
+  
   // Update markers when properties change
   useEffect(() => {
     const hasDesktopMap = typeof window !== 'undefined' && window.innerWidth >= 1024 && googleMapRef.current
     const hasMobileMap = typeof window !== 'undefined' && window.innerWidth < 1024 && mobileGoogleMapRef.current
     
     if (!hasDesktopMap && !hasMobileMap) return
-    if (filteredProperties.length === 0) return
     
     const availableMaps: google.maps.Map[] = []
     if (hasDesktopMap) availableMaps.push(googleMapRef.current!)
     if (hasMobileMap) availableMaps.push(mobileGoogleMapRef.current!)
     
+    // Detect if properties have actually changed (not just selection/hover)
+    const currentPropertyIds = new Set(filteredProperties.map(p => p.id))
+    const propertiesChanged = 
+      filteredProperties.length !== prevPropertiesLengthRef.current ||
+      [...currentPropertyIds].some(id => !prevPropertyIdsRef.current.has(id)) ||
+      [...prevPropertyIdsRef.current].some(id => !currentPropertyIds.has(id))
+    
+    prevPropertiesLengthRef.current = filteredProperties.length
+    prevPropertyIdsRef.current = currentPropertyIds
+    
+    // Always update or create marker manager, even with empty properties
+    // This ensures markers are cleared when switching cities
     if (!markerManagerRef.current) {
       markerManagerRef.current = new MarkerManager({
         maps: availableMaps,
@@ -405,7 +426,8 @@ export function ListingsClientContent({
         selectedPropertyId,
         hoveredPropertyId,
       })
-      markerManagerRef.current.renderMarkers()
+      // First render - force it
+      markerManagerRef.current.renderMarkers(true)
     } else {
       markerManagerRef.current.updateConfig({
         maps: availableMaps,
@@ -413,13 +435,23 @@ export function ListingsClientContent({
         selectedPropertyId,
         hoveredPropertyId,
       })
-      markerManagerRef.current.renderMarkers()
+      // Force re-render if properties changed, otherwise just update states
+      if (propertiesChanged) {
+        // Clear cache and force full re-render when properties change (e.g. city switch)
+        markerManagerRef.current.clearCache()
+        markerManagerRef.current.renderMarkers(true)
+      } else {
+        // Just update selection/hover states
+        markerManagerRef.current.renderMarkers()
+      }
     }
   }, [filteredProperties, desktopMapReady, mobileMapReady, selectedPropertyId, hoveredPropertyId])
   
-  // Pan map when city changes
+  // Pan map when city changes and trigger immediate fetch
   useEffect(() => {
     const coords = CITY_COORDINATES[selectedCity]
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024
+    
     if (googleMapRef.current) {
       googleMapRef.current.panTo({ lat: coords.lat, lng: coords.lng })
       googleMapRef.current.setZoom(coords.zoom)
@@ -428,7 +460,40 @@ export function ListingsClientContent({
       mobileGoogleMapRef.current.panTo({ lat: coords.lat, lng: coords.lng })
       mobileGoogleMapRef.current.setZoom(coords.zoom)
     }
-  }, [selectedCity])
+    
+    // Trigger immediate fetch for the new city bounds
+    // The idle event may not fire fast enough on city switch
+    const cityBoundsMultiplier = 0.15 // ~15km radius approximation
+    const sw_lat = coords.lat - cityBoundsMultiplier
+    const sw_lng = coords.lng - cityBoundsMultiplier
+    const ne_lat = coords.lat + cityBoundsMultiplier
+    const ne_lng = coords.lng + cityBoundsMultiplier
+    
+    getOrCreateFetchController().schedule(
+      sw_lat, sw_lng, ne_lat, ne_lng,
+      propertyTypeFilterRef.current as MapPropertyTypeFilter,
+      { immediate: true }
+    )
+  }, [selectedCity, getOrCreateFetchController])
+  
+  // Re-fetch when property type filter changes
+  useEffect(() => {
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024
+    const map = isMobile ? mobileGoogleMapRef.current : googleMapRef.current
+    
+    if (!map) return
+    
+    const bounds = map.getBounds()
+    if (bounds) {
+      const sw = bounds.getSouthWest()
+      const ne = bounds.getNorthEast()
+      getOrCreateFetchController().schedule(
+        sw.lat(), sw.lng(), ne.lat(), ne.lng(),
+        propertyTypeFilter as MapPropertyTypeFilter,
+        { immediate: true }
+      )
+    }
+  }, [propertyTypeFilter, getOrCreateFetchController])
   
   // Escape key to close expanded map
   useEffect(() => {
@@ -718,3 +783,4 @@ export function ListingsClientContent({
     </>
   )
 }
+
