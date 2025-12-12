@@ -74,3 +74,4 @@ export function PostCard({ post, lang }: PostCardProps) {
 export default PostCard
 
 
+
