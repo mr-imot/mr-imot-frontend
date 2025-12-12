@@ -111,10 +111,12 @@ export class MarkerManager {
             const svg = markerElement.querySelector('svg')
             
             if (svg) {
-              // Define colors based on state
-              const mainFillColor = (newState === "hovered" || newState === "selected") ? "#000000" : "#FFFFFF"
-              const strokeColor = (newState === "hovered" || newState === "selected") ? "#FFFFFF" : "#000000"
-              const windowColor = strokeColor // Windows use stroke color
+              // High contrast colors: teal brand color for active states
+              const isActive = newState === "hovered" || newState === "selected"
+              const mainFillColor = isActive ? "#0d9488" : "#FFFFFF"  // Teal for hover/selected
+              const strokeColor = isActive ? "#FFFFFF" : "#1f2937"    // White stroke on teal, dark gray on white
+              const windowColor = isActive ? "rgba(255,255,255,0.8)" : "#1f2937"
+              const strokeWidth = "2"
 
               // Update main building elements (path, polyline, main rect)
               const mainElements = svg.querySelectorAll('path, polyline')
@@ -127,7 +129,7 @@ export class MarkerManager {
                   element.setAttribute('stroke', strokeColor)
                 }
                 if (element.hasAttribute('stroke-width')) {
-                  element.setAttribute('stroke-width', '1.5')
+                  element.setAttribute('stroke-width', strokeWidth)
                 }
               })
 
@@ -137,13 +139,12 @@ export class MarkerManager {
                 const mainBuilding = rects[0] // First rect is the main building
                 mainBuilding.setAttribute('fill', mainFillColor)
                 mainBuilding.setAttribute('stroke', strokeColor)
-                mainBuilding.setAttribute('stroke-width', '1.5')
+                mainBuilding.setAttribute('stroke-width', strokeWidth)
 
                 // Update window elements (remaining rects are windows)
                 for (let i = 1; i < rects.length; i++) {
-                  const window = rects[i]
-                  window.setAttribute('fill', windowColor)
-                  // Windows don't have stroke, so no stroke update needed
+                  const windowEl = rects[i]
+                  windowEl.setAttribute('fill', windowColor)
                 }
               }
 
@@ -219,10 +220,6 @@ export class MarkerManager {
       }
     })
     
-    // DEBUG: Log marker operations
-    if (toShow.length > 0 || toCreate.length > 0 || toHide.length > 0) {
-      console.log(`🟣 [MarkerManager] updateProperties - reuse: ${toShow.length}, create: ${toCreate.length}, hide: ${toHide.length}`)
-    }
     
     // Batch 2: Execute all DOM operations together
     // Hide markers first (fast - just setting map to null)
@@ -516,36 +513,26 @@ export class MarkerManager {
       let touchStartY = 0
 
       pillElement.addEventListener('touchstart', (e: TouchEvent) => {
-        e.preventDefault() // Prevent map gestures
-        console.log('📱 TOUCH START for property:', property.id)
+        e.preventDefault()
         touchStartTime = Date.now()
         const touch = e.touches[0]
         touchStartX = touch.clientX
         touchStartY = touch.clientY
-        // No hover on mobile - touch devices don't need hover states
       }, { passive: false })
 
       pillElement.addEventListener('touchend', (e: TouchEvent) => {
-        e.preventDefault() // Prevent map gestures
-        e.stopPropagation() // Stop event bubbling
+        e.preventDefault()
+        e.stopPropagation()
         
         const touchEndTime = Date.now()
         const touchDuration = touchEndTime - touchStartTime
 
-        console.log('📱 TOUCH END - Duration:', touchDuration, 'Property:', property.id)
-
-        // More lenient touch detection for mobile
-        if (touchDuration < 500) { // Increased from 300ms to 500ms
+        if (touchDuration < 500) {
           const touch = e.changedTouches[0]
           const deltaX = Math.abs(touch.clientX - touchStartX)
           const deltaY = Math.abs(touch.clientY - touchStartY)
 
-          console.log('📱 TOUCH MOVEMENT - X:', deltaX, 'Y:', deltaY)
-
-          if (deltaX < 20 && deltaY < 20) { // Increased threshold from 10px to 20px
-            console.log('📱 TRIGGERING PROPERTY SELECT for:', property.id)
-            
-            // Directly call the click logic for immediate response
+          if (deltaX < 20 && deltaY < 20) {
             if (this.config.selectedPropertyId === property.id) {
               this.config.onPropertySelect(null)
               this.config.onAriaAnnouncement("Property details closed")
@@ -553,26 +540,15 @@ export class MarkerManager {
               this.config.onPropertySelect(property.id)
               this.config.onAriaAnnouncement(`Selected property: ${property.title} - ${property.shortPrice || 'Contact for price'}`)
             }
-          } else {
-            console.log('📱 TOUCH MOVEMENT TOO LARGE')
           }
-        } else {
-          console.log('📱 TOUCH DURATION TOO LONG')
         }
-
-        // No hover cleanup needed on mobile
       }, { passive: false })
 
-      // Handle touch cancel (user moved finger away)
-      pillElement.addEventListener('touchcancel', () => {
-        // No hover cleanup needed on mobile
-      }, { passive: false })
+      pillElement.addEventListener('touchcancel', () => {}, { passive: false })
       
-      // Also add click listener as fallback for mobile devices
       pillElement.addEventListener('click', (e: MouseEvent) => {
         e.preventDefault()
         e.stopPropagation()
-        console.log('📱 CLICK FALLBACK triggered for:', property.id)
         
         if (this.config.selectedPropertyId === property.id) {
           this.config.onPropertySelect(null)

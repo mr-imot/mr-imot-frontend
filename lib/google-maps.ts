@@ -51,35 +51,38 @@ export async function ensurePlacesLibrary(): Promise<google.maps.PlacesLibrary> 
   return google.maps.importLibrary("places") as Promise<google.maps.PlacesLibrary>
 }
 
-// Create house/apartment SVG icon for markers with white fill and black outlines
+// Create house/apartment SVG icon for markers with high contrast styling
 export function createSvgHouseIcon(
   type: "house" | "apartment",
   state: "default" | "hovered" | "selected" = "default"
 ): string {
-  // White fill with black outlines for default, black fill with black outlines for hover
-  const fillColor = state === "hovered" ? "#000000" : "#FFFFFF"
-  const strokeColor = "#000000" // Always black outlines
-  const size = 24 // Fixed size for cleaner look
+  // High contrast colors: white fill with dark stroke for default, teal brand color for hover/selected
+  const isActive = state === "hovered" || state === "selected"
+  const fillColor = isActive ? "#0d9488" : "#FFFFFF"  // Teal brand color for active states
+  const strokeColor = isActive ? "#FFFFFF" : "#1f2937" // White stroke on teal, dark gray on white
+  const strokeWidth = isActive ? "2" : "2"
+  const size = 32 // Larger size for better visibility
 
   // House icon SVG path (matches Lucide Home icon used in property type buttons)
-  const houseIcon = `<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" fill="${fillColor}" stroke="${strokeColor}" stroke-width="1.5"/>
-    <polyline points="9,22 9,12 15,12 15,22" fill="none" stroke="${strokeColor}" stroke-width="1.5"/>`
+  const houseIcon = `<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" fill="${fillColor}" stroke="${strokeColor}" stroke-width="${strokeWidth}"/>
+    <polyline points="9,22 9,12 15,12 15,22" fill="none" stroke="${strokeColor}" stroke-width="${strokeWidth}"/>`
 
   // Apartment/Building icon SVG path - clean minimal design matching house icon style
-  const apartmentIcon = `<rect x="6" y="4" width="12" height="18" rx="1" fill="${fillColor}" stroke="${strokeColor}" stroke-width="1.5"/>
-    <rect x="8" y="7" width="2" height="2" fill="${strokeColor}" opacity="0.7"/>
-    <rect x="11" y="7" width="2" height="2" fill="${strokeColor}" opacity="0.7"/>
-    <rect x="14" y="7" width="2" height="2" fill="${strokeColor}" opacity="0.7"/>
-    <rect x="8" y="11" width="2" height="2" fill="${strokeColor}" opacity="0.7"/>
-    <rect x="11" y="11" width="2" height="2" fill="${strokeColor}" opacity="0.7"/>
-    <rect x="14" y="11" width="2" height="2" fill="${strokeColor}" opacity="0.7"/>
-    <rect x="8" y="15" width="2" height="2" fill="${strokeColor}" opacity="0.7"/>
-    <rect x="11" y="15" width="2" height="2" fill="${strokeColor}" opacity="0.7"/>
-    <rect x="14" y="15" width="2" height="2" fill="${strokeColor}" opacity="0.7"/>`
+  const windowColor = isActive ? "rgba(255,255,255,0.8)" : "#1f2937"
+  const apartmentIcon = `<rect x="6" y="4" width="12" height="18" rx="1" fill="${fillColor}" stroke="${strokeColor}" stroke-width="${strokeWidth}"/>
+    <rect x="8" y="7" width="2" height="2" fill="${windowColor}"/>
+    <rect x="11" y="7" width="2" height="2" fill="${windowColor}"/>
+    <rect x="14" y="7" width="2" height="2" fill="${windowColor}"/>
+    <rect x="8" y="11" width="2" height="2" fill="${windowColor}"/>
+    <rect x="11" y="11" width="2" height="2" fill="${windowColor}"/>
+    <rect x="14" y="11" width="2" height="2" fill="${windowColor}"/>
+    <rect x="8" y="15" width="2" height="2" fill="${windowColor}"/>
+    <rect x="11" y="15" width="2" height="2" fill="${windowColor}"/>
+    <rect x="14" y="15" width="2" height="2" fill="${windowColor}"/>`
 
   const iconPath = type === "house" ? houseIcon : apartmentIcon
 
-  // Simple SVG with white fill and black outlines
+  // SVG with larger size and high contrast styling
   return `<svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}' viewBox='0 0 24 24' fill="none">
     ${iconPath}
   </svg>`

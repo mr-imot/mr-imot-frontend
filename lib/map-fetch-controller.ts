@@ -91,7 +91,6 @@ export class MapFetchController {
     const latDiff = Math.abs(ne_lat - sw_lat)
     const lngDiff = Math.abs(ne_lng - sw_lng)
     if (latDiff < 0.001 || lngDiff < 0.001) {
-      console.log(`⚠️ [MapFetchController] SKIPPED - bounds too small: ${latDiff.toFixed(4)}x${lngDiff.toFixed(4)}`)
       return
     }
 
@@ -174,7 +173,6 @@ export class MapFetchController {
     const cached = boundsCache.getCachedData(sw_lat, sw_lng, ne_lat, ne_lng, propertyType)
     if (cached && cached.length > 0) {
       this.metrics.cacheHits++
-      console.log(`🟢 [MapFetchController] CACHE HIT - key: ${cacheKey}, count: ${cached.length}`)
       this.onDataUpdate(cached)
       // Background refresh (fire and forget, don't block)
       this.backgroundFetch(sw_lat, sw_lng, ne_lat, ne_lng, propertyType)
@@ -182,7 +180,6 @@ export class MapFetchController {
     }
 
     this.metrics.cacheMisses++
-    console.log(`🟡 [MapFetchController] CACHE MISS - key: ${cacheKey}`)
 
     // ─── Network fetch ───────────────────────────────────────────────────────
     await this.networkFetch(sw_lat, sw_lng, ne_lat, ne_lng, propertyType)
@@ -208,7 +205,6 @@ export class MapFetchController {
     this.onLoadingChange?.(true)
 
     const start = performance.now()
-    console.log(`🔴 [MapFetchController] API CALL - bounds: ${sw_lat.toFixed(3)},${sw_lng.toFixed(3)} to ${ne_lat.toFixed(3)},${ne_lng.toFixed(3)}, type: ${propertyType}`)
 
     try {
       const params: Record<string, unknown> = {

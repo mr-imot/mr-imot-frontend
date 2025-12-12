@@ -76,9 +76,6 @@ export function ListingsClientWrapper({
   const [initialCache] = useState(() => {
     const cache = new Map<string, PropertyData>()
     initialProperties.forEach(p => cache.set(String(p.id), p))
-    if (cache.size > 0) {
-      console.log(`🔷 [SSR→Client] Hydrated with ${cache.size} properties from server`)
-    }
     return cache
   })
   const propertyCacheRef = useRef<Map<string, PropertyData>>(initialCache)
@@ -98,7 +95,6 @@ export function ListingsClientWrapper({
           const cache = new Map<string, PropertyData>()
           properties.forEach((p) => cache.set(String(p.id), p))
           propertyCacheRef.current = cache
-          console.log(`🔵 [PropertyCache] Updated - prev: ${prevSize}, new: ${cache.size}, delta: ${cache.size - prevSize}`)
           setCacheVersion((v) => v + 1)
           setIsLoading(false)
         },

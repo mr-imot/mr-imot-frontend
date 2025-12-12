@@ -13,9 +13,6 @@ interface ListingsPageProps {
 
 // Server-side initial data fetch
 async function fetchInitialProperties(city: CityType, propertyType: PropertyTypeFilter) {
-  // DEBUG: Log when SSR fetch is executed
-  console.log(`🔷 [SSR] fetchInitialProperties called - city: ${city}, type: ${propertyType}, timestamp: ${new Date().toISOString()}`)
-  
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
     const baseUrl = apiUrl.replace(/\/$/, '')
@@ -35,12 +32,10 @@ async function fetchInitialProperties(city: CityType, propertyType: PropertyType
       params.append('project_type', 'house_complex')
     }
     
-    const fetchStart = Date.now()
     const response = await fetch(`${baseUrl}/api/v1/projects/?${params.toString()}`, {
       next: { revalidate: 60 }, // Cache for 60 seconds
       headers: { 'Content-Type': 'application/json' },
     })
-    console.log(`🔷 [SSR] Fetch completed in ${Date.now() - fetchStart}ms`)
     
     if (!response.ok) {
       console.error(`Failed to fetch initial properties: ${response.status}`)
