@@ -76,30 +76,30 @@ export function SiteHeader() {
 
         {/* Desktop Navigation - Visible from md and up */}
         <nav className="hidden md:flex items-center justify-start gap-3 lg:justify-center lg:gap-4">
-          <a
+          <Link
             href={href('listings', 'obiavi')}
             className="text-white hover:text-white text-sm font-medium px-4 lg:px-5 py-2.5 rounded-full bg-charcoal-500 border border-charcoal-600 shadow-sm hover:bg-charcoal-600 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-charcoal-300 active:scale-95"
           >
             {t.listings}
-          </a>
-          <a
+          </Link>
+          <Link
             href={href('developers', 'stroiteli')}
             className="text-white hover:text-white text-sm font-medium px-4 lg:px-5 py-2.5 rounded-full bg-charcoal-500 border border-charcoal-600 shadow-sm hover:bg-charcoal-600 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-charcoal-300 active:scale-95"
           >
             {t.developers}
-          </a>
-          <a
+          </Link>
+          <Link
             href={href('news', 'novini')}
             className="text-white hover:text-white text-sm font-medium px-4 lg:px-5 py-2.5 rounded-full bg-charcoal-500 border border-charcoal-600 shadow-sm hover:bg-charcoal-600 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-charcoal-300 active:scale-95"
           >
             {t.blog ?? 'News'}
-          </a>
-          <a
+          </Link>
+          <Link
             href={href('about-mister-imot', 'za-mistar-imot')}
             className="text-white hover:text-white text-sm font-medium px-4 lg:px-5 py-2.5 rounded-full bg-charcoal-500 border border-charcoal-600 shadow-sm hover:bg-charcoal-600 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-charcoal-300 active:scale-95"
           >
             {t.aboutUs}
-          </a>
+          </Link>
         </nav>
 
         {/* Right Side - Language Switcher + Auth + Mobile Nav */}
