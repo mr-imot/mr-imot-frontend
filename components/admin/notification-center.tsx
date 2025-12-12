@@ -40,56 +40,56 @@ export function NotificationCenter({ pendingDevelopers = [] }: NotificationCente
 
   const notificationTemplates = {
     verification_approved: {
-      subject: 'Developer Account Verified - Welcome to NovaDom!',
-      message: `Dear {contact_person},
+      subject: 'Акаунт за разработчик потвърден - Добре дошли в Мистър Имот!',
+      message: `Уважаеми {contact_person},
 
-We are pleased to inform you that your developer account for {company_name} has been successfully verified and approved.
+Радваме се да ви информираме, че вашият акаунт за разработчик за {company_name} е успешно потвърден и одобрен.
 
-Your account is now active and you can:
-- Access the developer dashboard
-- Create and manage property listings
-- Connect with potential buyers
-- Use all platform features
+Вашият акаунт вече е активен и можете да:
+- Достъпите таблото за разработчици
+- Създавате и управлявате обяви за имоти
+- Свързвате се с потенциални купувачи
+- Използвате всички функции на платформата
 
-If you have any questions or need assistance, please don't hesitate to contact our support team.
+Ако имате въпроси или се нуждаете от помощ, моля не се колебайте да се свържете с нашия екип за поддръжка.
 
-Welcome to NovaDom!
+Добре дошли в Мистър Имот!
 
-Best regards,
-The NovaDom Team`
+С уважение,
+Екипът на Мистър Имот`
     },
     verification_rejected: {
-      subject: 'Developer Account Application Status',
-      message: `Dear {contact_person},
+      subject: 'Статус на заявката за акаунт за разработчик',
+      message: `Уважаеми {contact_person},
 
-Thank you for your interest in joining NovaDom as a developer partner.
+Благодарим ви за интереса да се присъедините към Мистър Имот като партньор разработчик.
 
-After careful review of your application for {company_name}, we regret to inform you that we are unable to approve your account at this time.
+След внимателен преглед на вашата заявка за {company_name}, съжаляваме да ви информираме, че в момента не можем да одобрим вашия акаунт.
 
-This decision may be based on various factors including:
-- Incomplete or insufficient information
-- Business verification requirements
-- Platform compatibility considerations
+Това решение може да се дължи на различни фактори, включително:
+- Непълна или недостатъчна информация
+- Изисквания за бизнес потвърждение
+- Съображения за съвместимост с платформата
 
-If you believe this decision was made in error or if you would like to provide additional information, please contact our support team.
+Ако смятате, че това решение е направено по грешка или ако искате да предоставите допълнителна информация, моля свържете се с нашия екип за поддръжка.
 
-We appreciate your interest in NovaDom and wish you the best in your future endeavors.
+Ценим вашия интерес към Мистър Имот и ви пожелаваме успех в бъдещите ви начинания.
 
-Best regards,
-The NovaDom Team`
+С уважение,
+Екипът на Мистър Имот`
     },
     general_announcement: {
-      subject: 'Important Update from NovaDom',
-      message: `Dear {contact_person},
+      subject: 'Важна актуализация от Мистър Имот',
+      message: `Уважаеми {contact_person},
 
-We hope this message finds you well.
+Надяваме се това съобщение да ви завари добре.
 
 {message_content}
 
-Thank you for being part of the NovaDom community.
+Благодарим ви, че сте част от общността на Мистър Имот.
 
-Best regards,
-The NovaDom Team`
+С уважение,
+Екипът на Мистър Имот`
     }
   };
 

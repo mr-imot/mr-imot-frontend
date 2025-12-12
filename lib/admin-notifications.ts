@@ -45,7 +45,7 @@ export class AdminNotificationService {
         this.storeNotificationHistory({
           id: `notif_${Date.now()}`,
           to: developer.email,
-          subject: '🎉 Your Developer Application has been Approved!',
+          subject: '🎉 Вашата заявка за разработчик е одобрена!',
           template: 'developer_verified',
           data: {
             companyName: developer.company_name,
@@ -88,13 +88,13 @@ export class AdminNotificationService {
         this.storeNotificationHistory({
           id: `notif_${Date.now()}`,
           to: developer.email,
-          subject: 'Update on Your Developer Application',
+          subject: 'Актуализация на вашата заявка за разработчик',
           template: 'developer_rejected',
           data: {
             companyName: developer.company_name,
             contactPerson: developer.contact_person,
             reason: reason || 'Application did not meet our current requirements',
-            supportEmail: 'support@Mr imot.com'
+            supportEmail: 'support@mrimot.com'
           },
           status: 'sent',
           createdAt: new Date().toISOString(),
@@ -132,8 +132,8 @@ export class AdminNotificationService {
         const result = await response.json();
         this.storeNotificationHistory({
           id: `notif_${Date.now()}`,
-          to: 'admin@Mr imot.com', // Admin email
-          subject: `New Developer Application: ${developer.company_name}`,
+          to: 'admin@mrimot.com', // Admin email
+          subject: `Нова заявка за разработчик: ${developer.company_name}`,
           template: 'new_application',
           data: {
             companyName: developer.company_name,
@@ -239,64 +239,64 @@ export class AdminNotificationService {
   static getEmailTemplates(): Record<string, NotificationTemplate> {
     return {
       developer_verified: {
-        subject: '🎉 Your Developer Application has been Approved!',
+        subject: '🎉 Вашата заявка за разработчик е одобрена!',
         htmlContent: `
-          <h2>Congratulations! Your application has been approved.</h2>
-          <p>Dear {{contactPerson}},</p>
-          <p>We're excited to inform you that your developer application for <strong>{{companyName}}</strong> has been approved!</p>
-          <p>You can now access your developer dashboard at: <a href="{{dashboardUrl}}">Developer Dashboard</a></p>
-          <p>Welcome to the Mr imot platform!</p>
+          <h2>Поздравления! Вашата заявка е одобрена.</h2>
+          <p>Уважаеми {{contactPerson}},</p>
+          <p>Радваме се да ви информираме, че вашата заявка за разработчик за <strong>{{companyName}}</strong> е одобрена!</p>
+          <p>Вече можете да достъпите вашия табло за разработчици на: <a href="{{dashboardUrl}}">Табло за разработчици</a></p>
+          <p>Добре дошли в платформата Мистър Имот!</p>
         `,
         textContent: `
-          Congratulations! Your application has been approved.
-          Dear {{contactPerson}},
-          We're excited to inform you that your developer application for {{companyName}} has been approved!
-          You can now access your developer dashboard at: {{dashboardUrl}}
-          Welcome to the Mr imot platform!
+          Поздравления! Вашата заявка е одобрена.
+          Уважаеми {{contactPerson}},
+          Радваме се да ви информираме, че вашата заявка за разработчик за {{companyName}} е одобрена!
+          Вече можете да достъпите вашия табло за разработчици на: {{dashboardUrl}}
+          Добре дошли в платформата Мистър Имот!
         `
       },
       developer_rejected: {
-        subject: 'Update on Your Developer Application',
+        subject: 'Актуализация на вашата заявка за разработчик',
         htmlContent: `
-          <h2>Developer Application Update</h2>
-          <p>Dear {{contactPerson}},</p>
-          <p>Thank you for your interest in joining the Mr imot platform.</p>
-          <p>After careful review, we're unable to approve your application for <strong>{{companyName}}</strong> at this time.</p>
-          <p><strong>Reason:</strong> {{reason}}</p>
-          <p>If you have any questions, please contact us at {{supportEmail}}</p>
+          <h2>Актуализация на заявката за разработчик</h2>
+          <p>Уважаеми {{contactPerson}},</p>
+          <p>Благодарим ви за интереса да се присъедините към платформата Мистър Имот.</p>
+          <p>След внимателен преглед, в момента не можем да одобрим вашата заявка за <strong>{{companyName}}</strong>.</p>
+          <p><strong>Причина:</strong> {{reason}}</p>
+          <p>Ако имате въпроси, моля свържете се с нас на {{supportEmail}}</p>
         `,
         textContent: `
-          Developer Application Update
-          Dear {{contactPerson}},
-          Thank you for your interest in joining the Mr imot platform.
-          After careful review, we're unable to approve your application for {{companyName}} at this time.
-          Reason: {{reason}}
-          If you have any questions, please contact us at {{supportEmail}}
+          Актуализация на заявката за разработчик
+          Уважаеми {{contactPerson}},
+          Благодарим ви за интереса да се присъедините към платформата Мистър Имот.
+          След внимателен преглед, в момента не можем да одобрим вашата заявка за {{companyName}}.
+          Причина: {{reason}}
+          Ако имате въпроси, моля свържете се с нас на {{supportEmail}}
         `
       },
       new_application: {
-        subject: 'New Developer Application: {{companyName}}',
+        subject: 'Нова заявка за разработчик: {{companyName}}',
         htmlContent: `
-          <h2>New Developer Application Received</h2>
-          <p>A new developer has submitted an application:</p>
+          <h2>Получена нова заявка за разработчик</h2>
+          <p>Нов разработчик е подал заявка:</p>
           <ul>
-            <li><strong>Company:</strong> {{companyName}}</li>
-            <li><strong>Contact:</strong> {{contactPerson}}</li>
-            <li><strong>Email:</strong> {{email}}</li>
-            <li><strong>Phone:</strong> {{phone}}</li>
-            <li><strong>Website:</strong> {{website}}</li>
+            <li><strong>Компания:</strong> {{companyName}}</li>
+            <li><strong>Контакт:</strong> {{contactPerson}}</li>
+            <li><strong>Имейл:</strong> {{email}}</li>
+            <li><strong>Телефон:</strong> {{phone}}</li>
+            <li><strong>Уебсайт:</strong> {{website}}</li>
           </ul>
-          <p><a href="{{adminDashboardUrl}}">Review in Admin Dashboard</a></p>
+          <p><a href="{{adminDashboardUrl}}">Прегледайте в администраторското табло</a></p>
         `,
         textContent: `
-          New Developer Application Received
-          A new developer has submitted an application:
-          Company: {{companyName}}
-          Contact: {{contactPerson}}
-          Email: {{email}}
-          Phone: {{phone}}
-          Website: {{website}}
-          Review in Admin Dashboard: {{adminDashboardUrl}}
+          Получена нова заявка за разработчик
+          Нов разработчик е подал заявка:
+          Компания: {{companyName}}
+          Контакт: {{contactPerson}}
+          Имейл: {{email}}
+          Телефон: {{phone}}
+          Уебсайт: {{website}}
+          Прегледайте в администраторското табло: {{adminDashboardUrl}}
         `
       }
     };
