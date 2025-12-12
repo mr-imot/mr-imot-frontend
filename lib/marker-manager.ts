@@ -219,6 +219,11 @@ export class MarkerManager {
       }
     })
     
+    // DEBUG: Log marker operations
+    if (toShow.length > 0 || toCreate.length > 0 || toHide.length > 0) {
+      console.log(`🟣 [MarkerManager] updateProperties - reuse: ${toShow.length}, create: ${toCreate.length}, hide: ${toHide.length}`)
+    }
+    
     // Batch 2: Execute all DOM operations together
     // Hide markers first (fast - just setting map to null)
     toHide.forEach(id => {

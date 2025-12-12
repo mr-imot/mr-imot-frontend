@@ -162,9 +162,11 @@ export class MapFetchController {
     }
 
     // ─── Check cache first ───────────────────────────────────────────────────
+    const cacheKey = `${sw_lat.toFixed(3)},${sw_lng.toFixed(3)},${ne_lat.toFixed(3)},${ne_lng.toFixed(3)},${propertyType}`
     const cached = boundsCache.getCachedData(sw_lat, sw_lng, ne_lat, ne_lng, propertyType)
     if (cached && cached.length > 0) {
       this.metrics.cacheHits++
+      console.log(`🟢 [MapFetchController] CACHE HIT - key: ${cacheKey}, count: ${cached.length}`)
       this.onDataUpdate(cached)
       // Background refresh (fire and forget, don't block)
       this.backgroundFetch(sw_lat, sw_lng, ne_lat, ne_lng, propertyType)
@@ -172,6 +174,7 @@ export class MapFetchController {
     }
 
     this.metrics.cacheMisses++
+    console.log(`🟡 [MapFetchController] CACHE MISS - key: ${cacheKey}`)
 
     // ─── Network fetch ───────────────────────────────────────────────────────
     await this.networkFetch(sw_lat, sw_lng, ne_lat, ne_lng, propertyType)
@@ -197,6 +200,7 @@ export class MapFetchController {
     this.onLoadingChange?.(true)
 
     const start = performance.now()
+    console.log(`🔴 [MapFetchController] API CALL - bounds: ${sw_lat.toFixed(3)},${sw_lng.toFixed(3)} to ${ne_lat.toFixed(3)},${ne_lng.toFixed(3)}, type: ${propertyType}`)
 
     try {
       const params: Record<string, unknown> = {

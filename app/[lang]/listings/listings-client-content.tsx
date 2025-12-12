@@ -601,7 +601,7 @@ export function ListingsClientContent({
                   }}
                   onFilterClick={() => { setIsSearchOpen(false); setIsFilterModalOpen(true) }}
                   placeholder={lang === 'bg' ? 'Търси София, Пловдив, Варна...' : 'Search Sofia, Plovdiv, Varna...'}
-                  locale={lang}
+                  locale={lang === 'bg' ? 'bg' : 'en'}
                 />
               </div>
             </div>

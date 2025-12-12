@@ -60,6 +60,7 @@ class BoundsBasedCacheManager {
     // Try in-memory cache first (fastest)
     const memoryEntry = this.sessionCache.get(key)
     if (memoryEntry && this.isCacheValid(memoryEntry)) {
+      console.log(`🟢 [BoundsCache] MEMORY HIT - key: ${key.slice(7)}, count: ${memoryEntry.data.length}`)
       return memoryEntry.data
     }
 
@@ -71,10 +72,12 @@ class BoundsBasedCacheManager {
         if (this.isCacheValid(entry)) {
           // Promote to memory cache for faster access
           this.sessionCache.set(key, entry)
+          console.log(`🟡 [BoundsCache] SESSION HIT - key: ${key.slice(7)}, count: ${entry.data.length}`)
           return entry.data
         } else {
           // Expired, remove it
           sessionStorage.removeItem(key)
+          console.log(`🟠 [BoundsCache] EXPIRED - key: ${key.slice(7)}`)
         }
       }
     } catch (error) {
@@ -103,6 +106,7 @@ class BoundsBasedCacheManager {
 
     // Store in memory
     this.sessionCache.set(key, entry)
+    console.log(`🔵 [BoundsCache] STORED - key: ${key.slice(7)}, count: ${data.length}`)
 
     // Store in sessionStorage
     try {
