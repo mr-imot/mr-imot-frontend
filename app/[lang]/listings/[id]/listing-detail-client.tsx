@@ -572,7 +572,7 @@ export default function ListingDetailClient({ projectId, initialProject }: Listi
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-gray-700 leading-relaxed">
+            <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
               {property.description}
             </p>
           </CardContent>

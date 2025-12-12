@@ -46,7 +46,7 @@ interface PageProps {
 
 const formSchema = z.object({
   name: z.string().min(2, "Name is required"),
-  description: z.string().min(10, "Please provide a more detailed description"),
+  description: z.string().min(10, "Please provide a more detailed description").max(5000, "Description must be 5000 characters or less"),
   city: z.string().optional(),
   country: z.string().optional(),
   address: z.string().min(5, "Address is required"),
@@ -831,7 +831,12 @@ export default function EditProjectPage({ dict, lang, params }: EditPropertyClie
                         <FormControl>
                           <Textarea rows={4} placeholder="Tell buyers what makes this project special" className="resize-none" {...field} />
                         </FormControl>
-                        <FormMessage />
+                        <div className="flex justify-between items-center">
+                          <FormMessage />
+                          <span className={`text-xs ${(field.value?.length || 0) > 5000 ? 'text-red-500' : 'text-gray-500'}`}>
+                            {(field.value?.length || 0)} / 5000
+                          </span>
+                        </div>
                       </FormItem>
                     )}
                   />

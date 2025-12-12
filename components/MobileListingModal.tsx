@@ -291,7 +291,7 @@ export function MobileListingModal({
                 {t.listingDetail?.description || 'Description'}
               </h3>
               <div className="bg-white border border-gray-200 rounded-xl p-5">
-                <p className="text-gray-700 leading-relaxed text-base">
+                <p className="text-gray-700 leading-relaxed text-base whitespace-pre-wrap">
                   {property.description}
                 </p>
               </div>
