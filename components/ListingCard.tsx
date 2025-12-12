@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, memo } from 'react'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { cn, getListingUrl } from '@/lib/utils'
@@ -40,7 +40,7 @@ function summarize(text: string | null | undefined, max = 100) {
   return normalized.slice(0, max - 1) + '…'
 }
 
-export function ListingCard({ listing, isActive, onCardClick, onCardHover, priority = false, priceTranslations }: ListingCardProps) {
+function ListingCardComponent({ listing, isActive, onCardClick, onCardHover, priority = false, priceTranslations }: ListingCardProps) {
   const pathname = usePathname()
   const router = useRouter()
   const [hasTrackedView, setHasTrackedView] = useState(false)
@@ -289,3 +289,13 @@ export function ListingCard({ listing, isActive, onCardClick, onCardHover, prior
      </div>
    )
  }
+
+// Memoized export to prevent unnecessary re-renders
+// Only re-renders when listing.id, isActive, or priority changes
+export const ListingCard = memo(ListingCardComponent, (prevProps, nextProps) => {
+  return (
+    prevProps.listing.id === nextProps.listing.id &&
+    prevProps.isActive === nextProps.isActive &&
+    prevProps.priority === nextProps.priority
+  )
+})
