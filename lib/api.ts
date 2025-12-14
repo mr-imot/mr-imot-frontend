@@ -556,6 +556,16 @@ class ApiClient {
     });
   }
 
+  async updateProjectImagesOrder(
+    projectId: string | number,
+    images: Array<{ id: string; is_cover: boolean; order: number }>
+  ): Promise<{ images: any[] }> {
+    return this.request(`/api/v1/projects/${projectId}/images/reorder`, {
+      method: 'PATCH',
+      body: JSON.stringify({ images }),
+    });
+  }
+
   async getProjectImages(projectId: string): Promise<any[]> {
     return this.request(`/api/v1/projects/${projectId}/images`);
   }
@@ -780,6 +790,10 @@ export const attachProjectImages = (
   projectId: string | number,
   images: Array<{ url: string; fileId: string; isCover?: boolean }>
 ) => apiClient.attachProjectImages(projectId, images);
+export const updateProjectImagesOrder = (
+  projectId: string | number,
+  images: Array<{ id: string; is_cover: boolean; order: number }>
+) => apiClient.updateProjectImagesOrder(projectId, images);
 
 // Subscription-based listing management exports
 export const toggleProjectActive = (projectId: number) => apiClient.toggleProjectActive(projectId);

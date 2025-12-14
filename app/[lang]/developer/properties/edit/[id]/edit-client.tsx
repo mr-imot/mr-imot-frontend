@@ -14,7 +14,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Checkbox } from "@/components/ui/checkbox"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { getProject, updateProject, attachProjectImages, deleteProjectImage, getProjectImages, type Project } from "@/lib/api"
+import { getProject, updateProject, attachProjectImages, deleteProjectImage, getProjectImages, updateProjectImagesOrder, type Project } from "@/lib/api"
 import { upload } from "@imagekit/next";
 import { ensureGoogleMaps } from "@/lib/google-maps"
 import { AddressSearchField } from "@/components/address-search-field"
@@ -643,7 +643,63 @@ export default function EditProjectPage({ dict, lang, params }: EditPropertyClie
       })
 
       const uploadedImages = await Promise.all(uploadPromises)
-      await attachProjectImages(projectId, uploadedImages)
+      const attachResult = await attachProjectImages(projectId, uploadedImages)
+      
+      // After uploading new images, fetch all images and update their order
+      // to reflect the final order from the images state
+      const allProjectImages = await getProjectImages(projectId)
+      
+      // Create a map of existing images by their imageId
+      const existingImageMap = new Map<string, ImageFile>()
+      images.filter(img => img.existing && img.imageId).forEach(img => {
+        existingImageMap.set(img.imageId!, img)
+      })
+      
+      // Create a map of new images by their URL (to match with backend response)
+      const newImageMap = new Map<string, ImageFile>()
+      images.filter(img => !img.existing).forEach(img => {
+        // Extract base URL from preview (remove data URL prefix if present)
+        const urlKey = img.preview.startsWith('data:') ? '' : img.preview.split('?')[0]
+        if (urlKey) {
+          newImageMap.set(urlKey, img)
+        }
+      })
+      
+      // Build the update list matching backend images with local state
+      const allImageUpdates = allProjectImages
+        .map((backendImg: any) => {
+          // Try to find matching local image
+          let localImg: ImageFile | undefined
+          
+          // Check if it's an existing image
+          if (existingImageMap.has(backendImg.id)) {
+            localImg = existingImageMap.get(backendImg.id)
+          } else {
+            // It's a new image - match by URL
+            const baseUrl = backendImg.image_url.split('?')[0]
+            localImg = newImageMap.get(baseUrl)
+          }
+          
+          if (localImg) {
+            // Find the index in the current images array
+            const index = images.findIndex(img => 
+              (img.existing && img.imageId === backendImg.id) ||
+              (!img.existing && img.preview.includes(baseUrl))
+            )
+            return {
+              id: backendImg.id,
+              is_cover: localImg.isMain,
+              order: index !== -1 ? index : 0,
+            }
+          }
+          return null
+        })
+        .filter((update: any) => update !== null)
+      
+      // Update all images with final order
+      if (allImageUpdates.length > 0) {
+        await updateProjectImagesOrder(projectId, allImageUpdates)
+      }
       
       setSubmitSuccess('Project and images updated successfully!')
       
@@ -684,6 +740,18 @@ export default function EditProjectPage({ dict, lang, params }: EditPropertyClie
       }
 
       await updateProject(projectId, projectData)
+      
+      // Update existing images' order and cover status if there are any
+      const existingImages = images.filter(img => img.existing && img.imageId)
+      if (existingImages.length > 0) {
+        const imageUpdates = existingImages.map((img, index) => ({
+          id: img.imageId!,
+          is_cover: img.isMain,
+          order: index,
+        }))
+        
+        await updateProjectImagesOrder(projectId, imageUpdates)
+      }
       
       // Handle new image uploads
       const newImages = images.filter(img => !img.existing)
