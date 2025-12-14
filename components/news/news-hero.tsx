@@ -22,14 +22,14 @@ export function NewsHero({ featured, sideStories, lang }: NewsHeroProps) {
               src={featured.coverImage}
               alt={featured.coverImageAlt || featured.title}
               fill
-              className="object-contain transition duration-700 group-hover:scale-105"
+              className="object-cover transition duration-700 group-hover:scale-105"
               priority
               unoptimized
               sizes="(max-width: 1024px) 100vw, 800px"
             />
           )}
-          <div className="absolute inset-x-0 bottom-0 h-2/3 sm:h-1/2 bg-gradient-to-t from-black/90 via-black/50 to-transparent pointer-events-none" />
-          <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8">
+          <div className="absolute inset-x-0 bottom-0 h-3/4 sm:h-2/3 bg-gradient-to-t from-black/90 via-black/60 to-transparent pointer-events-none" />
+          <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8 z-10">
             <span className="inline-block px-2 py-0.5 sm:py-1 mb-2 sm:mb-3 text-[10px] sm:text-xs font-bold text-white uppercase bg-primary rounded">
               {featured.category || "News"}
             </span>

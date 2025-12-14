@@ -239,7 +239,7 @@ export async function getPostBySlug(lang: BlogLang, slug: string): Promise<BlogP
 
   const raw = await fs.readFile(match.filePath, 'utf8')
 
-  const { content, frontmatter } = await compileMDX<BlogFrontMatter>({
+  const result = await compileMDX<BlogFrontMatter>({
     source: raw,
     components: mdxComponents,
     options: {
@@ -249,9 +249,13 @@ export async function getPostBySlug(lang: BlogLang, slug: string): Promise<BlogP
         rehypePlugins: [
           rehypeSlug,
         ],
+        development: process.env.NODE_ENV === 'development',
       },
     },
   })
+
+  // Explicitly extract only content and frontmatter to avoid any internal properties
+  const { content, frontmatter } = result
 
   return {
     ...match,
@@ -259,7 +263,7 @@ export async function getPostBySlug(lang: BlogLang, slug: string): Promise<BlogP
     slug: match.slug,
     translationKey: match.translationKey,
     lang,
-    content,
+    content: content as React.ReactNode,
   }
 }
 
