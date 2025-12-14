@@ -150,7 +150,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           ? `${baseUrl}/bg/stroiteli`
           : lang === 'ru'
             ? `${baseUrl}/ru/zastroyshchiki`
-            : `${baseUrl}/developers`,
+            : lang === 'gr'
+              ? `${baseUrl}/gr/kataskeuastes`
+              : `${baseUrl}/developers`,
       lastModified: new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.8,
