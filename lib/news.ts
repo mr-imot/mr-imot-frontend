@@ -4,7 +4,6 @@ import matter from 'gray-matter'
 import remarkGfm from 'remark-gfm'
 import rehypeSlug from 'rehype-slug'
 import { compileMDX } from 'next-mdx-remote/rsc'
-import { cache } from 'react'
 import type React from 'react'
 import { mdxComponents } from '@/components/news/mdx-components'
 
@@ -173,60 +172,80 @@ export function formatBlogDate(date: string | undefined, lang: BlogLang) {
   }
 }
 
-const loadPostMeta = cache(async (lang: BlogLang): Promise<BlogPostMeta[]> => {
+// Removed cache() wrapper - filesystem reads are cheap and caching can cause issues on Vercel
+// if the first execution fails (empty result gets cached forever)
+const loadPostMeta = async (lang: BlogLang): Promise<BlogPostMeta[]> => {
   const directory = path.join(BLOG_ROOT, lang)
 
   let files: string[] = []
   try {
     files = await fs.readdir(directory)
-  } catch {
+  } catch (error) {
+    console.error(`[News] Error reading news directory for ${lang}:`, error)
+    console.error(`[News] Path attempted: ${directory}`)
+    console.error(`[News] BLOG_ROOT: ${BLOG_ROOT}`)
+    console.error(`[News] process.cwd(): ${process.cwd()}`)
     return []
   }
 
   const mdFiles = files.filter((file) => /\.(mdx?|md)$/i.test(file))
 
-  const posts = await Promise.all(
-    mdFiles.map(async (file) => {
-      const filePath = path.join(directory, file)
-      const raw = await fs.readFile(filePath, 'utf8')
-      const { data, content } = matter(raw)
+  if (mdFiles.length === 0) {
+    console.warn(`[News] No MDX/MD files found in directory for ${lang}: ${directory}`)
+    return []
+  }
 
-      const title = typeof data.title === 'string' && data.title.trim() ? data.title : stripExtension(file)
-      const slug = data.slug
-        ? slugifyTitle(String(data.slug))
-        : slugifyTitle(title, stripExtension(file))
-      const translationKey =
-        typeof data.translationKey === 'string' && data.translationKey.trim()
-          ? data.translationKey.trim()
-          : stripExtension(file)
+  const posts: (BlogPostMeta | null)[] = await Promise.all(
+    mdFiles.map(async (file): Promise<BlogPostMeta | null> => {
+      try {
+        const filePath = path.join(directory, file)
+        const raw = await fs.readFile(filePath, 'utf8')
+        const { data, content } = matter(raw)
 
-      const readingMinutes = computeReadingMinutes(content)
+        const title = typeof data.title === 'string' && data.title.trim() ? data.title : stripExtension(file)
+        const slug = data.slug
+          ? slugifyTitle(String(data.slug))
+          : slugifyTitle(title, stripExtension(file))
+        const translationKey =
+          typeof data.translationKey === 'string' && data.translationKey.trim()
+            ? data.translationKey.trim()
+            : stripExtension(file)
 
-      return {
-        title,
-        description: typeof data.description === 'string' ? data.description : undefined,
-        date: typeof data.date === 'string' ? data.date : undefined,
-        coverImage: typeof data.coverImage === 'string' ? data.coverImage : undefined,
-        coverImageAlt: typeof data.coverImageAlt === 'string' ? data.coverImageAlt : undefined,
-        category: typeof data.category === 'string' ? data.category : undefined,
-        tags: normalizeTags(data.tags),
-        author: normalizeAuthor(data.author),
-        slug,
-        translationKey,
-        lang,
-        filePath,
-        readingMinutes,
-        readingLabel: formatReadingLabel(lang, readingMinutes),
-      } satisfies BlogPostMeta
+        const readingMinutes = computeReadingMinutes(content)
+
+        return {
+          title,
+          description: typeof data.description === 'string' ? data.description : undefined,
+          date: typeof data.date === 'string' ? data.date : undefined,
+          coverImage: typeof data.coverImage === 'string' ? data.coverImage : undefined,
+          coverImageAlt: typeof data.coverImageAlt === 'string' ? data.coverImageAlt : undefined,
+          category: typeof data.category === 'string' ? data.category : undefined,
+          tags: normalizeTags(data.tags),
+          author: normalizeAuthor(data.author),
+          slug,
+          translationKey,
+          lang,
+          filePath,
+          readingMinutes,
+          readingLabel: formatReadingLabel(lang, readingMinutes),
+        } satisfies BlogPostMeta
+      } catch (error) {
+        console.error(`[News] Error reading news file ${file} for ${lang}:`, error)
+        // Return null to filter out failed files
+        return null
+      }
     })
   )
 
-  return posts.sort((a, b) => {
+  // Filter out any null results from failed file reads
+  const validPosts: BlogPostMeta[] = posts.filter((post): post is BlogPostMeta => post !== null)
+
+  return validPosts.sort((a, b) => {
     const dateA = a.date ? new Date(a.date).getTime() : 0
     const dateB = b.date ? new Date(b.date).getTime() : 0
     return dateB - dateA
   })
-})
+}
 
 export async function getAllPostsMeta(lang: BlogLang) {
   return loadPostMeta(lang)

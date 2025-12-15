@@ -269,22 +269,35 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }))
   )
 
+  // Fetch all news posts with error handling (similar to projects/developers)
   const newsPosts = await Promise.all(
     languages.map(async (lang) => {
-      const posts = await getAllPostsMeta(lang as 'en' | 'bg' | 'ru' | 'gr')
-      return posts.map((post) => ({
-        url:
-          lang === 'en'
-            ? `${baseUrl}/news/${post.slug}`
-            : lang === 'bg'
-              ? `${baseUrl}/bg/novini/${post.slug}`
-              : lang === 'ru'
-                ? `${baseUrl}/ru/novosti/${post.slug}`
-                : `${baseUrl}/gr/eidhseis/${post.slug}`,
-        lastModified: post.date ? new Date(post.date) : new Date(),
-        changeFrequency: 'weekly' as const,
-        priority: 0.6,
-      }))
+      try {
+        const posts = await getAllPostsMeta(lang as 'en' | 'bg' | 'ru' | 'gr')
+        
+        if (!posts || posts.length === 0) {
+          console.warn(`[Sitemap] No news posts found for language: ${lang}`)
+          return []
+        }
+
+        return posts.map((post) => ({
+          url:
+            lang === 'en'
+              ? `${baseUrl}/news/${post.slug}`
+              : lang === 'bg'
+                ? `${baseUrl}/bg/novini/${post.slug}`
+                : lang === 'ru'
+                  ? `${baseUrl}/ru/novosti/${post.slug}`
+                  : `${baseUrl}/gr/eidhseis/${post.slug}`,
+          lastModified: post.date ? new Date(post.date) : new Date(),
+          changeFrequency: 'weekly' as const,
+          priority: 0.6,
+        }))
+      } catch (error) {
+        console.error(`[Sitemap] Error fetching news posts for ${lang}:`, error)
+        // Return empty array on error - sitemap will still include other content
+        return []
+      }
     })
   )
 
