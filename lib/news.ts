@@ -42,7 +42,8 @@ export type BlogPost = BlogPostMeta & {
 export const BLOG_LANGS: BlogLang[] = ['en', 'bg', 'ru', 'gr']
 
 // Use the shared news content directory across locales
-const BLOG_ROOT = path.join(process.cwd(), 'content', 'news')
+// Use path.resolve for more reliable path resolution on Vercel
+const BLOG_ROOT = path.resolve(process.cwd(), 'content', 'news')
 const WORDS_PER_MINUTE = 200
 
 const cyrillicMap: Record<string, string> = {
@@ -175,7 +176,18 @@ export function formatBlogDate(date: string | undefined, lang: BlogLang) {
 // Removed cache() wrapper - filesystem reads are cheap and caching can cause issues on Vercel
 // if the first execution fails (empty result gets cached forever)
 const loadPostMeta = async (lang: BlogLang): Promise<BlogPostMeta[]> => {
-  const directory = path.join(BLOG_ROOT, lang)
+  const directory = path.resolve(BLOG_ROOT, lang)
+
+  // Verify directory exists before attempting to read
+  try {
+    await fs.access(directory)
+  } catch (error) {
+    console.error(`[News] Directory does not exist for ${lang}:`, error)
+    console.error(`[News] Path attempted: ${directory}`)
+    console.error(`[News] BLOG_ROOT: ${BLOG_ROOT}`)
+    console.error(`[News] process.cwd(): ${process.cwd()}`)
+    return []
+  }
 
   let files: string[] = []
   try {
@@ -248,7 +260,14 @@ const loadPostMeta = async (lang: BlogLang): Promise<BlogPostMeta[]> => {
 }
 
 export async function getAllPostsMeta(lang: BlogLang) {
-  return loadPostMeta(lang)
+  try {
+    return await loadPostMeta(lang)
+  } catch (error) {
+    console.error(`[News] getAllPostsMeta failed for ${lang}:`, error)
+    console.error(`[News] BLOG_ROOT: ${BLOG_ROOT}`)
+    console.error(`[News] process.cwd(): ${process.cwd()}`)
+    return []
+  }
 }
 
 export async function getPostBySlug(lang: BlogLang, slug: string): Promise<BlogPost | null> {
