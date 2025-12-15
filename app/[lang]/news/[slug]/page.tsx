@@ -117,13 +117,13 @@ export default async function BlogPostPage({ params }: BlogPostParams) {
         : `${baseUrl}/gr/eidhseis/${slug}`
 
   return (
-    <>
+    <div key={`article-${slug}-${lang}`}>
       <ArticleStructuredData post={post} lang={lang} url={articleUrl} />
       <ArticleAlternateSlugs slugs={alternateSlugs} />
       <BlogPostLayout post={post} lang={lang}>
         {post.content}
       </BlogPostLayout>
-    </>
+    </div>
   )
 }
 

@@ -123,7 +123,7 @@ export function BlogPostLayout({ post, lang, children }: BlogPostLayoutProps) {
         </div>
       )}
 
-      <div className="prose prose-sm sm:prose-lg prose-slate dark:prose-invert max-w-none leading-relaxed">
+      <div className="prose prose-sm sm:prose-lg prose-slate dark:prose-invert max-w-none leading-relaxed" key={`content-${post.slug}`}>
         {children}
       </div>
 
