@@ -10,7 +10,7 @@ interface NewsHeroProps {
 }
 
 export function NewsHero({ featured, sideStories, lang }: NewsHeroProps) {
-  const topStoriesLabel = lang === 'bg' ? 'Топ новини' : lang === 'ru' ? 'Главные' : lang === 'gr' ? 'Κορυφαία' : 'Top Stories'
+  const topStoriesLabel = lang === 'bg' ? 'Последни новини' : lang === 'ru' ? 'Последние новости' : lang === 'gr' ? 'Τελευταία νέα' : 'Latest News'
   
   return (
     <div className="grid gap-6 sm:gap-8 lg:grid-cols-12 mb-8 sm:mb-12 border-b border-muted/60 pb-8 sm:pb-12">
@@ -54,7 +54,7 @@ export function NewsHero({ featured, sideStories, lang }: NewsHeroProps) {
         </Link>
       </div>
 
-      {/* Side Stories (Top Stories) */}
+      {/* Side Stories (Latest News) */}
       <div className="lg:col-span-4 flex flex-col gap-4 sm:gap-6">
         <div className="flex items-center justify-between border-b border-primary pb-2">
             <h3 className="font-bold uppercase tracking-wider text-xs sm:text-sm text-primary">{topStoriesLabel}</h3>

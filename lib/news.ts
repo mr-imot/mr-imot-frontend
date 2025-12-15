@@ -295,9 +295,14 @@ export async function getPostBySlug(lang: BlogLang, slug: string): Promise<BlogP
   // Explicitly extract only content and frontmatter to avoid any internal properties
   const { content, frontmatter } = result
 
+  // Filter out any function properties from frontmatter to prevent rendering issues
+  const safeFrontmatter = Object.fromEntries(
+    Object.entries(frontmatter).filter(([_, value]) => typeof value !== 'function')
+  ) as BlogFrontMatter
+
   return {
     ...match,
-    ...frontmatter,
+    ...safeFrontmatter,
     slug: match.slug,
     translationKey: match.translationKey,
     lang,
