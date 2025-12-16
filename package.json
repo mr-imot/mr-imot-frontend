@@ -11,7 +11,8 @@
   "packageManager": "pnpm@9.12.3",
   "overrides": {
     "react": "19.0.0",
-    "react-dom": "19.0.0"
+    "react-dom": "19.0.0",
+    "next": ">=15.5.9"
   },
   "browserslist": [
     "defaults",
@@ -74,7 +75,7 @@
     "libphonenumber-js": "^1.12.23",
     "lucide-react": "^0.454.0",
     "negotiator": "^1.0.0",
-    "next": "^15.5.7",
+    "next": "^15.5.9",
     "next-mdx-remote": "^5.0.0",
     "react": "^19.0.0",
     "react-day-picker": "latest",
