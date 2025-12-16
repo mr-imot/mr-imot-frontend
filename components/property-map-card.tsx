@@ -220,9 +220,14 @@ export function PropertyMapCard({
             </div>
           </div>
 
-          {/* Dots - Enhanced for mobile visibility */}
+          {/* Dots - Half size on mobile, original size on web */}
           {hasMultipleImages && (
-            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-10 px-2 py-1 rounded-full bg-black/40 backdrop-blur-sm">
+            <div className={cn(
+              "absolute bottom-3 left-1/2 -translate-x-1/2 flex z-10 rounded-full bg-black/40 backdrop-blur-sm",
+              forceMobile 
+                ? "gap-1.5 px-2 py-1 scale-50 origin-center" 
+                : "gap-1.5 px-2 py-1"
+            )}>
               {imageUrls.map((_, idx) => (
                 <button
                   key={idx}
