@@ -191,16 +191,13 @@ export default function ListingStructuredData({
       }
     }),
     // Price fields - only include if valid numeric price exists
-    ...(numericPrice ? {
+    ...(numericPrice && {
       "offers": {
         "@type": "Offer",
         "price": numericPrice,
         "priceCurrency": currency,
         ...(project.price_label && { "description": project.price_label })
       }
-    } : {
-      // If no numeric price, still include currency but no price value
-      "priceCurrency": currency
     })
   }
   
