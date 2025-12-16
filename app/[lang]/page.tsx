@@ -110,6 +110,7 @@ export default async function HomePage({ params }: HomePageProps) {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: lang === 'bg' ? 'Мистър Имот' : 'Mister Imot',
+    alternateName: ['mrimot', 'mrimot.com'],
     url: lang === 'bg' ? 'https://mrimot.com/bg' : 'https://mrimot.com/en',
     inLanguage: lang === 'bg' ? 'bg' : 'en',
     logo: 'https://ik.imagekit.io/ts59gf2ul/Logo/mr-imot-logo.png',
@@ -126,6 +127,7 @@ export default async function HomePage({ params }: HomePageProps) {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: lang === 'bg' ? 'Мистър Имот' : 'Mister Imot',
+    alternateName: ['mrimot', 'mrimot.com'],
     url: lang === 'bg' ? 'https://mrimot.com/bg' : 'https://mrimot.com/en',
     inLanguage: lang === 'bg' ? 'bg' : 'en',
     potentialAction: {

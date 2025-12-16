@@ -36,8 +36,8 @@ export async function generateMetadata({ params }: ContactPageProps): Promise<Me
   
   const ogLocale = isBg ? 'bg_BG' : 'en_US'
   const keywords = isBg
-    ? 'контакт, свържете се, поддръжка, ново строителство, имоти, България, запитвания'
-    : 'contact, support, customer service, new construction, real estate, Bulgaria, inquiries'
+    ? 'mrimot, mrimot.com, контакт, свържете се, поддръжка, ново строителство, имоти, България, запитвания'
+    : 'mrimot, mrimot.com, contact, support, customer service, new construction, real estate, Bulgaria, inquiries'
 
   return {
     title,

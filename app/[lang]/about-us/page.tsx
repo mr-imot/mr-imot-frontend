@@ -44,10 +44,10 @@ export async function generateMetadata({ params }: AboutPageProps): Promise<Meta
   const ogLocale = isBg ? 'bg_BG' : isRu ? 'ru_RU' : 'en_US'
   
   const keywords = isBg
-    ? 'за нас, мистър имот, ново строителство, България, платформа, имоти, строители, без брокери, мисия, роудмап'
+    ? 'mrimot, mrimot.com, за нас, мистър имот, ново строителство, България, платформа, имоти, строители, без брокери, мисия, роудмап'
     : isRu
-      ? 'о нас, мистер имот, новостройки, болгария, платформа, недвижимость, застройщики, без брокеров, миссия, планы'
-      : 'about us, mister imot, new construction, Bulgaria, platform, real estate, developers, no brokers, mission, roadmap'
+      ? 'mrimot, mrimot.com, о нас, мистер имот, новостройки, болгария, платформа, недвижимость, застройщики, без брокеров, миссия, планы'
+      : 'mrimot, mrimot.com, about us, mister imot, new construction, Bulgaria, platform, real estate, developers, no brokers, mission, roadmap'
 
   return {
     title,
