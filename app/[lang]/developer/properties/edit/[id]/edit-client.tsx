@@ -1140,7 +1140,6 @@ export default function EditProjectPage({ dict, lang, params }: EditPropertyClie
                                 }
                               }}
                               placeholder={dict.developer?.properties?.placeholders?.address || "Start typing an address (e.g., Sofia, Bulgaria)"}
-                              regionCodes={["bg"]}
                               className={`w-full ${addressSelected ? "ring-2 ring-green-500" : ""}`}
                             />
                           </FormControl>

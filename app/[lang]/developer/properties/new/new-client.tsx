@@ -1200,7 +1200,6 @@ export default function NewPropertyPage({ dict, lang }: NewPropertyClientProps) 
                                   handleAddressSelect({ lat, lng, address })
                                 }}
                                 placeholder={dict.developer?.properties?.placeholders?.address || "Start typing an address (e.g., Sofia, Bulgaria)"}
-                                regionCodes={["bg"]}
                                 className={`${addressSelected ? "border-green-500 bg-green-50" : ""}`}
                               />
                             </FormControl>

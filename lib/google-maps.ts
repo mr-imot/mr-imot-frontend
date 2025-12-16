@@ -21,8 +21,8 @@ export async function ensureGoogleMaps(): Promise<typeof google> {
       key: apiKey,
       v: "weekly",
       libraries: ["places", "marker"], // Load Places API and Marker library for AdvancedMarkerElement
-      language: "bg",
-      region: "BG",
+      language: "en", // Default to English for international support
+      region: "BG", // Bias towards Bulgaria but don't restrict
     })
     isInitialized = true
   }

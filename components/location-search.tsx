@@ -23,10 +23,10 @@ export function LocationSearch({ onPlaceSelected, placeholder = "Search location
       try {
         await ensureGoogleMaps()
         
-        // Initialize autocomplete with Bulgaria bias
+        // Initialize autocomplete - no country restriction for global support
         autocompleteRef.current = new google.maps.places.Autocomplete(inputRef.current, {
           types: ['(cities)'],
-          componentRestrictions: { country: 'bg' }, // Restrict to Bulgaria
+          // No componentRestrictions - allows all countries
           fields: ['name', 'geometry', 'formatted_address', 'place_id']
         })
         

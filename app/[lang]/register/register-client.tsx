@@ -662,7 +662,6 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
                         }
                       }}
                       placeholder={dict.register?.searchForOfficeAddress || "Search for office address"}
-                      regionCodes={["bg"]}
                       className="w-full"
                     />
                     {getFieldError(errors, "officeAddress") && (<p className="text-sm text-destructive">{getFieldError(errors, "officeAddress")}</p>)}

@@ -17,7 +17,7 @@ export interface AddressSearchFieldProps {
   onChange: (value: string) => void
   onSelect: (payload: { lat: number; lng: number; address: string; placeId?: string }) => void
   placeholder?: string
-  regionCodes?: string[] // default ['bg']
+  regionCodes?: string[] // Optional: if not provided, no country restriction
   className?: string
   inputClassName?: string
   onBlur?: (value: string) => void
@@ -28,7 +28,7 @@ export function AddressSearchField({
   onChange,
   onSelect,
   placeholder = "Search address...",
-  regionCodes = ["bg"],
+  regionCodes, // No default - allows all countries
   className,
   inputClassName,
   onBlur,
@@ -86,7 +86,7 @@ export function AddressSearchField({
         }
         const { suggestions = [] } = await autocompleteSuggestionRef.current.fetchAutocompleteSuggestions({
           input: query,
-          includedRegionCodes: regionCodes,
+          ...(regionCodes && regionCodes.length > 0 ? { includedRegionCodes: regionCodes } : {}),
           sessionToken: sessionTokenRef.current,
         })
         const normalized = suggestions

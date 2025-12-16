@@ -7,7 +7,7 @@ interface UseAddressAutocompleteOptions {
   markerRef?: RefObject<google.maps.marker.AdvancedMarkerElement | null>
   onPlaceSelected?: (place: google.maps.places.PlaceResult) => void
   onAddressChange?: (address: string) => void
-  countryRestriction?: string
+  countryRestriction?: string // Optional: if not provided, no country restriction
   types?: string[]
   enabled?: boolean
 }
@@ -18,7 +18,7 @@ export function useAddressAutocomplete({
   markerRef,
   onPlaceSelected,
   onAddressChange,
-  countryRestriction = 'bg',
+  countryRestriction, // No default - allows all countries
   types = ['geocode'],
   enabled = true,
 }: UseAddressAutocompleteOptions) {
@@ -39,7 +39,7 @@ export function useAddressAutocomplete({
         }
 
         const autocomplete = new google.maps.places.Autocomplete(inputRef.current!, {
-          componentRestrictions: countryRestriction ? { country: countryRestriction } : undefined,
+          ...(countryRestriction ? { componentRestrictions: { country: countryRestriction } } : {}),
           fields: ['address_components', 'formatted_address', 'geometry', 'place_id'],
           types: types,
         })

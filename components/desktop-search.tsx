@@ -174,7 +174,7 @@ export function DesktopSearch({
         const { suggestions = [] } = await autocompleteSuggestionRef.current.fetchAutocompleteSuggestions({
           input: query,
           sessionToken: sessionTokenRef.current,
-          includedRegionCodes: ['bg'], // mimic previous country restriction
+          // No region restriction - allows global search
         })
 
         predictionsRef.current = suggestions

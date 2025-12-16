@@ -753,7 +753,6 @@ export default function DeveloperProfilePage({ dict, lang }: ProfileClientProps)
                                 }
                               }}
                               placeholder={t.searchOfficeAddress || "Search for office address"}
-                              regionCodes={["bg"]}
                               className="w-full"
                             />
                           </FormControl>

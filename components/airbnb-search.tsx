@@ -157,8 +157,7 @@ export function AirbnbSearch({
 
         const { suggestions = [] } = await autocompleteSuggestionRef.current.fetchAutocompleteSuggestions({
           input: query,
-          // Keep BG-only behaviour from legacy componentRestrictions
-          includedRegionCodes: ['bg'],
+          // No region restriction - allows global search
           sessionToken: sessionTokenRef.current,
         })
 
