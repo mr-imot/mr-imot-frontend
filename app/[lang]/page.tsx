@@ -2,6 +2,7 @@ import { getDictionary } from "./dictionaries"
 import { LocalizedHomePage } from "./localized-homepage"
 import { brandForLang, formatTitleWithBrand } from "@/lib/seo"
 import type { Metadata } from 'next'
+import WebPageSchema from "@/components/seo/webpage-schema"
 
 interface HomePageProps {
   params: Promise<{ lang: 'en' | 'bg' | 'ru' | 'gr' }>
@@ -58,7 +59,7 @@ export async function generateMetadata({ params }: HomePageProps): Promise<Metad
       url: canonicalUrl,
       siteName: brand,
       locale: ogLocale,
-      alternateLocale: ['en_US', 'bg_BG', 'ru_RU'],
+      alternateLocale: ['en_US', 'bg_BG', 'ru_RU', 'el_GR'],
       type: 'website',
       images: [
         {
@@ -83,6 +84,26 @@ export async function generateMetadata({ params }: HomePageProps): Promise<Metad
 export default async function HomePage({ params }: HomePageProps) {
   const { lang } = await params
   const dict = await getDictionary(lang)
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mrimot.com'
+  const baseUrl = siteUrl.replace(/\/$/, '')
+  const isBg = lang === 'bg'
+  const isRu = lang === 'ru'
+  const brand = brandForLang(lang)
+  const socialImage = 'https://ik.imagekit.io/ts59gf2ul/Logo/mister-imot-waving-hi-with-bg.png?tr=w-1200,h-630,cm-pad_resize,bg-FFFFFF,fo-auto,q-85,f-auto&v=20241205'
+
+  const fallbackTitle = isBg
+    ? `${brand} – Имоти директно от строители (без брокери, без комисионни)`
+    : `${brand} – Off‑plan properties directly from developers (no brokers, 0% commissions)`
+
+  const fallbackDescription = isBg
+    ? `${brand}: единствената платформа в България за ново строителство – директна връзка със строители, без брокери и без комисионни.`
+    : `${brand}: Bulgaria's platform for new construction – connect directly with developers, no brokers and 0% commissions.`
+
+  const seoContent = (dict as { seo?: { home?: { title?: string; description?: string; keywords?: string[] } } })?.seo?.home
+  const rawTitle = seoContent?.title || fallbackTitle
+  const title = formatTitleWithBrand(rawTitle, lang)
+  const description = seoContent?.description || fallbackDescription
+  const canonicalUrl = `${baseUrl}/${lang}`
 
   // Generate JSON-LD schemas on server
   const organizationSchema = {
@@ -207,6 +228,14 @@ export default async function HomePage({ params }: HomePageProps) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
+      <WebPageSchema
+        name={title}
+        description={description}
+        url={canonicalUrl}
+        lang={lang}
+        baseUrl={baseUrl}
+        primaryImageOfPage={socialImage}
       />
       <LocalizedHomePage dict={dict} lang={lang} />
     </>

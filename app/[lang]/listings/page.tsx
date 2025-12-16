@@ -5,9 +5,10 @@ import { ListingsLayoutServer, CITY_BOUNDS, CityType, PropertyTypeFilter } from 
 import { ListingsClientWrapper } from "./listings-client-wrapper"
 import { brandForLang, formatTitleWithBrand } from "@/lib/seo"
 import type { Metadata } from 'next'
+import WebPageSchema from '@/components/seo/webpage-schema'
 
 interface ListingsPageProps {
-  params: Promise<{ lang: 'en' | 'bg' | 'ru' }>
+  params: Promise<{ lang: 'en' | 'bg' | 'ru' | 'gr' }>
   searchParams?: Promise<{ city?: string; type?: string }>
 }
 
@@ -117,10 +118,11 @@ export async function generateMetadata({ params }: ListingsPageProps): Promise<M
     alternates: {
       canonical: canonicalUrl,
       languages: {
-      en: `${baseUrl}/listings`,
-      bg: `${baseUrl}/bg/obiavi`,
-      ru: `${baseUrl}/ru/obyavleniya`,
-      'x-default': `${baseUrl}/listings`,
+        en: `${baseUrl}/listings`,
+        bg: `${baseUrl}/bg/obiavi`,
+        ru: `${baseUrl}/ru/obyavleniya`,
+        el: `${baseUrl}/gr/aggelies`,
+        'x-default': `${baseUrl}/listings`,
       },
     },
     openGraph: {
@@ -129,7 +131,7 @@ export async function generateMetadata({ params }: ListingsPageProps): Promise<M
       url: canonicalUrl,
       siteName: brand,
       locale: ogLocale,
-      alternateLocale: ['en_US', 'bg_BG', 'ru_RU'],
+      alternateLocale: ['en_US', 'bg_BG', 'ru_RU', 'el_GR'],
       type: 'website',
       images: [
         {
@@ -171,15 +173,48 @@ export default async function ListingsPage({ params, searchParams }: ListingsPag
   // Fetch initial properties on server (cached for 60s)
   const initialProperties = await fetchInitialProperties(initialCity, initialType)
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mrimot.com'
+  const baseUrl = siteUrl.replace(/\/$/, '')
+  const isBg = lang === 'bg'
+  const isRu = lang === 'ru'
+  const canonicalUrl = isBg 
+    ? `${baseUrl}/bg/obiavi`
+    : isRu
+      ? `${baseUrl}/ru/obyavleniya`
+      : `${baseUrl}/listings`
+  const brand = brandForLang(lang)
+  const rawTitle = isBg
+    ? `Обяви за Ново Строителство – ${brand} | Без Брокери, Без Комисионни`
+    : isRu
+      ? `Объявления новостроек – ${brand} | Без брокеров, 0% комиссии`
+      : `New Construction Listings – ${brand} | No Brokers, 0% Commission`
+  const title = formatTitleWithBrand(rawTitle, lang)
+  const description = isBg
+    ? `Открийте най-добрите обяви за ново строителство в България. Директна връзка със строители, без посредници. Апартаменти и къщи в София, Пловдив, Варна и други градове.`
+    : isRu
+      ? `Откройте лучшие объявления новостроек в Болгарии. Общайтесь напрямую с застройщиками, без посредников. Квартиры и дома в Софии, Пловдиве, Варне и других городах.`
+      : `Discover the best new construction listings in Bulgaria. Connect directly with developers, no middlemen. Apartments and houses in Sofia, Plovdiv, Varna, and other cities.`
+  const socialImage = 'https://ik.imagekit.io/ts59gf2ul/Logo/mister-imot-waving-hi-with-bg.png?tr=w-1200,h-630,cm-pad_resize,bg-FFFFFF,fo-auto,q-85,f-auto&v=20241205'
+
   return (
-    <ListingsLayoutServer dict={dict} lang={lang}>
-      <ListingsClientWrapper
-        dict={dict}
+    <>
+      <WebPageSchema
+        name={title}
+        description={description}
+        url={canonicalUrl}
         lang={lang}
-        initialCity={initialCity}
-        initialType={initialType}
-        initialProperties={initialProperties}
+        baseUrl={baseUrl}
+        primaryImageOfPage={socialImage}
       />
-    </ListingsLayoutServer>
+      <ListingsLayoutServer dict={dict} lang={lang}>
+        <ListingsClientWrapper
+          dict={dict}
+          lang={lang}
+          initialCity={initialCity}
+          initialType={initialType}
+          initialProperties={initialProperties}
+        />
+      </ListingsLayoutServer>
+    </>
   )
 }

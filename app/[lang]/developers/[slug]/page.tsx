@@ -7,7 +7,7 @@ import { brandForLang, formatTitleWithBrand } from '@/lib/seo'
 
 interface PageProps {
   params: Promise<{
-    lang: 'en' | 'bg' | 'ru'
+    lang: 'en' | 'bg' | 'ru' | 'gr'
     slug: string
   }>
 }
@@ -98,6 +98,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         en: `${baseUrl}/developers/${developerPath}`,
         bg: `${baseUrl}/bg/stroiteli/${developerPath}`,
         ru: `${baseUrl}/ru/zastroyshchiki/${developerPath}`,
+        el: `${baseUrl}/gr/kataskeuastes/${developerPath}`,
         'x-default': `${baseUrl}/developers/${developerPath}`,
       },
     },
@@ -107,7 +108,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       url: canonicalUrl,
       siteName: brand,
       locale: ogLocale,
-      alternateLocale: ['en_US', 'bg_BG'],
+      alternateLocale: ['en_US', 'bg_BG', 'ru_RU', 'el_GR'],
       type: 'website',
       images: [
         {

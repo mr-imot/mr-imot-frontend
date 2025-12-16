@@ -6,7 +6,7 @@ import { Project, PausedProject, DeletedProject } from '@/lib/api'
 import ListingStructuredData from './listing-structured-data'
 
 interface ListingPageContentProps {
-  lang: 'en' | 'bg'
+  lang: 'en' | 'bg' | 'ru' | 'gr'
   id: string
   initialProject?: Project | PausedProject | DeletedProject
 }

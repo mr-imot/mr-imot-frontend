@@ -87,13 +87,32 @@ export function generateViewport() {
 
 // REMOVED: generateThemeColor function that was causing blue background
 
+// Mapping for Greek: route uses 'gr', HTML lang uses 'el' (ISO 639-1)
+const localeToHTMLLang: Record<'en' | 'bg' | 'ru' | 'gr', string> = {
+  en: 'en',
+  bg: 'bg',
+  ru: 'ru',
+  gr: 'el'
+}
+
 // Get language from middleware header for HTML lang attribute
 // This function must never throw errors - it's called during SSR and static generation
-// During static generation, we default to 'en' since headers() is not available
-async function getLanguageFromPath(): Promise<'en' | 'bg' | 'ru' | 'gr'> {
-  // Default to English - safe fallback for all contexts
-  // During static generation, headers() is not available, so we always default to 'en'
-  // The actual language will be set by the [lang]/layout.tsx which uses params
+async function getLanguageFromPath(): Promise<string> {
+  try {
+    // Try to get language from middleware header
+    const { headers } = await import('next/headers')
+    const headersList = await headers()
+    const locale = headersList.get('x-locale')
+    
+    if (locale && (locale === 'en' || locale === 'bg' || locale === 'ru' || locale === 'gr')) {
+      return localeToHTMLLang[locale]
+    }
+  } catch (error) {
+    // During static generation, headers() is not available
+    // This is expected and safe to ignore
+  }
+  
+  // Default to 'en' during static generation or if header is not available
   return 'en'
 }
 
@@ -102,12 +121,11 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  // Default to 'en' during static generation
-  // The actual language is handled by [lang]/layout.tsx which uses params
-  const lang = await getLanguageFromPath()
+  // Get language from middleware header, default to 'en'
+  const htmlLang = await getLanguageFromPath()
   
   return (
-    <html lang={lang} suppressHydrationWarning className={cn(GeistSans.variable, GeistMono.variable, geist.variable, inter.variable)}>
+    <html lang={htmlLang} suppressHydrationWarning className={cn(GeistSans.variable, GeistMono.variable, geist.variable, inter.variable)}>
       <head>
         {/* Preconnect to ImageKit for faster image loading (310ms LCP savings) */}
         <link rel="preconnect" href="https://ik.imagekit.io" />

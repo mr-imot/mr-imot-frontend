@@ -8,6 +8,7 @@ import { NewsHero } from "@/components/news/news-hero"
 import { CompactPostCard } from "@/components/news/compact-post-card"
 import { SectionHeader } from "@/components/news/section-header"
 import PostCard from "@/components/news/post-card"
+import WebPageSchema from "@/components/seo/webpage-schema"
 
 export const revalidate = 600
 export const dynamicParams = false
@@ -214,8 +215,29 @@ export default async function BlogIndexPage({ params, searchParams }: BlogIndexP
   // Check if a section has posts
   const sectionHasPosts = (cat: string) => getPostsForCat(cat).length > 0
 
+  // Get metadata for WebPage schema
+  const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://mrimot.com").replace(/\/$/, "")
+  const canonical =
+    lang === "en"
+      ? `${baseUrl}/news`
+      : lang === "bg"
+        ? `${baseUrl}/bg/novini`
+        : lang === "ru"
+          ? `${baseUrl}/ru/novosti`
+          : `${baseUrl}/gr/eidhseis`
+  const title = formatTitleWithBrand(copy.metaTitle || metaTitleFallback[lang], lang)
+  const description = copy.metaDescription || metaDescriptionFallback[lang]
+
   return (
-    <div className="min-h-screen bg-white font-sans text-charcoal-500 selection:bg-primary/20">
+    <>
+      <WebPageSchema
+        name={title}
+        description={description}
+        url={canonical}
+        lang={lang}
+        baseUrl={baseUrl}
+      />
+      <div className="min-h-screen bg-white font-sans text-charcoal-500 selection:bg-primary/20">
       
       {/* Ticker */}
       <NewsTicker lang={lang} rates={rates} />
@@ -412,5 +434,6 @@ export default async function BlogIndexPage({ params, searchParams }: BlogIndexP
 
       </main>
     </div>
+    </>
   )
 }

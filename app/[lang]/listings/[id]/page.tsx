@@ -7,7 +7,7 @@ import { ModalClientWrapper } from '../@modal/(.)[id]/modal-client-wrapper'
 
 interface PageProps {
   params: Promise<{
-    lang: 'en' | 'bg'
+    lang: 'en' | 'bg' | 'ru' | 'gr'
     id: string
   }>
 }
@@ -144,6 +144,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       languages: {
         en: `${baseUrl}/listings/${id}`,
         bg: `${baseUrl}/bg/obiavi/${id}`,
+        ru: `${baseUrl}/ru/obyavleniya/${id}`,
+        el: `${baseUrl}/gr/aggelies/${id}`,
         'x-default': `${baseUrl}/listings/${id}`,
       },
     },
@@ -153,7 +155,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       url: canonicalUrl,
       siteName: brand,
       locale: ogLocale,
-      alternateLocale: ['en_US', 'bg_BG'],
+      alternateLocale: ['en_US', 'bg_BG', 'ru_RU', 'el_GR'],
       type: 'website',
       ...(ogImage && { images: [{ url: ogImage }] }),
     },

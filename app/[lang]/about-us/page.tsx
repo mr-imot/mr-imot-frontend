@@ -3,10 +3,11 @@ import AboutClient from './about-client'
 import AboutStructuredData from './about-structured-data'
 import { brandForLang, formatTitleWithBrand } from '@/lib/seo'
 import type { Metadata } from 'next'
+import WebPageSchema from '@/components/seo/webpage-schema'
 
 interface AboutPageProps {
   params: Promise<{
-    lang: 'en' | 'bg' | 'ru'
+    lang: 'en' | 'bg' | 'ru' | 'gr'
   }>
 }
 
@@ -63,6 +64,7 @@ export async function generateMetadata({ params }: AboutPageProps): Promise<Meta
         en: `${baseUrl}/about-mister-imot`,
         bg: `${baseUrl}/bg/za-mistar-imot`,
         ru: `${baseUrl}/ru/o-mister-imot`,
+        el: `${baseUrl}/gr/sxetika-me-to-mister-imot`,
         'x-default': `${baseUrl}/about-mister-imot`,
       },
     },
@@ -72,7 +74,7 @@ export async function generateMetadata({ params }: AboutPageProps): Promise<Meta
       url: canonicalUrl,
       siteName: brand,
       locale: ogLocale,
-      alternateLocale: ['en_US', 'bg_BG', 'ru_RU'],
+      alternateLocale: ['en_US', 'bg_BG', 'ru_RU', 'el_GR'],
       type: 'website',
       images: [
         {
@@ -99,10 +101,41 @@ export default async function AboutPage({ params }: AboutPageProps) {
   const dict = await getDictionary(lang)
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mrimot.com'
   const baseUrl = siteUrl.replace(/\/$/, '')
+  const isBg = lang === 'bg'
+  const isRu = lang === 'ru'
+  const brand = brandForLang(lang)
+  const socialImage = 'https://ik.imagekit.io/ts59gf2ul/Logo/mister-imot-waving-hi-with-bg.png?tr=w-1200,h-630,cm-pad_resize,bg-FFFFFF,fo-auto,q-85,f-auto&v=20241205'
+  
+  const rawTitle = isBg
+    ? `За Нас – ${brand} | Платформа за ново строителство в България`
+    : isRu
+      ? `О нас – ${brand} | Платформа новостроек в Болгарии`
+      : `About Us – ${brand} | New Construction Platform in Bulgaria`
+  const title = formatTitleWithBrand(rawTitle, lang)
+  
+  const description = isBg
+    ? `Научете повече за ${brand} – платформата, която модернизира пазара на ново строителство в България. Директна връзка със строители, без брокери и без комисионни. Нашата мисия, подход и роудмап за развитие.`
+    : isRu
+      ? `Узнайте больше о ${brand} – платформе, которая модернизирует рынок новостроек в Болгарии. Общайтесь напрямую с застройщиками, без брокеров и комиссий. Наша миссия, подход и планы развития.`
+      : `Learn more about ${brand} – the platform modernizing Bulgaria's new construction market. Connect directly with developers, no brokers and 0% commissions. Our mission, approach, and development roadmap.`
+
+  const canonicalUrl = isBg 
+    ? `${baseUrl}/bg/za-mistar-imot`
+    : isRu
+      ? `${baseUrl}/ru/o-mister-imot`
+      : `${baseUrl}/about-mister-imot`
 
   return (
     <>
       <AboutStructuredData lang={lang} baseUrl={baseUrl} />
+      <WebPageSchema
+        name={title}
+        description={description}
+        url={canonicalUrl}
+        lang={lang}
+        baseUrl={baseUrl}
+        primaryImageOfPage={socialImage}
+      />
       <AboutClient dict={dict} lang={lang} />
     </>
   )
