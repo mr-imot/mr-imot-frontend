@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState, ReactNode, useCallback } from "react"
+import { cn } from "@/lib/utils"
 
 interface DraggableSheetProps {
   children: ReactNode
@@ -19,6 +20,7 @@ export function DraggableSheet({
   const [isDragging, setIsDragging] = useState(false)
   const [startY, setStartY] = useState(0)
   const [currentY, setCurrentY] = useState(0)
+  const [hasMounted, setHasMounted] = useState(false)
   const sheetRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
 
@@ -162,34 +164,54 @@ export function DraggableSheet({
     }
   }, [isDragging, handleMouseMove, handleMouseUp, handleTouchMove, handleTouchEnd])
 
+  // Mount animation
+  useEffect(() => {
+    setHasMounted(true)
+  }, [])
+
   const height = snapPoints[currentSnap]
   const dragOffset = isDragging ? Math.max(0, (startY - currentY) / 10) : 0
 
   return (
     <div
       ref={sheetRef}
-      className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl transition-all duration-300 ease-out z-40"
+      className={cn(
+        "fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl z-40",
+        isDragging ? "transition-none" : "transition-all duration-300 ease-out"
+      )}
       style={{
         height: `${Math.min(height + dragOffset, 100)}vh`,
         touchAction: isFullyExpanded ? 'pan-y' : 'none',
         paddingBottom: 'env(safe-area-inset-bottom)',
-        overscrollBehavior: 'contain'
+        overscrollBehavior: 'contain',
+        boxShadow: isDragging 
+          ? '0 -8px 32px rgba(0,0,0,0.2)' 
+          : '0 4px 16px rgba(0,0,0,0.12)'
       }}
     >
-      {/* Drag Handle */}
+      {/* Drag Handle - Enhanced for better visibility */}
       <div
         data-drag-handle
-        className="absolute top-0 left-0 right-0 h-12 flex items-center justify-center cursor-grab active:cursor-grabbing z-10 bg-white rounded-t-3xl"
+        className={cn(
+          "absolute top-0 left-0 right-0 h-16 flex items-center justify-center cursor-grab active:cursor-grabbing z-10 bg-gradient-to-b from-white to-gray-50/50 rounded-t-3xl border-b border-gray-200/50",
+          hasMounted && "animate-[pulse-once_1.5s_ease-in-out]"
+        )}
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
       >
-        <div className="w-12 h-1.5 bg-gray-300 rounded-full" />
+        {/* Main handle bar - much more prominent */}
+        <div 
+          className={cn(
+            "w-20 h-2.5 bg-gray-600 rounded-full shadow-sm transition-all duration-200",
+            isDragging && "scale-110 bg-gray-700"
+          )} 
+        />
       </div>
 
       {/* Content - only scrollable when fully expanded */}
       <div 
         ref={contentRef}
-        className="h-full pt-12 overscroll-contain"
+        className="h-full pt-16 overscroll-contain"
         style={{ 
           overflowY: isFullyExpanded ? 'auto' : 'hidden', 
           WebkitOverflowScrolling: 'touch',

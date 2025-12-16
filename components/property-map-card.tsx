@@ -180,13 +180,18 @@ export function PropertyMapCard({
           }
         }}
       >
-        {/* Close Button */}
+        {/* Close Button - Enhanced for mobile visibility */}
         <button
           aria-label="Close"
           onClick={(e) => { e.stopPropagation(); handleClose() }}
-          className="absolute top-2 right-2 z-10 w-7 h-7 rounded-full bg-white/90 hover:bg-white text-[#222222] flex items-center justify-center shadow-sm cursor-pointer"
+          className={cn(
+            "absolute z-20 rounded-full flex items-center justify-center shadow-xl cursor-pointer transition-all duration-200",
+            forceMobile
+              ? "top-3 right-3 w-10 h-10 bg-black/80 hover:bg-black text-white ring-2 ring-white/30"
+              : "top-2 right-2 w-7 h-7 bg-white/90 hover:bg-white text-[#222222] shadow-sm"
+          )}
         >
-          <X className="h-4 w-4 cursor-pointer" />
+          <X className={cn("cursor-pointer", forceMobile ? "h-5 w-5" : "h-4 w-4")} />
         </button>
 
         {/* Image Carousel */}
@@ -200,12 +205,12 @@ export function PropertyMapCard({
             <div className="embla__container flex h-full">
               {imageUrls.map((image, index) => (
                 <div key={index} className="embla__slide flex-[0_0_100%] min-w-0 h-full">
-                  <div className="relative w-full h-full">
+                  <div className="relative w-full h-full overflow-hidden">
                     <Image
                       src={image}
                       alt={property.title}
                       fill
-                      className="object-cover transition-transform duration-500 ease-out hover:scale-105 cursor-pointer"
+                      className="object-cover"
                       sizes="(max-width: 64em) 100vw, 20.4375rem"
                       priority={false}
                     />
@@ -215,20 +220,21 @@ export function PropertyMapCard({
             </div>
           </div>
 
-          {/* Dots */}
+          {/* Dots - Enhanced for mobile visibility */}
           {hasMultipleImages && (
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-10 px-2 py-1 rounded-full bg-black/40 backdrop-blur-sm">
               {imageUrls.map((_, idx) => (
                 <button
                   key={idx}
                   aria-label={`Go to image ${idx + 1}`}
                   onClick={(e) => { e.stopPropagation(); scrollTo(idx) }}
-                  className={idx === selectedIndex ? 'text-white' : 'text-white/70 hover:text-white'}
-                >
-                  <svg width="6" height="6" viewBox="0 0 6 6" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="3" cy="3" r="3" fill="currentColor" />
-                  </svg>
-                </button>
+                  className={cn(
+                    "transition-all duration-200 rounded-full",
+                    idx === selectedIndex 
+                      ? "w-1.5 h-1.5 bg-white" 
+                      : "w-1 h-1 bg-white/60 hover:bg-white/80"
+                  )}
+                />
               ))}
             </div>
           )}
