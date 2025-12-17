@@ -18,7 +18,7 @@ const BuildingIcon = ({ className }: { className?: string }) => (
 
 export interface ListingsLayoutServerProps {
   dict: any
-  lang: 'en' | 'bg' | 'ru'
+  lang: 'en' | 'bg' | 'ru' | 'gr'
   children: ReactNode
 }
 

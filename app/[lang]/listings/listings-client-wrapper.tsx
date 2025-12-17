@@ -21,7 +21,7 @@ import { CityType, PropertyTypeFilter, CITY_BOUNDS } from "./listings-layout-ser
 
 export interface ListingsClientWrapperProps {
   dict: any
-  lang: 'en' | 'bg' | 'ru'
+  lang: 'en' | 'bg' | 'ru' | 'gr'
   initialCity?: CityType
   initialType?: PropertyTypeFilter
   initialProperties?: PropertyData[]

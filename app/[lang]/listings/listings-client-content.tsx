@@ -42,7 +42,7 @@ import { CityType, PropertyTypeFilter, CITY_COORDINATES } from "./listings-layou
 
 export interface ListingsClientContentProps {
   dict: any
-  lang: 'en' | 'bg' | 'ru'
+  lang: 'en' | 'bg' | 'ru' | 'gr'
   
   // Filter state
   selectedCity: CityType
