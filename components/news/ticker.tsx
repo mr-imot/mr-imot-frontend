@@ -11,6 +11,17 @@ export type ExchangeRates = {
   }
 } | null
 
+export type CryptoPrices = {
+  bitcoin?: {
+    eur: number
+    eur_24h_change: number
+  }
+  ethereum?: {
+    eur: number
+    eur_24h_change: number
+  }
+} | null
+
 type TickerItem = {
   label: string
   value: string
@@ -48,34 +59,69 @@ const FALLBACK_TICKER_DATA: Record<string, TickerItem[]> = {
 
 export function NewsTicker({ 
   lang, 
-  rates
+  rates,
+  crypto
 }: { 
   lang: BlogLang
   rates?: ExchangeRates
+  crypto?: CryptoPrices
 }) {
   // Use static mock data for housing market
   const staticItems = FALLBACK_TICKER_DATA[lang] || FALLBACK_TICKER_DATA['en']
   
   let dynamicItems: TickerItem[] = []
 
+  // Currency exchange rates
   if (rates && rates.rates) {
     // Calculate Cross Rates
     const usdBgn = (rates.rates.BGN / rates.rates.USD).toFixed(4)
     const gbpBgn = (rates.rates.BGN / rates.rates.GBP).toFixed(4)
     const eurBgn = rates.rates.BGN.toFixed(5)
-
-    // Compare with previous day close (mock logic for change since we only have latest)
-    // In a real app we'd fetch yesterday's rates too. For now we show the rate.
     
-    dynamicItems = [
+    dynamicItems.push(
       { label: "EUR/BGN", value: eurBgn, change: "0.00%", isPositive: true },
       { label: "USD/BGN", value: usdBgn, change: "", isPositive: true },
-      { label: "GBP/BGN", value: gbpBgn, change: "", isPositive: true },
-    ]
+      { label: "GBP/BGN", value: gbpBgn, change: "", isPositive: true }
+    )
   } else {
-     dynamicItems = [
-        { label: "EUR/BGN", value: "1.95583", change: "0.00%", isPositive: true }
-     ]
+    dynamicItems.push(
+      { label: "EUR/BGN", value: "1.95583", change: "0.00%", isPositive: true }
+    )
+  }
+
+  // Crypto prices
+  if (crypto) {
+    if (crypto.bitcoin) {
+      const btcPrice = crypto.bitcoin.eur.toLocaleString('en-US', { 
+        minimumFractionDigits: 0, 
+        maximumFractionDigits: 0 
+      })
+      const btcChange = crypto.bitcoin.eur_24h_change
+      const btcChangeStr = `${btcChange >= 0 ? '+' : ''}${btcChange.toFixed(2)}%`
+      
+      dynamicItems.push({
+        label: "BTC/EUR",
+        value: `€${btcPrice}`,
+        change: btcChangeStr,
+        isPositive: btcChange >= 0,
+      })
+    }
+
+    if (crypto.ethereum) {
+      const ethPrice = crypto.ethereum.eur.toLocaleString('en-US', { 
+        minimumFractionDigits: 0, 
+        maximumFractionDigits: 0 
+      })
+      const ethChange = crypto.ethereum.eur_24h_change
+      const ethChangeStr = `${ethChange >= 0 ? '+' : ''}${ethChange.toFixed(2)}%`
+      
+      dynamicItems.push({
+        label: "ETH/EUR",
+        value: `€${ethPrice}`,
+        change: ethChangeStr,
+        isPositive: ethChange >= 0,
+      })
+    }
   }
 
   const items = [...staticItems, ...dynamicItems]

@@ -3,7 +3,7 @@ import Link from "next/link"
 import { brandForLang, formatTitleWithBrand } from "@/lib/seo"
 import { BLOG_LANGS, type BlogLang, type BlogPostMeta, getAllPostsMeta, getRelativeUrl, formatBlogDate } from "@/lib/news"
 import { getDictionary } from "../dictionaries"
-import { NewsTicker, type ExchangeRates } from "@/components/news/ticker"
+import { NewsTicker, type ExchangeRates, type CryptoPrices } from "@/components/news/ticker"
 import { NewsHero } from "@/components/news/news-hero"
 import { CompactPostCard } from "@/components/news/compact-post-card"
 import { SectionHeader } from "@/components/news/section-header"
@@ -31,6 +31,35 @@ async function getExchangeRates(): Promise<ExchangeRates> {
     })
     if (!res.ok) return null
     return res.json()
+  } catch (e) {
+    return null
+  }
+}
+
+async function getCryptoPrices(): Promise<CryptoPrices> {
+  try {
+    // CoinGecko API - free tier, no API key needed
+    // Fetch BTC and ETH prices in EUR with 24h change
+    const res = await fetch(
+      'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=eur&include_24hr_change=true',
+      {
+        next: { revalidate: 300 } // Cache for 5 minutes (crypto prices change frequently)
+      }
+    )
+    if (!res.ok) return null
+    
+    const data = await res.json()
+    
+    return {
+      bitcoin: data.bitcoin ? {
+        eur: data.bitcoin.eur,
+        eur_24h_change: data.bitcoin.eur_24h_change || 0
+      } : undefined,
+      ethereum: data.ethereum ? {
+        eur: data.ethereum.eur,
+        eur_24h_change: data.ethereum.eur_24h_change || 0
+      } : undefined,
+    }
   } catch (e) {
     return null
   }
@@ -165,6 +194,7 @@ export default async function BlogIndexPage({ params, searchParams }: BlogIndexP
   const posts = (await getAllPostsMeta(lang)).map(p => ({ ...p, href: getRelativeUrl(lang, p.slug) }))
   const mockPosts = makeMockPosts(lang)
   const rates = await getExchangeRates()
+  const crypto = await getCryptoPrices()
   
   // Merge real and mock posts, prioritizing real ones if slug collision
   const allPosts = [...posts, ...mockPosts.filter((m) => !posts.find((p) => p.slug === m.slug))]
@@ -241,7 +271,7 @@ export default async function BlogIndexPage({ params, searchParams }: BlogIndexP
       <div className="min-h-screen bg-white font-sans text-charcoal-500 selection:bg-primary/20">
       
       {/* Ticker */}
-      <NewsTicker lang={lang} rates={rates} />
+      <NewsTicker lang={lang} rates={rates} crypto={crypto} />
 
       {/* Main Content */}
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
