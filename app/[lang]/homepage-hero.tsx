@@ -87,7 +87,17 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
                         ? "https://ik.imagekit.io/ts59gf2ul/Logo/0_-komisionna-mr-imot.png?updatedAt=1760104535412&tr=f-webp,q-80,w-160,h-auto,dpr=auto"
                         : "https://ik.imagekit.io/ts59gf2ul/Logo/0_-commissions-mr-imot.png?updatedAt=1760108287952&tr=f-webp,q-80,w-160,h-auto,dpr=auto"
                     })()}
-                    alt={lang === 'bg' ? dict.hero.imageAlt : 'Mister Imot mascot'}
+                    alt={(() => {
+                      const isDecember = new Date().getMonth() === 11
+                      if (lang === 'bg') {
+                        return isDecember 
+                          ? 'Талисман Мистър Имот от mrimot.com в коледен дух, държащ знак с надпис 0% комисионни'
+                          : dict.hero.imageAlt
+                      }
+                      return isDecember
+                        ? 'Mister Imot mascot of mrimot.com in Christmas spirit holding a sign with 0% commissions message'
+                        : 'Mister Imot mascot of mrimot.com holding a sign with 0% commissions message for real estate platform'
+                    })()}
                     width={120}
                     height={90}
                     priority
@@ -162,7 +172,17 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
                   ? "https://ik.imagekit.io/ts59gf2ul/Logo/0_-komisionna-mr-imot.png?updatedAt=1760104535412&tr=f-webp,q-80,w-960,h-auto,dpr=auto"
                   : "https://ik.imagekit.io/ts59gf2ul/Logo/0_-commissions-mr-imot.png?updatedAt=1760108287952&tr=f-webp,q-80,w-960,h-auto,dpr=auto"
               })()}
-              alt={lang === 'bg' ? dict.hero.imageAlt : 'Mister Imot mascot holding flag with 0% commissions message for real estate platform'}
+              alt={(() => {
+                const isDecember = new Date().getMonth() === 11
+                if (lang === 'bg') {
+                  return isDecember 
+                    ? 'Талисман Мистър Имот от mrimot.com в коледен дух, държащ знак с надпис 0% комисионни за платформа за недвижими имоти'
+                    : dict.hero.imageAlt
+                }
+                return isDecember
+                  ? 'Mister Imot mascot of mrimot.com in Christmas spirit holding a sign with 0% commissions message for real estate platform'
+                  : 'Mister Imot mascot of mrimot.com holding a sign with 0% commissions message for real estate platform'
+              })()}
               width={960}
               height={640}
               priority
