@@ -99,6 +99,8 @@ export default async function BlogPostPage({ params }: BlogPostParams) {
   const { lang, slug } = await params
   const post = await getPostBySlug(lang, slug)
 
+  // Middleware handles slug translation with 301 redirects
+  // If we reach here and post is null, it's a genuine 404
   if (!post) {
     return notFound()
   }

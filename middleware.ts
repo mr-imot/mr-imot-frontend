@@ -1,6 +1,13 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { match } from '@formatjs/intl-localematcher'
 import Negotiator from 'negotiator'
+import slugMapData from '@/lib/news-slug-map.json'
+
+// Type-safe slug map (Edge Runtime compatible - JSON import works)
+const slugMap = slugMapData as {
+  slugToKey: Record<string, string>
+  keyToSlugs: Record<string, Record<'en' | 'bg' | 'ru' | 'gr', string>>
+}
 
 // Extend NextRequest to include Vercel's geo property
 interface VercelRequest extends NextRequest {
@@ -51,7 +58,7 @@ function getLocale(request: NextRequest) {
   }
 }
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   
   // Skip static files and special paths immediately (before any processing)
@@ -301,6 +308,58 @@ export function middleware(request: NextRequest) {
     const url = request.nextUrl.clone()
     url.pathname = pathname.replace('/gr/news', '/gr/eidhseis')
     return NextResponse.redirect(url)
+  }
+
+  // News article slug translation - 301 redirect for SEO
+  // Handles cases like /bg/novini/ideia-khoum-new-partner → /bg/novini/ideia-khoum-nov-partnyor
+  // Also handles English: /news/ideia-khoum-new-partner (no /en/ prefix)
+  let newsArticleMatch = pathname.match(/^\/(bg|ru|gr)\/(novini|novosti|eidhseis)\/([^/]+)$/)
+  let lang: string | undefined
+  let slug: string | undefined
+  
+  if (newsArticleMatch) {
+    [, lang, , slug] = newsArticleMatch
+  } else {
+    // Check for English news (no /en/ prefix)
+    const englishNewsMatch = pathname.match(/^\/news\/([^/]+)$/)
+    if (englishNewsMatch) {
+      lang = 'en'
+      slug = englishNewsMatch[1]
+    }
+  }
+  
+  if (lang && slug) {
+    try {
+      // Find translationKey for this slug (O(1) lookup from static JSON)
+      const translationKey = slugMap.slugToKey[slug]
+      
+      if (translationKey) {
+        // Get alternate slugs for this translation
+        const alternateSlugs = slugMap.keyToSlugs[translationKey]
+        const correctSlug = alternateSlugs?.[lang as 'en' | 'bg' | 'ru' | 'gr']
+        
+        // If slug doesn't match the correct one for this language, redirect with 301
+        if (correctSlug && correctSlug !== slug) {
+          const newsPathMap: Record<string, string> = {
+            en: '/news',
+            bg: '/novini',
+            ru: '/novosti',
+            gr: '/eidhseis',
+          }
+          const newsPath = newsPathMap[lang] || '/news'
+          const url = request.nextUrl.clone()
+          url.pathname = lang === 'en' 
+            ? `${newsPath}/${correctSlug}`
+            : `/${lang}${newsPath}/${correctSlug}`
+          
+          // 301 Permanent Redirect for SEO (canonical URL correction)
+          return NextResponse.redirect(url, 301)
+        }
+      }
+    } catch (error) {
+      // If lookup fails, continue with normal flow (don't break the site)
+      console.error('[Middleware] Error in news slug translation:', error)
+    }
   }
 
   // English canonical slugs (no prefix) → internal /en routes for rendering

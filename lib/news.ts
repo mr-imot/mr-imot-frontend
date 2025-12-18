@@ -310,6 +310,24 @@ export async function getPostBySlug(lang: BlogLang, slug: string): Promise<BlogP
   }
 }
 
+/**
+ * Find translationKey by slug across all languages - O(1) lookup
+ * Note: This function is for server-side use only (not Edge Runtime)
+ * Middleware uses the static JSON file instead
+ */
+export async function findTranslationKeyBySlug(slug: string): Promise<string | null> {
+  // This is a fallback for server-side code
+  // Middleware should use the static JSON import instead
+  for (const lang of BLOG_LANGS) {
+    const posts = await getAllPostsMeta(lang)
+    const match = posts.find((post) => post.slug === slug)
+    if (match) {
+      return match.translationKey
+    }
+  }
+  return null
+}
+
 export async function getAlternateSlugs(translationKey: string) {
   const map: Partial<Record<BlogLang, string>> = {}
   await Promise.all(

@@ -1,0 +1,103 @@
+{
+  "slugToKey": {
+    "fed-tariffs-inflation": "powell-tariffs-2025",
+    "how-to-add-listing-guide": "how-to-add-listing-guide",
+    "how-to-register-guide": "how-to-register-guide",
+    "ideia-khoum-new-partner": "ideia-khoum-new-partner-2025",
+    "greek-language-is-here": "language-greek-2025",
+    "mister-imot-now-speaks-russian": "language-russian-2025",
+    "100-a-month-compounding": "money-compounding-100",
+    "new-vs-old-construction-guide-2026": "new-vs-old-construction-2026",
+    "solana-residence-new-investor": "solana-residence-new-investor-2025",
+    "south-city-plovdiv-off-plan": "south-city-plovdiv-2025",
+    "ideia-khoum-nov-partnyor": "ideia-khoum-new-partner-2025",
+    "kak-da-dobavite-obiava": "how-to-add-listing-guide",
+    "kak-da-si-napravya-registraciya": "how-to-register-guide",
+    "gryckiat-ezik-veche-e-tuk": "language-greek-2025",
+    "mister-imot-veche-e-dostypen-na-ruski": "language-russian-2025",
+    "kak-100-leva-stavat-7300": "money-compounding-100",
+    "novo-ili-staro-stroitelstvo-rukovodstvo-2026": "new-vs-old-construction-2026",
+    "solana-residence-nov-investitor": "solana-residence-new-investor-2025",
+    "yuzhen-plovdiv-na-zeleno": "south-city-plovdiv-2025",
+    "kak-dobavit-obyavlenie": "how-to-add-listing-guide",
+    "kak-zaregistrirovatsya": "how-to-register-guide",
+    "ideia-khoum-novyj-partnyor": "ideia-khoum-new-partner-2025",
+    "grecheskiy-yazyk-uzhe-zdes": "language-greek-2025",
+    "mister-imot-teper-na-russkom": "language-russian-2025",
+    "100-lev-za-5-let-7300": "money-compounding-100",
+    "novostroyka-ili-vtorichka-gid-2026": "new-vs-old-construction-2026",
+    "solana-residence-novyj-investor": "solana-residence-new-investor-2025",
+    "yuzhnyj-plovdiv-off-plan": "south-city-plovdiv-2025",
+    "pos-na-prosthete-angelia": "how-to-add-listing-guide",
+    "pos-na-kano-eggrafi": "how-to-register-guide",
+    "ideia-khoum-neos-synergatas": "ideia-khoum-new-partner-2025",
+    "elliniki-glossa-einai-edo": "language-greek-2025",
+    "to-mister-imot-mila-rosika": "language-russian-2025",
+    "100-lev-se-5-chronia-7300": "money-compounding-100",
+    "nea-i-palia-kataskevi-odigos-2026": "new-vs-old-construction-2026",
+    "solana-residence-neos-ependytis": "solana-residence-new-investor-2025",
+    "south-city-plovdiv-off-plan-gr": "south-city-plovdiv-2025"
+  },
+  "keyToSlugs": {
+    "powell-tariffs-2025": {
+      "en": "fed-tariffs-inflation",
+      "bg": "fed-tariffs-inflation",
+      "ru": "fed-tariffs-inflation",
+      "gr": "fed-tariffs-inflation"
+    },
+    "how-to-add-listing-guide": {
+      "en": "how-to-add-listing-guide",
+      "bg": "kak-da-dobavite-obiava",
+      "ru": "kak-dobavit-obyavlenie",
+      "gr": "pos-na-prosthete-angelia"
+    },
+    "how-to-register-guide": {
+      "en": "how-to-register-guide",
+      "bg": "kak-da-si-napravya-registraciya",
+      "ru": "kak-zaregistrirovatsya",
+      "gr": "pos-na-kano-eggrafi"
+    },
+    "ideia-khoum-new-partner-2025": {
+      "en": "ideia-khoum-new-partner",
+      "bg": "ideia-khoum-nov-partnyor",
+      "ru": "ideia-khoum-novyj-partnyor",
+      "gr": "ideia-khoum-neos-synergatas"
+    },
+    "language-greek-2025": {
+      "en": "greek-language-is-here",
+      "bg": "gryckiat-ezik-veche-e-tuk",
+      "ru": "grecheskiy-yazyk-uzhe-zdes",
+      "gr": "elliniki-glossa-einai-edo"
+    },
+    "language-russian-2025": {
+      "en": "mister-imot-now-speaks-russian",
+      "bg": "mister-imot-veche-e-dostypen-na-ruski",
+      "ru": "mister-imot-teper-na-russkom",
+      "gr": "to-mister-imot-mila-rosika"
+    },
+    "money-compounding-100": {
+      "en": "100-a-month-compounding",
+      "bg": "kak-100-leva-stavat-7300",
+      "ru": "100-lev-za-5-let-7300",
+      "gr": "100-lev-se-5-chronia-7300"
+    },
+    "new-vs-old-construction-2026": {
+      "en": "new-vs-old-construction-guide-2026",
+      "bg": "novo-ili-staro-stroitelstvo-rukovodstvo-2026",
+      "ru": "novostroyka-ili-vtorichka-gid-2026",
+      "gr": "nea-i-palia-kataskevi-odigos-2026"
+    },
+    "solana-residence-new-investor-2025": {
+      "en": "solana-residence-new-investor",
+      "bg": "solana-residence-nov-investitor",
+      "ru": "solana-residence-novyj-investor",
+      "gr": "solana-residence-neos-ependytis"
+    },
+    "south-city-plovdiv-2025": {
+      "en": "south-city-plovdiv-off-plan",
+      "bg": "yuzhen-plovdiv-na-zeleno",
+      "ru": "yuzhnyj-plovdiv-off-plan",
+      "gr": "south-city-plovdiv-off-plan-gr"
+    }
+  }
+}
