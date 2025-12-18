@@ -7,6 +7,8 @@ import CookieConsent from "@/components/cookie-consent"
 import { brandForLang, formatTitleWithBrand } from "@/lib/seo"
 import type { Metadata } from "next"
 import ViewportLock from "@/components/ViewportLock"
+import { Snowfall } from "@/components/christmas"
+import { FairyLights } from "@/components/fairy-lights"
 
 export async function generateStaticParams() {
   return [{ lang: 'en' }, { lang: 'bg' }, { lang: 'ru' }, { lang: 'gr' }]
@@ -98,6 +100,8 @@ export default async function RootLayout({
     
     return (
       <LocaleProvider locale={lang} translations={translations}>
+        {/* Fairy lights at the top, overlapping navbar slightly */}
+        <FairyLights />
         <div className="relative flex min-h-screen flex-col">
           <SiteHeader />
           {/* Global viewport fixes: mobile height lock and header height sync */}
@@ -107,6 +111,15 @@ export default async function RootLayout({
         </div>
         <FeedbackButton />
         <CookieConsent />
+        {/* Christmas snowfall effect - remove this component and import to disable */}
+        <Snowfall 
+          count={150}
+          minSize={5}
+          maxSize={14}
+          minSpeed={0.5}
+          maxSpeed={2.5}
+          enabled={true}
+        />
       </LocaleProvider>
     )
   } catch (error) {
@@ -116,6 +129,8 @@ export default async function RootLayout({
     
     return (
       <LocaleProvider locale="en" translations={fallbackTranslations}>
+        {/* Fairy lights at the top, overlapping navbar slightly */}
+        <FairyLights />
         <div className="relative flex min-h-screen flex-col">
           <SiteHeader />
           <main className="flex-1">{children}</main>
@@ -123,6 +138,15 @@ export default async function RootLayout({
         </div>
         <FeedbackButton />
         <CookieConsent />
+        {/* Christmas snowfall effect - remove this component and import to disable */}
+        <Snowfall 
+          count={150}
+          minSize={5}
+          maxSize={14}
+          minSpeed={0.5}
+          maxSpeed={2.5}
+          enabled={true}
+        />
       </LocaleProvider>
     )
   }
