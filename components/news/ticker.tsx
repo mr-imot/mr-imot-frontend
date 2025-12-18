@@ -18,24 +18,43 @@ type TickerItem = {
   isPositive: boolean
 }
 
-const TICKER_DATA: Record<string, TickerItem[]> = {
+// Static mock data for housing market (Updated with NSI 2025 Q2 data)
+const FALLBACK_TICKER_DATA: Record<string, TickerItem[]> = {
   bg: [
-    { label: "София (ср. цена)", value: "€1,970/кв.м", change: "+14.0%", isPositive: true },
-    { label: "Пловдив", value: "€1,328/кв.м", change: "+7.0%", isPositive: true },
-    { label: "Варна", value: "€1,600/кв.м", change: "+16.0%", isPositive: true },
-    { label: "Ипотечен лихва", value: "2.74%", change: "-0.11%", isPositive: true }, // lower interest is positive
+    { label: "София (ср. цена)", value: "€2,310/кв.м", change: "+15.5%", isPositive: true },
+    { label: "Пловдив", value: "€1,565/кв.м", change: "+13.5%", isPositive: true },
+    { label: "Варна", value: "€1,975/кв.м", change: "+19.0%", isPositive: true },
+    { label: "Ипотечен лихва", value: "2.58%", change: "-0.07%", isPositive: true }, // lower interest is positive
   ],
   en: [
-    { label: "Sofia (avg)", value: "€1,970/sqm", change: "+14.0%", isPositive: true },
-    { label: "Plovdiv", value: "€1,328/sqm", change: "+7.0%", isPositive: true },
-    { label: "Varna", value: "€1,600/sqm", change: "+16.0%", isPositive: true },
-    { label: "Mortgage Rate", value: "2.74%", change: "-0.11%", isPositive: true },
-  ]
+    { label: "Sofia (avg)", value: "€2,310/sqm", change: "+15.5%", isPositive: true },
+    { label: "Plovdiv", value: "€1,565/sqm", change: "+13.5%", isPositive: true },
+    { label: "Varna", value: "€1,975/sqm", change: "+19.0%", isPositive: true },
+    { label: "Mortgage Rate", value: "2.58%", change: "-0.07%", isPositive: true },
+  ],
+  ru: [
+    { label: "София (ср. цена)", value: "€2,310/кв.м", change: "+15.5%", isPositive: true },
+    { label: "Пловдив", value: "€1,565/кв.м", change: "+13.5%", isPositive: true },
+    { label: "Варна", value: "€1,975/кв.м", change: "+19.0%", isPositive: true },
+    { label: "Ипотечная ставка", value: "2.58%", change: "-0.07%", isPositive: true },
+  ],
+  gr: [
+    { label: "Σόφια (μέσος)", value: "€2,310/τ.μ.", change: "+15.5%", isPositive: true },
+    { label: "Πλόβντιβ", value: "€1,565/τ.μ.", change: "+13.5%", isPositive: true },
+    { label: "Βάρνα", value: "€1,975/τ.μ.", change: "+19.0%", isPositive: true },
+    { label: "Επιτόκιο υποθήκης", value: "2.58%", change: "-0.07%", isPositive: true },
+  ],
 }
 
-export function NewsTicker({ lang, rates }: { lang: BlogLang, rates?: ExchangeRates }) {
-  // Fallback to English if lang not found, or default BG logic
-  const staticItems = TICKER_DATA[lang] || TICKER_DATA['en']
+export function NewsTicker({ 
+  lang, 
+  rates
+}: { 
+  lang: BlogLang
+  rates?: ExchangeRates
+}) {
+  // Use static mock data for housing market
+  const staticItems = FALLBACK_TICKER_DATA[lang] || FALLBACK_TICKER_DATA['en']
   
   let dynamicItems: TickerItem[] = []
 

@@ -36,6 +36,7 @@ async function getExchangeRates(): Promise<ExchangeRates> {
   }
 }
 
+
 const metaTitleFallback: Record<BlogLang, string> = {
   en: "Mister Imot News – Real Estate, Finance, and Market Updates",
   bg: "Новини от Мистър Имот – Имоти, Финанси и Пазарни Анализи",

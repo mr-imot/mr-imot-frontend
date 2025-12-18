@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "npm run generate:slug-map && next build",
+    "build": "pnpm run generate:slug-map && next build",
     "generate:slug-map": "node scripts/generate-news-slug-map.js",
-    "dev": "npm run generate:slug-map && next dev",
+    "dev": "pnpm run generate:slug-map && next dev",
     "lint": "next lint",
     "start": "next start"
   },
