@@ -1,5 +1,6 @@
 {
   "slugToKey": {
+    "how-to-add-free-calculator-notary-fees-taxes-property-2026": "bezplaten-kalkulator-taksi-imot-widget",
     "fed-tariffs-inflation": "powell-tariffs-2025",
     "how-to-add-listing-guide": "how-to-add-listing-guide",
     "how-to-register-guide": "how-to-register-guide",
@@ -8,8 +9,12 @@
     "mister-imot-now-speaks-russian": "language-russian-2025",
     "100-a-month-compounding": "money-compounding-100",
     "new-vs-old-construction-guide-2026": "new-vs-old-construction-2026",
+    "complete-guide-buying-off-plan-apartments": "pokupka-na-zeleno-rakovodstvo-2025",
+    "preliminary-contract-property-purchase-pitfalls": "predvaritelen-dogovor-pokupka-imot-ulovki",
     "solana-residence-new-investor": "solana-residence-new-investor-2025",
     "south-city-plovdiv-off-plan": "south-city-plovdiv-2025",
+    "property-purchase-fees-calculator-2025": "taksi-pri-pokupka-na-imot-kalkulator-2025",
+    "bezplaten-kalkulator-taksi-imot-widget": "bezplaten-kalkulator-taksi-imot-widget",
     "ideia-khoum-nov-partnyor": "ideia-khoum-new-partner-2025",
     "kak-da-dobavite-obiava": "how-to-add-listing-guide",
     "kak-da-si-napravya-registraciya": "how-to-register-guide",
@@ -17,8 +22,12 @@
     "mister-imot-veche-e-dostypen-na-ruski": "language-russian-2025",
     "kak-100-leva-stavat-7300": "money-compounding-100",
     "novo-ili-staro-stroitelstvo-rukovodstvo-2026": "new-vs-old-construction-2026",
+    "pokupka-na-apartament-na-zeleno-rakovodstvo": "pokupka-na-zeleno-rakovodstvo-2025",
+    "predvaritelen-dogovor-pokupka-na-imot-ulovki": "predvaritelen-dogovor-pokupka-imot-ulovki",
     "solana-residence-nov-investitor": "solana-residence-new-investor-2025",
     "yuzhen-plovdiv-na-zeleno": "south-city-plovdiv-2025",
+    "taksi-pri-pokupka-na-imot-kalkulator-2025": "taksi-pri-pokupka-na-imot-kalkulator-2025",
+    "kak-dobavit-besplatnyj-kalkulyator-notarialnyh-sborov-nalogov-2026": "bezplaten-kalkulator-taksi-imot-widget",
     "kak-dobavit-obyavlenie": "how-to-add-listing-guide",
     "kak-zaregistrirovatsya": "how-to-register-guide",
     "ideia-khoum-novyj-partnyor": "ideia-khoum-new-partner-2025",
@@ -26,8 +35,12 @@
     "mister-imot-teper-na-russkom": "language-russian-2025",
     "100-lev-za-5-let-7300": "money-compounding-100",
     "novostroyka-ili-vtorichka-gid-2026": "new-vs-old-construction-2026",
+    "polnoe-rukovodstvo-pokupka-kvartir-na-zeleno": "pokupka-na-zeleno-rakovodstvo-2025",
+    "predvaritelnyj-dogovor-pokupka-nedvizhimosti-podvodnye-kamni": "predvaritelen-dogovor-pokupka-imot-ulovki",
     "solana-residence-novyj-investor": "solana-residence-new-investor-2025",
     "yuzhnyj-plovdiv-off-plan": "south-city-plovdiv-2025",
+    "kalkulyator-raskhodov-pokupka-nedvizhimosti-2025": "taksi-pri-pokupka-na-imot-kalkulator-2025",
+    "pos-na-prosthesete-dorean-ypologisti-symvolaiografikon-telon-2026": "bezplaten-kalkulator-taksi-imot-widget",
     "pos-na-prosthete-angelia": "how-to-add-listing-guide",
     "pos-na-kano-eggrafi": "how-to-register-guide",
     "ideia-khoum-neos-synergatas": "ideia-khoum-new-partner-2025",
@@ -35,10 +48,19 @@
     "to-mister-imot-mila-rosika": "language-russian-2025",
     "100-lev-se-5-chronia-7300": "money-compounding-100",
     "nea-i-palia-kataskevi-odigos-2026": "new-vs-old-construction-2026",
+    "pliris-odigos-agoras-diamerismaton-prasina": "pokupka-na-zeleno-rakovodstvo-2025",
+    "prokatarktiki-symvasi-agoras-akinitou-pagides": "predvaritelen-dogovor-pokupka-imot-ulovki",
     "solana-residence-neos-ependytis": "solana-residence-new-investor-2025",
-    "south-city-plovdiv-off-plan-gr": "south-city-plovdiv-2025"
+    "south-city-plovdiv-off-plan-gr": "south-city-plovdiv-2025",
+    "ypologistis-kostous-agora-akinitou-2025": "taksi-pri-pokupka-na-imot-kalkulator-2025"
   },
   "keyToSlugs": {
+    "bezplaten-kalkulator-taksi-imot-widget": {
+      "en": "how-to-add-free-calculator-notary-fees-taxes-property-2026",
+      "bg": "bezplaten-kalkulator-taksi-imot-widget",
+      "ru": "kak-dobavit-besplatnyj-kalkulyator-notarialnyh-sborov-nalogov-2026",
+      "gr": "pos-na-prosthesete-dorean-ypologisti-symvolaiografikon-telon-2026"
+    },
     "powell-tariffs-2025": {
       "en": "fed-tariffs-inflation",
       "bg": "fed-tariffs-inflation",
@@ -87,6 +109,18 @@
       "ru": "novostroyka-ili-vtorichka-gid-2026",
       "gr": "nea-i-palia-kataskevi-odigos-2026"
     },
+    "pokupka-na-zeleno-rakovodstvo-2025": {
+      "en": "complete-guide-buying-off-plan-apartments",
+      "bg": "pokupka-na-apartament-na-zeleno-rakovodstvo",
+      "ru": "polnoe-rukovodstvo-pokupka-kvartir-na-zeleno",
+      "gr": "pliris-odigos-agoras-diamerismaton-prasina"
+    },
+    "predvaritelen-dogovor-pokupka-imot-ulovki": {
+      "en": "preliminary-contract-property-purchase-pitfalls",
+      "bg": "predvaritelen-dogovor-pokupka-na-imot-ulovki",
+      "ru": "predvaritelnyj-dogovor-pokupka-nedvizhimosti-podvodnye-kamni",
+      "gr": "prokatarktiki-symvasi-agoras-akinitou-pagides"
+    },
     "solana-residence-new-investor-2025": {
       "en": "solana-residence-new-investor",
       "bg": "solana-residence-nov-investitor",
@@ -98,6 +132,12 @@
       "bg": "yuzhen-plovdiv-na-zeleno",
       "ru": "yuzhnyj-plovdiv-off-plan",
       "gr": "south-city-plovdiv-off-plan-gr"
+    },
+    "taksi-pri-pokupka-na-imot-kalkulator-2025": {
+      "en": "property-purchase-fees-calculator-2025",
+      "bg": "taksi-pri-pokupka-na-imot-kalkulator-2025",
+      "ru": "kalkulyator-raskhodov-pokupka-nedvizhimosti-2025",
+      "gr": "ypologistis-kostous-agora-akinitou-2025"
     }
   }
 }

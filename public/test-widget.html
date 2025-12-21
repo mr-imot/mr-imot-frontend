@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест на Widget - Калкулатор такси</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .widget-container {
+            margin: 40px 0;
+            padding: 20px;
+            background: #fafafa;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Тест на Widget - Калкулатор такси при покупка на имот</h1>
+        
+        <p>Това е тестова страница за проверка на widget-а. Widget-ът трябва да се зареди по-долу.</p>
+
+        <div class="widget-container">
+            <h2>Светла тема, български език:</h2>
+            <div id="mrimot-calculator-light"></div>
+            <script 
+                src="/widgets/property-fees.js"
+                data-target="mrimot-calculator-light"
+                data-theme="light"
+                data-lang="bg"
+            ></script>
+        </div>
+
+        <div class="widget-container" style="background: #1a1a1a; color: white;">
+            <h2 style="color: white;">Тъмна тема, български език:</h2>
+            <div id="mrimot-calculator-dark"></div>
+            <script 
+                src="/widgets/property-fees.js"
+                data-target="mrimot-calculator-dark"
+                data-theme="dark"
+                data-lang="bg"
+            ></script>
+        </div>
+
+        <div class="widget-container">
+            <h2>Светла тема, английски език:</h2>
+            <div id="mrimot-calculator-en"></div>
+            <script 
+                src="/widgets/property-fees.js"
+                data-target="mrimot-calculator-en"
+                data-theme="light"
+                data-lang="en"
+            ></script>
+        </div>
+
+        <hr style="margin: 40px 0; border: none; border-top: 1px solid #e0e0e0;">
+
+        <h2>Инструкции за тестване:</h2>
+        <ol>
+            <li>Проверете дали widget-ите се зареждат</li>
+            <li>Въведете тестова сума (например 200000)</li>
+            <li>Изберете община</li>
+            <li>Натиснете "Пресметни"</li>
+            <li>Проверете резултатите</li>
+            <li>Проверете дали footer backlink-ът е видим</li>
+        </ol>
+
+        <h2>Очаквани резултати за 200,000 лв. в София:</h2>
+        <ul>
+            <li>Нотариална такса: 930.50 лв.</li>
+            <li>ДДС нотариални такси: 186.10 лв.</li>
+            <li>Общински данък: 6,000.00 лв. (3%)</li>
+            <li>Такса вписване: 200.00 лв.</li>
+            <li><strong>Общо: ~7,316.60 лв.</strong></li>
+        </ul>
+    </div>
+</body>
+</html>
+

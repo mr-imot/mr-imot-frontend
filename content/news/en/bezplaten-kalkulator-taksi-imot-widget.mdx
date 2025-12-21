@@ -1,0 +1,290 @@
+---
+title: "How to Add a Free Calculator for Notary Fees and Taxes When Buying Property 2026"
+description: "Step-by-step guide for embedding a free calculator for notary fees, municipal tax, and registration fee when buying real estate in Bulgaria. Fees are converted to euros for 2026. Works on all platforms."
+date: "2025-12-21"
+coverImage: "https://ik.imagekit.io/ts59gf2ul/blogs/kalkulator-taksi/notarialni-taksi-kalkulator-imoti-mrimot.com.png?tr=w-1600,h-900,fo-auto,f-webp,q-85"
+coverImageAlt: "Calculator for notary fees and taxes when buying property - calculates notary fee, VAT, municipal tax and registration fee in euros for 2026"
+category: "Property"
+tags:
+  - "notary fees calculator"
+  - "property tax calculator"
+  - "free calculator"
+  - "property purchase calculator"
+  - "notary fee"
+  - "municipal tax"
+  - "registration fee"
+  - "calculator widget"
+author:
+  name: "mrimot.com"
+  avatar: "https://ik.imagekit.io/ts59gf2ul/Logo/mr-imot-logo-no-background.png?tr=w-200,h-200,fo-auto,f-webp"
+translationKey: "bezplaten-kalkulator-taksi-imot-widget"
+slug: "how-to-add-free-calculator-notary-fees-taxes-property-2026"
+---
+
+Want to add a useful calculator for notary fees and taxes when buying property to your website? This guide will show you how to embed a free, ready-to-use calculator that calculates all basic costs when buying real estate in Bulgaria.
+
+**Important:** The fees in the calculator are converted to euros for 2026 at an exchange rate of 1 BGN = 0.5114 EUR. The calculator is regularly updated for changes in legislation and exchange rates. **Last updated: December 21, 2025.**
+
+## What Does the Calculator Calculate?
+
+The calculator automatically calculates:
+
+- **Notary Fee** – according to the official Tariff for Notary Fees under the Notaries and Notarial Activity Act (ЗННД)
+- **VAT on Notary Fee** – 20% of the notary fee (if the notary is VAT registered)
+- **Municipal Acquisition Tax** – local tax that varies by municipality (usually 2-3%)
+- **Registration Fee** – 0.1% of the material interest, paid to the Registry Agency
+
+## Live Example
+
+Here's how the calculator looks in action. You can test it directly here:
+
+<PropertyFeesCalculator theme="light" lang="en" />
+
+## Step by Step: How to Add the Calculator
+
+### Step 1: Copy the Code
+
+Copy the following code to the page where you want the calculator to appear:
+
+```html
+<div id="mrimot-calculator"></div>
+<script
+  src="https://mrimot.com/widgets/property-fees.js"
+  data-theme="light"
+  data-lang="en"
+></script>
+```
+
+**Note:** The calculator calculates fees in Bulgarian Lev (BGN) and converts them to euros (EUR) at an exchange rate of 1 BGN = 0.5114 EUR. We will continue to update the calculator for changes in legislation and exchange rates.
+
+### Step 2: Place the Code on Your Website
+
+**For WordPress:**
+1. Edit the page or post
+2. Switch to "Text" or "Code" mode (not Visual)
+3. Paste the code where you want it
+4. Save changes
+
+**For Wix:**
+1. Add an HTML iframe element
+2. Paste the code in the HTML block
+3. Save changes
+
+**For Squarespace:**
+1. Add a Code Block
+2. Paste the code
+3. Save
+
+**For Custom HTML Site:**
+Simply paste the code where you want it in the page's HTML code.
+
+### Step 3: Test
+
+Open the page in a browser and check if the calculator loads correctly. Try entering an amount and selecting a municipality to see the results.
+
+## Customization
+
+### Dark Theme
+
+If you want a dark theme, change `data-theme="light"` to `data-theme="dark"`:
+
+```html
+<div id="mrimot-calculator"></div>
+<script
+  src="https://mrimot.com/widgets/property-fees.js"
+  data-theme="dark"
+  data-lang="en"
+></script>
+```
+
+### Bulgarian Language
+
+For Bulgarian interface, change `data-lang="en"` to `data-lang="bg"`:
+
+```html
+<div id="mrimot-calculator"></div>
+<script
+  src="https://mrimot.com/widgets/property-fees.js"
+  data-theme="light"
+  data-lang="bg"
+></script>
+```
+
+### Custom ID
+
+If you want to use a different ID for the container:
+
+```html
+<div id="my-custom-calculator"></div>
+<script
+  src="https://mrimot.com/widgets/property-fees.js"
+  data-target="my-custom-calculator"
+  data-theme="light"
+  data-lang="en"
+></script>
+```
+
+## Why Add a Calculator to Your Website?
+
+### 1. Improves User Experience
+
+Visitors to your website can calculate costs directly there, without searching for information on other sites. This increases time spent on the site and reduces bounce rate.
+
+### 2. Builds Trust
+
+Websites that offer useful tools are perceived as more professional and reliable. The calculator shows that you understand your visitors' needs.
+
+### 3. Reduces Questions
+
+Clients often ask about costs when buying property. With a calculator on your site, you automatically answer this question, saving your team time.
+
+### 4. Improves SEO
+
+The calculator adds unique, useful content to your site, which improves SEO metrics. Additionally, interactive elements improve dwell time and reduce bounce rate.
+
+### 5. Suitable for Different Types of Websites
+
+The calculator is useful for:
+- **Real Estate Agencies** – clients can calculate costs before contacting you
+- **Developers** – you show transparency and help buyers plan their budget
+- **Real Estate Blogs** – you add value to your content
+- **Law Firms** – you provide a useful tool to your clients
+- **Financial Advisors** – you help clients plan their purchase
+
+## Technical Details
+
+### No Dependencies
+
+The calculator is written in pure vanilla JavaScript, with no need for jQuery, React, or other libraries. This means:
+- Fast loading
+- Lightweight (~14 KB)
+- Compatible with all modern browsers
+
+### Shadow DOM Isolation
+
+The calculator uses Shadow DOM technology, which means:
+- **No CSS conflicts** – the calculator's styles don't mix with yours
+- **Isolated environment** – the JavaScript code doesn't affect the rest of the page
+- **Security** – your code cannot change the calculator's functionality
+
+### Responsive Design
+
+The calculator automatically adapts to different screen sizes:
+- Desktop computers
+- Tablets
+- Mobile devices
+
+### Up-to-Date Information
+
+The calculator includes:
+- All 300+ municipalities in Bulgaria with accurate tax rates
+- Current Tariff for Notary Fees
+- Regular updates for changes in legislation
+
+## How Does the Calculation Work?
+
+### Notary Fee
+
+Calculated according to the official Tariff for Notary Fees under ЗННД. The tariff is regressive – the higher the price, the lower the percentage, but the amount increases.
+
+**Examples (converted to EUR at rate 1 BGN = 0.5114 EUR):**
+- For amounts up to ~51,140 EUR (100,000 BGN): ~0.5-0.8% of value
+- For amounts over ~255,700 EUR (500,000 BGN): maximum fee ~3,068 EUR (6,000 BGN)
+
+### Municipal Tax
+
+The amount varies by municipality:
+- **Sofia, Plovdiv, Varna, Burgas:** 3%
+- **Pleven:** 2.85%
+- **Sliven:** 2.8%
+- **Other municipalities:** 2-3% (full list in calculator)
+
+### Registration Fee
+
+Fixed at 0.1% of material interest, but not less than ~5.11 EUR (10 BGN). Paid to the Registry Agency.
+
+**Important:** All amounts in the calculator are converted to euros at an exchange rate of 1 BGN = 0.5114 EUR, current for 2026. We will continue to update the calculator for changes in legislation and exchange rates. Last updated: December 21, 2025.
+
+### Material Interest
+
+Material interest is the higher value between:
+- The sale price (contract price)
+- The tax assessment of the property
+
+The calculator uses this value to calculate all fees.
+
+## Frequently Asked Questions
+
+### Why is there a difference between the calculator and actual fees?
+
+The calculator calculates basic fees according to official tariffs. Actual costs may vary due to:
+- Additional fees (drafting a notarial act project, inquiries, certifications)
+- Different practices of notaries
+- Changes in local taxes
+
+**Recommendation:** Always request a preliminary invoice from the notary before the transaction.
+
+### Who Pays the Fees When Buying Property?
+
+According to Art. 186 of the Obligations and Contracts Act (ЗЗД), costs are shared equally between the parties, unless otherwise agreed.
+
+**In practice:** In 90% of cases, the buyer pays all fees.
+
+### Does it Work on Mobile Devices?
+
+Yes, the calculator is fully responsive and works excellently on all devices – desktop computers, tablets, and mobile phones.
+
+### How Often is the Calculator Updated?
+
+The calculator is updated for any changes in:
+- The Tariff for Notary Fees
+- Local taxes in municipalities
+- Legislation
+- Exchange rates (BGN/EUR)
+
+**Last updated: December 21, 2025.** We will continue to update the calculator regularly to ensure current information for 2026 and subsequent years.
+
+### Are There Usage Limitations?
+
+There are no limitations on the number of embeds or traffic. Use it as many times as you want for free!
+
+### Can I Customize the Design?
+
+We currently support two themes (light and dark) and two languages (bg and en). For greater customization, please contact us.
+
+## Legal Disclaimer
+
+This calculator provides approximate calculations of fees and taxes when buying real estate in Bulgaria. Results are based on official tariffs at the time of publication, but may vary according to:
+
+- The specific municipality and its local taxes
+- Practices of individual notaries
+- Changes in legislation
+- Additional fees and costs
+
+**Important:** This calculator does not replace professional consultation with a notary, lawyer, or tax consultant. Always consult with a qualified specialist before making financial decisions.
+
+For accurate information, always consult with:
+- A notary
+- A lawyer specializing in real estate
+- A tax consultant
+- Official sources such as [Lex.bg](https://lex.bg)
+
+## Conclusion
+
+Adding a calculator for notary fees and taxes to your website is an easy way to:
+- Improve user experience
+- Build client trust
+- Reduce the number of questions
+- Improve SEO metrics
+
+Embedding takes less than a minute and requires no technical knowledge. Simply copy the code and paste it on your website.
+
+**Ready to add the calculator to your website?** Copy the code from Step 1 and start offering value to your visitors today!
+
+---
+
+**Related Articles:**
+- [Cost Calculator 2026: What Fees Are Paid When Buying Property?](/news/property-purchase-fees-calculator-2025)
+- [New vs Old Construction 2025](/news/new-vs-old-construction-2025)
+- [How to Add a Listing to mrimot.com](/news/how-to-add-listing-guide)
+

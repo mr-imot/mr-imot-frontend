@@ -2,6 +2,7 @@ import Image from "next/image"
 import Link from "next/link"
 import type { AnchorHTMLAttributes, HTMLAttributes, PropsWithChildren } from "react"
 import { FollowUs } from "./follow-us"
+import { PropertyFeesCalculator } from "./property-fees-calculator"
 
 type CalloutProps = PropsWithChildren<{
   type?: "info" | "warning" | "success"
@@ -100,5 +101,6 @@ export const mdxComponents = {
   YouTube,
   pre: Pre,
   FollowUs,
+  PropertyFeesCalculator,
 }
 
