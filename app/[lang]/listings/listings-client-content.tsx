@@ -391,6 +391,20 @@ export function ListingsClientContent({
     initMobileMap()
   }, [])
   
+  // Add click handler to mobile map to close property card (Airbnb-style UX)
+  useEffect(() => {
+    if (!mobileMapReady || !mobileGoogleMapRef.current) return
+    
+    const mobileMap = mobileGoogleMapRef.current
+    const clickListener = mobileMap.addListener('click', () => {
+      if (selectedPropertyId) onPropertySelect(null)
+    })
+    
+    return () => {
+      google.maps.event.removeListener(clickListener)
+    }
+  }, [mobileMapReady, selectedPropertyId, onPropertySelect])
+  
   // Track previous properties length to detect changes
   const prevPropertiesLengthRef = useRef(0)
   const prevPropertyIdsRef = useRef<Set<string>>(new Set())
@@ -635,8 +649,8 @@ export function ListingsClientContent({
           </div>
         )}
         
-        {/* Draggable sheet */}
-        {!isSearchOpen && !isFilterModalOpen && (
+        {/* Draggable sheet - Hide when property card is open (Airbnb-style) */}
+        {!isSearchOpen && !isFilterModalOpen && !selectedProperty && (
           <DraggableSheet snapPoints={[16, 40, headerSnapPct]} initialSnap={0} onSnapChange={setMobileSheetSnap}>
             <div className="px-5 py-4">
               <div className="mb-6">
@@ -672,18 +686,15 @@ export function ListingsClientContent({
           </DraggableSheet>
         )}
         
-        {/* Selected property card (mobile) */}
+        {/* Selected property card (mobile) - Floating card style */}
         {selectedProperty && (
-          <div className="absolute bottom-0 left-0 right-0 h-[50vh] z-50">
-            <PropertyMapCard
-              property={transformToPropertyMapData(selectedProperty)}
-              onClose={() => onPropertySelect(null)}
-              position={{ bottom: 0, left: 0, right: 0 }}
-              floating
-              forceMobile
-              priceTranslations={dict.price}
-            />
-          </div>
+          <PropertyMapCard
+            property={transformToPropertyMapData(selectedProperty)}
+            onClose={() => onPropertySelect(null)}
+            floating
+            forceMobile
+            priceTranslations={dict.price}
+          />
         )}
       </div>
       

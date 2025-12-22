@@ -148,26 +148,38 @@ export function PropertyMapCard({
   return (
     <WrapperTag
       className={cn(
-        floating ? 'relative' : 'fixed z-50',
+        // Use fixed positioning for floating cards on mobile, relative for desktop floating, fixed for positioned cards
+        forceMobile && floating 
+          ? 'fixed z-50 bottom-4 left-1/2 -translate-x-1/2' 
+          : floating 
+            ? 'relative' 
+            : 'fixed z-50',
         'pointer-events-auto transition-transform duration-200 ease-out cursor-pointer',
         isClosing && 'opacity-0 scale-95',
         className
       )}
-      style={positionStyles}
+      style={forceMobile && floating ? {} : positionStyles}
+      onClick={(e) => {
+        // Stop propagation so clicking anywhere on the card doesn't trigger map click
+        e.stopPropagation()
+      }}
     >
       <div
         className={cn(
           "relative bg-white rounded-[20px] overflow-hidden cursor-pointer",
-          // Mobile: full width, 1/2 screen height | Desktop: fixed width
+          // Mobile: floating card style (not full-width, centered) | Desktop: fixed width
           forceMobile 
-            ? "w-full h-[50vh]" 
+            ? "w-[calc(100vw-2rem)] max-w-[400px] h-auto max-h-[60vh] overflow-y-auto" 
             : "w-full h-[50vh] lg:w-[20.4375rem] lg:h-auto"
         )}
         style={{
           boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
           fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
         }}
-        onClick={() => {
+        onClick={(e) => {
+          // Stop propagation so clicking the card doesn't trigger map click (which would close it)
+          e.stopPropagation()
+          
           // Check if this is desktop (screen width >= 1024px) - matches ListingCard breakpoint
           const isDesktop = window.innerWidth >= 1024
           
@@ -198,7 +210,7 @@ export function PropertyMapCard({
         <div className={cn(
           "relative w-full overflow-hidden",
           forceMobile 
-            ? "h-[60%]" 
+            ? "h-[200px] sm:h-[240px]" 
             : "h-[60%] lg:w-[20.4375rem] lg:h-[13.25rem]"
         )}>
           <div className="embla h-full" ref={emblaRef}>
