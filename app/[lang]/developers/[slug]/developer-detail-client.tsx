@@ -157,7 +157,7 @@ export default function DeveloperDetailClient({ developer, lang }: DeveloperDeta
                         {tListing?.noBrokersNoIntermediaries || 'No brokers · No intermediaries · No fake listings'}
                       </p>
                       <p className="mt-1 text-gray-600">
-                        {tListing?.accountVerifiedByMrImot || 'The developer account is verified by Mister Imot'}
+                        {tDev?.developerAccountVerifiedByMrImot || tListing?.accountVerifiedByMrImot || 'The developer account is verified by Mister Imot'}
                       </p>
                     </div>
                   </div>

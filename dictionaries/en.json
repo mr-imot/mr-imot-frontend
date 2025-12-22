@@ -747,7 +747,8 @@
     "officeVisitCta": "Visit our office to discuss your investment and get personalized assistance.",
     "addressNotAvailable": "Address not available",
     "getDirections": "Get Directions to Office",
-    "verifiedDeveloperDescription": "This is a verified developer on Mister Imot. All projects are published directly by the developer, without brokers or intermediaries."
+    "verifiedDeveloperDescription": "This is a verified developer on Mister Imot. All projects are published directly by the developer, without brokers or intermediaries.",
+    "developerAccountVerifiedByMrImot": "The developer account is verified by Mister Imot"
   },
   "listingDetail": {
     "publishedByVerifiedDeveloper": "Published directly by a verified developer",
