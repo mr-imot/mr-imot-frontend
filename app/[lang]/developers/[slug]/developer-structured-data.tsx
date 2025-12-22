@@ -20,34 +20,6 @@ export default function DeveloperStructuredData({ developer, lang, baseUrl }: De
   }
   const t = breadcrumbTranslations[lang] || breadcrumbTranslations.en
   
-  // Organization Schema for Developer (always render if developer exists)
-  const developerOrganizationSchema = {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "@id": developerUrl,
-    "name": developer.company_name,
-    "url": developerUrl,
-    ...(developer.profile_image_url && {
-      "logo": {
-        "@type": "ImageObject",
-        "url": developer.profile_image_url
-      }
-    }),
-    ...(developer.phone && { "telephone": developer.phone }),
-    ...(developer.email && { "email": developer.email }),
-    ...(developer.website && { 
-      "sameAs": [developer.website] 
-    }),
-    "knowsAbout": [
-      "New residential construction",
-      "Real estate development",
-      "Apartment buildings"
-    ],
-    ...(developer.total_projects && developer.total_projects > 0 && {
-      "description": `${developer.company_name} is a verified real estate developer on Mister Imot with ${developer.total_projects} project${developer.total_projects > 1 ? 's' : ''}.`
-    })
-  }
-  
   // Helper function to extract city and postal code from address
   const parseAddress = (address: string): { city?: string; postalCode?: string; streetAddress: string } => {
     // Common Bulgarian cities
@@ -79,6 +51,64 @@ export default function DeveloperStructuredData({ developer, lang, baseUrl }: De
     }
   }
   
+  // Multi-language description helper
+  const getDescription = (companyName: string, projectCount: number): string => {
+    if (lang === 'bg') {
+      return `${companyName} е верифициран инвеститор в Мистър Имот с ${projectCount} проект${projectCount > 1 ? 'а' : ''}.`
+    } else if (lang === 'ru') {
+      return `${companyName} — проверенный застройщик в Мистер Имот с ${projectCount} проект${projectCount > 1 ? 'ами' : 'ом'}.`
+    } else if (lang === 'gr') {
+      return `${companyName} είναι ένας επαληθευμένος επενδυτής στο Mister Imot με ${projectCount} έργ${projectCount > 1 ? 'α' : 'ο'}.`
+    }
+    return `${companyName} is a verified real estate developer on Mister Imot with ${projectCount} project${projectCount > 1 ? 's' : ''}.`
+  }
+
+  // Default fallback logo
+  const logoUrl = developer.profile_image_url || "https://ik.imagekit.io/ts59gf2ul/Logo/mr-imot-logo-no-background.png?tr=w-1200,h-630"
+  
+  // Organization Schema for Developer (always render if developer exists)
+  const developerOrganizationSchema = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "@id": developerUrl,
+    "name": developer.company_name,
+    "url": developerUrl,
+    "logo": {
+      "@type": "ImageObject",
+      "url": logoUrl
+    },
+    "image": {
+      "@type": "ImageObject",
+      "url": logoUrl
+    },
+    ...(developer.phone && { "telephone": developer.phone }),
+    ...(developer.email && { "email": developer.email }),
+    ...(developer.website && { 
+      "sameAs": [developer.website] 
+    }),
+    ...(developer.is_verified && developer.office_address && {
+      "address": (() => {
+        const parsedAddress = parseAddress(developer.office_address)
+        return {
+          "@type": "PostalAddress",
+          "streetAddress": parsedAddress.streetAddress,
+          "addressCountry": "BG",
+          ...(parsedAddress.city && { "addressLocality": parsedAddress.city }),
+          ...(parsedAddress.postalCode && { "postalCode": parsedAddress.postalCode })
+        }
+      })()
+    }),
+    "knowsAbout": [
+      "New residential construction",
+      "Real estate development",
+      "Apartment buildings"
+    ],
+    ...(developer.total_projects && developer.total_projects > 0 && {
+      "description": getDescription(developer.company_name, developer.total_projects),
+      "priceRange": "$$$" // Optional: indicates mid-to-high price range
+    })
+  }
+  
   // LocalBusiness Schema (only if office_address exists and developer is verified)
   const localBusinessSchema = developer.is_verified && developer.office_address ? (() => {
     const parsedAddress = parseAddress(developer.office_address)
@@ -105,15 +135,17 @@ export default function DeveloperStructuredData({ developer, lang, baseUrl }: De
     }),
     ...(developer.phone && { "telephone": developer.phone }),
     ...(developer.email && { "email": developer.email }),
-    ...(developer.website && { "url": developer.website }),
-    ...(developer.profile_image_url && {
-      "logo": {
-        "@type": "ImageObject",
-        "url": developer.profile_image_url
-      }
-    }),
-    // Link to parent Organization
+    "logo": {
+      "@type": "ImageObject",
+      "url": logoUrl
+    },
+    "image": {
+      "@type": "ImageObject",
+      "url": logoUrl
+    },
+    // Link to parent Organization (only reference, no duplicate data)
     "parentOrganization": {
+      "@type": "Organization",
       "@id": developerUrl
     }
     }

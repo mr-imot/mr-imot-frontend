@@ -710,8 +710,8 @@
     "officeVisitCta": "Посетите наш офис, чтобы обсудить инвестиции и получить персональную помощь.",
     "addressNotAvailable": "Адрес недоступен",
     "getDirections": "Маршрут до офиса",
-    "verifiedDeveloperDescription": "Это проверенный застройщик в Mister Imot. Все проекты публикуются напрямую застройщиком, без брокеров или посредников.",
-    "developerAccountVerifiedByMrImot": "Аккаунт застройщика проверен Мистер Имот"
+    "verifiedDeveloperDescription": "Проверенный застройщик в Мистер Имот – напрямую от застройщика, без посредников.",
+    "verifiedDeveloperTrustSignals": "Без брокеров · Без поддельных объявлений · Проверенный аккаунт"
   },
   "listingDetail": {
     "share": "Поделиться",

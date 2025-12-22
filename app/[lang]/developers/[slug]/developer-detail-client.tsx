@@ -151,13 +151,10 @@ export default function DeveloperDetailClient({ developer, lang }: DeveloperDeta
                     {/* Micro Trust Signals */}
                     <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-gray-700 max-w-2xl">
                       <p className="mb-1 text-gray-700">
-                        {tDev?.verifiedDeveloperDescription || 'This is a verified developer on Mister Imot. All projects are published directly by the developer, without brokers or intermediaries.'}
+                        {tDev?.verifiedDeveloperDescription || 'Verified developer on Mister Imot – directly from the developer, without intermediaries.'}
                       </p>
                       <p className="mt-1 text-gray-600">
-                        {tListing?.noBrokersNoIntermediaries || 'No brokers · No intermediaries · No fake listings'}
-                      </p>
-                      <p className="mt-1 text-gray-600">
-                        {tDev?.developerAccountVerifiedByMrImot || tListing?.accountVerifiedByMrImot || 'The developer account is verified by Mister Imot'}
+                        {tDev?.verifiedDeveloperTrustSignals || 'No brokers · No fake listings · Verified account'}
                       </p>
                     </div>
                   </div>
