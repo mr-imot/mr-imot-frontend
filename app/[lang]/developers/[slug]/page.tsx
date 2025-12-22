@@ -144,7 +144,7 @@ export default async function DeveloperDetailPage({ params }: PageProps) {
   return (
     <>
       <DeveloperStructuredData developer={developer} lang={lang} baseUrl={baseUrl} />
-      <DeveloperDetailClient developer={developer} />
+      <DeveloperDetailClient developer={developer} lang={lang} />
     </>
   )
 }

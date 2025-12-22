@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { MapPin, Building, Phone, Globe, Navigation } from "lucide-react"
+import { MapPin, Building, Phone, Globe, Navigation, CheckCircle } from "lucide-react"
+import Link from "next/link"
 import { ListingCard, Listing } from "@/components/ListingCard"
 import { ensureGoogleMaps } from "@/lib/google-maps"
 import { useTranslations } from "@/lib/locale-context"
@@ -13,6 +14,7 @@ import { DeveloperProfile } from "@/lib/api"
 
 interface DeveloperDetailClientProps {
   developer: DeveloperProfile
+  lang?: string
 }
 
 // Office Map Component
@@ -85,10 +87,17 @@ function projectToListing(project: any): Listing {
   }
 }
 
-export default function DeveloperDetailClient({ developer }: DeveloperDetailClientProps) {
+export default function DeveloperDetailClient({ developer, lang }: DeveloperDetailClientProps) {
   const tDev = useTranslations('developersDetail') as any
   const tDevs = useTranslations('developers') as any
+  const tListing = useTranslations('listingDetail') as any
   const activeProjects = developer.projects_pagination?.total ?? developer.active_projects ?? developer.total_projects ?? developer.project_count ?? developer.projects?.length ?? 0
+  
+  // Developer profile URL (self-reference for trust signals)
+  const developerPath = developer.slug || developer.id
+  const currentLang = lang || 'en'
+  const localizedPath = currentLang === 'bg' ? 'bg/stroiteli' : currentLang === 'ru' ? 'ru/zastroyshchiki' : currentLang === 'gr' ? 'gr/kataskeuastes' : 'developers'
+  const developerProfileUrl = `/${localizedPath}/${developerPath}`
 
   const handleOfficeAddressClick = () => {
     const officeSection = document.getElementById('office-location-section')
@@ -130,11 +139,34 @@ export default function DeveloperDetailClient({ developer }: DeveloperDetailClie
               </Avatar>
               <div className="flex-1">
                 <h1 className="text-3xl font-bold text-foreground">{developer.company_name}</h1>
+                
+                {/* Verified Developer Badge and Trust Signals */}
                 {developer.is_verified && (
-                  <Badge className="bg-green-500 text-white mt-2">
-                    <Building className="w-3 h-3 mr-1" />
-                    {tDevs?.verified ?? 'Verified'}
-                  </Badge>
+                  <div className="mt-2">
+                    <Badge className="bg-green-500 text-white hover:bg-green-600">
+                      <CheckCircle className="w-3 h-3 mr-1" />
+                      {tListing?.publishedByVerifiedDeveloper || tDevs?.verified || 'Verified Developer'}
+                    </Badge>
+                    
+                    {/* Micro Trust Signals */}
+                    <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-gray-700 max-w-2xl">
+                      <p className="mb-1">
+                        <span className="font-medium">{tListing?.source || 'Source'}: </span>
+                        <Link 
+                          href={developerProfileUrl}
+                          className="text-blue-600 hover:text-blue-800 underline"
+                        >
+                          {developer.company_name}
+                        </Link>
+                      </p>
+                      <p className="mt-1 text-gray-600">
+                        {tListing?.noBrokersNoIntermediaries || 'No brokers · No intermediaries · No fake listings'}
+                      </p>
+                      <p className="mt-1 text-gray-600">
+                        {tListing?.accountVerifiedByMrImot || 'The developer account is verified by Mister Imot'}
+                      </p>
+                    </div>
+                  </div>
                 )}
               </div>
             </div>
