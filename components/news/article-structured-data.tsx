@@ -1,5 +1,3 @@
-"use client"
-
 import type { BlogLang, BlogPostMeta } from "@/lib/news"
 
 type ArticleStructuredDataProps = {
@@ -18,11 +16,33 @@ export function ArticleStructuredData({ post, lang, url }: ArticleStructuredData
       ? "Мистер Имот" 
       : "Mister Imot"
 
-  // Author name
+  // Author name and URL
   const authorName = post.author?.name || (lang === "bg" ? "Мистър Имот" : "Mister Imot")
+  // Use author profile URL if available, otherwise fallback to baseUrl
+  const authorUrl = post.author?.slug 
+    ? `${baseUrl}/authors/${post.author.slug}`
+    : baseUrl
 
-  // Publisher logo
+  // Publisher logo with dimensions
   const logoUrl = "https://ik.imagekit.io/ts59gf2ul/Logo/mr-imot-logo-no-background.png?tr=w-600,h-60,fo-auto,f-webp"
+
+  // Helper function to convert date string to ISO 8601 with timezone
+  const formatDateWithTimezone = (dateString?: string): string | undefined => {
+    if (!dateString) {
+      // Don't set date if missing - let it be undefined to avoid misleading search engines
+      // Only use fallback for drafts/unpublished posts if explicitly needed
+      return undefined
+    }
+    // If date is already in ISO format with timezone, return as is
+    if (dateString.includes('T') && (dateString.includes('+') || dateString.includes('Z') || dateString.includes('-'))) {
+      return dateString
+    }
+    // If date is in YYYY-MM-DD format, add timezone (Bulgaria is UTC+2)
+    if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      return `${dateString}T00:00:00+02:00`
+    }
+    return dateString
+  }
 
   // Article schema for Google and LLMs
   const articleSchema = {
@@ -31,12 +51,14 @@ export function ArticleStructuredData({ post, lang, url }: ArticleStructuredData
     "headline": post.title,
     "description": post.description || "",
     "image": post.coverImage ? [post.coverImage] : [],
-    "datePublished": post.date || new Date().toISOString().split("T")[0],
-    "dateModified": post.date || new Date().toISOString().split("T")[0],
+    ...(formatDateWithTimezone(post.date) && {
+      "datePublished": formatDateWithTimezone(post.date),
+      "dateModified": formatDateWithTimezone(post.date),
+    }),
     "author": {
       "@type": "Person",
       "name": authorName,
-      "url": baseUrl,
+      "url": authorUrl,
     },
     "publisher": {
       "@type": "Organization",
@@ -44,6 +66,8 @@ export function ArticleStructuredData({ post, lang, url }: ArticleStructuredData
       "logo": {
         "@type": "ImageObject",
         "url": logoUrl,
+        "width": 600,
+        "height": 60,
       },
     },
     "mainEntityOfPage": {
@@ -112,6 +136,9 @@ export function ArticleStructuredData({ post, lang, url }: ArticleStructuredData
       ? {
           "@type": "ImageObject",
           "url": post.coverImage,
+          // Common blog image dimensions (can be adjusted based on actual image sizes)
+          "width": 1600,
+          "height": 900,
         }
       : undefined,
     "speakable": {

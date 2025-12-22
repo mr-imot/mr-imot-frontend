@@ -163,20 +163,19 @@ export default async function BlogIndexPage({ params, searchParams }: BlogIndexP
   // Each array contains all equivalent category names across languages (EN, BG, GR, RU)
   const CATEGORY_GROUPS: string[][] = [
     ["platform news", "новини за платформата", "νέα πλατφόρμας", "новости платформы"],
-    ["real estate", "имоти"],
-    ["money", "пари"],
-    ["local news", "местни", "локални"],
-    ["global news", "световни", "world", "διεθνή", "мир"],
-    ["properties", "имоти в платформата"],
-    ["interest rates", "лихви"],
-    ["guides", "ръководства", "οδηγοί", "гайды"],
+    ["real estate", "property", "properties", "имоти", "ακίνητα", "недвижимость", "объявления в платформе", "ακίνητα στην πλατφόρμα"],
+    ["money", "пари", "χρήμα", "χρήματα", "деньги"],
+    ["local news", "местни", "локални", "τοπικά", "τοπικά νέα", "местные"],
+    ["global news", "световни", "world", "διεθνή", "мир", "мировые"],
+    ["interest rates", "лихви", "επιτόκια", "ставки"],
+    ["guides", "ръководства", "οδηγοί", "οδηγίες", "гайды", "руководства"],
   ]
   // Static nav categories to keep tabs visible even with few posts
   const NAV_CATEGORIES: Record<BlogLang, string[]> = {
     en: ["Platform News", "Real Estate", "Money", "Local News", "Global News", "Properties", "Interest Rates", "Guides"],
     bg: ["Новини за Платформата", "Имоти", "Пари", "Местни", "Световни", "Имоти в Платформата", "Лихви", "Ръководства"],
     ru: ["Новости Платформы", "Недвижимость", "Деньги", "Местные", "Мировые", "Объявления в Платформе", "Ставки", "Гайды"],
-    gr: ["Νέα Πλατφόρμας", "Ακίνητα", "Χρήμα", "Τοπικά Νέα", "Διεθνή", "Ακίνητα στην Πλατφόρμα", "Επιτόκια", "Οδηγοί"],
+    gr: ["Νέα Πλατφόρμας", "Ακίνητα", "Χρήματα", "Τοπικά", "Διεθνή", "Ακίνητα στην Πλατφόρμα", "Επιτόκια", "Οδηγοί"],
   }
   
   // Helper to find all equivalent categories for a given category name
@@ -406,6 +405,18 @@ export default async function BlogIndexPage({ params, searchParams }: BlogIndexP
                                     <SectionHeader title={lang === 'bg' ? "Имоти" : "Real Estate"} href={`${getRelativeUrl(lang)}?category=${encodeURIComponent(lang === 'bg' ? "Имоти" : "Real Estate")}`} />
                                     <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2">
                                         {getPostsForCat(lang === 'bg' ? "Имоти" : "Real Estate").map(post => (
+                                            <PostCard key={post.slug} post={post} lang={lang} />
+                                        ))}
+                                    </div>
+                                  </section>
+                                )}
+
+                                {/* Guides Section */}
+                                {sectionHasPosts(lang === 'bg' ? "Ръководства" : lang === 'gr' ? "Οδηγοί" : "Guides") && (
+                                  <section>
+                                    <SectionHeader title={lang === 'bg' ? "Ръководства" : lang === 'gr' ? "Οδηγοί" : lang === 'ru' ? "Гайды" : "Guides"} href={`${getRelativeUrl(lang)}?category=${encodeURIComponent(lang === 'bg' ? "Ръководства" : lang === 'gr' ? "Οδηγοί" : lang === 'ru' ? "Гайды" : "Guides")}`} />
+                                    <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2">
+                                        {getPostsForCat(lang === 'bg' ? "Ръководства" : lang === 'gr' ? "Οδηγοί" : "Guides").map(post => (
                                             <PostCard key={post.slug} post={post} lang={lang} />
                                         ))}
                                     </div>
