@@ -169,6 +169,37 @@ export function DraggableSheet({
     setHasMounted(true)
   }, [])
 
+  // Inject bottom-to-top shimmer animation CSS
+  useEffect(() => {
+    const styleId = 'draggable-sheet-shimmer-animation'
+    if (document.getElementById(styleId)) return // Already injected
+
+    const style = document.createElement('style')
+    style.id = styleId
+    style.textContent = `
+      @keyframes shimmer-vertical {
+        0% {
+          transform: translateY(100%);
+        }
+        50%, 100% {
+          transform: translateY(-100%);
+        }
+      }
+      .sheet-shimmer {
+        background: linear-gradient(0deg, transparent 0%, rgba(107, 114, 128, 0.3) 50%, transparent 100%);
+        animation: shimmer-vertical 1.5s ease-in-out infinite;
+      }
+    `
+    document.head.appendChild(style)
+
+    return () => {
+      const existingStyle = document.getElementById(styleId)
+      if (existingStyle) {
+        existingStyle.remove()
+      }
+    }
+  }, [])
+
   const height = snapPoints[currentSnap]
   const dragOffset = isDragging ? Math.max(0, (startY - currentY) / 10) : 0
 
@@ -193,16 +224,27 @@ export function DraggableSheet({
       <div
         data-drag-handle
         className={cn(
-          "absolute top-0 left-0 right-0 h-16 flex items-center justify-center cursor-grab active:cursor-grabbing z-10 bg-gradient-to-b from-white to-gray-50/50 rounded-t-3xl border-b border-gray-200/50",
+          "absolute top-0 left-0 right-0 h-16 flex items-center justify-center cursor-grab active:cursor-grabbing z-10 bg-gradient-to-b from-white to-gray-50/50 rounded-t-3xl border-b border-gray-200/50 overflow-hidden",
           hasMounted && "animate-[pulse-once_1.5s_ease-in-out]"
         )}
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
       >
+        {/* Bottom-to-top shimmer effect */}
+        <div 
+          className="absolute inset-0 opacity-100 sheet-shimmer pointer-events-none"
+          style={{
+            borderRadius: '24px 24px 0 0',
+            willChange: 'transform',
+            transform: 'translateZ(0)',
+            backfaceVisibility: 'hidden'
+          }}
+        />
+        
         {/* Main handle bar - much more prominent */}
         <div 
           className={cn(
-            "w-20 h-2.5 bg-gray-600 rounded-full shadow-sm transition-all duration-200",
+            "relative z-10 w-20 h-2.5 bg-gray-600 rounded-full shadow-sm transition-all duration-200",
             isDragging && "scale-110 bg-gray-700"
           )} 
         />
@@ -211,8 +253,9 @@ export function DraggableSheet({
       {/* Content - only scrollable when fully expanded */}
       <div 
         ref={contentRef}
-        className="h-full pt-16 overscroll-contain"
+        className="h-full overscroll-contain px-5 pb-4"
         style={{ 
+          paddingTop: '72px', // Space for drag handle (h-16 = 64px) + 8px spacing
           overflowY: isFullyExpanded ? 'auto' : 'hidden', 
           WebkitOverflowScrolling: 'touch',
           touchAction: isFullyExpanded ? 'pan-y' : 'none'

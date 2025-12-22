@@ -661,37 +661,35 @@ export function ListingsClientContent({
         {/* Draggable sheet - Hide when property card is open (Airbnb-style) */}
         {!isSearchOpen && !isFilterModalOpen && !selectedProperty && (
           <DraggableSheet snapPoints={[16, 40, headerSnapPct]} initialSnap={0} onSnapChange={setMobileSheetSnap}>
-            <div className="px-5 py-4">
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold mb-2">
-                  {filteredProperties.length} {lang === 'bg' ? 'имота' : 'properties'}
-                </h2>
-              </div>
-              
-              {shouldShowLoading ? (
-                <ListingCardSkeletonGrid count={6} />
-              ) : showEmpty ? (
-                <div className="py-16 text-center">
-                  <Building className="w-20 h-20 mx-auto text-gray-300 mb-6" />
-                  <h3 className="text-xl font-semibold mb-3">{dict.listings.noPropertiesAvailable}</h3>
-                  <p className="text-gray-600">{dict.listings.tryDifferentLocation}</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 xs:grid-cols-2 gap-4 pb-24">
-                  {filteredProperties.map((property, index) => (
-                    <MemoizedListingCard
-                      key={property.id}
-                      listing={propertyToListing(property)}
-                      isActive={selectedPropertyId === property.id}
-                      onCardClick={() => { onPropertySelect(property.id); setMobileSheetSnap(2) }}
-                      onCardHover={() => {}}
-                      priority={index < 4}
-                      priceTranslations={dict.price}
-                    />
-                  ))}
-                </div>
-              )}
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold mb-2">
+                {filteredProperties.length} {lang === 'bg' ? 'имота' : 'properties'}
+              </h2>
             </div>
+            
+            {shouldShowLoading ? (
+              <ListingCardSkeletonGrid count={6} />
+            ) : showEmpty ? (
+              <div className="py-16 text-center">
+                <Building className="w-20 h-20 mx-auto text-gray-300 mb-6" />
+                <h3 className="text-xl font-semibold mb-3">{dict.listings.noPropertiesAvailable}</h3>
+                <p className="text-gray-600">{dict.listings.tryDifferentLocation}</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 xs:grid-cols-2 gap-4 pb-24">
+                {filteredProperties.map((property, index) => (
+                  <MemoizedListingCard
+                    key={property.id}
+                    listing={propertyToListing(property)}
+                    isActive={selectedPropertyId === property.id}
+                    onCardClick={() => { onPropertySelect(property.id); setMobileSheetSnap(2) }}
+                    onCardHover={() => {}}
+                    priority={index < 4}
+                    priceTranslations={dict.price}
+                  />
+                ))}
+              </div>
+            )}
           </DraggableSheet>
         )}
         
