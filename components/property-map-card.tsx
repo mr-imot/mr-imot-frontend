@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { X, Phone, Globe } from 'lucide-react'
 import { cn, getListingUrl } from '@/lib/utils'
@@ -55,6 +55,11 @@ export function PropertyMapCard({
   const pathname = usePathname()
   const [isClosing, setIsClosing] = useState(false)
   const [hasTrackedView, setHasTrackedView] = useState(false)
+  const [dragOffset, setDragOffset] = useState(0)
+  const [isDragging, setIsDragging] = useState(false)
+  const touchStartY = useRef<number | null>(null)
+  const cardRef = useRef<HTMLDivElement>(null)
+  
   if (!property) return null
   
   // Detect locale from pathname
@@ -143,6 +148,60 @@ export function PropertyMapCard({
     return 'Request price'
   }
 
+  // Handle touch events for drag prevention (Airbnb-style bounce-back)
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (!forceMobile || !floating) return
+    
+    const cardElement = cardRef.current
+    
+    // Only handle drag if touching near the top of the card (not scrolling content)
+    if (cardElement) {
+      const touchY = e.touches[0].clientY
+      const cardRect = cardElement.getBoundingClientRect()
+      const touchRelativeY = touchY - cardRect.top
+      
+      // Only enable drag if touch is in the top 100px of the card (image area)
+      if (touchRelativeY < 100) {
+        touchStartY.current = touchY
+        setIsDragging(true)
+        e.preventDefault() // Prevent default scroll behavior
+      }
+    }
+  }
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!forceMobile || !floating || touchStartY.current === null || !isDragging) return
+    
+    const currentY = e.touches[0].clientY
+    const deltaY = currentY - touchStartY.current
+    
+    // Only allow upward drag (negative deltaY means dragging up)
+    if (deltaY < 0) {
+      // Limit the drag distance and apply resistance
+      const maxDrag = 30 // Maximum pixels to allow dragging up
+      const resistance = 0.3 // Resistance factor for smooth feel
+      const dragAmount = Math.max(deltaY * resistance, -maxDrag)
+      setDragOffset(dragAmount)
+      e.preventDefault() // Prevent page scroll
+    } else {
+      // Don't allow dragging down - reset immediately
+      setDragOffset(0)
+    }
+  }
+
+  const handleTouchEnd = () => {
+    if (!forceMobile || !floating) return
+    
+    // Bounce back animation
+    if (dragOffset < 0) {
+      // Animate back to original position with spring effect
+      setDragOffset(0)
+    }
+    
+    touchStartY.current = null
+    setIsDragging(false)
+  }
+
   const WrapperTag = floating ? 'div' : 'div'
 
   return (
@@ -150,31 +209,42 @@ export function PropertyMapCard({
       className={cn(
         // Use fixed positioning for floating cards on mobile, relative for desktop floating, fixed for positioned cards
         forceMobile && floating 
-          ? 'fixed z-50 bottom-4 left-1/2 -translate-x-1/2' 
+          ? 'fixed z-50 bottom-4 left-1/2' 
           : floating 
             ? 'relative' 
             : 'fixed z-50',
-        'pointer-events-auto transition-transform duration-200 ease-out cursor-pointer',
+        'pointer-events-auto cursor-pointer',
         isClosing && 'opacity-0 scale-95',
         className
       )}
-      style={forceMobile && floating ? {} : positionStyles}
+      style={{
+        ...(forceMobile && floating ? {} : positionStyles),
+        transform: forceMobile && floating 
+          ? `translate(-50%, ${dragOffset}px)` 
+          : undefined,
+        transition: isDragging ? 'none' : 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease-out',
+      }}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
       onClick={(e) => {
         // Stop propagation so clicking anywhere on the card doesn't trigger map click
         e.stopPropagation()
       }}
     >
       <div
+        ref={cardRef}
         className={cn(
           "relative bg-white rounded-[20px] overflow-hidden cursor-pointer",
           // Mobile: floating card style (not full-width, centered) | Desktop: fixed width
           forceMobile 
-            ? "w-[calc(100vw-2rem)] max-w-[400px] h-auto max-h-[60vh] overflow-y-auto" 
+            ? "w-[calc(100vw-2rem)] max-w-[400px] h-auto max-h-[60vh] overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden" 
             : "w-full h-[50vh] lg:w-[20.4375rem] lg:h-auto"
         )}
         style={{
           boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
-          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
+          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+          WebkitOverflowScrolling: 'touch',
         }}
         onClick={(e) => {
           // Stop propagation so clicking the card doesn't trigger map click (which would close it)
