@@ -145,19 +145,13 @@ export default function DeveloperDetailClient({ developer, lang }: DeveloperDeta
                   <div className="mt-2">
                     <Badge className="bg-green-500 text-white hover:bg-green-600">
                       <CheckCircle className="w-3 h-3 mr-1" />
-                      {tListing?.publishedByVerifiedDeveloper || tDevs?.verified || 'Verified Developer'}
+                      {tDevs?.verified || 'Verified Developer'}
                     </Badge>
                     
                     {/* Micro Trust Signals */}
                     <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-gray-700 max-w-2xl">
-                      <p className="mb-1">
-                        <span className="font-medium">{tListing?.source || 'Source'}: </span>
-                        <Link 
-                          href={developerProfileUrl}
-                          className="text-blue-600 hover:text-blue-800 underline"
-                        >
-                          {developer.company_name}
-                        </Link>
+                      <p className="mb-1 text-gray-700">
+                        {tDev?.verifiedDeveloperDescription || 'This is a verified developer on Mister Imot. All projects are published directly by the developer, without brokers or intermediaries.'}
                       </p>
                       <p className="mt-1 text-gray-600">
                         {tListing?.noBrokersNoIntermediaries || 'No brokers · No intermediaries · No fake listings'}
