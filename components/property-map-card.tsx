@@ -59,6 +59,7 @@ export function PropertyMapCard({
   const [isDragging, setIsDragging] = useState(false)
   const touchStartY = useRef<number | null>(null)
   const cardRef = useRef<HTMLDivElement>(null)
+  const scrollPositionRef = useRef<number>(0)
   
   if (!property) return null
   
@@ -111,6 +112,31 @@ export function PropertyMapCard({
     }
   }, [property, hasTrackedView])
 
+  // Prevent body scroll when card is open on mobile (like modal)
+  useEffect(() => {
+    if (forceMobile && floating && property) {
+      // Store current scroll position
+      scrollPositionRef.current = window.scrollY
+      // Prevent body scroll
+      document.body.style.overflow = 'hidden'
+      document.body.style.position = 'fixed'
+      document.body.style.top = `-${scrollPositionRef.current}px`
+      document.body.style.width = '100%'
+      document.body.style.touchAction = 'none' // Prevent all touch gestures on body
+      
+      return () => {
+        // Restore body scroll
+        document.body.style.overflow = ''
+        document.body.style.position = ''
+        document.body.style.top = ''
+        document.body.style.width = ''
+        document.body.style.touchAction = ''
+        // Restore scroll position
+        window.scrollTo(0, scrollPositionRef.current)
+      }
+    }
+  }, [forceMobile, floating, property])
+
   const handlePhoneClick = async () => {
     if (property?.developer?.phone) {
       try {
@@ -153,19 +179,18 @@ export function PropertyMapCard({
     if (!forceMobile || !floating) return
     
     const cardElement = cardRef.current
+    if (!cardElement) return
     
-    // Only handle drag if touching near the top of the card (not scrolling content)
-    if (cardElement) {
-      const touchY = e.touches[0].clientY
-      const cardRect = cardElement.getBoundingClientRect()
-      const touchRelativeY = touchY - cardRect.top
-      
-      // Only enable drag if touch is in the top 100px of the card (image area)
-      if (touchRelativeY < 100) {
-        touchStartY.current = touchY
-        setIsDragging(true)
-        e.preventDefault() // Prevent default scroll behavior
-      }
+    const touchY = e.touches[0].clientY
+    const cardRect = cardElement.getBoundingClientRect()
+    const touchRelativeY = touchY - cardRect.top
+    
+    // Only enable drag if touch is in the top 100px of the card (image area)
+    if (touchRelativeY < 100) {
+      touchStartY.current = touchY
+      setIsDragging(true)
+      e.preventDefault() // Prevent default scroll behavior
+      e.stopPropagation()
     }
   }
 
@@ -183,6 +208,7 @@ export function PropertyMapCard({
       const dragAmount = Math.max(deltaY * resistance, -maxDrag)
       setDragOffset(dragAmount)
       e.preventDefault() // Prevent page scroll
+      e.stopPropagation()
     } else {
       // Don't allow dragging down - reset immediately
       setDragOffset(0)
@@ -237,6 +263,7 @@ export function PropertyMapCard({
         className={cn(
           "relative bg-white rounded-[20px] overflow-hidden cursor-pointer",
           // Mobile: floating card style (not full-width, centered) | Desktop: fixed width
+          // Hide scrollbar on mobile
           forceMobile 
             ? "w-[calc(100vw-2rem)] max-w-[400px] h-auto max-h-[60vh] overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden" 
             : "w-full h-[50vh] lg:w-[20.4375rem] lg:h-auto"
@@ -245,6 +272,7 @@ export function PropertyMapCard({
           boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
           fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
           WebkitOverflowScrolling: 'touch',
+          touchAction: forceMobile && floating ? 'pan-y' : undefined, // Allow vertical scroll inside card only
         }}
         onClick={(e) => {
           // Stop propagation so clicking the card doesn't trigger map click (which would close it)
