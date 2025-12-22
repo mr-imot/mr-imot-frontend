@@ -5,6 +5,8 @@ import { getProject } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import Link from "next/link"
 import {
   MapPin,
   Building,
@@ -546,6 +548,39 @@ export default function ListingDetailClient({ projectId, initialProject }: Listi
         <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3 lg:mb-4">
           {property.title || property.name || t.listingDetail?.untitledProject || 'Untitled Project'}
         </h1>
+        
+        {/* Verified Developer Badge */}
+        {property.developer?.verification_status === 'verified' && (
+          <div className="mb-4">
+            <Badge className="bg-green-500 text-white hover:bg-green-600">
+              <CheckCircle className="w-3 h-3 mr-1" />
+              {t.listingDetail?.publishedByVerifiedDeveloper || 'Published directly by a verified developer'}
+            </Badge>
+            
+            {/* Micro Trust Signals */}
+            <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-gray-700">
+              <p className="mb-1">
+                <span className="font-medium">{t.listingDetail?.source || 'Source'}: </span>
+                {developerProfileUrl ? (
+                  <Link 
+                    href={developerProfileUrl}
+                    className="text-blue-600 hover:text-blue-800 underline"
+                  >
+                    {property.developer?.company_name || 'Unknown Developer'}
+                  </Link>
+                ) : (
+                  <span>{property.developer?.company_name || 'Unknown Developer'}</span>
+                )}
+              </p>
+              <p className="mt-1 text-gray-600">
+                {t.listingDetail?.noBrokersNoIntermediaries || 'No brokers · No intermediaries · No fake listings'}
+              </p>
+              <p className="mt-1 text-gray-600">
+                {t.listingDetail?.accountVerifiedByMrImot || 'The developer account is verified by Mister Imot'}
+              </p>
+            </div>
+          </div>
+        )}
         
         <div className="flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center gap-2 sm:gap-4 text-gray-600 mb-6 lg:mb-8">
           <div className="flex items-center gap-1">

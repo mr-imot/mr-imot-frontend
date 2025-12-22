@@ -746,7 +746,11 @@
     "getDirectionsToOffice": "Get Directions to Office",
     "officeLocationNotAvailable": "Office location not available",
     "noImagesAvailable": "No images available for this property",
-    "untitledProject": "Untitled Project"
+    "untitledProject": "Untitled Project",
+    "publishedByVerifiedDeveloper": "Published directly by a verified developer",
+    "source": "Source",
+    "noBrokersNoIntermediaries": "No brokers · No intermediaries · No fake listings",
+    "accountVerifiedByMrImot": "The developer account is verified by Mister Imot"
   },
   "projectTypes": {
     "apartmentBuilding": "Apartment complex",

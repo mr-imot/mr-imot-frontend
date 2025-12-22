@@ -757,7 +757,11 @@
     "getDirectionsToOffice": "Маршрут к офису",
     "officeLocationNotAvailable": "Местоположение офиса недоступно",
     "noImagesAvailable": "Нет изображений для этого объекта",
-    "untitledProject": "Без названия"
+    "untitledProject": "Без названия",
+    "publishedByVerifiedDeveloper": "Опубликовано проверенным застройщиком",
+    "source": "Источник",
+    "noBrokersNoIntermediaries": "Без брокеров · Без посредников · Без поддельных объявлений",
+    "accountVerifiedByMrImot": "Аккаунт застройщика проверен Мистер Имот"
   },
   "projectTypes": {
     "apartmentBuilding": "Жилой комплекс",

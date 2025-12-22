@@ -756,7 +756,11 @@
     "getDirectionsToOffice": "Получи упътване до офиса",
     "officeLocationNotAvailable": "Местоположението на офиса не е налично",
     "noImagesAvailable": "Няма налични изображения за този имот",
-    "untitledProject": "Неозаглавен проект"
+    "untitledProject": "Неозаглавен проект",
+    "publishedByVerifiedDeveloper": "Публикуван директно от верифициран инвеститор",
+    "source": "Източник",
+    "noBrokersNoIntermediaries": "Без брокери · Без посредници · Без фалшиви обяви",
+    "accountVerifiedByMrImot": "Акаунтът на инвеститора е верифициран от Мистър Имот"
   },
   "projectTypes": {
     "apartmentBuilding": "Жилищна сграда",

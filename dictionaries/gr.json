@@ -757,7 +757,11 @@
     "getDirectionsToOffice": "Οδηγίες προς το γραφείο",
     "officeLocationNotAvailable": "Η τοποθεσία γραφείου δεν είναι διαθέσιμη",
     "noImagesAvailable": "Δεν υπάρχουν διαθέσιμες εικόνες για αυτό το ακίνητο",
-    "untitledProject": "Ατιτλοφόρητο έργο"
+    "untitledProject": "Ατιτλοφόρητο έργο",
+    "publishedByVerifiedDeveloper": "Δημοσιεύτηκε απευθείας από επαληθευμένο επενδυτή",
+    "source": "Πηγή",
+    "noBrokersNoIntermediaries": "Χωρίς μεσίτες · Χωρίς μεσάζοντες · Χωρίς ψεύτικες αγγελίες",
+    "accountVerifiedByMrImot": "Ο λογαριασμός του επενδυτή έχει επαληθευτεί από το Mister Imot"
   },
   "projectTypes": {
     "apartmentBuilding": "Συγκρότημα διαμερισμάτων",

@@ -152,6 +152,18 @@ export default function ListingStructuredData({
     ? `${baseUrl}/listings/${urlPath}`
     : `${baseUrl}/${lang}/${slugPaths[lang]}/${urlPath}`
   
+  // Developer URL
+  const developerUrl = project.developer
+    ? `${baseUrl}/developers/${project.developer.slug || project.developer.id}`
+    : null
+  
+  // Publisher name per language
+  const publisherName = lang === 'bg' 
+    ? 'Мистър Имот' 
+    : lang === 'ru' 
+      ? 'Мистер Имот' 
+      : 'Mister Imot'
+  
   // Extract numeric price if available
   const numericPrice = extractNumericPrice(project.price_label)
   
@@ -166,16 +178,86 @@ export default function ListingStructuredData({
     }
   }
   
+  // Enhanced description with verified developer info
+  const baseDescription = project.description || project.title || ''
+  // Localized verification message per language
+  const verificationMessage = lang === 'bg'
+    ? ' Публикуван директно от верифициран инвеститор в Мистър Имот. Без брокери или посредници.'
+    : lang === 'ru'
+      ? ' Опубликовано напрямую проверенным застройщиком в Мистер Имот. Без брокеров или посредников.'
+      : lang === 'gr'
+        ? ' Δημοσιεύτηκε απευθείας από επαληθευμένο επενδυτή στο Mister Imot. Χωρίς μεσίτες ή μεσάζοντες.'
+        : ' Published directly by a verified developer on Mister Imot. No brokers or intermediaries.'
+  const enhancedDescription = project.developer?.verification_status === 'verified'
+    ? `${baseDescription}${verificationMessage}`
+    : baseDescription
+  
+  // Format dates for schema (YYYY-MM-DD)
+  const formatDate = (dateString: string | undefined): string | undefined => {
+    if (!dateString) return undefined
+    try {
+      return dateString.split('T')[0]
+    } catch {
+      return undefined
+    }
+  }
+  
+  // Determine availability based on project status
+  const getAvailability = (status?: string): string => {
+    if (!status || status === 'active') {
+      return 'https://schema.org/InStock'
+    } else if (status === 'paused') {
+      return 'https://schema.org/PreOrder'
+    } else if (status === 'deleted') {
+      return 'https://schema.org/OutOfStock'
+    }
+    return 'https://schema.org/InStock' // default
+  }
+  
   // RealEstateListing Schema - PRIMARY schema for real estate
   // DO NOT use Product schema for real estate - it causes Google to expect merchant fields
   const realEstateSchema = {
     "@context": "https://schema.org",
     "@type": "RealEstateListing",
+    "@id": listingUrl,
     "name": project.title || project.name || 'New Construction Project',
-    "description": project.description || project.title || '',
+    "description": enhancedDescription,
     "url": listingUrl,
     "inLanguage": langToLocale[lang] || 'en_US',
     ...(images.length > 0 && { "image": images }),
+    
+    // Publisher = MrImot (the platform)
+    "publisher": {
+      "@type": "Organization",
+      "@id": `${baseUrl}#organization`,
+      "name": publisherName,
+      "url": baseUrl,
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://ik.imagekit.io/ts59gf2ul/Logo/mr-imot-logo-no-background.png?tr=w-600,h-60,fo-auto,f-webp"
+      }
+    },
+    
+    // Provider = Developer (source of the property)
+    ...(project.developer && developerUrl && {
+      "provider": {
+        "@type": "Organization",
+        "@id": developerUrl,
+        "name": project.developer.company_name,
+        "url": developerUrl,
+        ...(project.developer.profile_image_url && {
+          "logo": {
+            "@type": "ImageObject",
+            "url": project.developer.profile_image_url
+          }
+        })
+      }
+    }),
+    
+    // Dates
+    ...(project.created_at && { "datePublished": formatDate(project.created_at) }),
+    ...(project.updated_at && { "dateModified": formatDate(project.updated_at) }),
+    
     "address": {
       "@type": "PostalAddress",
       "addressLocality": project.city || 'Bulgaria',
@@ -196,10 +278,69 @@ export default function ListingStructuredData({
         "@type": "Offer",
         "price": numericPrice,
         "priceCurrency": currency,
-        ...(project.price_label && { "description": project.price_label })
+        "availability": getAvailability(project.status),
+        ...(project.price_label && { "description": project.price_label }),
+        // Seller in offers, not in RealEstateListing root
+        ...(project.developer && developerUrl && {
+          "seller": {
+            "@type": "Organization",
+            "@id": developerUrl
+          }
+        })
       }
     })
   }
+  
+  // Organization Schema for Developer (always render if developer exists)
+  const developerOrganizationSchema = project.developer && developerUrl ? {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "@id": developerUrl,
+    "name": project.developer.company_name,
+    "url": developerUrl,
+    ...(project.developer.profile_image_url && {
+      "logo": {
+        "@type": "ImageObject",
+        "url": project.developer.profile_image_url
+      }
+    }),
+    ...(project.developer.phone && { "telephone": project.developer.phone }),
+    ...(project.developer.email && { "email": project.developer.email }),
+    ...(project.developer.website && { 
+      "sameAs": [project.developer.website] 
+    }),
+    "knowsAbout": [
+      "New residential construction",
+      "Real estate development",
+      "Apartment buildings"
+    ]
+  } : null
+  
+  // LocalBusiness Schema for Developer (only if office_address exists)
+  const developerLocalBusinessSchema = project.developer && developerUrl && project.developer.office_address ? {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "@id": `${developerUrl}#business`,
+    "name": project.developer.company_name,
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": project.developer.office_address,
+      "addressCountry": "BG"
+    },
+    ...(project.developer.office_latitude && project.developer.office_longitude && {
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": project.developer.office_latitude,
+        "longitude": project.developer.office_longitude
+      }
+    }),
+    ...(project.developer.phone && { "telephone": project.developer.phone }),
+    ...(project.developer.website && { "url": project.developer.website }),
+    // Link to parent Organization
+    "parentOrganization": {
+      "@id": developerUrl
+    }
+  } : null
   
   // BreadcrumbList Schema
   const breadcrumbSchema = {
@@ -233,6 +374,18 @@ export default function ListingStructuredData({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(realEstateSchema) }}
       />
+      {developerOrganizationSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(developerOrganizationSchema) }}
+        />
+      )}
+      {developerLocalBusinessSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(developerLocalBusinessSchema) }}
+        />
+      )}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
