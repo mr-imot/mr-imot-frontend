@@ -58,8 +58,11 @@ export function PropertyMapCard({
   const [dragOffset, setDragOffset] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
   const touchStartY = useRef<number | null>(null)
+  const touchStartX = useRef<number | null>(null)
   const cardRef = useRef<HTMLDivElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
   const scrollPositionRef = useRef<number>(0)
+  const hasMoved = useRef<boolean>(false)
   
   if (!property) return null
   
@@ -174,57 +177,89 @@ export function PropertyMapCard({
     return 'Request price'
   }
 
-  // Handle touch events for drag prevention (Airbnb-style bounce-back)
+  // Handle touch events for drag and swipe-to-close (Airbnb-style)
   const handleTouchStart = (e: React.TouchEvent) => {
     if (!forceMobile || !floating) return
     
-    const cardElement = cardRef.current
-    if (!cardElement) return
-    
     const touchY = e.touches[0].clientY
-    const cardRect = cardElement.getBoundingClientRect()
-    const touchRelativeY = touchY - cardRect.top
+    const touchX = e.touches[0].clientX
     
-    // Only enable drag if touch is in the top 100px of the card (image area)
-    if (touchRelativeY < 100) {
-      touchStartY.current = touchY
-      setIsDragging(true)
-      e.preventDefault() // Prevent default scroll behavior
-      e.stopPropagation()
-    }
+    touchStartY.current = touchY
+    touchStartX.current = touchX
+    hasMoved.current = false
+    
+    // Don't prevent default yet - let content scroll if it's a scroll gesture
   }
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (!forceMobile || !floating || touchStartY.current === null || !isDragging) return
+    if (!forceMobile || !floating || touchStartY.current === null || touchStartX.current === null) return
     
     const currentY = e.touches[0].clientY
+    const currentX = e.touches[0].clientX
     const deltaY = currentY - touchStartY.current
+    const deltaX = Math.abs(currentX - touchStartX.current)
+    const deltaYAbs = Math.abs(deltaY)
     
-    // Only allow upward drag (negative deltaY means dragging up)
+    // Only start dragging if movement is primarily vertical and significant
+    if (!hasMoved.current && deltaYAbs > 5 && deltaYAbs > deltaX) {
+      hasMoved.current = true
+      setIsDragging(true)
+      
+      // Check if content is scrollable and at top/bottom
+      const content = contentRef.current
+      if (content) {
+        const isAtTop = content.scrollTop <= 1
+        const isAtBottom = content.scrollHeight - content.scrollTop - content.clientHeight <= 1
+        
+        // If dragging down and at top, or dragging up and at bottom, allow drag
+        // Otherwise, let content scroll
+        if ((deltaY > 0 && !isAtTop) || (deltaY < 0 && !isAtBottom)) {
+          // Let content scroll
+          setIsDragging(false)
+          return
+        }
+      }
+    }
+    
+    if (!isDragging) return
+    
+    // Prevent default to stop page scroll
+    e.preventDefault()
+    e.stopPropagation()
+    
+    // Allow both upward and downward drag
     if (deltaY < 0) {
-      // Limit the drag distance and apply resistance
+      // Dragging up - limit with resistance (bounce-back effect)
       const maxDrag = 30 // Maximum pixels to allow dragging up
       const resistance = 0.3 // Resistance factor for smooth feel
       const dragAmount = Math.max(deltaY * resistance, -maxDrag)
       setDragOffset(dragAmount)
-      e.preventDefault() // Prevent page scroll
-      e.stopPropagation()
     } else {
-      // Don't allow dragging down - reset immediately
-      setDragOffset(0)
+      // Dragging down - allow smooth movement (swipe-to-close)
+      // No resistance for downward drag, allow full movement
+      setDragOffset(deltaY)
     }
   }
 
   const handleTouchEnd = () => {
     if (!forceMobile || !floating) return
     
-    // Bounce back animation
-    if (dragOffset < 0) {
-      // Animate back to original position with spring effect
-      setDragOffset(0)
+    if (isDragging) {
+      // Determine if we should close or bounce back
+      const closeThreshold = 80 // Pixels to drag down before closing
+      
+      if (dragOffset > closeThreshold) {
+        // Dragged down enough - close the card
+        handleClose()
+      } else {
+        // Not enough drag or dragged up - bounce back to original position
+        setDragOffset(0)
+      }
     }
     
     touchStartY.current = null
+    touchStartX.current = null
+    hasMoved.current = false
     setIsDragging(false)
   }
 
@@ -250,9 +285,6 @@ export function PropertyMapCard({
           : undefined,
         transition: isDragging ? 'none' : 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease-out',
       }}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
       onClick={(e) => {
         // Stop propagation so clicking anywhere on the card doesn't trigger map click
         e.stopPropagation()
@@ -274,6 +306,9 @@ export function PropertyMapCard({
           WebkitOverflowScrolling: 'touch',
           touchAction: forceMobile && floating ? 'pan-y' : undefined, // Allow vertical scroll inside card only
         }}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
         onClick={(e) => {
           // Stop propagation so clicking the card doesn't trigger map click (which would close it)
           e.stopPropagation()
@@ -383,7 +418,7 @@ export function PropertyMapCard({
         </div>
 
         {/* Content */}
-        <div className="px-4 py-4">
+        <div ref={contentRef} className="px-4 py-4">
           <div className="flex items-start justify-between">
             <div className="min-w-0 flex-1">
               <h3 
