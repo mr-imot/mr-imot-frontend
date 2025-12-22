@@ -5,6 +5,7 @@
     "how-to-add-listing-guide": "how-to-add-listing-guide",
     "how-to-register-guide": "how-to-register-guide",
     "ideia-khoum-new-partner": "ideia-khoum-new-partner-2025",
+    "property-register-tax-office-inquiry-registration": "imoten-registar-danachna-sluzhba-proverka-tephesti",
     "greek-language-is-here": "language-greek-2025",
     "mister-imot-now-speaks-russian": "language-russian-2025",
     "100-a-month-compounding": "money-compounding-100",
@@ -16,6 +17,7 @@
     "property-purchase-fees-calculator-2025": "taksi-pri-pokupka-na-imot-kalkulator-2025",
     "bezplaten-kalkulator-taksi-imot-widget": "bezplaten-kalkulator-taksi-imot-widget",
     "ideia-khoum-nov-partnyor": "ideia-khoum-new-partner-2025",
+    "imoten-registar-danachna-sluzhba-proverka-tephesti": "imoten-registar-danachna-sluzhba-proverka-tephesti",
     "kak-da-dobavite-obiava": "how-to-add-listing-guide",
     "kak-da-si-napravya-registraciya": "how-to-register-guide",
     "gryckiat-ezik-veche-e-tuk": "language-greek-2025",
@@ -31,6 +33,7 @@
     "kak-dobavit-obyavlenie": "how-to-add-listing-guide",
     "kak-zaregistrirovatsya": "how-to-register-guide",
     "ideia-khoum-novyj-partnyor": "ideia-khoum-new-partner-2025",
+    "reestr-nedvizhimosti-nalogovaya-sluzhba-spravki-registraciya": "imoten-registar-danachna-sluzhba-proverka-tephesti",
     "grecheskiy-yazyk-uzhe-zdes": "language-greek-2025",
     "mister-imot-teper-na-russkom": "language-russian-2025",
     "100-lev-za-5-let-7300": "money-compounding-100",
@@ -44,6 +47,7 @@
     "pos-na-prosthete-angelia": "how-to-add-listing-guide",
     "pos-na-kano-eggrafi": "how-to-register-guide",
     "ideia-khoum-neos-synergatas": "ideia-khoum-new-partner-2025",
+    "kthmatologio-forologiki-ypiresia-ereunh-eggrafh": "imoten-registar-danachna-sluzhba-proverka-tephesti",
     "elliniki-glossa-einai-edo": "language-greek-2025",
     "to-mister-imot-mila-rosika": "language-russian-2025",
     "100-lev-se-5-chronia-7300": "money-compounding-100",
@@ -84,6 +88,12 @@
       "bg": "ideia-khoum-nov-partnyor",
       "ru": "ideia-khoum-novyj-partnyor",
       "gr": "ideia-khoum-neos-synergatas"
+    },
+    "imoten-registar-danachna-sluzhba-proverka-tephesti": {
+      "en": "property-register-tax-office-inquiry-registration",
+      "bg": "imoten-registar-danachna-sluzhba-proverka-tephesti",
+      "ru": "reestr-nedvizhimosti-nalogovaya-sluzhba-spravki-registraciya",
+      "gr": "kthmatologio-forologiki-ypiresia-ereunh-eggrafh"
     },
     "language-greek-2025": {
       "en": "greek-language-is-here",
