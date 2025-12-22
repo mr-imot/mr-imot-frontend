@@ -321,11 +321,6 @@ export function ListingsClientContent({
           }
         })
         
-        // Click to close card
-        map.addListener('click', () => {
-          if (selectedPropertyId) onPropertySelect(null)
-        })
-        
       } catch (e) {
         console.error("Error initializing Google Maps:", e)
       }
@@ -333,6 +328,20 @@ export function ListingsClientContent({
     
     initMap()
   }, []) // Only run once on mount
+  
+  // Add click handler to desktop map to close property card (Airbnb-style UX)
+  useEffect(() => {
+    if (!desktopMapReady || !googleMapRef.current) return
+    
+    const map = googleMapRef.current
+    const clickListener = map.addListener('click', () => {
+      if (selectedPropertyId) onPropertySelect(null)
+    })
+    
+    return () => {
+      google.maps.event.removeListener(clickListener)
+    }
+  }, [desktopMapReady, selectedPropertyId, onPropertySelect])
   
   // Mobile map initialization
   useEffect(() => {
