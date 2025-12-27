@@ -7,7 +7,6 @@ import CookieConsent from "@/components/cookie-consent"
 import { brandForLang, formatTitleWithBrand } from "@/lib/seo"
 import type { Metadata } from "next"
 import ViewportLock from "@/components/ViewportLock"
-import { Snowfall } from "@/components/christmas"
 import { FairyLights } from "@/components/fairy-lights"
 
 export async function generateStaticParams() {
@@ -111,15 +110,6 @@ export default async function RootLayout({
         </div>
         <FeedbackButton />
         <CookieConsent />
-        {/* Christmas snowfall effect - remove this component and import to disable */}
-        <Snowfall 
-          count={150}
-          minSize={5}
-          maxSize={14}
-          minSpeed={0.5}
-          maxSpeed={2.5}
-          enabled={true}
-        />
       </LocaleProvider>
     )
   } catch (error) {
@@ -138,15 +128,6 @@ export default async function RootLayout({
         </div>
         <FeedbackButton />
         <CookieConsent />
-        {/* Christmas snowfall effect - remove this component and import to disable */}
-        <Snowfall 
-          count={150}
-          minSize={5}
-          maxSize={14}
-          minSpeed={0.5}
-          maxSpeed={2.5}
-          enabled={true}
-        />
       </LocaleProvider>
     )
   }
