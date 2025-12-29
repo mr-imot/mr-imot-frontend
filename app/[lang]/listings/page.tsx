@@ -87,7 +87,7 @@ export async function generateMetadata({ params }: ListingsPageProps): Promise<M
   const brand = brandForLang(lang)
   
   const rawTitle = isBg
-    ? `Обяви за Ново Строителство – ${brand} | Без Брокери, Без Комисионни`
+    ? `Обяви за Ново Строителство – ${brand} | Без Брокери, Без Комисиони`
     : isRu
       ? `Объявления новостроек – ${brand} | Без брокеров, 0% комиссии`
       : `New Construction Listings – ${brand} | No Brokers, 0% Commission`
@@ -184,7 +184,7 @@ export default async function ListingsPage({ params, searchParams }: ListingsPag
       : `${baseUrl}/listings`
   const brand = brandForLang(lang)
   const rawTitle = isBg
-    ? `Обяви за Ново Строителство – ${brand} | Без Брокери, Без Комисионни`
+    ? `Обяви за Ново Строителство – ${brand} | Без Брокери, Без Комисиони`
     : isRu
       ? `Объявления новостроек – ${brand} | Без брокеров, 0% комиссии`
       : `New Construction Listings – ${brand} | No Brokers, 0% Commission`

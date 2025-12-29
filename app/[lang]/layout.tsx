@@ -24,13 +24,13 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: 'en
   const brand = brandForLang(lang)
 
   const rawTitle = isBg
-    ? `${brand} – Имоти директно от строители (без брокери, без комисионни)`
+    ? `${brand} – Имоти директно от строители (без брокери, без комисиони)`
     : `${brand} – Off‑plan properties directly from developers (no brokers, 0% commissions)`
   const title = formatTitleWithBrand(rawTitle, lang)
 
   const description = isBg
-    ? `${brand}: единствената платформа в България за ново строителство – директна връзка със строители, без брокери и без комисионни.`
-    : `${brand}: Bulgaria’s platform for new construction – connect directly with developers, no brokers and 0% commissions.`
+    ? `${brand}: единствената платформа в България за ново строителство – директна връзка със строители, без брокери и без комисиони.`
+    : `${brand}: Bulgaria's platform for new construction – connect directly with developers, no brokers and 0% commissions.`
 
   const url = `${siteUrl}/${lang}`
   const ogLocale = isBg ? 'bg_BG' : isGr ? 'el_GR' : isRu ? 'ru_RU' : 'en_US'

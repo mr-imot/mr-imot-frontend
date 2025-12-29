@@ -52,7 +52,7 @@ export default function AboutStructuredData({ lang, baseUrl }: AboutStructuredDa
     "url": `${baseUrl}/${lang}`,
     "logo": "https://ik.imagekit.io/ts59gf2ul/Logo/mr-imot-logo.png",
     "description": isBg
-      ? "Платформа за ново строителство в България. Директна връзка между купувачи и строители без брокери и комисионни."
+      ? "Платформа за ново строителство в България. Директна връзка между купувачи и строители без брокери и комисиони."
       : "New construction platform in Bulgaria. Direct connection between buyers and developers without brokers and commissions.",
     "foundingDate": "2025",
     "founder": {

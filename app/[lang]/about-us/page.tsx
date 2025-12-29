@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: AboutPageProps): Promise<Meta
   const title = formatTitleWithBrand(rawTitle, lang)
   
   const description = isBg
-    ? `Научете повече за ${brand} – платформата, която модернизира пазара на ново строителство в България. Директна връзка със строители, без брокери и без комисионни. Нашата мисия, подход и роудмап за развитие.`
+    ? `Научете повече за ${brand} – платформата, която модернизира пазара на ново строителство в България. Директна връзка със строители, без брокери и без комисиони. Нашата мисия, подход и роудмап за развитие.`
     : isRu
       ? `Узнайте больше о ${brand} – платформе, которая модернизирует рынок новостроек в Болгарии. Общайтесь напрямую с застройщиками, без брокеров и комиссий. Наша миссия, подход и планы развития.`
       : `Learn more about ${brand} – the platform modernizing Bulgaria's new construction market. Connect directly with developers, no brokers and 0% commissions. Our mission, approach, and development roadmap.`
@@ -114,7 +114,7 @@ export default async function AboutPage({ params }: AboutPageProps) {
   const title = formatTitleWithBrand(rawTitle, lang)
   
   const description = isBg
-    ? `Научете повече за ${brand} – платформата, която модернизира пазара на ново строителство в България. Директна връзка със строители, без брокери и без комисионни. Нашата мисия, подход и роудмап за развитие.`
+    ? `Научете повече за ${brand} – платформата, която модернизира пазара на ново строителство в България. Директна връзка със строители, без брокери и без комисиони. Нашата мисия, подход и роудмап за развитие.`
     : isRu
       ? `Узнайте больше о ${brand} – платформе, которая модернизирует рынок новостроек в Болгарии. Общайтесь напрямую с застройщиками, без брокеров и комиссий. Наша миссия, подход и планы развития.`
       : `Learn more about ${brand} – the platform modernizing Bulgaria's new construction market. Connect directly with developers, no brokers and 0% commissions. Our mission, approach, and development roadmap.`

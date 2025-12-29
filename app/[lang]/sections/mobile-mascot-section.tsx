@@ -11,16 +11,14 @@ export function MobileMascotSection({ dict, lang }: MobileMascotSectionProps) {
       <div className="container mx-auto px-3 sm:px-6 md:px-8 w-full">
         <div className="flex justify-center">
           <Image
-            src={(() => {
-              const isDecember = new Date().getMonth() === 11
-              if (isDecember) {
-                return "https://ik.imagekit.io/ts59gf2ul/Logo/christmas-mister-imot-Photoroom.png?tr=f-webp,q-80,w-320,h-auto,dpr=auto"
-              }
-              return lang === 'bg' 
-                ? "https://ik.imagekit.io/ts59gf2ul/Logo/0_-komisionna-mr-imot.png?updatedAt=1760104535412&tr=f-webp,q-80,w-320,h-auto,dpr=auto"
-                : "https://ik.imagekit.io/ts59gf2ul/Logo/0_-commissions-mr-imot.png?updatedAt=1760108287952&tr=f-webp,q-80,w-320,h-auto,dpr=auto"
-            })()}
-            alt={lang === 'bg' ? dict.hero.imageAlt : 'Mister Imot mascot holding flag with 0% commissions message for real estate platform'}
+            src={lang === 'bg' 
+              ? "https://ik.imagekit.io/ts59gf2ul/Logo/mrimot.com-0_-komisiona-bg-christmas.png?tr=f-webp,q-80,w-320,h-auto,dpr=auto"
+              : "https://ik.imagekit.io/ts59gf2ul/Logo/mrimot.com-0_-commissions-en-christmas-Photoroom.png?tr=f-webp,q-80,w-320,h-auto,dpr=auto"
+            }
+            alt={lang === 'bg' 
+              ? 'Талисман Мистър Имот от mrimot.com в коледен дух, държащ знак с надпис 0% комисиони за платформа за недвижими имоти'
+              : 'Mister Imot mascot of mrimot.com in Christmas spirit holding a sign with 0% commissions message for real estate platform'
+            }
             width={320}
             height={240}
             loading="lazy"

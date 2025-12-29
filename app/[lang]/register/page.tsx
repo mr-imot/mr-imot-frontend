@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: RegisterPageProps): Promise<M
   const title = formatTitleWithBrand(rawTitle, lang)
   
   const description = isBg
-    ? `Регистрирайте се като строител в ${brand} и започнете да публикувате вашите проекти за ново строителство. Без комисионни, директна връзка с клиенти.`
+    ? `Регистрирайте се като строител в ${brand} и започнете да публикувате вашите проекти за ново строителство. Без комисиони, директна връзка с клиенти.`
     : `Register as a developer on ${brand} and start publishing your new construction projects. No commissions, direct connection with clients.`
   
   const canonicalUrl = `${baseUrl}/${lang}/register`

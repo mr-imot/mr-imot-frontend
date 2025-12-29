@@ -19,11 +19,11 @@ export async function generateMetadata({ params }: HomePageProps): Promise<Metad
   const socialImage = 'https://ik.imagekit.io/ts59gf2ul/Logo/mister-imot-waving-hi-with-bg.png?tr=w-1200,h-630,cm-pad_resize,bg-FFFFFF,fo-auto,q-85,f-auto&v=20241205'
 
   const fallbackTitle = isBg
-    ? `${brand} – Имоти директно от строители (без брокери, без комисионни)`
+    ? `${brand} – Имоти директно от строители (без брокери, без комисиони)`
     : `${brand} – Off‑plan properties directly from developers (no brokers, 0% commissions)`
 
   const fallbackDescription = isBg
-    ? `${brand}: единствената платформа в България за ново строителство – директна връзка със строители, без брокери и без комисионни.`
+    ? `${brand}: единствената платформа в България за ново строителство – директна връзка със строители, без брокери и без комисиони.`
     : `${brand}: Bulgaria's platform for new construction – connect directly with developers, no brokers and 0% commissions.`
 
   const seoContent = (dict as { seo?: { home?: { title?: string; description?: string; keywords?: string[] } } })?.seo?.home
@@ -92,11 +92,11 @@ export default async function HomePage({ params }: HomePageProps) {
   const socialImage = 'https://ik.imagekit.io/ts59gf2ul/Logo/mister-imot-waving-hi-with-bg.png?tr=w-1200,h-630,cm-pad_resize,bg-FFFFFF,fo-auto,q-85,f-auto&v=20241205'
 
   const fallbackTitle = isBg
-    ? `${brand} – Имоти директно от строители (без брокери, без комисионни)`
+    ? `${brand} – Имоти директно от строители (без брокери, без комисиони)`
     : `${brand} – Off‑plan properties directly from developers (no brokers, 0% commissions)`
 
   const fallbackDescription = isBg
-    ? `${brand}: единствената платформа в България за ново строителство – директна връзка със строители, без брокери и без комисионни.`
+    ? `${brand}: единствената платформа в България за ново строителство – директна връзка със строители, без брокери и без комисиони.`
     : `${brand}: Bulgaria's platform for new construction – connect directly with developers, no brokers and 0% commissions.`
 
   const seoContent = (dict as { seo?: { home?: { title?: string; description?: string; keywords?: string[] } } })?.seo?.home
