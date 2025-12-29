@@ -38,6 +38,8 @@ export function ModalClientWrapper({ children }: ModalClientWrapperProps) {
   const router = useRouter()
   const pathname = usePathname()
   const scrollPositionRef = useRef<number>(0)
+  // Track whether we actually applied body styles (only on mobile)
+  const hasAppliedStylesRef = useRef<boolean>(false)
   
   // Mobile detection - check on initial render to avoid flash
   const [isMobile, setIsMobile] = useState(() => {
@@ -92,6 +94,7 @@ export function ModalClientWrapper({ children }: ModalClientWrapperProps) {
   }, [])
 
   // Handle modal open/close animations and scroll preservation
+  // FIX: Only apply/restore body styles on mobile to prevent desktop scroll reset
   useEffect(() => {
     if (isMobile) {
       // Store current scroll position
@@ -101,16 +104,28 @@ export function ModalClientWrapper({ children }: ModalClientWrapperProps) {
       document.body.style.position = 'fixed'
       document.body.style.top = `-${scrollPositionRef.current}px`
       document.body.style.width = '100%'
+      // Mark that we've applied styles so cleanup knows to restore
+      hasAppliedStylesRef.current = true
+    } else {
+      // On desktop, we don't apply styles, so mark that we haven't
+      hasAppliedStylesRef.current = false
     }
 
     return () => {
-      // Restore body scroll
-      document.body.style.overflow = ''
-      document.body.style.position = ''
-      document.body.style.top = ''
-      document.body.style.width = ''
-      // Restore scroll position
-      window.scrollTo(0, scrollPositionRef.current)
+      // Only restore body scroll and scroll position if we actually applied styles
+      // This prevents the scroll reset bug on desktop where cleanup was running
+      // even though we never modified body styles
+      if (hasAppliedStylesRef.current) {
+        // Restore body scroll
+        document.body.style.overflow = ''
+        document.body.style.position = ''
+        document.body.style.top = ''
+        document.body.style.width = ''
+        // Restore scroll position
+        window.scrollTo(0, scrollPositionRef.current)
+        // Reset the flag
+        hasAppliedStylesRef.current = false
+      }
     }
   }, [isMobile])
 
