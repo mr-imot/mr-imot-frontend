@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import DeveloperDetailClient from './developer-detail-client'
 import DeveloperStructuredData from './developer-structured-data'
 import { DeveloperProfile } from '@/lib/api'
-import { brandForLang, formatTitleWithBrand } from '@/lib/seo'
+import { brandForLang, formatTitleWithBrand, getSiteUrl } from '@/lib/seo'
 
 interface PageProps {
   params: Promise<{
@@ -42,8 +42,7 @@ async function getDeveloperData(identifier: string): Promise<DeveloperProfile | 
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { lang, slug } = await params
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mrimot.com'
-  const baseUrl = siteUrl.replace(/\/$/, '')
+  const baseUrl = getSiteUrl() // Hardcoded production domain for canonical URLs
   const socialImage = 'https://ik.imagekit.io/ts59gf2ul/Logo/mister-imot-waving-hi-with-bg.png?tr=w-1200,h-630,cm-pad_resize,bg-FFFFFF,fo-auto,q-85,f-auto&v=20241205'
   
   const developer = await getDeveloperData(slug)
@@ -138,8 +137,7 @@ export default async function DeveloperDetailPage({ params }: PageProps) {
     notFound()
   }
   
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mrimot.com'
-  const baseUrl = siteUrl.replace(/\/$/, '')
+  const baseUrl = getSiteUrl() // Hardcoded production domain for canonical URLs
   
   return (
     <>

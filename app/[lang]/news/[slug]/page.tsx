@@ -10,7 +10,7 @@ import {
   getAlternateSlugs,
   getPostBySlug,
 } from "@/lib/news"
-import { brandForLang, formatTitleWithBrand } from "@/lib/seo"
+import { brandForLang, formatTitleWithBrand, getSiteUrl } from "@/lib/seo"
 
 export const revalidate = 600
 export const dynamicParams = false
@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: BlogPostParams): Promise<Meta
   const post = await getPostBySlug(lang, slug)
   if (!post) return {}
 
-  const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://mrimot.com").replace(/\/$/, "")
+  const baseUrl = getSiteUrl() // Hardcoded production domain for canonical URLs
   const alternates = await getAlternateSlugs(post.translationKey)
 
   const languages: Record<string, string> = {
@@ -109,7 +109,7 @@ export default async function BlogPostPage({ params }: BlogPostParams) {
   const alternateSlugs = await getAlternateSlugs(post.translationKey)
 
   // Build canonical URL for structured data
-  const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://mrimot.com").replace(/\/$/, "")
+  const baseUrl = getSiteUrl() // Hardcoded production domain for canonical URLs
   const articleUrl = lang === "en"
     ? `${baseUrl}/news/${slug}`
     : lang === "bg"

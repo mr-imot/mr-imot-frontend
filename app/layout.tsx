@@ -56,22 +56,14 @@ export const metadata: Metadata = {
     statusBarStyle: 'black-translucent'
   },
   alternates: {
-    canonical: process.env.NEXT_PUBLIC_SITE_URL 
-      ? `${process.env.NEXT_PUBLIC_SITE_URL}/en`
-      : 'https://mrimot.com/en',
+    // Hardcode production domain for canonical URLs to prevent build-time issues
+    // See: https://www.reddit.com/r/nextjs/s/otIdK3NiqK
+    canonical: 'https://mrimot.com/en',
     languages: {
-      en: process.env.NEXT_PUBLIC_SITE_URL 
-        ? `${process.env.NEXT_PUBLIC_SITE_URL}/en`
-        : 'https://mrimot.com/en',
-      bg: process.env.NEXT_PUBLIC_SITE_URL 
-        ? `${process.env.NEXT_PUBLIC_SITE_URL}/bg`
-        : 'https://mrimot.com/bg',
-      ru: process.env.NEXT_PUBLIC_SITE_URL 
-        ? `${process.env.NEXT_PUBLIC_SITE_URL}/ru`
-        : 'https://mrimot.com/ru',
-      'x-default': process.env.NEXT_PUBLIC_SITE_URL 
-        ? `${process.env.NEXT_PUBLIC_SITE_URL}/en`
-        : 'https://mrimot.com/en',
+      en: 'https://mrimot.com/en',
+      bg: 'https://mrimot.com/bg',
+      ru: 'https://mrimot.com/ru',
+      'x-default': 'https://mrimot.com/en',
     },
   },
 }

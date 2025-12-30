@@ -1,7 +1,7 @@
 import { getDictionary } from '../dictionaries'
 import ContactClient from './contact-client'
 import ContactStructuredData from './contact-structured-data'
-import { brandForLang, formatTitleWithBrand } from '@/lib/seo'
+import { brandForLang, formatTitleWithBrand, getSiteUrl } from '@/lib/seo'
 import type { Metadata } from 'next'
 import WebPageSchema from '@/components/seo/webpage-schema'
 
@@ -13,8 +13,7 @@ interface ContactPageProps {
 
 export async function generateMetadata({ params }: ContactPageProps): Promise<Metadata> {
   const { lang } = await params
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mrimot.com'
-  const baseUrl = siteUrl.replace(/\/$/, '')
+  const baseUrl = getSiteUrl() // Hardcoded production domain for canonical URLs
   
   const isBg = lang === 'bg'
   const brand = brandForLang(lang)
@@ -89,8 +88,7 @@ export async function generateMetadata({ params }: ContactPageProps): Promise<Me
 export default async function ContactPage({ params }: ContactPageProps) {
   const { lang } = await params
   const dict = await getDictionary(lang)
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mrimot.com'
-  const baseUrl = siteUrl.replace(/\/$/, '')
+  const baseUrl = getSiteUrl() // Hardcoded production domain for canonical URLs
   const isBg = lang === 'bg'
   const brand = brandForLang(lang)
   const socialImage = 'https://ik.imagekit.io/ts59gf2ul/Logo/mister-imot-waving-hi-with-bg.png?tr=w-1200,h-630,cm-pad_resize,bg-FFFFFF,fo-auto,q-85,f-auto&v=20241205'

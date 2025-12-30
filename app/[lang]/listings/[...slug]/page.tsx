@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import ListingPageContent from '../[id]/listing-page-content'
 import NotFoundPage from '../[id]/not-found-page'
 import { Project, PausedProject, DeletedProject } from '@/lib/api'
-import { brandForLang, formatTitleWithBrand } from '@/lib/seo'
+import { brandForLang, formatTitleWithBrand, getSiteUrl } from '@/lib/seo'
 import { ModalClientWrapper } from '../@modal/(.)[id]/modal-client-wrapper'
 
 interface PageProps {
@@ -78,8 +78,7 @@ export async function getProjectData(identifier: string, lang: string): Promise<
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { lang, slug } = await params
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mrimot.com'
-  const baseUrl = siteUrl.replace(/\/$/, '')
+  const baseUrl = getSiteUrl() // Hardcoded production domain for canonical URLs
   const socialFallback = 'https://ik.imagekit.io/ts59gf2ul/Logo/mister-imot-waving-hi-with-bg.png?tr=w-1200,h-630,cm-pad_resize,bg-FFFFFF,fo-auto,q-85,f-auto&v=20241205'
   
   // Join slug parts to get full identifier

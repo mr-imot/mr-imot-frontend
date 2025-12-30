@@ -4,7 +4,7 @@ import { SiteHeader } from "@/components/site-header"
 import { Footer } from "@/components/footer"
 import { FeedbackButton } from "@/components/feedback-button"
 import CookieConsent from "@/components/cookie-consent"
-import { brandForLang, formatTitleWithBrand } from "@/lib/seo"
+import { brandForLang, formatTitleWithBrand, getSiteUrl } from "@/lib/seo"
 import type { Metadata } from "next"
 import ViewportLock from "@/components/ViewportLock"
 import { FairyLights } from "@/components/fairy-lights"
@@ -15,7 +15,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: 'en' | 'bg' | 'ru' | 'gr' }> }): Promise<Metadata> {
   const { lang } = await params
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mrimot.com'
+  const siteUrl = getSiteUrl() // Hardcoded production domain for canonical URLs
   const socialImage = 'https://ik.imagekit.io/ts59gf2ul/Logo/mister-imot-waving-hi-with-bg.png?tr=w-1200,h-630,cm-pad_resize,bg-FFFFFF,fo-auto,q-85,f-auto'
 
   const isBg = lang === 'bg'

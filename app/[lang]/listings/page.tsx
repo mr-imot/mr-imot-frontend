@@ -3,7 +3,7 @@ import "@/styles/maps.css"
 import { getDictionary } from "../dictionaries"
 import { ListingsLayoutServer, CITY_BOUNDS, CityType, PropertyTypeFilter } from "./listings-layout-server"
 import { ListingsClientWrapper } from "./listings-client-wrapper"
-import { brandForLang, formatTitleWithBrand } from "@/lib/seo"
+import { brandForLang, formatTitleWithBrand, getSiteUrl } from "@/lib/seo"
 import type { Metadata } from 'next'
 import WebPageSchema from '@/components/seo/webpage-schema'
 
@@ -78,8 +78,7 @@ async function fetchInitialProperties(city: CityType, propertyType: PropertyType
 
 export async function generateMetadata({ params }: ListingsPageProps): Promise<Metadata> {
   const { lang } = await params
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mrimot.com'
-  const baseUrl = siteUrl.replace(/\/$/, '')
+  const baseUrl = getSiteUrl() // Hardcoded production domain for canonical URLs
   const socialImage = 'https://ik.imagekit.io/ts59gf2ul/Logo/mister-imot-waving-hi-with-bg.png?tr=w-1200,h-630,cm-pad_resize,bg-FFFFFF,fo-auto,q-85,f-auto&v=20241205'
   
   const isBg = lang === 'bg'
@@ -173,8 +172,7 @@ export default async function ListingsPage({ params, searchParams }: ListingsPag
   // Fetch initial properties on server (cached for 60s)
   const initialProperties = await fetchInitialProperties(initialCity, initialType)
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mrimot.com'
-  const baseUrl = siteUrl.replace(/\/$/, '')
+  const baseUrl = getSiteUrl() // Hardcoded production domain for canonical URLs
   const isBg = lang === 'bg'
   const isRu = lang === 'ru'
   const canonicalUrl = isBg 

@@ -1,4 +1,5 @@
 import type { BlogLang, BlogPostMeta } from "@/lib/news"
+import { getSiteUrl } from "@/lib/seo"
 
 type ArticleStructuredDataProps = {
   post: BlogPostMeta
@@ -7,7 +8,7 @@ type ArticleStructuredDataProps = {
 }
 
 export function ArticleStructuredData({ post, lang, url }: ArticleStructuredDataProps) {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://mrimot.com"
+  const baseUrl = getSiteUrl() // Hardcoded production domain for SEO
   
   // Brand name per language
   const publisherName = lang === "bg" 

@@ -1,22 +1,15 @@
 import { MetadataRoute } from 'next'
 import { getDevelopers, getProjects, DevelopersListResponse, ProjectListResponse } from '@/lib/api'
 import { getAllPostsMeta } from '@/lib/news'
+import { getSiteUrl } from '@/lib/seo'
 
 // Refresh sitemap periodically to pick up new content
 export const revalidate = 3600 // 1 hour
 
-// Get base URL from environment variable or use production URL
+// Get base URL - hardcoded production domain for SEO
+// See: https://www.reddit.com/r/nextjs/s/otIdK3NiqK
 function getBaseUrl(): string {
-  let url: string
-  if (process.env.NEXT_PUBLIC_SITE_URL) {
-    url = process.env.NEXT_PUBLIC_SITE_URL
-  } else if (process.env.NODE_ENV === 'development') {
-    url = 'https://mrimot.com'
-  } else {
-    url = 'https://mrimot.com'
-  }
-  // Remove trailing slash to prevent double slashes
-  return url.replace(/\/$/, '')
+  return getSiteUrl()
 }
 
 // Fetch all active projects from the API with pagination (public endpoint, no cookies)

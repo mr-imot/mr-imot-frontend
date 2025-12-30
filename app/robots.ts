@@ -1,17 +1,10 @@
 import { MetadataRoute } from 'next'
+import { getSiteUrl } from '@/lib/seo'
 
-// Get base URL from environment variable or use production URL
+// Get base URL - hardcoded production domain for SEO
+// See: https://www.reddit.com/r/nextjs/s/otIdK3NiqK
 function getBaseUrl(): string {
-  let url: string
-  if (process.env.NEXT_PUBLIC_SITE_URL) {
-    url = process.env.NEXT_PUBLIC_SITE_URL
-  } else if (process.env.NODE_ENV === 'development') {
-    url = 'https://mrimot.com'
-  } else {
-    url = 'https://mrimot.com'
-  }
-  // Remove trailing slash to prevent double slashes
-  return url.replace(/\/$/, '')
+  return getSiteUrl()
 }
 
 export default function robots(): MetadataRoute.Robots {

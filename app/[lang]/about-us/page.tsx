@@ -1,7 +1,7 @@
 import { getDictionary } from '../dictionaries'
 import AboutClient from './about-client'
 import AboutStructuredData from './about-structured-data'
-import { brandForLang, formatTitleWithBrand } from '@/lib/seo'
+import { brandForLang, formatTitleWithBrand, getSiteUrl } from '@/lib/seo'
 import type { Metadata } from 'next'
 import WebPageSchema from '@/components/seo/webpage-schema'
 
@@ -13,8 +13,7 @@ interface AboutPageProps {
 
 export async function generateMetadata({ params }: AboutPageProps): Promise<Metadata> {
   const { lang } = await params
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mrimot.com'
-  const baseUrl = siteUrl.replace(/\/$/, '')
+  const baseUrl = getSiteUrl() // Hardcoded production domain for canonical URLs
   
   const isBg = lang === 'bg'
   const isRu = lang === 'ru'
@@ -99,8 +98,7 @@ export async function generateMetadata({ params }: AboutPageProps): Promise<Meta
 export default async function AboutPage({ params }: AboutPageProps) {
   const { lang } = await params
   const dict = await getDictionary(lang)
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mrimot.com'
-  const baseUrl = siteUrl.replace(/\/$/, '')
+  const baseUrl = getSiteUrl() // Hardcoded production domain for canonical URLs
   const isBg = lang === 'bg'
   const isRu = lang === 'ru'
   const brand = brandForLang(lang)

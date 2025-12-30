@@ -1,6 +1,6 @@
 import { getDictionary } from '../dictionaries'
 import LoginClient from './login-client'
-import { brandForLang, formatTitleWithBrand } from '@/lib/seo'
+import { brandForLang, formatTitleWithBrand, getSiteUrl } from '@/lib/seo'
 import type { Metadata } from 'next'
 
 interface LoginPageProps {
@@ -11,8 +11,7 @@ interface LoginPageProps {
 
 export async function generateMetadata({ params }: LoginPageProps): Promise<Metadata> {
   const { lang } = await params
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mrimot.com'
-  const baseUrl = siteUrl.replace(/\/$/, '')
+  const baseUrl = getSiteUrl() // Hardcoded production domain for canonical URLs
   
   const isBg = lang === 'bg'
   const brand = brandForLang(lang)

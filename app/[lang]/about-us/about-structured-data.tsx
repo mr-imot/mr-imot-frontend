@@ -1,23 +1,46 @@
 interface AboutStructuredDataProps {
-  lang: 'en' | 'bg'
+  lang: 'en' | 'bg' | 'ru' | 'gr'
   baseUrl: string
 }
 
 export default function AboutStructuredData({ lang, baseUrl }: AboutStructuredDataProps) {
   const isBg = lang === 'bg'
-  const brand = isBg ? 'Мистър Имот' : 'Mister Imot'
-  const aboutUrl = isBg ? `${baseUrl}/bg/za-mistar-imot` : `${baseUrl}/about-mister-imot`
+  const isRu = lang === 'ru'
+  const isGr = lang === 'gr'
+  
+  const brand = isBg ? 'Мистър Имот' : isRu ? 'Мистер Имот' : 'Mister Imot'
+  const aboutUrl = isBg 
+    ? `${baseUrl}/bg/za-mistar-imot`
+    : isRu
+      ? `${baseUrl}/ru/o-mister-imot`
+      : isGr
+        ? `${baseUrl}/gr/sxetika-me-to-mister-imot`
+        : `${baseUrl}/about-mister-imot`
   
   // AboutPage Schema
+  const aboutPageName = isBg ? "За Нас" : isRu ? "О нас" : isGr ? "Σχετικά με εμάς" : "About Us"
+  const aboutPageDescription = isBg
+    ? `Научете повече за ${brand} – платформата, която модернизира пазара на ново строителство в България.`
+    : isRu
+      ? `Узнайте больше о ${brand} – платформе, которая модернизирует рынок новостроек в Болгарии.`
+      : isGr
+        ? `Μάθετε περισσότερα για το ${brand} – την πλατφόρμα που εκσυγχρονίζει την αγορά νέων κατασκευών στη Βουλγαρία.`
+        : `Learn more about ${brand} – the platform modernizing Bulgaria's new construction market.`
+  
+  const langToLocale: Record<string, string> = {
+    en: 'en_US',
+    bg: 'bg_BG',
+    ru: 'ru_RU',
+    gr: 'el_GR'
+  }
+  
   const aboutPageSchema = {
     "@context": "https://schema.org",
     "@type": "AboutPage",
-    "name": isBg ? "За Нас" : "About Us",
-    "description": isBg
-      ? `Научете повече за ${brand} – платформата, която модернизира пазара на ново строителство в България.`
-      : `Learn more about ${brand} – the platform modernizing Bulgaria's new construction market.`,
+    "name": aboutPageName,
+    "description": aboutPageDescription,
     "url": aboutUrl,
-    "inLanguage": lang,
+    "inLanguage": langToLocale[lang] || 'en_US',
     "mainEntity": {
       "@type": "Organization",
       "name": brand,
@@ -25,7 +48,11 @@ export default function AboutStructuredData({ lang, baseUrl }: AboutStructuredDa
       "logo": "https://ik.imagekit.io/ts59gf2ul/Logo/mr-imot-logo.png",
       "description": isBg
         ? "Платформа за ново строителство в България. Директна връзка между купувачи и строители без брокери."
-        : "New construction platform in Bulgaria. Direct connection between buyers and developers without brokers.",
+        : isRu
+          ? "Платформа новостроек в Болгарии. Прямая связь между покупателями и застройщиками без брокеров."
+          : isGr
+            ? "Πλατφόρμα νέων κατασκευών στη Βουλγαρία. Άμεση σύνδεση μεταξύ αγοραστών και κατασκευαστών χωρίς μεσίτες."
+            : "New construction platform in Bulgaria. Direct connection between buyers and developers without brokers.",
       "foundingDate": "2025",
       "founder": {
         "@type": "Organization",
@@ -36,10 +63,10 @@ export default function AboutStructuredData({ lang, baseUrl }: AboutStructuredDa
         "name": "Bulgaria"
       },
       "knowsAbout": [
-        isBg ? "Ново строителство" : "New Construction",
-        isBg ? "Недвижими имоти" : "Real Estate",
-        isBg ? "Оф-план проекти" : "Off-Plan Properties",
-        isBg ? "Директни продажби" : "Direct Sales"
+        isBg ? "Ново строителство" : isRu ? "Новостройки" : isGr ? "Νέες κατασκευές" : "New Construction",
+        isBg ? "Недвижими имоти" : isRu ? "Недвижимость" : isGr ? "Ακίνητα" : "Real Estate",
+        isBg ? "Оф-план проекти" : isRu ? "Оф-план проекты" : isGr ? "Έργα εκ των προτέρων" : "Off-Plan Properties",
+        isBg ? "Директни продажби" : isRu ? "Прямые продажи" : isGr ? "Άμεσες πωλήσεις" : "Direct Sales"
       ]
     }
   }
@@ -53,7 +80,11 @@ export default function AboutStructuredData({ lang, baseUrl }: AboutStructuredDa
     "logo": "https://ik.imagekit.io/ts59gf2ul/Logo/mr-imot-logo.png",
     "description": isBg
       ? "Платформа за ново строителство в България. Директна връзка между купувачи и строители без брокери и комисиони."
-      : "New construction platform in Bulgaria. Direct connection between buyers and developers without brokers and commissions.",
+      : isRu
+        ? "Платформа новостроек в Болгарии. Прямая связь между покупателями и застройщиками без брокеров и комиссий."
+        : isGr
+          ? "Πλατφόρμα νέων κατασκευών στη Βουλγαρία. Άμεση σύνδεση μεταξύ αγοραστών και κατασκευαστών χωρίς μεσίτες και προμήθειες."
+          : "New construction platform in Bulgaria. Direct connection between buyers and developers without brokers and commissions.",
     "foundingDate": "2025",
     "founder": {
       "@type": "Organization",
@@ -69,14 +100,14 @@ export default function AboutStructuredData({ lang, baseUrl }: AboutStructuredDa
         "telephone": "+359-899-520-856",
         "contactType": "customer service",
         "areaServed": "BG",
-        "availableLanguage": ["en", "bg"]
+        "availableLanguage": ["en", "bg", "ru", "el"]
       },
       {
         "@type": "ContactPoint",
         "email": "support@mrimot.com",
         "contactType": "customer support",
         "areaServed": "BG",
-        "availableLanguage": ["en", "bg"]
+        "availableLanguage": ["en", "bg", "ru", "el"]
       }
     ],
     "sameAs": [
@@ -87,11 +118,11 @@ export default function AboutStructuredData({ lang, baseUrl }: AboutStructuredDa
       "https://www.tiktok.com/@mister_imot"
     ],
     "knowsAbout": [
-      isBg ? "Ново строителство" : "New Construction",
-      isBg ? "Недвижими имоти" : "Real Estate",
-      isBg ? "Оф-план проекти" : "Off-Plan Properties",
-      isBg ? "Директни продажби" : "Direct Sales",
-      isBg ? "Платформа за имоти" : "Real Estate Platform"
+      isBg ? "Ново строителство" : isRu ? "Новостройки" : isGr ? "Νέες κατασκευές" : "New Construction",
+      isBg ? "Недвижими имоти" : isRu ? "Недвижимость" : isGr ? "Ακίνητα" : "Real Estate",
+      isBg ? "Оф-план проекти" : isRu ? "Оф-план проекты" : isGr ? "Έργα εκ των προτέρων" : "Off-Plan Properties",
+      isBg ? "Директни продажби" : isRu ? "Прямые продажи" : isGr ? "Άμεσες πωλήσεις" : "Direct Sales",
+      isBg ? "Платформа за имоти" : isRu ? "Платформа недвижимости" : isGr ? "Πλατφόρμα ακινήτων" : "Real Estate Platform"
     ]
   }
 
@@ -103,13 +134,13 @@ export default function AboutStructuredData({ lang, baseUrl }: AboutStructuredDa
       {
         "@type": "ListItem",
         "position": 1,
-        "name": isBg ? "Начало" : "Home",
+        "name": isBg ? "Начало" : isRu ? "Главная" : isGr ? "Αρχική" : "Home",
         "item": `${baseUrl}/${lang}`
       },
       {
         "@type": "ListItem",
         "position": 2,
-        "name": isBg ? "За Нас" : "About Us",
+        "name": aboutPageName,
         "item": aboutUrl
       }
     ]

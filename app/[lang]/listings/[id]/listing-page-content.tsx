@@ -4,6 +4,7 @@ import DeletedListingPage from './deleted-listing-page'
 import NotFoundPage from './not-found-page'
 import { Project, PausedProject, DeletedProject } from '@/lib/api'
 import ListingStructuredData from './listing-structured-data'
+import { getSiteUrl } from '@/lib/seo'
 
 interface ListingPageContentProps {
   lang: 'en' | 'bg' | 'ru' | 'gr'
@@ -68,8 +69,7 @@ export default async function ListingPageContent({
   
   // Active project - return full listing page with structured data
   const activeProject = project as Project
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mrimot.com'
-  const baseUrl = siteUrl.replace(/\/$/, '')
+  const baseUrl = getSiteUrl() // Hardcoded production domain for SEO
   
   return (
     <>

@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { brandForLang, formatTitleWithBrand } from "@/lib/seo"
+import { brandForLang, formatTitleWithBrand, getSiteUrl } from "@/lib/seo"
 import { BLOG_LANGS, type BlogLang, type BlogPostMeta, getAllPostsMeta, getRelativeUrl, formatBlogDate } from "@/lib/news"
 import { getDictionary } from "../dictionaries"
 import { NewsTicker, type ExchangeRates, type CryptoPrices } from "@/components/news/ticker"
@@ -110,7 +110,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: BlogIndexParams): Promise<Metadata> {
   const { lang } = await params
   const copy = await getNewsCopy(lang)
-  const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://mrimot.com").replace(/\/$/, "")
+  const baseUrl = getSiteUrl() // Hardcoded production domain for canonical URLs
   const canonical =
     lang === "en"
       ? `${baseUrl}/news`
@@ -246,7 +246,7 @@ export default async function BlogIndexPage({ params, searchParams }: BlogIndexP
   const sectionHasPosts = (cat: string) => getPostsForCat(cat).length > 0
 
   // Get metadata for WebPage schema
-  const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://mrimot.com").replace(/\/$/, "")
+  const baseUrl = getSiteUrl() // Hardcoded production domain for canonical URLs
   const canonical =
     lang === "en"
       ? `${baseUrl}/news`

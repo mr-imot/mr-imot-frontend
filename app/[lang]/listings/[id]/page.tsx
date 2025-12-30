@@ -2,7 +2,7 @@ import { notFound, redirect } from "next/navigation"
 import type { Metadata } from 'next'
 import ListingPageContent from './listing-page-content'
 import { Project, PausedProject, DeletedProject } from '@/lib/api'
-import { brandForLang, formatTitleWithBrand } from '@/lib/seo'
+import { brandForLang, formatTitleWithBrand, getSiteUrl } from '@/lib/seo'
 import { ModalClientWrapper } from '../@modal/(.)[id]/modal-client-wrapper'
 
 interface PageProps {
@@ -48,8 +48,7 @@ async function getProjectData(id: string, lang: string): Promise<Project | Pause
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { lang, id } = await params
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mrimot.com'
-  const baseUrl = siteUrl.replace(/\/$/, '')
+  const baseUrl = getSiteUrl() // Hardcoded production domain for canonical URLs
   
   const project = await getProjectData(id, lang)
   

@@ -11,7 +11,7 @@ import { RoadmapTimeline } from "@/components/roadmap-timeline"
 
 interface AboutClientProps {
   dict: any
-  lang: 'en' | 'bg'
+  lang: 'en' | 'bg' | 'ru' | 'gr'
 }
 
 // ImageKit URL helper with optimizations

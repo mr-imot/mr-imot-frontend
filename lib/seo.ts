@@ -1,5 +1,27 @@
 type Lang = 'en' | 'bg' | 'ru' | 'gr' | undefined
 
+/**
+ * Get the production site URL for canonical URLs and SEO metadata.
+ * 
+ * IMPORTANT: This function hardcodes the production domain to prevent
+ * the canonical URL trap described in:
+ * https://www.reddit.com/r/nextjs/s/otIdK3NiqK
+ * 
+ * During build time on Vercel, environment variables may not resolve
+ * correctly, causing canonical URLs to point to localhost or preview URLs,
+ * which Google ignores. Hardcoding the production domain ensures canonical
+ * URLs are always valid.
+ * 
+ * For non-SEO purposes (e.g., API calls, redirects), use process.env.NEXT_PUBLIC_SITE_URL
+ * with a fallback, but NEVER for canonical URLs in generateMetadata.
+ * 
+ * @returns The production site URL without trailing slash
+ */
+export function getSiteUrl(): string {
+  // Hardcode production domain for canonical URLs to prevent build-time issues
+  return 'https://mrimot.com'
+}
+
 export const brandForLang = (lang: Lang) => {
   if (lang === 'bg') return 'Мистър Имот'
   if (lang === 'ru') return 'Мистер Имот'
