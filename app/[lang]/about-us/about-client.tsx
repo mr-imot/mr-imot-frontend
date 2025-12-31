@@ -122,7 +122,7 @@ export default function AboutClient({ dict, lang }: AboutClientProps) {
 
               {/* Right: Desktop Dashboard Mockup */}
               <ScrollAnimationWrapper delay={0.2}>
-                <div className="relative w-full md:max-w-[640px] ml-auto md:mt-2">
+                <div className="relative w-full md:max-w-[640px] md:ml-auto md:mt-2">
                   <div className="relative aspect-[16/10] w-full rounded-2xl overflow-hidden ring-1 ring-black/10 shadow-[0_20px_60px_rgba(2,6,23,0.15)] bg-white">
                     <Image
                       src={getImageKitUrl("https://ik.imagekit.io/ts59gf2ul/about-us/372shots_so.png?updatedAt=1762858783236", 1920, 1200, 95)}
@@ -133,8 +133,8 @@ export default function AboutClient({ dict, lang }: AboutClientProps) {
                       priority
                     />
                   </div>
-                  {/* Decorative glow effect */}
-                  <div className="pointer-events-none absolute -inset-6 -z-10 rounded-[28px] bg-[radial-gradient(40%_40%_at_60%_40%,rgba(139,92,246,0.18),transparent_60%)]" />
+                  {/* Decorative glow effect - hidden on mobile to prevent overflow */}
+                  <div className="hidden md:block pointer-events-none absolute -inset-6 -z-10 rounded-[28px] bg-[radial-gradient(40%_40%_at_60%_40%,rgba(139,92,246,0.18),transparent_60%)]" />
                 </div>
               </ScrollAnimationWrapper>
             </div>
