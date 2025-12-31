@@ -5,18 +5,10 @@ import { usePathname } from 'next/navigation'
 import { applyPalette } from '../theme/applyPalette'
 
 export default function ViewportLock(): null {
-  const lockedHeightRef = useRef<number | null>(null)
-  const lockedOrientationRef = useRef<number | null>(null)
   const headerHeightRef = useRef<number | null>(null)
   const headerRef = useRef<HTMLElement | null>(null)
   const resizeObserverRef = useRef<ResizeObserver | null>(null)
   const pathname = usePathname()
-
-  const getOrientation = () => {
-    const so = (window.screen as any)?.orientation
-    if (so && typeof so.angle === 'number') return so.angle
-    return window.innerWidth > window.innerHeight ? 90 : 0
-  }
 
   // Prefer innerHeight for stability on mobile; visualViewport can fluctuate during scroll
   const measureHeight = () => Math.round(window.innerHeight)
@@ -42,7 +34,7 @@ export default function ViewportLock(): null {
     }
   }
 
-  const lockViewportHeight = (force = false) => {
+  const lockViewportHeight = () => {
     const isMobile = (typeof window !== 'undefined') && (window.matchMedia?.('(pointer: coarse)').matches || window.innerWidth < 900)
 
     // Desktop: remove locks to avoid PaperShaders glitches on maximize/restore
@@ -51,19 +43,10 @@ export default function ViewportLock(): null {
       document.documentElement.style.removeProperty('--fixed-vh')
       // Update header height (batched)
       updateHeaderHeight()
-      lockedHeightRef.current = null
-      lockedOrientationRef.current = null
       return
     }
-    const orientation = getOrientation()
     const h = measureHeight()
 
-    if (!force && lockedOrientationRef.current === orientation && lockedHeightRef.current != null) {
-      if (Math.abs((lockedHeightRef.current || 0) - h) < 120) return
-    }
-
-    lockedHeightRef.current = h
-    lockedOrientationRef.current = orientation
     document.documentElement.style.setProperty('--fixed-vh', `${h}px`)
     document.documentElement.classList.add('hero-height-locked')
 
@@ -73,7 +56,6 @@ export default function ViewportLock(): null {
 
   useEffect(() => {
     let cleanup: (() => void) | null = null
-    let resizeTimeout: NodeJS.Timeout
 
     // Defer initialization until after first paint
     const init = () => {
@@ -82,7 +64,7 @@ export default function ViewportLock(): null {
       
       // Initial lock (batched)
       requestAnimationFrame(() => {
-        lockViewportHeight(true)
+        lockViewportHeight()
       })
 
       // Use ResizeObserver for header height changes (more efficient than resize events)
@@ -100,50 +82,17 @@ export default function ViewportLock(): null {
       const onOrientation = () => {
         // Batch orientation change handling
         requestAnimationFrame(() => {
-          setTimeout(() => lockViewportHeight(true), 200)
+          setTimeout(() => lockViewportHeight(), 200)
         })
-      }
-
-      const onVisibility = () => {
-        if (!document.hidden) {
-          // Batch visibility change handling
-          requestAnimationFrame(() => {
-            lockViewportHeight(true)
-          })
-        }
-      }
-
-      const onPageShow = () => {
-        // Safari back-forward cache restoration (batched)
-        requestAnimationFrame(() => {
-          lockViewportHeight(true)
-        })
-      }
-
-      // Throttled resize handler using requestAnimationFrame
-      const onResize = () => {
-        if (resizeTimeout) clearTimeout(resizeTimeout)
-        resizeTimeout = setTimeout(() => {
-          requestAnimationFrame(() => {
-            lockViewportHeight(false)
-          })
-        }, 150)
       }
 
       window.addEventListener('orientationchange', onOrientation)
-      window.addEventListener('resize', onResize)
-      window.addEventListener('pageshow', onPageShow)
-      document.addEventListener('visibilitychange', onVisibility)
 
       cleanup = () => {
         window.removeEventListener('orientationchange', onOrientation)
-        window.removeEventListener('resize', onResize)
-        window.removeEventListener('pageshow', onPageShow)
-        document.removeEventListener('visibilitychange', onVisibility)
         if (resizeObserverRef.current) {
           resizeObserverRef.current.disconnect()
         }
-        if (resizeTimeout) clearTimeout(resizeTimeout)
       }
     }
 
@@ -171,7 +120,7 @@ export default function ViewportLock(): null {
     // Add a small delay to ensure page transition is complete (batched)
     const timeoutId = setTimeout(() => {
       requestAnimationFrame(() => {
-        lockViewportHeight(true)
+        lockViewportHeight()
       })
     }, 100)
 
