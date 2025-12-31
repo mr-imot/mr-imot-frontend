@@ -74,7 +74,11 @@ export default async function ListingPageContent({
   return (
     <>
       <ListingStructuredData project={activeProject} lang={lang} baseUrl={baseUrl} />
-      <ListingDetailClient projectId={id} initialProject={activeProject} />
+      <ListingDetailClient 
+        key={activeProject.id} 
+        projectId={id} 
+        initialProject={activeProject} 
+      />
     </>
   )
 }

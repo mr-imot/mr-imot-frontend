@@ -201,45 +201,59 @@ export default function ListingDetailClient({ projectId, initialProject }: Listi
   const isMobile = useIsMobile()
   const t = useTranslations()
   const tPrice = useTranslations('price')
+  
+  // Use refs to track initialization and prevent infinite loops
+  // This prevents the effect from re-running when initialProject object reference changes
+  const hasInitializedRef = useRef(false)
+  const initialProjectIdRef = useRef<string | null>(null)
+  
+  // Extract stable ID from initialProject for comparison
+  // This allows us to detect when initialProject actually changes (different project)
+  // vs when it's just a new object reference with the same data
+  const initialProjectId = initialProject && 'id' in initialProject 
+    ? String(initialProject.id) 
+    : null
 
   useEffect(() => {
-    // Skip fetch if we already have initial project data
-    if (initialProject) {
-      setProperty(initialProject)
-      setLoading(false)
-      // NOTE: View tracking is handled by ListingCard when card becomes visible in grid
-      // Don't double-track here - it would count modal opens as separate views
+    // If we have initialProject and haven't initialized yet, set it once
+    if (initialProject && !hasInitializedRef.current) {
+      const currentId = initialProjectId
+      
+      // Only initialize if this is a new initialProject (different ID) or first time
+      if (initialProjectIdRef.current !== currentId) {
+        setProperty(initialProject)
+        setLoading(false)
+        hasInitializedRef.current = true
+        initialProjectIdRef.current = currentId
+      }
       return
     }
 
-    // Only fetch if we don't have initial data (direct URL access)
-    const loadProperty = async () => {
-      try {
-        if (!projectId) {
-          setError("Invalid project ID")
+    // Only fetch if we don't have initial data (direct URL access) and haven't fetched yet
+    if (!initialProject && !hasInitializedRef.current && projectId) {
+      const loadProperty = async () => {
+        try {
+          const data = await getProject(projectId)
+          if (!data) {
+            throw new Error("Project not found")
+          }
+          
+          setProperty(data)
+          hasInitializedRef.current = true
+          // NOTE: For direct URL access (not from grid), view is not pre-tracked
+          // But we don't track here either - views are only counted when visible in listings grid
+          
+        } catch (err) {
+          console.error("Error loading property:", err)
+          setError(err instanceof Error ? err.message : "Failed to load property")
+        } finally {
           setLoading(false)
-          return
         }
-
-        const data = await getProject(projectId)
-        if (!data) {
-          throw new Error("Project not found")
-        }
-        
-        setProperty(data)
-        // NOTE: For direct URL access (not from grid), view is not pre-tracked
-        // But we don't track here either - views are only counted when visible in listings grid
-        
-      } catch (err) {
-        console.error("Error loading property:", err)
-        setError(err instanceof Error ? err.message : "Failed to load property")
-      } finally {
-        setLoading(false)
       }
-    }
 
-    loadProperty()
-  }, [projectId, initialProject])
+      loadProperty()
+    }
+  }, [projectId, initialProjectId]) // Only depend on stable ID, not object reference
 
   if (loading) {
     return <LoadingSkeletonPropertyDetail />

@@ -42,10 +42,15 @@ export function ModalClientWrapper({ children }: ModalClientWrapperProps) {
   const hasAppliedStylesRef = useRef<boolean>(false)
   
   // Mobile detection - check on initial render to avoid flash
+  // Use same breakpoint as useIsMobile (1024px)
   const [isMobile, setIsMobile] = useState(() => {
     if (typeof window === 'undefined') return false
     return window.innerWidth < 1024 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
   })
+  
+  // Use ref to track if we've determined desktop mode to prevent remounts
+  // Once desktop is determined, lock it to prevent structure changes that cause remounts
+  const isDesktopRef = useRef(!isMobile)
 
   // Share functionality
   const handleShare = async () => {
@@ -83,10 +88,15 @@ export function ModalClientWrapper({ children }: ModalClientWrapperProps) {
     router.back()
   }
 
-  // Mobile detection - update on resize, using 1024px breakpoint (matches ListingCard)
+  // Mobile detection - update on resize, using 1024px breakpoint
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 1024 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent))
+      const newIsMobile = window.innerWidth < 1024 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+      setIsMobile(newIsMobile)
+      // Once we've determined desktop, lock it to prevent remounts
+      if (!newIsMobile && !isDesktopRef.current) {
+        isDesktopRef.current = true
+      }
     }
     checkMobile()
     window.addEventListener('resize', checkMobile)
@@ -130,8 +140,13 @@ export function ModalClientWrapper({ children }: ModalClientWrapperProps) {
   }, [isMobile])
 
   // DESKTOP: Don't show modal wrapper - let the full page with header render
-  // This handles cases where the page is opened in a new tab
-  if (!isMobile) {
+  // CRITICAL: Once desktop is determined, never change structure to prevent remounts
+  // This prevents infinite _rsc request loops and scroll resets
+  if (isDesktopRef.current || !isMobile) {
+    // Lock desktop mode once determined
+    if (!isDesktopRef.current) {
+      isDesktopRef.current = true
+    }
     return <>{children}</>
   }
 
