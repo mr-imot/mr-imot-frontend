@@ -2,33 +2,36 @@
 .heroSection {
   position: relative;
   overflow: visible;
-  /* Use min-height to allow content to flow and account for taskbars/browser chrome */
-  /* Prefer --fixed-vh (JS lock for Chromium) when present, fallback to 100svh (Safari) */
-  min-height: calc(var(--fixed-vh, 100svh) - var(--header-height, 80px) - env(safe-area-inset-bottom, 0px));
-  padding-top: clamp(1rem, 2.5vh, 2rem);
-  /* Extra bottom padding to account for taskbars and ensure CTA is always visible */
-  padding-bottom: clamp(2rem, 5vh, 3rem);
   display: flex;
   align-items: center;
+
+  /* CALCULATION EXPLANATION:
+     1. var(--fixed-vh): The JS calculated pixel value (most stable).
+     2. 100svh: "Small Viewport Height" - CSS standard that accounts for address bars (fallback).
+     3. Subtract Header & Safe Area.
+  */
+  min-height: calc(var(--fixed-vh, 100svh) - var(--header-height, 80px) - env(safe-area-inset-bottom, 0px));
+  
+  /* Padding logic remains the same */
+  padding-top: clamp(1rem, 2.5vh, 2rem);
+  padding-bottom: clamp(2rem, 5vh, 3rem);
 }
 
-/* Fallback for browsers without svh support */
-@supports not (min-height: 100svh) {
+/* Fallback for very old browsers */
+@supports not (height: 100svh) {
   .heroSection {
     min-height: calc(var(--fixed-vh, 100vh) - var(--header-height, 80px) - 60px);
     padding-bottom: clamp(2.5rem, 6vh, 4rem);
   }
 }
 
-/* Desktop: Adaptive min-height that accounts for taskbars */
-@media (min-width: 768px) {
+/* Desktop: Standard behavior (we usually want it to respond to resize here) */
+@media (min-width: 1024px) {
   .heroSection {
-    /* Use min-height instead of fixed height to prevent cutting off content */
+    /* On desktop, we can often rely on standard 100vh or the locked value */
     min-height: calc(100vh - var(--header-height, 80px) - 50px);
-    /* Conservative max-height to ensure content fits */
     max-height: none;
     padding-top: clamp(1.5rem, 3vh, 2.5rem);
-    /* Extra padding at bottom for taskbars - very important */
     padding-bottom: clamp(2.5rem, 6vh, 4rem);
   }
 }

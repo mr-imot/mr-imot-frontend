@@ -5,156 +5,94 @@ import { usePathname } from 'next/navigation'
 import { applyPalette } from '../theme/applyPalette'
 
 export default function ViewportLock(): null {
-  const headerHeightRef = useRef<number | null>(null)
-  const headerRef = useRef<HTMLElement | null>(null)
-  const resizeObserverRef = useRef<ResizeObserver | null>(null)
   const pathname = usePathname()
+  
+  // Store the last known width to detect orientation changes/desktop resizing
+  const lastWidth = useRef<number>(0)
+  const headerRef = useRef<HTMLElement | null>(null)
+  const headerHeightRef = useRef<number>(0)
 
-  // Prefer innerHeight for stability on mobile; visualViewport can fluctuate during scroll
-  const measureHeight = () => Math.round(window.innerHeight)
+  const updateLayout = (force = false) => {
+    if (typeof window === 'undefined') return
 
-  // Batch layout reads to avoid forced reflows
-  const updateHeaderHeight = () => {
+    const currentWidth = window.innerWidth
+    const currentHeight = window.innerHeight
+    const isMobile = currentWidth < 1024 // Treat tablets/phones as mobile context
+
+    // 1. HEADER CALCULATION
     if (!headerRef.current) {
       headerRef.current = document.querySelector('header')
     }
     
+    let currentHeaderHeight = 0
     if (headerRef.current) {
-      // Use requestAnimationFrame to batch layout reads
-      requestAnimationFrame(() => {
-        if (headerRef.current) {
-          const hh = Math.round(headerRef.current.getBoundingClientRect().height)
-          // Only update if changed to avoid unnecessary style updates
-          if (headerHeightRef.current !== hh) {
-            headerHeightRef.current = hh
-            document.documentElement.style.setProperty('--header-height', `${hh}px`)
-          }
-        }
-      })
-    }
-  }
-
-  const lockViewportHeight = () => {
-    if (typeof window === 'undefined') return
-
-    const isMobile = window.matchMedia?.('(pointer: coarse)').matches || window.innerWidth < 900
-    
-    // Detect iOS first - all iOS browsers (Safari, Chrome, Brave, Edge) use WebKit
-    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent)
-    
-    // Detect Android Chromium - only Android Chromium browsers need JS lock
-    const isAndroidChromium = isMobile && !isIOS && /Chrome|CriOS|Edg|Brave|OPR|SamsungBrowser/i.test(navigator.userAgent)
-
-    // Desktop: remove locks to avoid PaperShaders glitches on maximize/restore
-    if (!isMobile) {
-      document.documentElement.classList.remove('hero-height-locked')
-      document.documentElement.style.removeProperty('--fixed-vh')
-      // Update header height (batched)
-      updateHeaderHeight()
-      return
-    }
-
-    // iOS (all browsers): use 100svh CSS-only (WebKit handles it correctly)
-    if (isIOS) {
-      // iOS browsers can rely on svh, just update header height
-      // Only remove --fixed-vh if it exists to avoid unnecessary style writes
-      if (document.documentElement.style.getPropertyValue('--fixed-vh')) {
-        document.documentElement.style.removeProperty('--fixed-vh')
+      currentHeaderHeight = headerRef.current.getBoundingClientRect().height
+      if (headerHeightRef.current !== currentHeaderHeight) {
+        headerHeightRef.current = currentHeaderHeight
+        document.documentElement.style.setProperty('--header-height', `${Math.round(currentHeaderHeight)}px`)
       }
-      document.documentElement.classList.remove('hero-height-locked')
-      updateHeaderHeight()
-      return
     }
 
-    // Android Chromium: force JS lock to prevent address bar resize issues
-    if (isAndroidChromium) {
-      const h = measureHeight()
-      document.documentElement.style.setProperty('--fixed-vh', `${h}px`)
+    // 2. VIEWPORT LOCKING LOGIC
+    // We only update the VH if:
+    // A) It's forced (initial load/navigation)
+    // B) We are on Desktop (where resizing vertical window is normal)
+    // C) We are on Mobile BUT the WIDTH changed (orientation change)
+    // WE IGNORE: Mobile vertical resize events (address bar scrolling)
+    
+    const widthChanged = Math.abs(currentWidth - lastWidth.current) > 20 // Buffer for scrollbar changes
+
+    if (force || !isMobile || (isMobile && widthChanged)) {
+      // Set the lock
+      document.documentElement.style.setProperty('--fixed-vh', `${currentHeight}px`)
       document.documentElement.classList.add('hero-height-locked')
-      // Update header height (batched)
-      updateHeaderHeight()
-      return
+      lastWidth.current = currentWidth
     }
-
-    // Fallback for other mobile browsers (shouldn't happen often)
-    // Default to CSS-only approach
-    if (document.documentElement.style.getPropertyValue('--fixed-vh')) {
-      document.documentElement.style.removeProperty('--fixed-vh')
-    }
-    document.documentElement.classList.remove('hero-height-locked')
-    updateHeaderHeight()
   }
 
   useEffect(() => {
-    let cleanup: (() => void) | null = null
+    // 1. Initial Setup
+    applyPalette()
+    
+    // Immediate measurement
+    updateLayout(true)
 
-    // Defer initialization until after first paint
-    const init = () => {
-      // Ensure Oxford Blue / Orange palette is applied
-      applyPalette()
-      
-      // Initial lock (batched)
-      requestAnimationFrame(() => {
-        lockViewportHeight()
-      })
+    // Double check slightly later (for iOS Safari bottom bar settlement)
+    const timeoutId = setTimeout(() => updateLayout(true), 100)
 
-      // Use ResizeObserver for header height changes (more efficient than resize events)
-      if (typeof ResizeObserver !== 'undefined') {
-        const header = document.querySelector('header')
-        if (header) {
-          headerRef.current = header as HTMLElement
-          resizeObserverRef.current = new ResizeObserver(() => {
-            updateHeaderHeight()
-          })
-          resizeObserverRef.current.observe(header)
-        }
-      }
-
-      const onOrientation = () => {
-        // Batch orientation change handling
-        requestAnimationFrame(() => {
-          setTimeout(() => lockViewportHeight(), 200)
-        })
-      }
-
-      window.addEventListener('orientationchange', onOrientation)
-
-      cleanup = () => {
-        window.removeEventListener('orientationchange', onOrientation)
-        if (resizeObserverRef.current) {
-          resizeObserverRef.current.disconnect()
-        }
-      }
+    // 2. Resize Handler
+    const handleResize = () => {
+      // Use requestAnimationFrame for performance
+      requestAnimationFrame(() => updateLayout(false))
     }
 
-    // Defer initialization after first paint
-    let idleCallbackId: number | null = null
-    if ('requestIdleCallback' in window) {
-      idleCallbackId = requestIdleCallback(init, { timeout: 1000 }) as unknown as number
-    } else {
-      // Fallback: use requestAnimationFrame with delay
-      requestAnimationFrame(() => {
-        setTimeout(init, 100)
-      })
+    window.addEventListener('resize', handleResize)
+    window.addEventListener('orientationchange', () => {
+      // Delay slightly to let the browser finish rotating
+      setTimeout(() => updateLayout(true), 200)
+    })
+
+    // 3. Header Observer (Optional but good for dynamic headers)
+    let resizeObserver: ResizeObserver | null = null
+    if (typeof ResizeObserver !== 'undefined') {
+      const header = document.querySelector('header')
+      if (header) {
+        resizeObserver = new ResizeObserver(() => handleResize())
+        resizeObserver.observe(header)
+      }
     }
 
     return () => {
-      if (idleCallbackId && 'cancelIdleCallback' in window) {
-        cancelIdleCallback(idleCallbackId)
-      }
-      if (cleanup) cleanup()
+      window.removeEventListener('resize', handleResize)
+      clearTimeout(timeoutId)
+      if (resizeObserver) resizeObserver.disconnect()
     }
-  }, [])
+  }, []) // Run once on mount
 
-  // Re-lock height when pathname changes (handles navigation back to homepage)
+  // Handle Route Changes
   useEffect(() => {
-    // Add a small delay to ensure page transition is complete (batched)
-    const timeoutId = setTimeout(() => {
-      requestAnimationFrame(() => {
-        lockViewportHeight()
-      })
-    }, 100)
-
+    // Re-lock on navigation to ensure consistency
+    const timeoutId = setTimeout(() => updateLayout(true), 150)
     return () => clearTimeout(timeoutId)
   }, [pathname])
 
