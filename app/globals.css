@@ -71,6 +71,10 @@
     --font-sans: var(--font-inter), system-ui, sans-serif;
     --font-serif: var(--font-geist), Georgia, serif;
     --font-mono: Geist Mono, monospace;
+    
+    /* Viewport lock defaults - prevent layout shift before JS loads */
+    --header-height: 80px; /* Approximate initial value */
+    --fixed-vh: 100svh;    /* Best pure-CSS guess */
   }
 
   /* Removed scroll-behavior: smooth - conflicts with Next.js navigation */
