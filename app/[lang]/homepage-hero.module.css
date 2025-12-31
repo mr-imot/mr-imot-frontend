@@ -3,7 +3,8 @@
   position: relative;
   overflow: visible;
   /* Use min-height to allow content to flow and account for taskbars/browser chrome */
-  min-height: calc(100svh - var(--header-height, 80px) - env(safe-area-inset-bottom, 0px));
+  /* Prefer --fixed-vh (JS lock for Chromium) when present, fallback to 100svh (Safari) */
+  min-height: calc(var(--fixed-vh, 100svh) - var(--header-height, 80px) - env(safe-area-inset-bottom, 0px));
   padding-top: clamp(1rem, 2.5vh, 2rem);
   /* Extra bottom padding to account for taskbars and ensure CTA is always visible */
   padding-bottom: clamp(2rem, 5vh, 3rem);
@@ -217,7 +218,7 @@
   .heroSection {
     padding-top: 1rem;
     padding-bottom: 2rem;
-    min-height: calc(100svh - var(--header-height, 80px) - 30px);
+    min-height: calc(var(--fixed-vh, 100svh) - var(--header-height, 80px) - 30px);
   }
   
   .heroTitle {

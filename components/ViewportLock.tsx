@@ -35,7 +35,10 @@ export default function ViewportLock(): null {
   }
 
   const lockViewportHeight = () => {
-    const isMobile = (typeof window !== 'undefined') && (window.matchMedia?.('(pointer: coarse)').matches || window.innerWidth < 900)
+    if (typeof window === 'undefined') return
+
+    const isMobile = window.matchMedia?.('(pointer: coarse)').matches || window.innerWidth < 900
+    const isChromiumMobile = isMobile && /Chrome|CriOS|Edg|Brave|OPR|SamsungBrowser/i.test(navigator.userAgent)
 
     // Desktop: remove locks to avoid PaperShaders glitches on maximize/restore
     if (!isMobile) {
@@ -45,8 +48,21 @@ export default function ViewportLock(): null {
       updateHeaderHeight()
       return
     }
-    const h = measureHeight()
 
+    // Safari can rely on svh, Chromium cannot - force JS lock for Chromium only
+    if (!isChromiumMobile) {
+      // Safari: let CSS handle it with 100svh, just update header height
+      // Only remove --fixed-vh if it exists to avoid unnecessary style writes
+      if (document.documentElement.style.getPropertyValue('--fixed-vh')) {
+        document.documentElement.style.removeProperty('--fixed-vh')
+      }
+      document.documentElement.classList.remove('hero-height-locked')
+      updateHeaderHeight()
+      return
+    }
+
+    // Chromium mobile: force JS lock to prevent address bar resize issues
+    const h = measureHeight()
     document.documentElement.style.setProperty('--fixed-vh', `${h}px`)
     document.documentElement.classList.add('hero-height-locked')
 
