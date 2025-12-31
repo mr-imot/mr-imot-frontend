@@ -38,7 +38,12 @@ export default function ViewportLock(): null {
     if (typeof window === 'undefined') return
 
     const isMobile = window.matchMedia?.('(pointer: coarse)').matches || window.innerWidth < 900
-    const isChromiumMobile = isMobile && /Chrome|CriOS|Edg|Brave|OPR|SamsungBrowser/i.test(navigator.userAgent)
+    
+    // Detect iOS first - all iOS browsers (Safari, Chrome, Brave, Edge) use WebKit
+    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent)
+    
+    // Detect Android Chromium - only Android Chromium browsers need JS lock
+    const isAndroidChromium = isMobile && !isIOS && /Chrome|CriOS|Edg|Brave|OPR|SamsungBrowser/i.test(navigator.userAgent)
 
     // Desktop: remove locks to avoid PaperShaders glitches on maximize/restore
     if (!isMobile) {
@@ -49,9 +54,9 @@ export default function ViewportLock(): null {
       return
     }
 
-    // Safari can rely on svh, Chromium cannot - force JS lock for Chromium only
-    if (!isChromiumMobile) {
-      // Safari: let CSS handle it with 100svh, just update header height
+    // iOS (all browsers): use 100svh CSS-only (WebKit handles it correctly)
+    if (isIOS) {
+      // iOS browsers can rely on svh, just update header height
       // Only remove --fixed-vh if it exists to avoid unnecessary style writes
       if (document.documentElement.style.getPropertyValue('--fixed-vh')) {
         document.documentElement.style.removeProperty('--fixed-vh')
@@ -61,12 +66,22 @@ export default function ViewportLock(): null {
       return
     }
 
-    // Chromium mobile: force JS lock to prevent address bar resize issues
-    const h = measureHeight()
-    document.documentElement.style.setProperty('--fixed-vh', `${h}px`)
-    document.documentElement.classList.add('hero-height-locked')
+    // Android Chromium: force JS lock to prevent address bar resize issues
+    if (isAndroidChromium) {
+      const h = measureHeight()
+      document.documentElement.style.setProperty('--fixed-vh', `${h}px`)
+      document.documentElement.classList.add('hero-height-locked')
+      // Update header height (batched)
+      updateHeaderHeight()
+      return
+    }
 
-    // Update header height (batched)
+    // Fallback for other mobile browsers (shouldn't happen often)
+    // Default to CSS-only approach
+    if (document.documentElement.style.getPropertyValue('--fixed-vh')) {
+      document.documentElement.style.removeProperty('--fixed-vh')
+    }
+    document.documentElement.classList.remove('hero-height-locked')
     updateHeaderHeight()
   }
 

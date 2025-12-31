@@ -129,10 +129,6 @@
   }
 }
 
-.heroCta {
-  /* Desktop only */
-}
-
 /* Desktop: Fluid CTA button sizing */
 @media (min-width: 768px) {
   .heroCta {
