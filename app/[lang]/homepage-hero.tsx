@@ -43,7 +43,7 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
             </div>
             
             {/* Subtitle + Promise */}
-            <div className="mt-4 sm:mt-6 lg:mt-8" style={{ marginTop: 'clamp(0.75rem, 2vh, 2rem)' }}>
+            <div className="mt-4 sm:mt-6 lg:mt-8">
               <p className={clsx("font-normal leading-relaxed font-sans text-gray-600", styles.heroSubtitle)}>
                 <span className="font-semibold text-gray-800">{dict.hero.description.intro}</span> {dict.hero.description.platform} <span className="font-semibold text-gray-800">{dict.hero.description.noBrokers}</span>.
               </p>

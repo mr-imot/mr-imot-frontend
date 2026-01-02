@@ -11,6 +11,7 @@ export default function ViewportLock(): null {
   const lastWidth = useRef<number>(0)
   const headerRef = useRef<HTMLElement | null>(null)
   const headerHeightRef = useRef<number>(0)
+  const isLockedRef = useRef<boolean>(false)
 
   const updateLayout = (force = false) => {
     if (typeof window === 'undefined') return
@@ -40,13 +41,19 @@ export default function ViewportLock(): null {
     // C) We are on Mobile BUT the WIDTH changed (orientation change)
     // WE IGNORE: Mobile vertical resize events (address bar scrolling)
     
-    const widthChanged = Math.abs(currentWidth - lastWidth.current) > 20 // Buffer for scrollbar changes
+    const widthChanged = Math.abs(currentWidth - lastWidth.current) > 30 // Increased buffer for Chrome scrollbar fluctuations
+
+    // HARD GUARD: On mobile, once locked, never update unless orientation changes
+    if (isMobile && isLockedRef.current && !widthChanged && !force) {
+      return // Chrome can't win
+    }
 
     if (force || !isMobile || (isMobile && widthChanged)) {
       // Set the lock
       document.documentElement.style.setProperty('--fixed-vh', `${currentHeight}px`)
       document.documentElement.classList.add('hero-height-locked')
       lastWidth.current = currentWidth
+      isLockedRef.current = true
     }
   }
 
@@ -66,18 +73,27 @@ export default function ViewportLock(): null {
       requestAnimationFrame(() => updateLayout(false))
     }
 
-    window.addEventListener('resize', handleResize)
+    window.addEventListener('resize', handleResize, { passive: true })
     window.addEventListener('orientationchange', () => {
+      // Reset lock flag on orientation change
+      isLockedRef.current = false
       // Delay slightly to let the browser finish rotating
       setTimeout(() => updateLayout(true), 200)
     })
 
-    // 3. Header Observer (Optional but good for dynamic headers)
+    // 3. Header Observer (Only for header height, not viewport lock)
     let resizeObserver: ResizeObserver | null = null
     if (typeof ResizeObserver !== 'undefined') {
       const header = document.querySelector('header')
       if (header) {
-        resizeObserver = new ResizeObserver(() => handleResize())
+        resizeObserver = new ResizeObserver(() => {
+          // Only update header height, don't trigger viewport lock update
+          const newHeight = header.getBoundingClientRect().height
+          if (headerHeightRef.current !== newHeight) {
+            headerHeightRef.current = newHeight
+            document.documentElement.style.setProperty('--header-height', `${Math.round(newHeight)}px`)
+          }
+        })
         resizeObserver.observe(header)
       }
     }
@@ -91,6 +107,8 @@ export default function ViewportLock(): null {
 
   // Handle Route Changes
   useEffect(() => {
+    // Reset lock on navigation to allow fresh lock
+    isLockedRef.current = false
     // Re-lock on navigation to ensure consistency
     const timeoutId = setTimeout(() => updateLayout(true), 150)
     return () => clearTimeout(timeoutId)

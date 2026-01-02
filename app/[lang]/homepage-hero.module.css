@@ -1,47 +1,46 @@
-/* Mobile-first: natural height, CTA always visible */
+/* Mobile-first: FIXED height (not min-height) to prevent Chrome iOS stretching */
 .heroSection {
   position: relative;
-  overflow: visible;
+  overflow: hidden; /* Critical: prevents content from growing beyond shell on mobile */
   display: flex;
   align-items: center;
 
-  /* CALCULATION EXPLANATION:
-     1. var(--fixed-vh): The JS calculated pixel value (most stable).
-     2. 100svh: "Small Viewport Height" - CSS standard that accounts for address bars (fallback).
-     3. Subtract Header & Safe Area.
-  */
-  min-height: calc(var(--fixed-vh, 100svh) - var(--header-height, 80px) - env(safe-area-inset-bottom, 0px));
-  
-  /* Padding logic remains the same */
-  padding-top: clamp(1rem, 2.5vh, 2rem);
-  padding-bottom: clamp(2rem, 5vh, 3rem);
+  /* MOBILE: Use exact height, not min-height. This kills 70% of the stretch.
+     Remove env(safe-area-inset-bottom) - it changes during scroll in Chrome.
+     Use --fixed-vh for padding calculations, not reactive vh units. */
+  height: calc(var(--fixed-vh, 100svh) - var(--header-height, 80px));
+  padding-top: clamp(1rem, calc(var(--fixed-vh, 100svh) * 0.025), 2rem);
+  padding-bottom: clamp(2rem, calc(var(--fixed-vh, 100svh) * 0.05), 3rem);
 }
 
 /* Fallback for very old browsers */
 @supports not (height: 100svh) {
   .heroSection {
-    min-height: calc(var(--fixed-vh, 100vh) - var(--header-height, 80px) - 60px);
-    padding-bottom: clamp(2.5rem, 6vh, 4rem);
+    height: calc(var(--fixed-vh, 100vh) - var(--header-height, 80px));
+    padding-top: clamp(1rem, calc(var(--fixed-vh, 100vh) * 0.025), 2rem);
+    padding-bottom: clamp(2rem, calc(var(--fixed-vh, 100vh) * 0.05), 3rem);
   }
 }
 
 /* Desktop: Standard behavior (we usually want it to respond to resize here) */
 @media (min-width: 1024px) {
   .heroSection {
-    /* On desktop, we can often rely on standard 100vh or the locked value */
+    /* On desktop, we can use min-height for flexibility */
     min-height: calc(100vh - var(--header-height, 80px) - 50px);
+    height: auto; /* Allow natural height on desktop */
     max-height: none;
+    overflow: visible; /* Allow overflow on desktop */
     padding-top: clamp(1.5rem, 3vh, 2.5rem);
     padding-bottom: clamp(2.5rem, 6vh, 4rem);
   }
 }
 
 /* Smaller screens (13-15 inch laptops): More conservative spacing */
-@media (min-width: 768px) and (max-height: 900px) {
+@media (min-width: 768px) and (max-width: 1023px) {
   .heroSection {
-    min-height: calc(100vh - var(--header-height, 80px) - 40px);
-    padding-top: clamp(1rem, 2vh, 1.5rem);
-    padding-bottom: clamp(2rem, 5vh, 3rem);
+    height: calc(var(--fixed-vh, 100vh) - var(--header-height, 80px) - 40px);
+    padding-top: clamp(1rem, calc(var(--fixed-vh, 100vh) * 0.02), 1.5rem);
+    padding-bottom: clamp(2rem, calc(var(--fixed-vh, 100vh) * 0.05), 3rem);
   }
 }
 
@@ -217,7 +216,7 @@
   .heroSection {
     padding-top: 1rem;
     padding-bottom: 2rem;
-    min-height: calc(var(--fixed-vh, 100svh) - var(--header-height, 80px) - 30px);
+    height: calc(var(--fixed-vh, 100svh) - var(--header-height, 80px) - 30px);
   }
   
   .heroTitle {
