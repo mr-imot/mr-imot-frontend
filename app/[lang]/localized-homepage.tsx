@@ -404,7 +404,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                 {dict.developerJoin.finalCta.heading}
               </h3>
               <Link href={`/${lang}/register?type=developer`}>
-                <button className="group relative px-10 py-4 rounded-2xl bg-white text-charcoal-700 font-bold tracking-wider uppercase hover:bg-gray-100 transition-all duration-300 shadow-xl hover:shadow-2xl active:scale-95 overflow-hidden">
+                <button className="group relative px-10 py-4 rounded-2xl bg-white text-charcoal-500 font-bold tracking-wider uppercase hover:bg-gray-100 transition-all duration-300 shadow-xl hover:shadow-2xl active:scale-95 overflow-hidden">
                   <span className="relative z-10">{dict.developerJoin.finalCta.button}</span>
                 </button>
               </Link>
