@@ -206,6 +206,7 @@ export default function ListingDetailClient({ projectId, initialProject }: Listi
   // This prevents the effect from re-running when initialProject object reference changes
   const hasInitializedRef = useRef(false)
   const initialProjectIdRef = useRef<string | null>(null)
+  const lastProjectIdRef = useRef<string | null>(null)
   
   // Extract stable ID from initialProject for comparison
   // This allows us to detect when initialProject actually changes (different project)
@@ -215,6 +216,13 @@ export default function ListingDetailClient({ projectId, initialProject }: Listi
     : null
 
   useEffect(() => {
+    // Reset initialization state if projectId changed (different project)
+    if (lastProjectIdRef.current !== projectId) {
+      hasInitializedRef.current = false
+      initialProjectIdRef.current = null
+      lastProjectIdRef.current = projectId
+    }
+
     // If we have initialProject and haven't initialized yet, set it once
     if (initialProject && !hasInitializedRef.current) {
       const currentId = initialProjectId
@@ -253,7 +261,7 @@ export default function ListingDetailClient({ projectId, initialProject }: Listi
 
       loadProperty()
     }
-  }, [projectId, initialProjectId]) // Only depend on stable ID, not object reference
+  }, [projectId, initialProjectId]) // Only depend on stable IDs, not object references
 
   if (loading) {
     return <LoadingSkeletonPropertyDetail />
