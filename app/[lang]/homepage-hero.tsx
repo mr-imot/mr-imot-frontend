@@ -89,6 +89,7 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
                     width={120}
                     height={90}
                     priority
+                    fetchPriority="high"
                     className="w-auto h-auto drop-shadow-lg"
                     style={{
                       width: 'clamp(100px, 28vw, 140px)',
@@ -162,6 +163,7 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
               width={960}
               height={640}
               priority
+              fetchPriority="high"
               className={clsx("w-auto h-auto transition-all duration-700 hover:scale-105 hover:rotate-1", styles.heroImage)}
               style={{
                 width: 'clamp(300px, min(40vw, 700px), 800px)',
