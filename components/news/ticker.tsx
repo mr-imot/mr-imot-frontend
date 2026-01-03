@@ -73,16 +73,33 @@ export function NewsTicker({
 
   // Currency exchange rates
   if (rates && rates.rates) {
-    // Calculate Cross Rates
-    const usdBgn = (rates.rates.BGN / rates.rates.USD).toFixed(4)
-    const gbpBgn = (rates.rates.BGN / rates.rates.GBP).toFixed(4)
-    const eurBgn = rates.rates.BGN.toFixed(5)
+    // Calculate Cross Rates - add null checks
+    const bgn = rates.rates.BGN
+    const usd = rates.rates.USD
+    const gbp = rates.rates.GBP
     
-    dynamicItems.push(
-      { label: "EUR/BGN", value: eurBgn, change: "0.00%", isPositive: true },
-      { label: "USD/BGN", value: usdBgn, change: "", isPositive: true },
-      { label: "GBP/BGN", value: gbpBgn, change: "", isPositive: true }
-    )
+    if (bgn != null && usd != null && gbp != null) {
+      const usdBgn = (bgn / usd).toFixed(4)
+      const gbpBgn = (bgn / gbp).toFixed(4)
+      const eurBgn = bgn.toFixed(5)
+      
+      dynamicItems.push(
+        { label: "EUR/BGN", value: eurBgn, change: "0.00%", isPositive: true },
+        { label: "USD/BGN", value: usdBgn, change: "", isPositive: true },
+        { label: "GBP/BGN", value: gbpBgn, change: "", isPositive: true }
+      )
+    } else if (bgn != null) {
+      // At least show EUR/BGN if BGN is available
+      const eurBgn = bgn.toFixed(5)
+      dynamicItems.push(
+        { label: "EUR/BGN", value: eurBgn, change: "0.00%", isPositive: true }
+      )
+    } else {
+      // Fallback if no rates available
+      dynamicItems.push(
+        { label: "EUR/BGN", value: "1.95583", change: "0.00%", isPositive: true }
+      )
+    }
   } else {
     dynamicItems.push(
       { label: "EUR/BGN", value: "1.95583", change: "0.00%", isPositive: true }
@@ -91,35 +108,41 @@ export function NewsTicker({
 
   // Crypto prices
   if (crypto) {
-    if (crypto.bitcoin) {
+    if (crypto.bitcoin && crypto.bitcoin.eur != null) {
       const btcPrice = crypto.bitcoin.eur.toLocaleString('en-US', { 
         minimumFractionDigits: 0, 
         maximumFractionDigits: 0 
       })
       const btcChange = crypto.bitcoin.eur_24h_change
-      const btcChangeStr = `${btcChange >= 0 ? '+' : ''}${btcChange.toFixed(2)}%`
+      // Add null check for btcChange
+      const btcChangeStr = btcChange != null 
+        ? `${btcChange >= 0 ? '+' : ''}${btcChange.toFixed(2)}%`
+        : ''
       
       dynamicItems.push({
         label: "BTC/EUR",
         value: `€${btcPrice}`,
         change: btcChangeStr,
-        isPositive: btcChange >= 0,
+        isPositive: btcChange == null ? true : btcChange >= 0,
       })
     }
 
-    if (crypto.ethereum) {
+    if (crypto.ethereum && crypto.ethereum.eur != null) {
       const ethPrice = crypto.ethereum.eur.toLocaleString('en-US', { 
         minimumFractionDigits: 0, 
         maximumFractionDigits: 0 
       })
       const ethChange = crypto.ethereum.eur_24h_change
-      const ethChangeStr = `${ethChange >= 0 ? '+' : ''}${ethChange.toFixed(2)}%`
+      // Add null check for ethChange
+      const ethChangeStr = ethChange != null
+        ? `${ethChange >= 0 ? '+' : ''}${ethChange.toFixed(2)}%`
+        : ''
       
       dynamicItems.push({
         label: "ETH/EUR",
         value: `€${ethPrice}`,
         change: ethChangeStr,
-        isPositive: ethChange >= 0,
+        isPositive: ethChange == null ? true : ethChange >= 0,
       })
     }
   }
