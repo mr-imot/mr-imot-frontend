@@ -45,9 +45,9 @@ export async function getProjectData(identifier: string, lang: string): Promise<
     const baseUrl = apiUrl.replace(/\/$/, '')
     // URL encode the identifier to handle special characters in slugs
     const encodedIdentifier = encodeURIComponent(identifier)
-    // Use no-store to prevent stale cache when switching languages
+    // Use ISR for better performance - language variants are cached separately by URL
     const response = await fetch(`${baseUrl}/api/v1/projects/${encodedIdentifier}`, {
-      cache: 'no-store', // Disable cache to ensure fresh data on language switch
+      next: { revalidate: 300 }, // ISR - regenerate every 5 minutes
       headers: {
         'Content-Type': 'application/json',
       },

@@ -3,6 +3,11 @@ import { formatTitleWithBrand } from '@/lib/seo'
 import { Metadata } from 'next'
 import TermsOfServiceClient from './terms-of-service-client'
 
+// Enable SSG for all language variants
+export async function generateStaticParams() {
+  return [{ lang: 'en' }, { lang: 'bg' }, { lang: 'ru' }, { lang: 'gr' }]
+}
+
 interface TermsOfServicePageProps {
   params: Promise<{
     lang: 'en' | 'bg'

@@ -92,7 +92,7 @@ export function RecentListingsSection({ dict, lang }: RecentListingsSectionProps
                             src={imageUrl}
                             alt={listing.name || 'Property'}
                             fill
-                            loading="eager"
+                            loading="lazy"
                             className="object-cover cursor-pointer"
                             sizes="400px"
                             onError={(e) => {

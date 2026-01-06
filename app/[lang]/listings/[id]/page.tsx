@@ -17,9 +17,9 @@ async function getProjectData(id: string, lang: string): Promise<Project | Pause
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
     const baseUrl = apiUrl.replace(/\/$/, '')
-    // Use no-store to prevent stale cache when switching languages
+    // Use ISR for better performance - language variants are cached separately by URL
     const response = await fetch(`${baseUrl}/api/v1/projects/${id}`, {
-      cache: 'no-store', // Disable cache to ensure fresh data on language switch
+      next: { revalidate: 300 }, // ISR - regenerate every 5 minutes
       headers: {
         'Content-Type': 'application/json',
       },

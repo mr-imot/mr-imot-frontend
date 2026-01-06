@@ -4,6 +4,11 @@ import { brandForLang, formatTitleWithBrand, getSiteUrl } from "@/lib/seo"
 import type { Metadata } from 'next'
 import WebPageSchema from "@/components/seo/webpage-schema"
 
+// Enable SSG for all language variants
+export async function generateStaticParams() {
+  return [{ lang: 'en' }, { lang: 'bg' }, { lang: 'ru' }, { lang: 'gr' }]
+}
+
 interface HomePageProps {
   params: Promise<{ lang: 'en' | 'bg' | 'ru' | 'gr' }>
 }
