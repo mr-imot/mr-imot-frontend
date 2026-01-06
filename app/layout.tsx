@@ -63,6 +63,7 @@ export const metadata: Metadata = {
       en: 'https://mrimot.com/en',
       bg: 'https://mrimot.com/bg',
       ru: 'https://mrimot.com/ru',
+      el: 'https://mrimot.com/gr',
       'x-default': 'https://mrimot.com/en',
     },
   },
