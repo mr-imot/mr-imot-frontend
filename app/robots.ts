@@ -37,20 +37,46 @@ export default function robots(): MetadataRoute.Robots {
       '/bg/kontakt/', // Bulgarian pretty URL for contact
       '/ru/kontakty/', // Russian pretty URL for contact
       '/gr/epikoinonia/', // Greek pretty URL for contact
-      '/api/v1/projects/',
+      // Policy pages - English (using /en/ prefix since they're under [lang] folder)
+      '/en/cookie-policy/',
+      '/en/privacy-policy/',
+      '/en/terms-of-service/',
+      // Policy pages - Bulgarian
+      '/bg/cookie-policy/',
+      '/bg/privacy-policy/',
+      '/bg/terms-of-service/',
+      // Policy pages - Russian
+      '/ru/cookie-policy/',
+      '/ru/privacy-policy/',
+      '/ru/terms-of-service/',
+      // Policy pages - Greek
+      '/gr/cookie-policy/',
+      '/gr/privacy-policy/',
+      '/gr/terms-of-service/',
     ],
     disallow: [
       '/admin/',
       '/buyer/',
-      '/developer/', // Catches both /developer/ and /en/developer/, /bg/developer/
+      '/developer/', // Catches /developer/ and all language variants
       '/en/developer/',
       '/bg/developer/',
+      '/ru/developer/',
+      '/gr/developer/',
+      // Login pages - all languages
       '/en/login',
       '/bg/login',
+      '/ru/login',
+      '/gr/login',
+      // Register pages - all languages
       '/en/register',
       '/bg/register',
+      '/ru/register',
+      '/gr/register',
+      // Forgot password pages - all languages
       '/en/forgot-password',
       '/bg/forgot-password',
+      '/ru/forgot-password',
+      '/gr/forgot-password',
       '/api/',
       '/debug/',
       '/test-api/',
