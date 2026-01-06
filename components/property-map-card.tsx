@@ -116,15 +116,29 @@ export function PropertyMapCard({
   }, [property, hasTrackedView])
 
   // Prevent body scroll when card is open on mobile (like modal)
+  // IMPORTANT: Never modify body overflow on desktop to prevent scrollbar layout shifts
   useEffect(() => {
-    if (forceMobile && floating && property) {
+    // Only apply on mobile - desktop should never have body overflow modified
+    // Double-check we're actually on mobile to prevent desktop layout shifts
+    // This is critical for production builds where SSR/hydration can cause issues
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024
+    
+    if (forceMobile && floating && property && isMobile) {
       // Store current scroll position
       scrollPositionRef.current = window.scrollY
-      // Prevent body scroll
+      
+      // Calculate scrollbar width to preserve layout (defensive - shouldn't be needed on mobile)
+      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth
+      
+      // Prevent body scroll while preserving scrollbar space
       document.body.style.overflow = 'hidden'
       document.body.style.position = 'fixed'
       document.body.style.top = `-${scrollPositionRef.current}px`
       document.body.style.width = '100%'
+      // Only add padding if scrollbar exists (mobile usually doesn't have horizontal scrollbar)
+      if (scrollbarWidth > 0) {
+        document.body.style.paddingRight = `${scrollbarWidth}px`
+      }
       document.body.style.touchAction = 'none' // Prevent all touch gestures on body
       
       return () => {
@@ -133,6 +147,7 @@ export function PropertyMapCard({
         document.body.style.position = ''
         document.body.style.top = ''
         document.body.style.width = ''
+        document.body.style.paddingRight = ''
         document.body.style.touchAction = ''
         // Restore scroll position
         window.scrollTo(0, scrollPositionRef.current)
