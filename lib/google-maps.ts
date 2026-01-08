@@ -5,6 +5,9 @@ import { setOptions, importLibrary } from "@googlemaps/js-api-loader"
 
 let isInitialized = false
 let loadPromise: Promise<typeof google> | null = null
+// Separate promise for basic maps (without places)
+let basicLoadPromise: Promise<typeof google> | null = null
+let isBasicInitialized = false
 
 export async function ensureGoogleMaps(): Promise<typeof google> {
   if (typeof window === "undefined") {
@@ -38,6 +41,51 @@ export async function ensureGoogleMaps(): Promise<typeof google> {
 
   try {
     await loadPromise
+    return window.google
+  } catch (error) {
+    console.error("Failed to load Google Maps:", error)
+    throw error
+  }
+}
+
+// Lightweight version for simple map displays (no Places API needed)
+// This saves ~57 KiB by not loading the Places library
+export async function ensureGoogleMapsBasic(): Promise<typeof google> {
+  if (typeof window === "undefined") {
+    throw new Error("Google Maps can only be loaded in the browser")
+  }
+
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+  if (!apiKey) {
+    throw new Error("Missing NEXT_PUBLIC_GOOGLE_MAPS_API_KEY")
+  }
+
+  // Check if already loaded (either by basic or full loader)
+  if (window.google?.maps) {
+    return window.google
+  }
+
+  // Use separate initialization for basic maps
+  if (!isBasicInitialized) {
+    setOptions({
+      key: apiKey,
+      v: "weekly",
+      libraries: ["marker"], // Only marker, no places
+      language: "en",
+      region: "BG",
+    })
+    isBasicInitialized = true
+  }
+
+  if (!basicLoadPromise) {
+    basicLoadPromise = Promise.all([
+      importLibrary("maps"),
+      importLibrary("marker"),
+    ]).then(() => window.google)
+  }
+
+  try {
+    await basicLoadPromise
     return window.google
   } catch (error) {
     console.error("Failed to load Google Maps:", error)

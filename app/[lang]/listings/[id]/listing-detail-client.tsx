@@ -21,10 +21,25 @@ import {
 import { recordProjectPhoneClick, recordProjectWebsiteClick, Project } from "@/lib/api"
 import { PropertyGallery } from "@/components/PropertyGallery"
 import { FeaturesDisplay } from "@/components/FeaturesDisplay"
-import { ensureGoogleMaps } from "@/lib/google-maps"
+import dynamic from "next/dynamic"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { useTranslations } from "@/lib/locale-context"
 import { translatePrice, PriceTranslations } from "@/lib/price-translator"
+
+// Dynamically import map component with no SSR to reduce initial bundle size
+const OptimizedPropertyMap = dynamic(
+  () => import("@/components/OptimizedPropertyMap").then(mod => ({ 
+    default: mod.OptimizedPropertyMap 
+  })),
+  { 
+    ssr: false,
+    loading: () => (
+      <div className="mt-4 h-64 bg-gray-100 rounded-lg flex items-center justify-center">
+        <div className="animate-pulse text-gray-400">Loading map...</div>
+      </div>
+    )
+  }
+)
 
 interface ListingDetailClientProps {
   projectId: string
@@ -68,106 +83,6 @@ const getImageKitUrl = (originalUrl: string, width: number, height: number, qual
   }
   
   return `${baseUrl}?tr=${transformations.join(',')}`
-}
-
-// Property Map Component
-const PropertyMap = ({ latitude, longitude, title }: { latitude: number, longitude: number, title: string }) => {
-  const mapRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const initMap = async () => {
-      try {
-        await ensureGoogleMaps()
-        if (mapRef.current && window.google) {
-          const map = new window.google.maps.Map(mapRef.current, {
-            center: { lat: latitude, lng: longitude },
-            zoom: 15,
-            mapTypeControl: false,
-            streetViewControl: false,
-            fullscreenControl: false,
-            draggableCursor: "grab",
-            draggingCursor: "grabbing",
-            scrollwheel: true,
-            gestureHandling: "greedy",
-            mapId: 'e1ea25ce333a0b0deb34ff54',
-          })
-
-          const pinElement = document.createElement('div')
-          pinElement.innerHTML = '📍'
-          pinElement.style.cursor = 'pointer'
-          pinElement.style.fontSize = '24px'
-          pinElement.style.textAlign = 'center'
-
-          new window.google.maps.marker.AdvancedMarkerElement({
-            position: { lat: latitude, lng: longitude },
-            map,
-            content: pinElement,
-            title: title,
-          })
-        }
-      } catch (error) {
-        console.error('Failed to load Google Maps:', error)
-      }
-    }
-
-    initMap()
-  }, [latitude, longitude, title])
-
-  return (
-    <div className="mt-4 h-64 bg-gray-100 rounded-lg overflow-hidden">
-      <div ref={mapRef} className="w-full h-full" />
-    </div>
-  )
-}
-
-// Office Map Component
-const OfficeMap = ({ latitude, longitude, title }: { latitude: number, longitude: number, title: string }) => {
-  const mapRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const initMap = async () => {
-      try {
-        await ensureGoogleMaps()
-        if (mapRef.current && window.google) {
-          const map = new window.google.maps.Map(mapRef.current, {
-            center: { lat: latitude, lng: longitude },
-            zoom: 15,
-            mapTypeControl: false,
-            streetViewControl: false,
-            fullscreenControl: false,
-            draggableCursor: "grab",
-            draggingCursor: "grabbing",
-            scrollwheel: true,
-            gestureHandling: "greedy",
-            mapId: 'e1ea25ce333a0b0deb34ff54',
-          })
-
-          const pinElement = document.createElement('div')
-          pinElement.innerHTML = '📍'
-          pinElement.style.cursor = 'pointer'
-          pinElement.style.fontSize = '24px'
-          pinElement.style.textAlign = 'center'
-
-          new window.google.maps.marker.AdvancedMarkerElement({
-            position: { lat: latitude, lng: longitude },
-            map,
-            content: pinElement,
-            title: title,
-          })
-        }
-      } catch (error) {
-        console.error('Failed to load Google Maps:', error)
-      }
-    }
-
-    initMap()
-  }, [latitude, longitude, title])
-
-  return (
-    <div className="mt-4 h-64 bg-gray-100 rounded-lg overflow-hidden">
-      <div ref={mapRef} className="w-full h-full" />
-    </div>
-  )
 }
 
 const LoadingSkeletonPropertyDetail = () => (
@@ -686,7 +601,7 @@ export default function ListingDetailClient({ projectId, initialProject }: Listi
             
             {property.latitude && property.longitude ? (
               <>
-                <PropertyMap 
+                <OptimizedPropertyMap 
                   latitude={property.latitude} 
                   longitude={property.longitude} 
                   title={property.title}
@@ -731,7 +646,7 @@ export default function ListingDetailClient({ projectId, initialProject }: Listi
               
               {property.developer.office_latitude && property.developer.office_longitude ? (
                 <>
-                  <OfficeMap 
+                  <OptimizedPropertyMap 
                     latitude={property.developer.office_latitude} 
                     longitude={property.developer.office_longitude} 
                     title={property.developer.company_name}
