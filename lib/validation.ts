@@ -1,5 +1,5 @@
 // Validation utilities for form fields
-import { isPossiblePhoneNumber } from 'libphonenumber-js'
+import { isPossiblePhoneNumber } from 'libphonenumber-js/min'
 
 export interface ValidationError {
   field: string

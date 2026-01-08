@@ -31,6 +31,7 @@ import {
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { Toaster } from '@/components/ui/sonner';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -201,6 +202,9 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           </div>
         </main>
       </div>
+
+      {/* Toasts */}
+      <Toaster position="top-right" />
     </div>
   );
 }

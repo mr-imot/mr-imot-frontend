@@ -58,7 +58,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
-import { toast } from 'react-hot-toast';
+import { toast } from 'sonner';
 
 function AdminDashboardContent() {
   const [stats, setStats] = useState<DeveloperStats | null>(null);

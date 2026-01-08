@@ -21,6 +21,14 @@ interface VercelRequest extends NextRequest {
 const SUPPORTED_LOCALES = ['en', 'bg', 'ru', 'gr']
 const DEFAULT_LOCALE = 'en'
 
+// Helper function to set Client Hints headers for responsive images
+function setClientHintsHeaders(response: NextResponse): NextResponse {
+  response.headers.set('Accept-CH', 'Width, Viewport-Width, DPR')
+  response.headers.set('Accept-CH-Lifetime', '86400') // Persist for 1 day
+  response.headers.set('Vary', 'Accept-CH, Width, Viewport-Width, DPR') // Important for caching
+  return response
+}
+
 function getLocale(request: NextRequest) {
   try {
   // Get the Accept-Language header
@@ -552,9 +560,7 @@ export async function middleware(request: NextRequest) {
     })
     // Set language header for root layout to use
     response.headers.set('x-locale', 'bg')
-    // Enable Client Hints for responsive images (ImageKit w-auto support)
-    response.headers.set('Accept-CH', 'Width, Viewport-Width, DPR')
-    return response
+    return setClientHintsHeaders(response)
   }
 
   // 3. Check Accept-Language header
@@ -565,9 +571,7 @@ export async function middleware(request: NextRequest) {
       const response = NextResponse.redirect(new URL(`/${negotiated}${pathname}`, request.url))
       // Set language header for root layout to use
       response.headers.set('x-locale', negotiated)
-      // Enable Client Hints for responsive images (ImageKit w-auto support)
-      response.headers.set('Accept-CH', 'Width, Viewport-Width, DPR')
-      return response
+      return setClientHintsHeaders(response)
     }
   } catch (error) {
     // If Accept-Language detection fails, continue to fallback
@@ -583,9 +587,7 @@ export async function middleware(request: NextRequest) {
     const response = NextResponse.rewrite(url)
     // Set language header for root layout to use
     response.headers.set('x-locale', 'en')
-    // Enable Client Hints for responsive images (ImageKit w-auto support)
-    response.headers.set('Accept-CH', 'Width, Viewport-Width, DPR')
-    return response
+    return setClientHintsHeaders(response)
   }
   
   // If it's a not-found page or already has /en/, set language header and pass through
@@ -599,10 +601,7 @@ export async function middleware(request: NextRequest) {
         ? 'gr'
         : 'en'
   response.headers.set('x-locale', detectedLang)
-  // Enable Client Hints for responsive images (ImageKit w-auto support)
-  // This allows browsers to send Width, Viewport-Width, and DPR hints
-  response.headers.set('Accept-CH', 'Width, Viewport-Width, DPR')
-  return response
+  return setClientHintsHeaders(response)
 }
 
 export const config = {
