@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom';
 import { ChevronLeft, ChevronRight, X, Maximize2, Grid3X3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
-import { Image } from '@imagekit/next';
+import { Image, type Transformation } from '@imagekit/next';
 import { useEmblaCarouselWithPhysics } from '@/hooks/use-embla-carousel';
 import { cn } from '@/lib/utils';
 import { toIkPath } from '@/lib/imagekit';
@@ -15,36 +15,39 @@ interface PropertyGalleryProps {
   title: string;
 }
 
-const mainImageTransformations = (isMobile: boolean) => [
-  {
-    width: isMobile ? 1200 : 1600,
-    height: isMobile ? 900 : 1100,
-    quality: 82,
-    format: "webp",
-    focus: "auto",
-    progressive: true,
-  },
-]
+const mainImageTransformations = (isMobile: boolean) =>
+  [
+    {
+      width: isMobile ? 1200 : 1600,
+      height: isMobile ? 900 : 1100,
+      quality: 82,
+      format: "webp",
+      focus: "auto",
+      progressive: true,
+    },
+  ] satisfies Transformation[];
 
-const thumbnailTransformations = [
-  {
-    width: 320,
-    height: 240,
-    quality: 75,
-    format: "webp",
-    focus: "auto",
-  },
-]
+const thumbnailTransformations =
+  [
+    {
+      width: 320,
+      height: 240,
+      quality: 75,
+      format: "webp",
+      focus: "auto",
+    },
+  ] satisfies Transformation[];
 
-const fullscreenTransformations = [
-  {
-    width: 1920,
-    height: 1200,
-    quality: 90,
-    format: "webp",
-    focus: "auto",
-  },
-]
+const fullscreenTransformations =
+  [
+    {
+      width: 1920,
+      height: 1200,
+      quality: 90,
+      format: "webp",
+      focus: "auto",
+    },
+  ] satisfies Transformation[];
 
 export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
   // Filter out non-string values and ensure we have valid images
