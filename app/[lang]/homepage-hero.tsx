@@ -91,13 +91,13 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
                     height={90}
                     priority
                     fetchPriority="high"
-                    transformation={[{ width: 320, quality: 72, format: "webp", focus: "auto" }]}
+                    transformation={[{ width: 120, height: 90, quality: 60, format: "webp", focus: "auto", dpr: 1 }]}
                     className="w-auto h-auto drop-shadow-lg"
                     style={{
                       width: 'clamp(100px, 28vw, 140px)',
                       height: 'auto'
                     }}
-                    sizes="28vw"
+                    sizes="120px"
                   />
                 </div>
                 
@@ -167,13 +167,13 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
               loading="eager"
               priority
               fetchPriority="high"
-              transformation={[{ width: 960, quality: 78, format: "webp", focus: "auto" }]}
+              transformation={[{ quality: 60, format: "webp", focus: "auto" }]}
               className={clsx("w-auto h-auto transition-all duration-700 hover:scale-105 hover:rotate-1", styles.heroImage)}
               style={{
                 width: 'clamp(300px, min(40vw, 700px), 800px)',
                 height: 'auto'
               }}
-              sizes="(max-width: 1024px) 0vw, min(40vw, 700px)"
+              sizes="(max-width: 1024px) 1px, 40vw"
             />
           </div>
         </div>

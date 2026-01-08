@@ -23,7 +23,7 @@ export function MobileMascotSection({ dict, lang }: MobileMascotSectionProps) {
             width={320}
             height={240}
             loading="lazy"
-            transformation={[{ width: 420, quality: 80, format: "webp", focus: "auto" }]}
+            transformation={[{ width: 220, quality: 58, format: "webp", focus: "auto" }]}
             className="w-auto h-auto transition-all duration-700 hover:scale-105 hover:rotate-1 drop-shadow-xl"
             style={{
               willChange: 'transform',

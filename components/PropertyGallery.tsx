@@ -18,9 +18,10 @@ interface PropertyGalleryProps {
 const mainImageTransformations = (isMobile: boolean) =>
   [
     {
-      width: isMobile ? 1200 : 1600,
-      height: isMobile ? 900 : 1100,
-      quality: 82,
+      // Mobile: closer to actual render size to avoid over-fetch
+      width: isMobile ? 900 : 1600,
+      height: isMobile ? 700 : 1100,
+      quality: isMobile ? 72 : 82,
       format: "webp",
       focus: "auto",
       progressive: true,
@@ -256,7 +257,7 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
                   <div className="relative w-full h-full">
                     <Image
                       src={toIkPath(image)}
-                      alt={`${title} - View ${index + 1}`}
+                      alt={`${title || "Property"} - View ${index + 1}`}
                       fill
                       transformation={mainImageTransformations(isMobile)}
                       className="object-cover md:transition-all md:duration-500 md:group-hover:scale-110 cursor-pointer"
@@ -429,7 +430,7 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
                       <div className="relative w-full h-full">
                         <Image
                           src={toIkPath(image)}
-                          alt={`${title} - View ${index + 1}`}
+                          alt={`${title || "Property"} - View ${index + 1}`}
                           fill
                           transformation={fullscreenTransformations}
                           className="object-contain object-center transition-all duration-500 ease-out"
