@@ -91,7 +91,7 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
                     height={90}
                     priority
                     fetchPriority="high"
-                    transformation={[{ width: 120, height: 90, quality: 60, format: "webp", focus: "auto", dpr: 1 }]}
+                    transformation={[{ quality: 60, format: "webp", focus: "auto" }]}
                     className="w-auto h-auto drop-shadow-lg"
                     style={{
                       width: 'clamp(100px, 28vw, 140px)',
