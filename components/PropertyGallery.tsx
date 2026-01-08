@@ -15,7 +15,7 @@ interface PropertyGalleryProps {
 }
 
 // Enhanced ImageKit transformation function - PROPER FULLSCREEN HANDLING
-const getImageKitUrl = (originalUrl: string | undefined | null, width: number, height: number, quality: number = 90, imageType: 'main' | 'thumbnail' | 'fullscreen' = 'main') => {
+const getImageKitUrl = (originalUrl: string | undefined | null, width: number, height: number, quality: number = 80, imageType: 'main' | 'thumbnail' | 'fullscreen' = 'main', isMobile: boolean = false) => {
   if (!originalUrl || typeof originalUrl !== 'string' || !originalUrl.includes('imagekit.io')) {
     return originalUrl || ''
   }
@@ -33,7 +33,7 @@ const getImageKitUrl = (originalUrl: string | undefined | null, width: number, h
     transformations = `q-${quality},f-webp,pr-true,enhancement-true,sharpen-true,contrast-true`
   } else if (imageType === 'thumbnail') {
     // Thumbnails: Optimized for speed, smaller size
-    transformations = `h-${height},w-${width},c-maintain_ratio,cm-focus,fo-auto,q-85,f-webp,pr-true`
+    transformations = `h-${height},w-${width},c-maintain_ratio,cm-focus,fo-auto,q-75,f-webp,pr-true`
   } else {
     // Main images: Balanced quality and performance
     transformations = `h-${height},w-${width},c-maintain_ratio,cm-focus,fo-auto,q-${quality},f-webp,pr-true,enhancement-true`
@@ -248,12 +248,14 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
                 <div key={index} className="embla__slide flex-[0_0_100%] min-w-0 h-full">
                   <div className="relative w-full h-full">
                     <Image
-                      src={getImageKitUrl(image, isMobile ? 800 : 1400, isMobile ? 600 : 900, 95, 'main')}
+                      src={getImageKitUrl(image, isMobile ? 600 : 1200, isMobile ? 450 : 900, 80, 'main', isMobile)}
                       alt={`${title} - View ${index + 1}`}
                       fill
                       className="object-cover md:transition-all md:duration-500 md:group-hover:scale-110 cursor-pointer"
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
                       priority={index === 0}
+                      fetchPriority={index === 0 ? "high" : "auto"}
+                      loading={index === 0 ? "eager" : "lazy"}
                     />
                   </div>
                 </div>
@@ -304,11 +306,12 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
               onClick={() => mainScrollTo(index)}
             >
               <Image
-                src={getImageKitUrl(image, 500, 400, 90, 'thumbnail')}
+                src={getImageKitUrl(image, 400, 300, 75, 'thumbnail', false)}
                 alt={`${title} - View ${index + 1}`}
                 fill
                 className="object-cover transition-all duration-300 group-hover:scale-110 cursor-pointer"
                 sizes="(max-width: 1200px) 25vw, 20vw"
+                loading="lazy"
               />
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
               <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -416,13 +419,14 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
                     <div key={index} className="embla__slide flex-[0_0_100%] min-w-0 h-full">
                       <div className="relative w-full h-full">
                         <Image
-                          src={getImageKitUrl(image, 2560, 1440, 98, 'fullscreen')}
+                          src={getImageKitUrl(image, 1920, 1080, 90, 'fullscreen', false)}
                           alt={`${title} - View ${index + 1}`}
                           fill
                           className="object-contain object-center transition-all duration-500 ease-out"
                           onLoad={handleImageLoad}
                           onLoadStart={() => setIsLoading(true)}
                           priority={index === fullscreenSelectedIndex}
+                          fetchPriority={index === fullscreenSelectedIndex ? "high" : "auto"}
                           sizes="100vw"
                         />
                       </div>
