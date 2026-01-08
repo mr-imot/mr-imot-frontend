@@ -552,6 +552,8 @@ export async function middleware(request: NextRequest) {
     })
     // Set language header for root layout to use
     response.headers.set('x-locale', 'bg')
+    // Enable Client Hints for responsive images (ImageKit w-auto support)
+    response.headers.set('Accept-CH', 'Width, Viewport-Width, DPR')
     return response
   }
 
@@ -563,6 +565,8 @@ export async function middleware(request: NextRequest) {
       const response = NextResponse.redirect(new URL(`/${negotiated}${pathname}`, request.url))
       // Set language header for root layout to use
       response.headers.set('x-locale', negotiated)
+      // Enable Client Hints for responsive images (ImageKit w-auto support)
+      response.headers.set('Accept-CH', 'Width, Viewport-Width, DPR')
       return response
     }
   } catch (error) {
@@ -579,6 +583,8 @@ export async function middleware(request: NextRequest) {
     const response = NextResponse.rewrite(url)
     // Set language header for root layout to use
     response.headers.set('x-locale', 'en')
+    // Enable Client Hints for responsive images (ImageKit w-auto support)
+    response.headers.set('Accept-CH', 'Width, Viewport-Width, DPR')
     return response
   }
   
@@ -593,6 +599,9 @@ export async function middleware(request: NextRequest) {
         ? 'gr'
         : 'en'
   response.headers.set('x-locale', detectedLang)
+  // Enable Client Hints for responsive images (ImageKit w-auto support)
+  // This allows browsers to send Width, Viewport-Width, and DPR hints
+  response.headers.set('Accept-CH', 'Width, Viewport-Width, DPR')
   return response
 }
 

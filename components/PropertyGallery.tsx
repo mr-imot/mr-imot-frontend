@@ -15,6 +15,7 @@ interface PropertyGalleryProps {
 }
 
 // Enhanced ImageKit transformation function - PROPER FULLSCREEN HANDLING
+// Uses w-auto for responsive images with Client Hints support
 const getImageKitUrl = (originalUrl: string | undefined | null, width: number, height: number, quality: number = 80, imageType: 'main' | 'thumbnail' | 'fullscreen' = 'main', isMobile: boolean = false) => {
   if (!originalUrl || typeof originalUrl !== 'string' || !originalUrl.includes('imagekit.io')) {
     return originalUrl || ''
@@ -32,11 +33,14 @@ const getImageKitUrl = (originalUrl: string | undefined | null, width: number, h
     // This ensures the full image is shown without any pre-cropping by ImageKit
     transformations = `q-${quality},f-webp,pr-true,enhancement-true,sharpen-true,contrast-true`
   } else if (imageType === 'thumbnail') {
-    // Thumbnails: Optimized for speed, smaller size
+    // Thumbnails: Keep fixed dimensions for consistency (small and predictable)
     transformations = `h-${height},w-${width},c-maintain_ratio,cm-focus,fo-auto,q-75,f-webp,pr-true`
   } else {
-    // Main images: Balanced quality and performance
-    transformations = `h-${height},w-${width},c-maintain_ratio,cm-focus,fo-auto,q-${quality},f-webp,pr-true,enhancement-true`
+    // Main images: Use w-auto with max constraint for responsive images
+    // w-auto-{width} uses Width client hint if available, otherwise falls back to specified width
+    // This allows ImageKit to serve the correct size based on actual viewport
+    const maxWidth = isMobile ? 600 : 1200 // Match sizes attribute: mobile 100vw (~600px), desktop 70vw (~1200px)
+    transformations = `w-auto-${maxWidth},h-auto,c-maintain_ratio,cm-focus,fo-auto,q-${quality},f-webp,pr-true,enhancement-true`
   }
   
   return `https://ik.imagekit.io/ts59gf2ul/tr:${transformations}/${imageName}`
