@@ -1,5 +1,6 @@
 import Link from "next/link"
-import Image from "next/image"
+import { Image } from "@imagekit/next"
+import { toIkPath } from "@/lib/imagekit"
 import clsx from "clsx"
 import styles from "./homepage-hero.module.css"
 
@@ -79,8 +80,8 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
                 <div className="flex-shrink-0">
                   <Image
                     src={lang === 'bg' 
-                      ? "https://ik.imagekit.io/ts59gf2ul/Logo/mrimot.com-0_-komisiona-bg-christmas.png?tr=f-webp,q-70,w-200,h-auto,dpr=auto"
-                      : "https://ik.imagekit.io/ts59gf2ul/Logo/mrimot.com-0_-commissions-en-christmas-Photoroom.png?tr=f-webp,q-70,w-200,h-auto,dpr=auto"
+                      ? toIkPath("https://ik.imagekit.io/ts59gf2ul/Logo/mrimot.com-0_-komisiona-bg-christmas.png")
+                      : toIkPath("https://ik.imagekit.io/ts59gf2ul/Logo/mrimot.com-0_-commissions-en-christmas-Photoroom.png")
                     }
                     alt={lang === 'bg' 
                       ? 'Талисман Мистър Имот от mrimot.com в коледен дух, държащ знак с надпис 0% комисиони'
@@ -90,6 +91,7 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
                     height={90}
                     priority
                     fetchPriority="high"
+                    transformation={[{ width: 320, quality: 72, format: "webp", focus: "auto" }]}
                     className="w-auto h-auto drop-shadow-lg"
                     style={{
                       width: 'clamp(100px, 28vw, 140px)',
@@ -153,8 +155,8 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
             <div className={clsx("hidden lg:flex lg:items-center lg:justify-end", styles.heroVisual)}>
             <Image
               src={lang === 'bg' 
-                ? "https://ik.imagekit.io/ts59gf2ul/Logo/mrimot.com-0_-komisiona-bg-christmas.png?tr=f-webp,q-75,w-820,h-auto,dpr=auto"
-                : "https://ik.imagekit.io/ts59gf2ul/Logo/mrimot.com-0_-commissions-en-christmas-Photoroom.png?tr=f-webp,q-75,w-820,h-auto,dpr=auto"
+                ? toIkPath("https://ik.imagekit.io/ts59gf2ul/Logo/mrimot.com-0_-komisiona-bg-christmas.png")
+                : toIkPath("https://ik.imagekit.io/ts59gf2ul/Logo/mrimot.com-0_-commissions-en-christmas-Photoroom.png")
               }
               alt={lang === 'bg' 
                 ? 'Талисман Мистър Имот от mrimot.com в коледен дух, държащ знак с надпис 0% комисиони за платформа за недвижими имоти'
@@ -162,7 +164,10 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
               }
               width={960}
               height={640}
-              loading="lazy"
+              loading="eager"
+              priority
+              fetchPriority="high"
+              transformation={[{ width: 960, quality: 78, format: "webp", focus: "auto" }]}
               className={clsx("w-auto h-auto transition-all duration-700 hover:scale-105 hover:rotate-1", styles.heroImage)}
               style={{
                 width: 'clamp(300px, min(40vw, 700px), 800px)',

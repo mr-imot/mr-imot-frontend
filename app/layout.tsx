@@ -10,6 +10,8 @@ import { AuthProvider } from "@/lib/auth-context"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import ViewportLock from "@/components/ViewportLock"
 import { ThemeProvider } from "@/components/theme-provider"
+import { ImageKitProvider } from "@imagekit/next"
+import { IK_URL_ENDPOINT } from "@/lib/imagekit"
 
 // Geist for hero/headings with Cyrillic support (trimmed weights)
 const geist = Geist({
@@ -154,6 +156,10 @@ html {
         {/* Global viewport fixes: mobile height lock and header height sync */}
         <ViewportLock />
         <ThemeProvider>
+        <ImageKitProvider
+          urlEndpoint={IK_URL_ENDPOINT}
+          transformationPosition="path"
+        >
         <GlobalMaintenanceWrapper>
           <AuthProvider>
             
@@ -162,6 +168,7 @@ html {
             </div>
           </AuthProvider>
         </GlobalMaintenanceWrapper>
+        </ImageKitProvider>
         </ThemeProvider>
         {/* Analytics gated by CookieConsent in [lang]/layout; SpeedInsights remains */}
         <SpeedInsights />

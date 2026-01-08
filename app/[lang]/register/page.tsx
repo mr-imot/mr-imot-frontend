@@ -2,6 +2,7 @@ import { getDictionary } from '../dictionaries'
 import RegisterClient from './register-client'
 import { brandForLang, formatTitleWithBrand, getSiteUrl } from '@/lib/seo'
 import type { Metadata } from 'next'
+import { buildIkUrl } from '@/lib/imagekit'
 
 interface RegisterPageProps {
   params: Promise<{
@@ -12,7 +13,9 @@ interface RegisterPageProps {
 export async function generateMetadata({ params }: RegisterPageProps): Promise<Metadata> {
   const { lang } = await params
   const baseUrl = getSiteUrl() // Hardcoded production domain for canonical URLs
-  const socialImage = 'https://ik.imagekit.io/ts59gf2ul/Logo/mister-imot-waving-hi-with-bg.png?tr=w-1200,h-630,cm-pad_resize,bg-FFFFFF,fo-auto,q-85,f-auto&v=20241205'
+  const socialImage = buildIkUrl("/Logo/mister-imot-waving-hi-with-bg.png", [
+    { width: 1200, height: 630, quality: 85, format: "webp", focus: "auto" },
+  ])
   
   const isBg = lang === 'bg'
   const brand = brandForLang(lang)

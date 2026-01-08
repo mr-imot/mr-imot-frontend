@@ -1,5 +1,6 @@
 import Link from "next/link"
-import Image from "next/image"
+import { Image } from "@imagekit/next"
+import { toIkPath } from "@/lib/imagekit"
 import dynamic from "next/dynamic"
 import { HomepageHero } from "./homepage-hero"
 import { ThreeStepProcessSection } from "./sections/three-step-process-section"
@@ -278,13 +279,14 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                     <div className="flex justify-center lg:justify-start order-2 lg:order-1">
                       <Image
                         src={lang === 'bg' 
-                          ? "https://ik.imagekit.io/ts59gf2ul/Logo/stani-chats-ot-nas-mr-imot.png?updatedAt=1760104490964&tr=f-webp,q-85,w-320,h-auto,dpr=auto"
-                          : "https://ik.imagekit.io/ts59gf2ul/Logo/join-us-mr-imot.png?updatedAt=1760105808199&tr=f-webp,q-85,w-320,h-auto,dpr=auto"
+                          ? toIkPath("https://ik.imagekit.io/ts59gf2ul/Logo/stani-chats-ot-nas-mr-imot.png")
+                          : toIkPath("https://ik.imagekit.io/ts59gf2ul/Logo/join-us-mr-imot.png")
                         }
                         alt={lang === 'bg' ? dict.developerJoin.imageAlt : 'Mister Imot mascot inviting developers to join real estate platform with join us flag'}
                         width={320}
                         height={240}
                         loading="lazy"
+                        transformation={[{ width: 420, quality: 85, format: "webp", focus: "auto" }]}
                         className="w-auto h-auto mx-auto transition-all duration-700 hover:scale-110 hover:rotate-2"
                         style={{
                           willChange: 'transform',

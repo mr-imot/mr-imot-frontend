@@ -6,27 +6,12 @@ import { ScrollAnimationWrapper } from "@/components/scroll-animation-wrapper"
 import { AngledSeparator } from "@/components/angled-separator"
 import { Mail, Phone, MessageCircle } from "lucide-react"
 import { useLocale } from "@/lib/locale-context"
-import Image from "next/image"
+import { Image } from "@imagekit/next"
+import { toIkPath } from "@/lib/imagekit"
 
 interface ContactClientProps {
   dict: any
   lang: 'en' | 'bg'
-}
-
-// ImageKit transformation helper function
-const getImageKitUrl = (originalUrl: string, width: number, height: number, quality: number = 90) => {
-  if (!originalUrl || !originalUrl.includes('imagekit.io')) {
-    return originalUrl
-  }
-  
-  // Extract the path after the base URL (preserving folder structure like Logo/)
-  const baseUrl = 'https://ik.imagekit.io/ts59gf2ul/'
-  const pathAfterBase = originalUrl.replace(baseUrl, '')
-  
-  // Optimized transformations for mascot image
-  const transformations = `w-${width},h-${height},c-maintain_ratio,cm-focus,fo-auto,q-${quality},f-webp,pr-true,enhancement-true`
-  
-  return `https://ik.imagekit.io/ts59gf2ul/tr:${transformations}/${pathAfterBase}`
 }
 
 export default function ContactClient({ dict, lang }: ContactClientProps) {
@@ -97,10 +82,11 @@ export default function ContactClient({ dict, lang }: ContactClientProps) {
             <ScrollAnimationWrapper delay={0.2}>
               <div className="relative w-full max-w-md lg:max-w-lg flex-shrink-0 flex items-center justify-center">
                 <Image
-                  src={getImageKitUrl(mascotImageUrl, 600, 600, 90)}
+                  src={toIkPath(mascotImageUrl)}
                   alt={dict.contact?.mascotAlt || "Mister Imot Customer Support Mascot"}
                   width={600}
                   height={600}
+                  transformation={[{ width: 720, height: 720, quality: 90, format: "webp", focus: "auto" }]}
                   className="object-contain drop-shadow-2xl w-full h-auto"
                   sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 40vw"
                   priority

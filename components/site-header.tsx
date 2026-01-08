@@ -6,7 +6,8 @@ import { UserAuthNav } from "@/components/user-auth-nav"
 import { MobileNav } from "@/components/mobile-nav"
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { useTranslations, useLocale } from "@/lib/locale-context"
-import Image from "next/image"
+import { Image } from "@imagekit/next"
+import { toIkPath } from "@/lib/imagekit"
 
 export function SiteHeader() {
   const t = useTranslations('navigation')
@@ -53,7 +54,7 @@ export function SiteHeader() {
           <Link href="/" className="flex items-center space-x-3 group clickable cursor-pointer">
             <div className="relative w-14 h-14 flex items-center justify-center rounded-full bg-white text-charcoal-800 shadow-[0_10px_24px_rgba(0,0,0,0.12)] border border-slate-200 hover:shadow-[0_12px_28px_rgba(0,0,0,0.16)] transition-all duration-200 cursor-pointer logo-circle">
               <Image
-                src="https://ik.imagekit.io/ts59gf2ul/Logo/mr-imot-logo-no-background.png?tr=w-112,h-112,f-webp,q-85,fo-auto"
+                src={toIkPath("https://ik.imagekit.io/ts59gf2ul/Logo/mr-imot-logo-no-background.png")}
                 alt={
                   locale === 'bg'
                     ? 'Лого на Мистър Имот'
@@ -63,6 +64,7 @@ export function SiteHeader() {
                 }
                 width={56}
                 height={56}
+                transformation={[{ width: 112, height: 112, quality: 85, format: "webp", focus: "auto" }]}
                 className="object-contain drop-shadow-lg cursor-pointer"
                 priority
                 sizes="56px"

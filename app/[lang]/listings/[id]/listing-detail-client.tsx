@@ -46,45 +46,6 @@ interface ListingDetailClientProps {
   initialProject?: Project
 }
 
-// Enhanced ImageKit transformation function - PROPER FULLSCREEN HANDLING
-const getImageKitUrl = (originalUrl: string, width: number, height: number, quality: number = 90, imageType: 'main' | 'thumbnail' | 'fullscreen' = 'main') => {
-  if (!originalUrl || !originalUrl.includes('imagekit.io')) {
-    return originalUrl
-  }
-
-  const baseUrl = originalUrl.split('?')[0]
-  
-  let transformations = []
-  
-  if (imageType === 'fullscreen') {
-    transformations = [
-      'q-95',
-      'f-auto',
-      'c-maintain_ar',
-      `w-${Math.min(width, 1920)}`,
-      `h-${Math.min(height, 1080)}`
-    ]
-  } else if (imageType === 'thumbnail') {
-    transformations = [
-      `q-${quality}`,
-      'f-auto',
-      'c-maintain_ar',
-      `w-${width}`,
-      `h-${height}`
-    ]
-  } else {
-    transformations = [
-      `q-${quality}`,
-      'f-auto',
-      'c-maintain_ar',
-      `w-${width}`,
-      `h-${height}`
-    ]
-  }
-  
-  return `${baseUrl}?tr=${transformations.join(',')}`
-}
-
 const LoadingSkeletonPropertyDetail = () => (
   <div className="max-w-7xl mx-auto px-4 py-6">
     <div className="animate-pulse">

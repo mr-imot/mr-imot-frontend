@@ -5,49 +5,46 @@ import { createPortal } from 'react-dom';
 import { ChevronLeft, ChevronRight, X, Maximize2, Grid3X3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
-import Image from 'next/image';
+import { Image } from '@imagekit/next';
 import { useEmblaCarouselWithPhysics } from '@/hooks/use-embla-carousel';
 import { cn } from '@/lib/utils';
+import { toIkPath } from '@/lib/imagekit';
 
 interface PropertyGalleryProps {
   images: string[];
   title: string;
 }
 
-// Enhanced ImageKit transformation function - PROPER FULLSCREEN HANDLING
-// Uses fixed widths matching actual rendered dimensions - Next.js Image handles srcSet automatically
-const getImageKitUrl = (originalUrl: string | undefined | null, width: number, height: number, quality: number = 80, imageType: 'main' | 'thumbnail' | 'fullscreen' = 'main', isMobile: boolean = false) => {
-  if (!originalUrl || typeof originalUrl !== 'string' || !originalUrl.includes('imagekit.io')) {
-    return originalUrl || ''
-  }
-  
-  // Extract the base path from the original URL
-  const urlParts = originalUrl.split('/')
-  const imageName = urlParts[urlParts.length - 1]
-  
-  // Smart transformations based on image type and usage
-  let transformations = ''
-  
-  if (imageType === 'fullscreen') {
-    // Fullscreen: NO cropping, NO focus, NO size constraints - only quality and format optimizations
-    // This ensures the full image is shown without any pre-cropping by ImageKit
-    transformations = `q-${quality},f-webp,pr-true,enhancement-true,sharpen-true,contrast-true`
-  } else if (imageType === 'thumbnail') {
-    // Thumbnails: Fixed width matching actual rendered size
-    // Lighthouse shows 220x183 rendered, use 240px (close to actual + small buffer) instead of 440px
-    // This prevents serving 2x images when not needed
-    transformations = `w-240,h-auto,c-maintain_ratio,cm-focus,fo-auto,q-75,f-webp,pr-true`
-  } else {
-    // Main images: Fixed widths matching actual rendered dimensions
-    // Desktop: 865px rendered (Lighthouse) → use 960px (buffer for slight variations)
-    // Mobile: 375-414px viewport → use 450px
-    // Next.js Image component will generate srcSet automatically for DPR handling
-    const targetWidth = isMobile ? 450 : 960
-    transformations = `w-${targetWidth},h-auto,c-maintain_ratio,cm-focus,fo-auto,q-${quality},f-webp,pr-true,enhancement-true`
-  }
-  
-  return `https://ik.imagekit.io/ts59gf2ul/tr:${transformations}/${imageName}`
-}
+const mainImageTransformations = (isMobile: boolean) => [
+  {
+    width: isMobile ? 1200 : 1600,
+    height: isMobile ? 900 : 1100,
+    quality: 82,
+    format: "webp",
+    focus: "auto",
+    progressive: true,
+  },
+]
+
+const thumbnailTransformations = [
+  {
+    width: 320,
+    height: 240,
+    quality: 75,
+    format: "webp",
+    focus: "auto",
+  },
+]
+
+const fullscreenTransformations = [
+  {
+    width: 1920,
+    height: 1200,
+    quality: 90,
+    format: "webp",
+    focus: "auto",
+  },
+]
 
 export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
   // Filter out non-string values and ensure we have valid images
@@ -255,9 +252,10 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
                 <div key={index} className="embla__slide flex-[0_0_100%] min-w-0 h-full">
                   <div className="relative w-full h-full">
                     <Image
-                      src={getImageKitUrl(image, isMobile ? 600 : 1200, isMobile ? 450 : 900, 80, 'main', isMobile)}
+                      src={toIkPath(image)}
                       alt={`${title} - View ${index + 1}`}
                       fill
+                      transformation={mainImageTransformations(isMobile)}
                       className="object-cover md:transition-all md:duration-500 md:group-hover:scale-110 cursor-pointer"
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
                       priority={index === 0}
@@ -313,9 +311,10 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
               onClick={() => mainScrollTo(index)}
             >
               <Image
-                src={getImageKitUrl(image, 400, 300, 75, 'thumbnail', false)}
+                src={toIkPath(image)}
                 alt={`${title} - View ${index + 1}`}
                 fill
+                transformation={thumbnailTransformations}
                 className="object-cover transition-all duration-300 group-hover:scale-110 cursor-pointer"
                 sizes="(max-width: 1200px) 25vw, 20vw"
                 loading="lazy"
@@ -426,9 +425,10 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
                     <div key={index} className="embla__slide flex-[0_0_100%] min-w-0 h-full">
                       <div className="relative w-full h-full">
                         <Image
-                          src={getImageKitUrl(image, 1920, 1080, 90, 'fullscreen', false)}
+                          src={toIkPath(image)}
                           alt={`${title} - View ${index + 1}`}
                           fill
+                          transformation={fullscreenTransformations}
                           className="object-contain object-center transition-all duration-500 ease-out"
                           onLoad={handleImageLoad}
                           onLoadStart={() => setIsLoading(true)}

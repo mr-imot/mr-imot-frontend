@@ -1,36 +1,18 @@
 "use client"
 
 import Link from "next/link"
-import Image from "next/image"
+import { Image } from "@imagekit/next"
 import { CheckCircle, Target, TrendingUp, Users, Lightbulb } from "lucide-react"
 import { ScrollAnimationWrapper } from "@/components/scroll-animation-wrapper"
 import { AngledSeparator } from "@/components/angled-separator"
 import { Button } from "@/components/ui/button"
 import { useLocale } from "@/lib/locale-context"
 import { RoadmapTimeline } from "@/components/roadmap-timeline"
+import { toIkPath } from "@/lib/imagekit"
 
 interface AboutClientProps {
   dict: any
   lang: 'en' | 'bg' | 'ru' | 'gr'
-}
-
-// ImageKit URL helper with optimizations
-const getImageKitUrl = (originalUrl: string, width: number, height: number, quality: number = 95) => {
-  if (!originalUrl || !originalUrl.includes('imagekit.io')) {
-    return originalUrl
-  }
-  
-  const baseUrl = originalUrl.split('?')[0]
-  const transformations = [
-    `w-${width}`,
-    `h-${height}`,
-    'c-maintain_ratio',
-    `q-${quality}`,
-    'f-webp',
-    'pr-true'
-  ]
-  
-  return `${baseUrl}?tr=${transformations.join(',')}`
 }
 
 export default function AboutClient({ dict, lang }: AboutClientProps) {
@@ -125,9 +107,10 @@ export default function AboutClient({ dict, lang }: AboutClientProps) {
                 <div className="relative w-full md:max-w-[640px] md:ml-auto md:mt-2">
                   <div className="relative aspect-[16/10] w-full rounded-2xl overflow-hidden ring-1 ring-black/10 shadow-[0_20px_60px_rgba(2,6,23,0.15)] bg-white">
                     <Image
-                      src={getImageKitUrl("https://ik.imagekit.io/ts59gf2ul/about-us/372shots_so.png?updatedAt=1762858783236", 1920, 1200, 95)}
+                      src={toIkPath("https://ik.imagekit.io/ts59gf2ul/about-us/372shots_so.png")}
                       alt={dict.about?.imageAlt?.dashboard || "Mister Imot Dashboard - Property Management"}
                       fill
+                      transformation={[{ width: 1920, height: 1200, quality: 95, format: "webp", focus: "auto" }]}
                       className="object-cover"
                       sizes="(max-width: 768px) 100vw, 640px"
                       priority
@@ -177,9 +160,10 @@ export default function AboutClient({ dict, lang }: AboutClientProps) {
                 <div className="relative w-full max-w-[320px] mx-auto md:mx-0 md:sticky md:top-24">
                   <div className="relative aspect-[9/16] w-full rounded-[2rem] overflow-hidden ring-1 ring-black/10 shadow-[0_12px_40px_rgba(2,6,23,0.16)] bg-white">
                     <Image
-                      src={getImageKitUrl("https://ik.imagekit.io/ts59gf2ul/about-us/108shots_so.png?updatedAt=1762858783223", 900, 1600, 95)}
+                      src={toIkPath("https://ik.imagekit.io/ts59gf2ul/about-us/108shots_so.png")}
                       alt={dict.about?.imageAlt?.mapView || "Mister Imot Mobile - Map View"}
                       fill
+                      transformation={[{ width: 900, height: 1600, quality: 95, format: "webp", focus: "auto" }]}
                       className="object-cover"
                       sizes="(max-width: 768px) 80vw, 320px"
                       loading="lazy"
@@ -259,9 +243,10 @@ export default function AboutClient({ dict, lang }: AboutClientProps) {
                 <div className="relative w-full max-w-[320px] mx-auto md:mx-0">
                   <div className="relative aspect-[9/16] w-full rounded-[2rem] overflow-hidden ring-1 ring-black/10 shadow-[0_12px_40px_rgba(2,6,23,0.16)] bg-white">
                     <Image
-                      src={getImageKitUrl("https://ik.imagekit.io/ts59gf2ul/about-us/701shots_so.png?updatedAt=1762858783237", 900, 1600, 95)}
+                      src={toIkPath("https://ik.imagekit.io/ts59gf2ul/about-us/701shots_so.png")}
                       alt={dict.about?.imageAlt?.locationView || "Mister Imot Mobile - Location View"}
                       fill
+                      transformation={[{ width: 900, height: 1600, quality: 95, format: "webp", focus: "auto" }]}
                       className="object-cover"
                       sizes="(max-width: 768px) 80vw, 320px"
                       loading="lazy"

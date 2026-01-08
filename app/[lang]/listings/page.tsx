@@ -6,6 +6,7 @@ import { ListingsClientWrapper } from "./listings-client-wrapper"
 import { brandForLang, formatTitleWithBrand, getSiteUrl } from "@/lib/seo"
 import type { Metadata } from 'next'
 import WebPageSchema from '@/components/seo/webpage-schema'
+import { buildIkUrl } from "@/lib/imagekit"
 
 interface ListingsPageProps {
   params: Promise<{ lang: 'en' | 'bg' | 'ru' | 'gr' }>
@@ -79,7 +80,9 @@ async function fetchInitialProperties(city: CityType, propertyType: PropertyType
 export async function generateMetadata({ params }: ListingsPageProps): Promise<Metadata> {
   const { lang } = await params
   const baseUrl = getSiteUrl() // Hardcoded production domain for canonical URLs
-  const socialImage = 'https://ik.imagekit.io/ts59gf2ul/Logo/mister-imot-waving-hi-with-bg.png?tr=w-1200,h-630,cm-pad_resize,bg-FFFFFF,fo-auto,q-85,f-auto&v=20241205'
+  const socialImage = buildIkUrl("/Logo/mister-imot-waving-hi-with-bg.png", [
+    { width: 1200, height: 630, quality: 85, format: "webp", focus: "auto" },
+  ])
   
   const isBg = lang === 'bg'
   const isRu = lang === 'ru'
@@ -192,7 +195,9 @@ export default async function ListingsPage({ params, searchParams }: ListingsPag
     : isRu
       ? `Откройте лучшие объявления новостроек в Болгарии. Общайтесь напрямую с застройщиками, без посредников. Квартиры и дома в Софии, Пловдиве, Варне и других городах.`
       : `Discover the best new construction listings in Bulgaria. Connect directly with developers, no middlemen. Apartments and houses in Sofia, Plovdiv, Varna, and other cities.`
-  const socialImage = 'https://ik.imagekit.io/ts59gf2ul/Logo/mister-imot-waving-hi-with-bg.png?tr=w-1200,h-630,cm-pad_resize,bg-FFFFFF,fo-auto,q-85,f-auto&v=20241205'
+  const socialImage = buildIkUrl("/Logo/mister-imot-waving-hi-with-bg.png", [
+    { width: 1200, height: 630, quality: 85, format: "webp", focus: "auto" },
+  ])
 
   return (
     <>

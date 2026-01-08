@@ -3,11 +3,12 @@ import { formatTitleWithBrand } from '@/lib/seo'
 import { Metadata } from 'next'
 import { headers, cookies } from 'next/headers'
 import Link from "next/link"
-import Image from "next/image"
+import { Image } from "@imagekit/next"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Home, Search } from "lucide-react"
 import { GoBackButton } from './[lang]/not-found-client-button'
+import { toIkPath } from "@/lib/imagekit"
 
 const SUPPORTED_LOCALES = ['en', 'bg', 'ru', 'gr'] as const
 type SupportedLocale = (typeof SUPPORTED_LOCALES)[number]
@@ -48,22 +49,6 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-// ImageKit URL helper
-const getImageKitUrl = (originalUrl: string, width: number, height: number, quality: number = 90) => {
-  if (!originalUrl || !originalUrl.includes('imagekit.io')) {
-    return originalUrl
-  }
-  const transformations = [
-    `w-${width}`,
-    `h-${height}`,
-    `q-${quality}`,
-    'f-auto',
-    'c-at_max',
-  ].join(',')
-  const separator = originalUrl.includes('?') ? '&' : '?'
-  return `${originalUrl}${separator}tr=${transformations}`
-}
-
 // Root not-found page - render directly, NO redirects to prevent loops
 // This page needs to be dynamic since we can't use headers() during static generation
 export const dynamic = 'force-dynamic'
@@ -84,12 +69,7 @@ export default async function RootNotFound() {
     return lang === 'en' ? `/${normalized}` : `/${lang}/${normalized}`
   }
 
-  const mascotUrl = getImageKitUrl(
-    "https://ik.imagekit.io/ts59gf2ul/mrimot-errors/mr-imot-404-not-found.png?updatedAt=1762882301674",
-    400,
-    400,
-    90
-  )
+  const mascotUrl = toIkPath("https://ik.imagekit.io/ts59gf2ul/mrimot-errors/mr-imot-404-not-found.png")
 
   return (
     <div className="min-h-[calc(100vh-200px)] flex items-center justify-center px-4 py-12 sm:py-16">
@@ -102,6 +82,7 @@ export default async function RootNotFound() {
                   src={mascotUrl}
                   alt={dict.notFound?.title || "404 - Page Not Found"}
                   fill
+                    transformation={[{ width: 640, height: 640, quality: 90, format: "webp", focus: "auto" }]}
                   className="object-contain"
                   priority
                   sizes="(max-width: 640px) 192px, 256px"

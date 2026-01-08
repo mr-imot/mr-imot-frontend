@@ -1,5 +1,6 @@
 import type { BlogLang, BlogPostMeta } from "@/lib/news"
 import { getSiteUrl } from "@/lib/seo"
+import { buildIkUrl } from "@/lib/imagekit"
 
 type ArticleStructuredDataProps = {
   post: BlogPostMeta
@@ -25,7 +26,12 @@ export function ArticleStructuredData({ post, lang, url }: ArticleStructuredData
     : baseUrl
 
   // Publisher logo with dimensions
-  const logoUrl = "https://ik.imagekit.io/ts59gf2ul/Logo/mr-imot-logo-no-background.png?tr=w-600,h-60,fo-auto,f-webp"
+  const logoUrl = buildIkUrl("/Logo/mr-imot-logo-no-background.png", [
+    { width: 600, height: 60, quality: 90, format: "webp", focus: "auto" },
+  ])
+  const coverImageUrl = post.coverImage
+    ? buildIkUrl(post.coverImage, [{ width: 1200, height: 630, quality: 85, format: "webp", focus: "auto" }])
+    : undefined
 
   // Helper function to convert date string to ISO 8601 with timezone
   const formatDateWithTimezone = (dateString?: string): string | undefined => {
@@ -51,7 +57,7 @@ export function ArticleStructuredData({ post, lang, url }: ArticleStructuredData
     "@type": "NewsArticle",
     "headline": post.title,
     "description": post.description || "",
-    "image": post.coverImage ? [post.coverImage] : [],
+    "image": coverImageUrl ? [coverImageUrl] : [],
     ...(formatDateWithTimezone(post.date) && {
       "datePublished": formatDateWithTimezone(post.date),
       "dateModified": formatDateWithTimezone(post.date),

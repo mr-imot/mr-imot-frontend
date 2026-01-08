@@ -1,4 +1,5 @@
-import Image from "next/image"
+import { Image } from "@imagekit/next"
+import { toIkPath } from "@/lib/imagekit"
 
 interface MobileMascotSectionProps {
   dict: any
@@ -12,8 +13,8 @@ export function MobileMascotSection({ dict, lang }: MobileMascotSectionProps) {
         <div className="flex justify-center">
           <Image
             src={lang === 'bg' 
-              ? "https://ik.imagekit.io/ts59gf2ul/Logo/mrimot.com-0_-komisiona-bg-christmas.png?tr=f-webp,q-80,w-320,h-auto,dpr=auto"
-              : "https://ik.imagekit.io/ts59gf2ul/Logo/mrimot.com-0_-commissions-en-christmas-Photoroom.png?tr=f-webp,q-80,w-320,h-auto,dpr=auto"
+              ? toIkPath("https://ik.imagekit.io/ts59gf2ul/Logo/mrimot.com-0_-komisiona-bg-christmas.png")
+              : toIkPath("https://ik.imagekit.io/ts59gf2ul/Logo/mrimot.com-0_-commissions-en-christmas-Photoroom.png")
             }
             alt={lang === 'bg' 
               ? 'Талисман Мистър Имот от mrimot.com в коледен дух, държащ знак с надпис 0% комисиони за платформа за недвижими имоти'
@@ -22,6 +23,7 @@ export function MobileMascotSection({ dict, lang }: MobileMascotSectionProps) {
             width={320}
             height={240}
             loading="lazy"
+            transformation={[{ width: 420, quality: 80, format: "webp", focus: "auto" }]}
             className="w-auto h-auto transition-all duration-700 hover:scale-105 hover:rotate-1 drop-shadow-xl"
             style={{
               willChange: 'transform',

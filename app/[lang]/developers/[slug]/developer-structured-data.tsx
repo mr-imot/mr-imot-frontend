@@ -1,4 +1,5 @@
 import { DeveloperProfile } from '@/lib/api'
+import { buildIkUrl } from '@/lib/imagekit'
 
 interface DeveloperStructuredDataProps {
   developer: DeveloperProfile
@@ -64,7 +65,9 @@ export default function DeveloperStructuredData({ developer, lang, baseUrl }: De
   }
 
   // Default fallback logo
-  const logoUrl = developer.profile_image_url || "https://ik.imagekit.io/ts59gf2ul/Logo/mr-imot-logo-no-background.png?tr=w-1200,h-630"
+  const logoUrl = developer.profile_image_url || buildIkUrl("/Logo/mr-imot-logo-no-background.png", [
+    { width: 1200, height: 630, quality: 90, format: "webp", focus: "auto" },
+  ])
   
   // Organization Schema for Developer (always render if developer exists)
   const developerOrganizationSchema = {

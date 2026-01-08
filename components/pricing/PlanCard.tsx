@@ -1,5 +1,6 @@
 import { useState } from "react"
-import Image from "next/image"
+import { Image } from "@imagekit/next"
+import { toIkPath } from "@/lib/imagekit"
 import { CheckCircle, Gift, Info, Sparkles } from "lucide-react"
 import Link from "next/link"
 
@@ -99,9 +100,10 @@ export function PlanCard({
       <div className="pointer-events-none absolute right-2 bottom-4 md:right-3 md:top-1/2 md:-translate-y-1/2 z-0 opacity-45 md:opacity-60 blur-[0.5px]">
         <div className="relative h-[120px] w-[90px] md:h-[190px] md:w-[140px]">
           <Image
-            src="https://ik.imagekit.io/ts59gf2ul/Logo/mister-imot-charmingly-showing.png?updatedAt=1764869546000"
+            src={toIkPath("https://ik.imagekit.io/ts59gf2ul/Logo/mister-imot-charmingly-showing.png")}
             alt={locale === 'bg-BG' ? 'Мистър Имот маскот' : 'Mister Imot mascot'}
             fill
+            transformation={[{ width: 640, quality: 82, format: "webp", focus: "auto" }]}
             sizes="(max-width: 640px) 120px, 180px"
             className="object-contain drop-shadow-xl"
             priority

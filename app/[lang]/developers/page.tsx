@@ -3,6 +3,7 @@ import DevelopersClient from './developers-client'
 import { brandForLang, formatTitleWithBrand, getSiteUrl } from '@/lib/seo'
 import type { Metadata } from 'next'
 import WebPageSchema from '@/components/seo/webpage-schema'
+import { buildIkUrl } from '@/lib/imagekit'
 
 // Enable SSG for all language variants
 export async function generateStaticParams() {
@@ -22,7 +23,9 @@ export async function generateMetadata({ params }: DevelopersPageProps): Promise
   const isBg = lang === 'bg'
   const isRu = lang === 'ru'
   const brand = brandForLang(lang)
-  const socialImage = 'https://ik.imagekit.io/ts59gf2ul/Logo/mister-imot-waving-hi-with-bg.png?tr=w-1200,h-630,cm-pad_resize,bg-FFFFFF,fo-auto,q-85,f-auto&v=20241205'
+  const socialImage = buildIkUrl("/Logo/mister-imot-waving-hi-with-bg.png", [
+    { width: 1200, height: 630, quality: 85, format: "webp", focus: "auto" },
+  ])
   
   const rawTitle = isBg
     ? `Верифицирани Строители – ${brand} | Платформа за Ново Строителство`
@@ -114,7 +117,9 @@ export default async function DevelopersPage({ params }: DevelopersPageProps) {
     : isRu
       ? `Найдите проверенных застройщиков в Болгарии. Общайтесь напрямую, без посредников и комиссий. Смотрите портфолио и проекты каждого застройщика.`
       : `Discover verified developers in Bulgaria. Connect directly with new construction companies, no middlemen. Browse each developer's portfolio and projects.`
-  const socialImage = 'https://ik.imagekit.io/ts59gf2ul/Logo/mister-imot-waving-hi-with-bg.png?tr=w-1200,h-630,cm-pad_resize,bg-FFFFFF,fo-auto,q-85,f-auto&v=20241205'
+  const socialImage = buildIkUrl("/Logo/mister-imot-waving-hi-with-bg.png", [
+    { width: 1200, height: 630, quality: 85, format: "webp", focus: "auto" },
+  ])
 
   return (
     <>

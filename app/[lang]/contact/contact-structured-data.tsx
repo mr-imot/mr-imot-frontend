@@ -1,3 +1,5 @@
+import { buildIkUrl } from "@/lib/imagekit"
+
 interface ContactStructuredDataProps {
   lang: 'en' | 'bg'
   baseUrl: string
@@ -47,7 +49,7 @@ export default function ContactStructuredData({ lang, baseUrl }: ContactStructur
     "@type": "Organization",
     "name": brand,
     "url": `${baseUrl}/${lang}`,
-    "logo": "https://ik.imagekit.io/ts59gf2ul/Logo/mr-imot-logo.png",
+    "logo": buildIkUrl("/Logo/mr-imot-logo.png"),
     "description": isBg
       ? "Платформа за ново строителство в България. Директна връзка между купувачи и строители без брокери."
       : "New construction platform in Bulgaria. Direct connection between buyers and developers without brokers.",

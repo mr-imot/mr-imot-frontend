@@ -1,8 +1,9 @@
-import Image from "next/image"
+import { Image } from "@imagekit/next"
 import Link from "next/link"
 import type { AnchorHTMLAttributes, HTMLAttributes, PropsWithChildren } from "react"
 import { FollowUs } from "./follow-us"
 import { PropertyFeesCalculator } from "./property-fees-calculator"
+import { toIkPath } from "@/lib/imagekit"
 
 type CalloutProps = PropsWithChildren<{
   type?: "info" | "warning" | "success"
@@ -71,20 +72,37 @@ const Img = (props: React.ImgHTMLAttributes<HTMLImageElement>) => {
 
   const parsedWidth = typeof width === "string" ? parseInt(width, 10) : width || 1200
   const parsedHeight = typeof height === "string" ? parseInt(height, 10) : height || 630
+  const ikSrc = toIkPath(src)
+  const isImageKit = ikSrc !== src || ikSrc.startsWith("/")
 
-  return (
+  const figure = (
     <span className="not-prose block my-8">
-      <Image
-        src={src}
-        alt={alt}
-        width={parsedWidth}
-        height={parsedHeight}
-        className="h-auto w-full overflow-hidden rounded-2xl border border-gray-100 object-cover shadow-lg"
-        sizes="(max-width: 1024px) 100vw, 1024px"
-      />
+      {isImageKit ? (
+        <Image
+          src={ikSrc}
+          alt={alt}
+          width={parsedWidth}
+          height={parsedHeight}
+          transformation={[{ width: parsedWidth, height: parsedHeight, quality: 85, format: "webp", focus: "auto" }]}
+          className="h-auto w-full overflow-hidden rounded-2xl border border-gray-100 object-cover shadow-lg"
+          sizes="(max-width: 1024px) 100vw, 1024px"
+          loading="lazy"
+        />
+      ) : (
+        <img
+          src={src}
+          alt={alt}
+          width={parsedWidth}
+          height={parsedHeight}
+          className="h-auto w-full overflow-hidden rounded-2xl border border-gray-100 object-cover shadow-lg"
+          loading="lazy"
+        />
+      )}
       {alt && <span className="mt-2 block text-center text-sm text-muted-foreground">{alt}</span>}
     </span>
   )
+
+  return figure
 }
 
 const Pre = (props: HTMLAttributes<HTMLPreElement>) => (

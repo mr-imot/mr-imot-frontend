@@ -8,6 +8,8 @@ import { brandForLang, formatTitleWithBrand, getSiteUrl } from "@/lib/seo"
 import type { Metadata } from "next"
 import ViewportLock from "@/components/ViewportLock"
 import { FairyLights } from "@/components/fairy-lights"
+import { ImageKitProvider } from "@imagekit/next"
+import { IK_URL_ENDPOINT, buildIkUrl } from "@/lib/imagekit"
 
 export async function generateStaticParams() {
   return [{ lang: 'en' }, { lang: 'bg' }, { lang: 'ru' }, { lang: 'gr' }]
@@ -16,7 +18,9 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ lang: 'en' | 'bg' | 'ru' | 'gr' }> }): Promise<Metadata> {
   const { lang } = await params
   const siteUrl = getSiteUrl() // Hardcoded production domain for canonical URLs
-  const socialImage = 'https://ik.imagekit.io/ts59gf2ul/Logo/mister-imot-waving-hi-with-bg.png?tr=w-1200,h-630,cm-pad_resize,bg-FFFFFF,fo-auto,q-85,f-auto'
+  const socialImage = buildIkUrl("/Logo/mister-imot-waving-hi-with-bg.png", [
+    { width: 1200, height: 630, quality: 85, format: "webp", focus: "auto" },
+  ])
 
   const isBg = lang === 'bg'
   const isGr = lang === 'gr'
@@ -98,19 +102,24 @@ export default async function RootLayout({
     const translations = await getDictionary(lang)
     
     return (
-      <LocaleProvider locale={lang} translations={translations}>
-        {/* Fairy lights at the top, overlapping navbar slightly */}
-        <FairyLights />
-        <div className="relative flex min-h-screen flex-col">
-          <SiteHeader />
-          {/* Global viewport fixes: mobile height lock and header height sync */}
-          <ViewportLock />
-          <main className="flex-1">{children}</main>
-          <Footer />
-        </div>
-        <FeedbackButton />
-        <CookieConsent />
-      </LocaleProvider>
+      <ImageKitProvider
+        urlEndpoint={IK_URL_ENDPOINT}
+        transformationPosition="path"
+      >
+        <LocaleProvider locale={lang} translations={translations}>
+          {/* Fairy lights at the top, overlapping navbar slightly */}
+          <FairyLights />
+          <div className="relative flex min-h-screen flex-col">
+            <SiteHeader />
+            {/* Global viewport fixes: mobile height lock and header height sync */}
+            <ViewportLock />
+            <main className="flex-1">{children}</main>
+            <Footer />
+          </div>
+          <FeedbackButton />
+          <CookieConsent />
+        </LocaleProvider>
+      </ImageKitProvider>
     )
   } catch (error) {
     console.error('Failed to load dictionary:', error)
@@ -118,17 +127,22 @@ export default async function RootLayout({
     const fallbackTranslations = await getDictionary('en')
     
     return (
-      <LocaleProvider locale="en" translations={fallbackTranslations}>
-        {/* Fairy lights at the top, overlapping navbar slightly */}
-        <FairyLights />
-        <div className="relative flex min-h-screen flex-col">
-          <SiteHeader />
-          <main className="flex-1">{children}</main>
-          <Footer />
-        </div>
-        <FeedbackButton />
-        <CookieConsent />
-      </LocaleProvider>
+      <ImageKitProvider
+        urlEndpoint={IK_URL_ENDPOINT}
+        transformationPosition="path"
+      >
+        <LocaleProvider locale="en" translations={fallbackTranslations}>
+          {/* Fairy lights at the top, overlapping navbar slightly */}
+          <FairyLights />
+          <div className="relative flex min-h-screen flex-col">
+            <SiteHeader />
+            <main className="flex-1">{children}</main>
+            <Footer />
+          </div>
+          <FeedbackButton />
+          <CookieConsent />
+        </LocaleProvider>
+      </ImageKitProvider>
     )
   }
 }

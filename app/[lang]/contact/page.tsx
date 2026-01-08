@@ -4,6 +4,7 @@ import ContactStructuredData from './contact-structured-data'
 import { brandForLang, formatTitleWithBrand, getSiteUrl } from '@/lib/seo'
 import type { Metadata } from 'next'
 import WebPageSchema from '@/components/seo/webpage-schema'
+import { buildIkUrl } from '@/lib/imagekit'
 
 // Enable SSG for all language variants
 export async function generateStaticParams() {
@@ -22,7 +23,9 @@ export async function generateMetadata({ params }: ContactPageProps): Promise<Me
   
   const isBg = lang === 'bg'
   const brand = brandForLang(lang)
-  const socialImage = 'https://ik.imagekit.io/ts59gf2ul/Logo/mister-imot-waving-hi-with-bg.png?tr=w-1200,h-630,cm-pad_resize,bg-FFFFFF,fo-auto,q-85,f-auto&v=20241205'
+  const socialImage = buildIkUrl("/Logo/mister-imot-waving-hi-with-bg.png", [
+    { width: 1200, height: 630, quality: 85, format: "webp", focus: "auto" },
+  ])
   
   const rawTitle = isBg
     ? `Контакт – ${brand} | Свържете се с нас`
@@ -96,7 +99,9 @@ export default async function ContactPage({ params }: ContactPageProps) {
   const baseUrl = getSiteUrl() // Hardcoded production domain for canonical URLs
   const isBg = lang === 'bg'
   const brand = brandForLang(lang)
-  const socialImage = 'https://ik.imagekit.io/ts59gf2ul/Logo/mister-imot-waving-hi-with-bg.png?tr=w-1200,h-630,cm-pad_resize,bg-FFFFFF,fo-auto,q-85,f-auto&v=20241205'
+  const socialImage = buildIkUrl("/Logo/mister-imot-waving-hi-with-bg.png", [
+    { width: 1200, height: 630, quality: 85, format: "webp", focus: "auto" },
+  ])
   
   const rawTitle = isBg
     ? `Контакт – ${brand} | Свържете се с нас`

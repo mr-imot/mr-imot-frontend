@@ -3,6 +3,7 @@ import { LocalizedHomePage } from "./localized-homepage"
 import { brandForLang, formatTitleWithBrand, getSiteUrl } from "@/lib/seo"
 import type { Metadata } from 'next'
 import WebPageSchema from "@/components/seo/webpage-schema"
+import { buildIkUrl } from "@/lib/imagekit"
 
 // Enable SSG for all language variants
 export async function generateStaticParams() {
@@ -20,7 +21,9 @@ export async function generateMetadata({ params }: HomePageProps): Promise<Metad
   const isBg = lang === 'bg'
   const isRu = lang === 'ru'
   const brand = brandForLang(lang)
-  const socialImage = 'https://ik.imagekit.io/ts59gf2ul/Logo/mister-imot-waving-hi-with-bg.png?tr=w-1200,h-630,cm-pad_resize,bg-FFFFFF,fo-auto,q-85,f-auto&v=20241205'
+  const socialImage = buildIkUrl("/Logo/mister-imot-waving-hi-with-bg.png", [
+    { width: 1200, height: 630, quality: 85, format: "webp", focus: "auto" },
+  ])
 
   const fallbackTitle = isBg
     ? `${brand} – Имоти директно от строители (без брокери, без комисиони)`
@@ -92,7 +95,9 @@ export default async function HomePage({ params }: HomePageProps) {
   const isBg = lang === 'bg'
   const isRu = lang === 'ru'
   const brand = brandForLang(lang)
-  const socialImage = 'https://ik.imagekit.io/ts59gf2ul/Logo/mister-imot-waving-hi-with-bg.png?tr=w-1200,h-630,cm-pad_resize,bg-FFFFFF,fo-auto,q-85,f-auto&v=20241205'
+  const socialImage = buildIkUrl("/Logo/mister-imot-waving-hi-with-bg.png", [
+    { width: 1200, height: 630, quality: 85, format: "webp", focus: "auto" },
+  ])
 
   const fallbackTitle = isBg
     ? `${brand} – Имоти директно от строители (без брокери, без комисиони)`
@@ -116,7 +121,7 @@ export default async function HomePage({ params }: HomePageProps) {
     alternateName: ['mrimot', 'mrimot.com'],
     url: lang === 'bg' ? 'https://mrimot.com/bg' : 'https://mrimot.com/en',
     inLanguage: lang === 'bg' ? 'bg' : 'en',
-    logo: 'https://ik.imagekit.io/ts59gf2ul/Logo/mr-imot-logo.png',
+    logo: buildIkUrl("/Logo/mr-imot-logo.png"),
     sameAs: [
       'https://www.facebook.com/misterimot/',
       'https://x.com/mister_imot',

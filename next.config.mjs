@@ -15,7 +15,14 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    unoptimized: true,
+    // Enable Next.js image optimization with ImageKit remote patterns
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'ik.imagekit.io',
+        pathname: '/ts59gf2ul/**',
+      },
+    ],
   },
   // Compress output
   compress: true,

@@ -1,6 +1,7 @@
 "use client"
 
-import Image from "next/image"
+import { Image } from "@imagekit/next"
+import { toIkPath } from "@/lib/imagekit"
 import { ScrollAnimationWrapper } from "@/components/scroll-animation-wrapper"
 import { Calendar, Rocket, Zap, Globe, MapPin, BarChart3, Landmark, Sparkles, Store } from "lucide-react"
 
@@ -221,9 +222,10 @@ export function RoadmapTimeline({ items }: RoadmapTimelineProps) {
               <div className="relative w-full max-w-[640px] ml-auto">
                 <div className="relative aspect-[16/10] w-full rounded-2xl overflow-hidden ring-1 ring-black/10 shadow-[0_20px_60px_rgba(2,6,23,0.15)] bg-white">
                   <Image
-                    src="https://ik.imagekit.io/ts59gf2ul/about-us/596shots_so.png?updatedAt=1762858783191"
+                    src={toIkPath("https://ik.imagekit.io/ts59gf2ul/about-us/596shots_so.png")}
                     alt="Mister Imot platform roadmap visualization showing dashboard interface with analytics, property management features, and user engagement metrics displayed on a laptop screen"
                     fill
+                    transformation={[{ width: 1400, height: 900, quality: 85, format: "webp", focus: "auto" }]}
                     className="object-cover"
                     sizes="(max-width: 1024px) 0vw, 640px"
                     priority={false}

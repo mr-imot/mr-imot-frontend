@@ -1,4 +1,5 @@
 import { Project } from '@/lib/api'
+import { buildIkUrl } from '@/lib/imagekit'
 
 interface ListingStructuredDataProps {
   project: Project
@@ -234,7 +235,9 @@ export default function ListingStructuredData({
       "url": baseUrl,
       "logo": {
         "@type": "ImageObject",
-        "url": "https://ik.imagekit.io/ts59gf2ul/Logo/mr-imot-logo-no-background.png?tr=w-600,h-60,fo-auto,f-webp"
+        "url": buildIkUrl("/Logo/mr-imot-logo-no-background.png", [
+          { width: 600, height: 60, quality: 90, format: "webp", focus: "auto" },
+        ])
       }
     },
     
