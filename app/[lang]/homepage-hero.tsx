@@ -79,8 +79,8 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
                 <div className="flex-shrink-0">
                   <Image
                     src={lang === 'bg' 
-                      ? "https://ik.imagekit.io/ts59gf2ul/Logo/mrimot.com-0_-komisiona-bg-christmas.png?tr=f-webp,q-80,w-160,h-auto,dpr=auto"
-                      : "https://ik.imagekit.io/ts59gf2ul/Logo/mrimot.com-0_-commissions-en-christmas-Photoroom.png?tr=f-webp,q-80,w-160,h-auto,dpr=auto"
+                      ? "https://ik.imagekit.io/ts59gf2ul/Logo/mrimot.com-0_-komisiona-bg-christmas.png?tr=f-webp,q-70,w-200,h-auto,dpr=auto"
+                      : "https://ik.imagekit.io/ts59gf2ul/Logo/mrimot.com-0_-commissions-en-christmas-Photoroom.png?tr=f-webp,q-70,w-200,h-auto,dpr=auto"
                     }
                     alt={lang === 'bg' 
                       ? 'Талисман Мистър Имот от mrimot.com в коледен дух, държащ знак с надпис 0% комисиони'
@@ -150,11 +150,11 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
           </div>
 
           {/* Right Column - Mascot (Desktop Only) */}
-          <div className={clsx("hidden lg:flex lg:items-center lg:justify-end", styles.heroVisual)}>
+            <div className={clsx("hidden lg:flex lg:items-center lg:justify-end", styles.heroVisual)}>
             <Image
               src={lang === 'bg' 
-                ? "https://ik.imagekit.io/ts59gf2ul/Logo/mrimot.com-0_-komisiona-bg-christmas.png?tr=f-webp,q-80,w-960,h-auto,dpr=auto"
-                : "https://ik.imagekit.io/ts59gf2ul/Logo/mrimot.com-0_-commissions-en-christmas-Photoroom.png?tr=f-webp,q-80,w-960,h-auto,dpr=auto"
+                ? "https://ik.imagekit.io/ts59gf2ul/Logo/mrimot.com-0_-komisiona-bg-christmas.png?tr=f-webp,q-75,w-820,h-auto,dpr=auto"
+                : "https://ik.imagekit.io/ts59gf2ul/Logo/mrimot.com-0_-commissions-en-christmas-Photoroom.png?tr=f-webp,q-75,w-820,h-auto,dpr=auto"
               }
               alt={lang === 'bg' 
                 ? 'Талисман Мистър Имот от mrimot.com в коледен дух, държащ знак с надпис 0% комисиони за платформа за недвижими имоти'
@@ -162,8 +162,7 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
               }
               width={960}
               height={640}
-              priority
-              fetchPriority="high"
+              loading="lazy"
               className={clsx("w-auto h-auto transition-all duration-700 hover:scale-105 hover:rotate-1", styles.heroImage)}
               style={{
                 width: 'clamp(300px, min(40vw, 700px), 800px)',
