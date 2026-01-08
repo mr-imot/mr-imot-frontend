@@ -34,8 +34,9 @@ const getImageKitUrl = (originalUrl: string | undefined | null, width: number, h
     transformations = `q-${quality},f-webp,pr-true,enhancement-true,sharpen-true,contrast-true`
   } else if (imageType === 'thumbnail') {
     // Thumbnails: Fixed width matching actual rendered size
-    // Lighthouse shows ~220px rendered, use 440px (2x for retina) - Next.js will handle srcSet
-    transformations = `w-440,h-auto,c-maintain_ratio,cm-focus,fo-auto,q-75,f-webp,pr-true`
+    // Lighthouse shows 220x183 rendered, use 240px (close to actual + small buffer) instead of 440px
+    // This prevents serving 2x images when not needed
+    transformations = `w-240,h-auto,c-maintain_ratio,cm-focus,fo-auto,q-75,f-webp,pr-true`
   } else {
     // Main images: Fixed widths matching actual rendered dimensions
     // Desktop: 865px rendered (Lighthouse) → use 960px (buffer for slight variations)
