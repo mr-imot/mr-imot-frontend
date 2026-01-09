@@ -14,6 +14,7 @@
 import { useEffect, useRef, useState, useCallback, memo, RefObject, MutableRefObject } from "react"
 import Link from "next/link"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 
 import { ensureGoogleMaps } from "@/lib/google-maps"
 import { MarkerManager, PropertyData } from "@/lib/marker-manager"
@@ -36,6 +37,7 @@ import { MobileOnlyWrapper } from "@/components/mobile-only-wrapper"
 import { haptic } from "@/lib/haptic-feedback"
 import { MapDebugPanel } from "@/components/map-debug-panel"
 import { useIsDesktop } from "@/hooks/use-is-desktop"
+import { getListingUrl } from "@/lib/utils"
 
 import { CityType, PropertyTypeFilter, CITY_COORDINATES } from "./listings-layout-server"
 
@@ -140,6 +142,7 @@ export function ListingsClientContent({
   
   // Desktop detection hook (SSR-safe, prevents hydration mismatch)
   const isDesktop = useIsDesktop()
+  const router = useRouter()
   
   // Refs for UI elements
   const searchButtonRef = useRef<HTMLButtonElement>(null)
@@ -671,17 +674,25 @@ export function ListingsClientContent({
               </div>
             ) : (
               <div className="grid grid-cols-1 xs:grid-cols-2 gap-4 pb-24">
-                {filteredProperties.map((property, index) => (
-                  <MemoizedListingCard
-                    key={property.id}
-                    listing={propertyToListing(property)}
-                    isActive={selectedPropertyId === property.id}
-                    onCardClick={() => { onPropertySelect(property.id); setMobileSheetSnap(2) }}
-                    onCardHover={() => {}}
-                    priority={index < 4}
-                    priceTranslations={dict.price}
-                  />
-                ))}
+                {filteredProperties.map((property, index) => {
+                  const listing = propertyToListing(property)
+                  const listingUrl = getListingUrl(listing, lang)
+                  return (
+                    <MemoizedListingCard
+                      key={property.id}
+                      listing={listing}
+                      isActive={selectedPropertyId === property.id}
+                      onCardClick={() => {
+                        // On mobile, navigate to modal route instead of showing floating card
+                        router.push(listingUrl)
+                        haptic.light()
+                      }}
+                      onCardHover={() => {}}
+                      priority={index < 4}
+                      priceTranslations={dict.price}
+                    />
+                  )
+                })}
               </div>
             )}
           </DraggableSheet>
