@@ -105,7 +105,14 @@ export default function ListingDetailClient({ projectId, initialProject, transla
   const [isSaved, setIsSaved] = useState(false)
   const isMobile = useIsMobile()
   const t = translations?.listingDetail || defaultTranslations.listingDetail
-  const tPrice = translations?.price || {} as PriceTranslations
+  // Provide fallback translations for price to prevent runtime errors
+  const tPrice: PriceTranslations = translations?.price || {
+    requestPrice: 'Request price',
+    fromPrice: 'From {{amount}}',
+    contactForPrice: 'Contact for price',
+    priceOnRequest: 'Price on request',
+    na: 'N/A'
+  }
   
   // Use refs to track initialization and prevent infinite loops
   // This prevents the effect from re-running when initialProject object reference changes
