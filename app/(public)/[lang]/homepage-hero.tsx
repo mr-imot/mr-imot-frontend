@@ -80,12 +80,12 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
                 <div className="flex-shrink-0">
                   <Image
                     src={lang === 'bg' 
-                      ? toIkPath("https://ik.imagekit.io/ts59gf2ul/Logo/mrimot.com-0_-komisiona-bg-christmas.png")
-                      : toIkPath("https://ik.imagekit.io/ts59gf2ul/Logo/mrimot.com-0_-commissions-en-christmas-Photoroom.png")
+                      ? toIkPath("https://ik.imagekit.io/ts59gf2ul/Logo/mrimot.com-mascot-bg-0_-komisiona.png")
+                      : toIkPath("https://ik.imagekit.io/ts59gf2ul/Logo/0_-commissions-mr-imot.png")
                     }
                     alt={lang === 'bg' 
-                      ? 'Талисман Мистър Имот от mrimot.com в коледен дух, държащ знак с надпис 0% комисиони'
-                      : 'Mister Imot mascot of mrimot.com in Christmas spirit holding a sign with 0% commissions message'
+                      ? 'Талисман Мистър Имот от mrimot.com, държащ знак с надпис 0% комисиони'
+                      : 'Mister Imot mascot of mrimot.com holding a sign with 0% commissions message'
                     }
                     width={120}
                     height={90}
@@ -108,16 +108,6 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
                       borderRadius: '12px'
                     }} />
                     <div className={clsx("absolute inset-0 opacity-100", styles.ctaShimmer)} />
-                    {/* Snow accumulation on top */}
-                    <div className={clsx("absolute top-0 left-0 right-0", styles.snowAccumulationMobile)} />
-                    {/* Icicles on bottom */}
-                    <div className={clsx("absolute bottom-0 left-0 right-0", styles.iciclesContainer)}>
-                      <div className={clsx(styles.icicle, styles.icicle1)} />
-                      <div className={clsx(styles.icicle, styles.icicle2)} />
-                      <div className={clsx(styles.icicle, styles.icicle3)} />
-                      <div className={clsx(styles.icicle, styles.icicle4)} />
-                      <div className={clsx(styles.icicle, styles.icicle5)} />
-                    </div>
                     <span className="relative z-10">{dict.hero.cta}</span>
                   </button>
                 </Link>
@@ -135,16 +125,6 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
                     backfaceVisibility: 'hidden'
                   }} />
                   <div className={clsx("absolute inset-0 opacity-100 transition-opacity duration-500 ease-out", styles.ctaShimmer)} />
-                  {/* Snow accumulation on top */}
-                  <div className={clsx("absolute top-0 left-0 right-0", styles.snowAccumulation)} />
-                  {/* Icicles on bottom */}
-                  <div className={clsx("absolute bottom-0 left-0 right-0", styles.iciclesContainer)}>
-                    <div className={clsx(styles.icicle, styles.icicle1)} />
-                    <div className={clsx(styles.icicle, styles.icicle2)} />
-                    <div className={clsx(styles.icicle, styles.icicle3)} />
-                    <div className={clsx(styles.icicle, styles.icicle4)} />
-                    <div className={clsx(styles.icicle, styles.icicle5)} />
-                  </div>
                   <span className="relative z-10">{dict.hero.cta}</span>
                 </button>
               </Link>
@@ -155,12 +135,12 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
             <div className={clsx("hidden lg:flex lg:items-center lg:justify-end", styles.heroVisual)}>
             <Image
               src={lang === 'bg' 
-                ? toIkPath("https://ik.imagekit.io/ts59gf2ul/Logo/mrimot.com-0_-komisiona-bg-christmas.png")
-                : toIkPath("https://ik.imagekit.io/ts59gf2ul/Logo/mrimot.com-0_-commissions-en-christmas-Photoroom.png")
+                ? toIkPath("https://ik.imagekit.io/ts59gf2ul/Logo/mrimot.com-mascot-bg-0_-komisiona.png")
+                : toIkPath("https://ik.imagekit.io/ts59gf2ul/Logo/0_-commissions-mr-imot.png")
               }
               alt={lang === 'bg' 
-                ? 'Талисман Мистър Имот от mrimot.com в коледен дух, държащ знак с надпис 0% комисиони за платформа за недвижими имоти'
-                : 'Mister Imot mascot of mrimot.com in Christmas spirit holding a sign with 0% commissions message for real estate platform'
+                ? 'Талисман Мистър Имот от mrimot.com, държащ знак с надпис 0% комисиони за платформа за недвижими имоти'
+                : 'Mister Imot mascot of mrimot.com holding a sign with 0% commissions message for real estate platform'
               }
               width={960}
               height={640}

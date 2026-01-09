@@ -9,12 +9,39 @@ import { MapPin, Building, Phone, Globe, Navigation, CheckCircle } from "lucide-
 import Link from "next/link"
 import { ListingCard, Listing } from "@/components/ListingCard"
 import { ensureGoogleMaps } from "@/lib/google-maps"
-import { useTranslations } from "@/lib/locale-context"
 import { DeveloperProfile } from "@/lib/api"
+
+interface DeveloperTranslations {
+  developersDetail?: any
+  developers?: any
+  listingDetail?: any
+}
 
 interface DeveloperDetailClientProps {
   developer: DeveloperProfile
   lang?: string
+  translations?: DeveloperTranslations
+}
+
+// Default translations for fallback
+const defaultDeveloperTranslations = {
+  developersDetail: {
+    activeProjects: 'Active Projects',
+    contact: 'Contact',
+    website: 'Website',
+    phone: 'Phone',
+    officeLocation: 'Office Location',
+    getDirections: 'Get Directions',
+    description: 'Description',
+    verified: 'Verified Developer',
+  },
+  developers: {
+    projects: 'Projects',
+    viewAll: 'View All',
+  },
+  listingDetail: {
+    viewProperty: 'View Property',
+  }
 }
 
 // Office Map Component
@@ -87,10 +114,10 @@ function projectToListing(project: any): Listing {
   }
 }
 
-export default function DeveloperDetailClient({ developer, lang }: DeveloperDetailClientProps) {
-  const tDev = useTranslations('developersDetail') as any
-  const tDevs = useTranslations('developers') as any
-  const tListing = useTranslations('listingDetail') as any
+export default function DeveloperDetailClient({ developer, lang, translations }: DeveloperDetailClientProps) {
+  const tDev = translations?.developersDetail || defaultDeveloperTranslations.developersDetail
+  const tDevs = translations?.developers || defaultDeveloperTranslations.developers
+  const tListing = translations?.listingDetail || defaultDeveloperTranslations.listingDetail
   const activeProjects = developer.projects_pagination?.total ?? developer.active_projects ?? developer.total_projects ?? developer.project_count ?? developer.projects?.length ?? 0
   
   // Developer profile URL (self-reference for trust signals)

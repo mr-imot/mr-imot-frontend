@@ -1,7 +1,6 @@
 "use client"
 
 import { Badge } from "@/components/ui/badge"
-import { useTranslations } from "@/lib/locale-context"
 
 type FeatureCategory = 'building_infrastructure' | 'security_access' | 'amenities' | 'modern_features'
 
@@ -13,11 +12,20 @@ interface Feature {
   icon?: string
 }
 
+interface FeaturesTranslations {
+  buildingInfrastructure?: string
+  securityAccess?: string
+  amenities?: string
+  modernFeatures?: string
+  features?: Record<string, string>
+}
+
 interface FeaturesDisplayProps {
   features: Feature[]
   title?: string
   compact?: boolean
   showCategories?: boolean
+  translations?: FeaturesTranslations
 }
 
 const categoryColors: Record<FeatureCategory, string> = {
@@ -61,8 +69,8 @@ const getCategoryBoxStyle = (category: FeatureCategory): string => {
   }
 }
 
-export function FeaturesDisplay({ features, title, compact = false, showCategories = false }: FeaturesDisplayProps) {
-  const t = useTranslations('features')
+export function FeaturesDisplay({ features, title, compact = false, showCategories = false, translations }: FeaturesDisplayProps) {
+  const t = translations
   
   if (!features || features.length === 0) {
     return null

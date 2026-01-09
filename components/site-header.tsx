@@ -5,12 +5,28 @@ import { usePathname } from "next/navigation"
 import { UserAuthNav } from "@/components/user-auth-nav"
 import { MobileNav } from "@/components/mobile-nav"
 import { LanguageSwitcher } from "@/components/language-switcher"
-import { useTranslations, useLocale } from "@/lib/locale-context"
+import { useLocale } from "@/lib/locale-context"
 import { Image } from "@imagekit/next"
 import { toIkPath } from "@/lib/imagekit"
 
-export function SiteHeader() {
-  const t = useTranslations('navigation')
+interface NavigationTranslations {
+  listings: string
+  developers: string
+  blog?: string
+  aboutUs: string
+  listYourProject: string
+  login: string
+  register?: string
+  contact?: string
+  developerDashboard?: string
+}
+
+interface SiteHeaderProps {
+  translations: NavigationTranslations
+}
+
+export function SiteHeader({ translations }: SiteHeaderProps) {
+  const t = translations
   const pathname = usePathname()
   const isListingsPage = pathname.includes('/listings') || pathname.includes('/obiavi')
   const locale = useLocale()
@@ -119,12 +135,12 @@ export function SiteHeader() {
           
           {/* Desktop Auth Navigation - Hidden on mobile */}
           <div className="hidden md:block">
-            <UserAuthNav />
+            <UserAuthNav translations={t} />
           </div>
           
           {/* Mobile Navigation - Only visible on mobile, positioned at far right */}
           <div className="md:hidden flex items-center justify-end">
-            <MobileNav />
+            <MobileNav translations={t} />
           </div>
         </div>
       </div>
@@ -132,4 +148,3 @@ export function SiteHeader() {
     </>
   )
 }
-

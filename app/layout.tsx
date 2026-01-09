@@ -5,13 +5,7 @@ import { GeistMono } from "geist/font/mono"
 import { Geist, Inter } from "next/font/google"
 import "./globals.css"
 import { cn } from "@/lib/utils"
-import GlobalMaintenanceWrapper from "@/components/maintenance/global-maintenance-wrapper"
-import { AuthProvider } from "@/lib/auth-context"
 import { SpeedInsights } from "@vercel/speed-insights/next"
-import ViewportLock from "@/components/ViewportLock"
-import { ThemeProvider } from "@/components/theme-provider"
-import { ImageKitProvider } from "@imagekit/next"
-import { IK_URL_ENDPOINT } from "@/lib/imagekit"
 
 // Geist for hero/headings with Cyrillic support (trimmed weights)
 const geist = Geist({
@@ -152,25 +146,8 @@ html {
 }
         `}</style>
       </head>
-      <body className={cn("min-h-screen font-sans antialiased", inter.variable, geist.variable)}>      
-        {/* Global viewport fixes: mobile height lock and header height sync */}
-        <ViewportLock />
-        <ThemeProvider>
-        <ImageKitProvider
-          urlEndpoint={IK_URL_ENDPOINT}
-          transformationPosition="path"
-        >
-        <GlobalMaintenanceWrapper>
-          <AuthProvider>
-            
-            <div className="relative flex min-h-screen flex-col">
-              <main className="flex-1">{children}</main>
-            </div>
-          </AuthProvider>
-        </GlobalMaintenanceWrapper>
-        </ImageKitProvider>
-        </ThemeProvider>
-        {/* Analytics gated by CookieConsent in [lang]/layout; SpeedInsights remains */}
+      <body className={cn("min-h-screen font-sans antialiased", inter.variable, geist.variable)}>
+        {children}
         <SpeedInsights />
       </body>
     </html>

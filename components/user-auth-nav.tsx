@@ -3,12 +3,21 @@
 import Link from "next/link"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { useAuth } from "@/lib/auth-context"
-import { useTranslations, useLocale } from "@/lib/locale-context"
+import { useLocale } from "@/lib/locale-context"
 import { LogOut } from "lucide-react"
 
-export function UserAuthNav() {
+interface NavigationTranslations {
+  login: string
+  [key: string]: string | undefined
+}
+
+interface UserAuthNavProps {
+  translations: NavigationTranslations
+}
+
+export function UserAuthNav({ translations }: UserAuthNavProps) {
   const { user, isAuthenticated, isLoading, logout, getDashboardUrl } = useAuth();
-  const t = useTranslations('navigation');
+  const t = translations;
   const locale = useLocale();
 
   // Helper function to generate localized URLs

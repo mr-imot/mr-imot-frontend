@@ -10,7 +10,6 @@ import { AuthError } from '@/components/ui/auth-error';
 import { RateLimitInfo } from '@/components/ui/rate-limit-info';
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/lib/auth-constants';
 import { cn } from '@/lib/utils';
-import { useTranslations } from '@/lib/locale-context';
 
 interface ForgotPasswordClientProps {
   dict: any
@@ -19,7 +18,7 @@ interface ForgotPasswordClientProps {
 
 export default function ForgotPasswordClient({ dict, lang }: ForgotPasswordClientProps) {
   const router = useRouter();
-  const t = useTranslations();
+  const t = dict;
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);

@@ -1,13 +1,13 @@
 import 'server-only'
 
 const dictionaries = {
-  en: () => import('../../dictionaries/en.json').then((module) => module.default),
-  bg: () => import('../../dictionaries/bg.json').then((module) => module.default),
-  ru: () => import('../../dictionaries/ru.json').then((module) => module.default),
-  gr: () => import('../../dictionaries/gr.json').then((module) => module.default),
+  en: () => import('@/dictionaries/en.json').then((module) => module.default),
+  bg: () => import('@/dictionaries/bg.json').then((module) => module.default),
+  ru: () => import('@/dictionaries/ru.json').then((module) => module.default),
+  gr: () => import('@/dictionaries/gr.json').then((module) => module.default),
 }
 
-type SupportedLocale = 'en' | 'bg' | 'ru' | 'gr'
+export type SupportedLocale = 'en' | 'bg' | 'ru' | 'gr'
 
 export const getDictionary = async (locale: SupportedLocale) => {
   // Validate locale - silently fallback for invalid locales (e.g., static file requests)
@@ -28,3 +28,5 @@ export const getDictionary = async (locale: SupportedLocale) => {
   
   return dictionaryLoader()
 }
+
+export const SUPPORTED_LOCALES: SupportedLocale[] = ['en', 'bg', 'ru', 'gr']

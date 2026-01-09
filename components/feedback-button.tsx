@@ -9,13 +9,43 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
-import { useAuth } from "@/lib/auth-context"
-import { useTranslations } from "@/lib/locale-context"
 
-export function FeedbackButton() {
-  const { user, isAuthenticated } = useAuth()
+interface FeedbackTranslations {
+  button: string
+  title: string
+  introMessage: string
+  selectPlaceholder: string
+  issueTypes: {
+    bugReport: string
+    featureRequest: string
+    generalFeedback: string
+    performanceIssue: string
+    uiUxSuggestion: string
+    other: string
+  }
+  labels: {
+    issueType: string
+    email: string
+    message: string
+  }
+  placeholders: {
+    email: string
+    message: string
+  }
+  buttons: {
+    close: string
+    send: string
+    sending: string
+  }
+}
+
+interface FeedbackButtonProps {
+  translations: FeedbackTranslations
+}
+
+export function FeedbackButton({ translations }: FeedbackButtonProps) {
   const pathname = usePathname()
-  const t = useTranslations('feedback')
+  const t = translations
   const [isOpen, setIsOpen] = useState(false)
   const [issueType, setIssueType] = useState("")
   const [message, setMessage] = useState("")
@@ -33,13 +63,6 @@ export function FeedbackButton() {
     { value: "uiUxSuggestion", label: t.issueTypes.uiUxSuggestion },
     { value: "other", label: t.issueTypes.other }
   ]
-
-  // Set email automatically if user is logged in
-  useEffect(() => {
-    if (isAuthenticated && user?.email) {
-      setEmail(user.email)
-    }
-  }, [isAuthenticated, user])
 
   // Smart feedback button visibility based on page and scroll position
   useEffect(() => {
@@ -130,10 +153,7 @@ export function FeedbackButton() {
         setSubmitStatus("success")
         setIssueType("")
         setMessage("")
-        // Don't reset email if user is logged in
-        if (!isAuthenticated) {
-          setEmail("")
-        }
+        setEmail("")
         // Close modal after 2 seconds
         setTimeout(() => {
           setIsOpen(false)
@@ -222,15 +242,8 @@ export function FeedbackButton() {
                   placeholder={t.placeholders.email}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  disabled={isAuthenticated}
-                  className={isAuthenticated ? "bg-gray-50" : ""}
                   required
                 />
-                {isAuthenticated && (
-                  <p className="text-xs text-gray-500">
-                    Using your developer account email: {user?.email}
-                  </p>
-                )}
               </div>
 
               <div className="space-y-2">

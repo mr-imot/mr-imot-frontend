@@ -500,6 +500,8 @@ export async function middleware(request: NextRequest) {
       // For not-found pages, default to English
       response.headers.set('x-locale', 'en')
     }
+    // Set pathname header for server components
+    response.headers.set('x-pathname', pathname)
     return response
   }
 
@@ -518,14 +520,17 @@ export async function middleware(request: NextRequest) {
     if (cookieLocale === 'bg') {
       const response = NextResponse.redirect(new URL(`/bg${pathname}`, request.url))
       response.headers.set('x-locale', 'bg')
+      response.headers.set('x-pathname', `/bg${pathname}`)
       return response
     } else if (cookieLocale === 'ru') {
       const response = NextResponse.redirect(new URL(`/ru${pathname}`, request.url))
       response.headers.set('x-locale', 'ru')
+      response.headers.set('x-pathname', `/ru${pathname}`)
       return response
     } else if (cookieLocale === 'gr') {
       const response = NextResponse.redirect(new URL(`/gr${pathname}`, request.url))
       response.headers.set('x-locale', 'gr')
+      response.headers.set('x-pathname', `/gr${pathname}`)
       return response
     }
     // For English (default), rewrite internally to /en for [lang] route handling
@@ -535,6 +540,7 @@ export async function middleware(request: NextRequest) {
       url.pathname = `/en${pathname}`
       const response = NextResponse.rewrite(url)
       response.headers.set('x-locale', 'en')
+      response.headers.set('x-pathname', `/en${pathname}`)
       return response
     }
   }
@@ -560,6 +566,7 @@ export async function middleware(request: NextRequest) {
     })
     // Set language header for root layout to use
     response.headers.set('x-locale', 'bg')
+    response.headers.set('x-pathname', `/bg${pathname}`)
     return setClientHintsHeaders(response)
   }
 
@@ -571,6 +578,7 @@ export async function middleware(request: NextRequest) {
       const response = NextResponse.redirect(new URL(`/${negotiated}${pathname}`, request.url))
       // Set language header for root layout to use
       response.headers.set('x-locale', negotiated)
+      response.headers.set('x-pathname', `/${negotiated}${pathname}`)
       return setClientHintsHeaders(response)
     }
   } catch (error) {
@@ -587,6 +595,7 @@ export async function middleware(request: NextRequest) {
     const response = NextResponse.rewrite(url)
     // Set language header for root layout to use
     response.headers.set('x-locale', 'en')
+    response.headers.set('x-pathname', `/en${pathname}`)
     return setClientHintsHeaders(response)
   }
   
@@ -601,6 +610,7 @@ export async function middleware(request: NextRequest) {
         ? 'gr'
         : 'en'
   response.headers.set('x-locale', detectedLang)
+  response.headers.set('x-pathname', pathname)
   return setClientHintsHeaders(response)
 }
 

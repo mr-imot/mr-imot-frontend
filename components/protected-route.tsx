@@ -6,8 +6,6 @@ import { useAuth } from '@/lib/auth-context';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { Alert, AlertDescription } from './ui/alert';
 import { AlertTriangle } from 'lucide-react';
-import { useTranslations } from '@/lib/locale-context';
-
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -15,6 +13,16 @@ interface ProtectedRouteProps {
   requiredRole?: 'developer' | 'admin' | 'buyer';
   allowedRoles?: ('developer' | 'admin' | 'buyer')[];
 }
+
+// Static translations for protected route messages
+const translations = {
+  checkingAuthentication: 'Checking authentication...',
+  accessDenied: 'Access Denied',
+  noPermission: "You don't have permission to access this page.",
+  requiresAccess: (role: string) => `This page requires ${role} access.`,
+  switchAccount: 'Switch Account',
+  goBack: 'Go Back'
+};
 
 export const ProtectedRoute = ({ 
   children, 
@@ -24,26 +32,6 @@ export const ProtectedRoute = ({
 }: ProtectedRouteProps) => {
   const { isAuthenticated, isLoading, user } = useAuth();
   const router = useRouter();
-  
-  // Try to get translations, but don't fail if LocaleProvider is not available
-  let t: any = null;
-  try {
-    t = useTranslations();
-  } catch (error) {
-    // LocaleProvider not available, use fallback translations
-    t = {
-      protectedRoute: {
-        checkingAuthentication: 'Checking authentication...',
-        accessDenied: 'Access Denied',
-        noPermission: "You don't have permission to access this page.",
-        requiresAccess: (role: string) => `This page requires ${role} access.`,
-        switchAccount: 'Switch Account',
-        goBack: 'Go Back'
-      }
-    };
-  }
-  
-
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -72,7 +60,7 @@ export const ProtectedRoute = ({
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <LoadingSpinner size="lg" />
-          <p className="mt-4 text-gray-600">{t.protectedRoute?.checkingAuthentication || 'Checking authentication...'}</p>
+          <p className="mt-4 text-gray-600">{translations.checkingAuthentication}</p>
         </div>
       </div>
     );
@@ -91,25 +79,23 @@ export const ProtectedRoute = ({
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
               <div className="space-y-2">
-                <p className="font-medium">{t.protectedRoute?.accessDenied || 'Access Denied'}</p>
+                <p className="font-medium">{translations.accessDenied}</p>
                 <p>
-                  {t.protectedRoute?.noPermission || "You don't have permission to access this page."}
-                  {requiredRole && ` ${typeof t.protectedRoute?.requiresAccess === 'function' 
-                    ? t.protectedRoute.requiresAccess(requiredRole)
-                    : `This page requires ${requiredRole} access.`}`}
+                  {translations.noPermission}
+                  {requiredRole && ` ${translations.requiresAccess(requiredRole)}`}
                 </p>
                 <div className="flex gap-2 mt-4">
                   <button
                     onClick={() => router.push('/login')}
                     className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
                   >
-                    {t.protectedRoute?.switchAccount || 'Switch Account'}
+                    {translations.switchAccount}
                   </button>
                   <button
                     onClick={() => router.back()}
                     className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
                   >
-                    {t.protectedRoute?.goBack || 'Go Back'}
+                    {translations.goBack}
                   </button>
                 </div>
               </div>

@@ -23,7 +23,6 @@ import { PropertyGallery } from "@/components/PropertyGallery"
 import { FeaturesDisplay } from "@/components/FeaturesDisplay"
 import dynamic from "next/dynamic"
 import { useIsMobile } from "@/hooks/use-mobile"
-import { useTranslations } from "@/lib/locale-context"
 import { translatePrice, PriceTranslations } from "@/lib/price-translator"
 
 // Dynamically import map component with no SSR to reduce initial bundle size
@@ -44,6 +43,10 @@ const OptimizedPropertyMap = dynamic(
 interface ListingDetailClientProps {
   projectId: string
   initialProject?: Project
+  translations?: {
+    listingDetail?: any
+    price?: PriceTranslations
+  }
 }
 
 const LoadingSkeletonPropertyDetail = () => (
@@ -69,14 +72,40 @@ const LoadingSkeletonPropertyDetail = () => (
   </div>
 )
 
-export default function ListingDetailClient({ projectId, initialProject }: ListingDetailClientProps) {
+// Default translations for fallback
+const defaultTranslations = {
+  listingDetail: {
+    loading: 'Loading...',
+    error: 'Error loading property',
+    notFound: 'Property not found',
+    viewDeveloper: 'View Developer',
+    share: 'Share',
+    save: 'Save',
+    saved: 'Saved',
+    contactDeveloper: 'Contact Developer',
+    website: 'Website',
+    phone: 'Phone',
+    price: 'Price',
+    priceFrom: 'From',
+    priceTo: 'To',
+    sqm: 'sq.m.',
+    features: 'Features',
+    description: 'Description',
+    location: 'Location',
+    gallery: 'Gallery',
+    map: 'Map',
+    similarProperties: 'Similar Properties',
+  }
+}
+
+export default function ListingDetailClient({ projectId, initialProject, translations }: ListingDetailClientProps) {
   const [property, setProperty] = useState<any>(initialProject || null)
   const [loading, setLoading] = useState(!initialProject) // Don't show loading if we have data
   const [error, setError] = useState<string | null>(null)
   const [isSaved, setIsSaved] = useState(false)
   const isMobile = useIsMobile()
-  const t = useTranslations()
-  const tPrice = useTranslations('price')
+  const t = translations?.listingDetail || defaultTranslations.listingDetail
+  const tPrice = translations?.price || {} as PriceTranslations
   
   // Use refs to track initialization and prevent infinite loops
   // This prevents the effect from re-running when initialProject object reference changes

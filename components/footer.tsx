@@ -4,11 +4,40 @@ import Link from "next/link"
 import Image from "next/image"
 import { Separator } from "@/components/ui/separator"
 import { Facebook, Twitter, Instagram, Youtube } from "lucide-react"
-import { useTranslations, useLocale } from "@/lib/locale-context"
+import { useLocale } from "@/lib/locale-context"
 
-export function Footer() {
-  const t = useTranslations('footer')
-  const tNav = useTranslations('navigation')
+interface FooterTranslations {
+  footer: {
+    explore: string
+    forDevelopers: string
+    social: string
+    description: string
+    copyright: string
+    partOfProdigy: string
+    prodigyDescription: string
+    privacyPolicy: string
+    termsOfService: string
+    cookiePolicy: string
+  }
+  navigation: {
+    listings: string
+    developers: string
+    aboutUs: string
+    contact: string
+    listYourProject: string
+    developerDashboard: string
+    login: string
+    register: string
+  }
+}
+
+interface FooterProps {
+  translations: FooterTranslations
+}
+
+export function Footer({ translations }: FooterProps) {
+  const t = translations.footer
+  const tNav = translations.navigation
   const locale = useLocale()
 
   // Helper function to generate localized URLs

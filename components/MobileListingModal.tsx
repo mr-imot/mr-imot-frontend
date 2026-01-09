@@ -9,7 +9,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { PropertyGallery } from "@/components/PropertyGallery"
 import { FeaturesDisplay } from "@/components/FeaturesDisplay"
 import { ensureGoogleMaps } from "@/lib/google-maps"
-import { useTranslations } from "@/lib/locale-context"
 import { translatePrice, PriceTranslations } from "@/lib/price-translator"
 import { recordProjectView, recordProjectPhoneClick, recordProjectWebsiteClick } from "@/lib/api"
 
@@ -55,6 +54,24 @@ interface MobileListingModalProps {
   onClose: () => void
   priceTranslations?: PriceTranslations
   lang: 'en' | 'bg'
+  translations?: {
+    listingDetail?: any
+    price?: PriceTranslations
+  }
+}
+
+// Default translations for fallback
+const defaultModalTranslations = {
+  listingDetail: {
+    loading: 'Loading...',
+    viewDeveloper: 'View Developer',
+    share: 'Share',
+    save: 'Save',
+    contactDeveloper: 'Contact Developer',
+    website: 'Website',
+    phone: 'Phone',
+    sqm: 'sq.m.',
+  }
 }
 
 export function MobileListingModal({ 
@@ -62,15 +79,16 @@ export function MobileListingModal({
   isOpen, 
   onClose, 
   priceTranslations,
-  lang 
+  lang,
+  translations 
 }: MobileListingModalProps) {
   const [isVisible, setIsVisible] = useState(false)
   const [isAnimating, setIsAnimating] = useState(false)
   const modalRef = useRef<HTMLDivElement>(null)
   const scrollPositionRef = useRef<number>(0)
   
-  const t = useTranslations()
-  const tPrice = useTranslations('price')
+  const t = translations?.listingDetail || defaultModalTranslations.listingDetail
+  const tPrice = priceTranslations || translations?.price || {} as PriceTranslations
 
   // Track view when modal opens
   useEffect(() => {

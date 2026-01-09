@@ -5,8 +5,7 @@ import Link from "next/link"
 import { usePathname, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
-import { Menu, LogOut, User, Settings, Globe } from "lucide-react"
-import { useAuth } from "@/lib/auth-context"
+import { Menu, Globe } from "lucide-react"
 import { useLocale } from "@/lib/locale-context"
 import { cn } from "@/lib/utils"
 
@@ -23,81 +22,8 @@ interface NavigationTranslations {
   [key: string]: string | undefined
 }
 
-interface MobileNavProps {
+interface PublicMobileNavProps {
   translations: NavigationTranslations
-}
-
-// Auth Actions Component for Mobile
-function AuthActionsSection({ onLinkClick, t }: { onLinkClick: () => void; t: NavigationTranslations }) {
-  const { user, isAuthenticated, logout, getDashboardUrl } = useAuth();
-  const locale = useLocale();
-
-  // Helper function to generate localized URLs
-  const href = (en: string, bg: string) => {
-    return locale === 'bg' ? `/bg/${bg}` : `/${en}`
-  }
-
-  if (isAuthenticated && user) {
-    return (
-      <div className="flex flex-col space-y-4">
-        {/* User Info */}
-        <div className="px-4 py-3 bg-muted rounded-lg">
-          <div className="flex items-center space-x-3">
-            <div className="flex-shrink-0 w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-              <User className="w-5 h-5 text-primary" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-foreground truncate">{user.email}</p>
-              <p className="text-xs text-muted-foreground capitalize">{user.user_type} Account</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Dashboard Link */}
-        <Link
-          href={getDashboardUrl()}
-          onClick={onLinkClick}
-          className="flex items-center space-x-3 text-lg font-medium text-foreground/80 hover:text-foreground py-3 px-4 rounded-lg hover:bg-muted transition-all duration-200"
-        >
-          <Settings className="w-5 h-5" />
-          <span>Dashboard</span>
-        </Link>
-
-        {/* Logout Button */}
-        <button
-          onClick={() => {
-            logout();
-            onLinkClick();
-          }}
-          className="flex items-center space-x-3 text-lg font-medium text-red-600 hover:text-red-700 py-3 px-4 rounded-lg hover:bg-red-50 transition-all duration-200 w-full text-left"
-        >
-          <LogOut className="w-5 h-5" />
-          <span>Logout</span>
-        </button>
-      </div>
-    );
-  }
-
-  // Not authenticated
-  return (
-    <div className="flex flex-col space-y-4">
-      <Link
-        href={href('login', 'login')}
-        onClick={onLinkClick}
-        className="text-lg font-medium text-foreground/80 hover:text-foreground py-3 px-4 rounded-lg hover:bg-muted transition-all duration-200"
-      >
-        {t.login}
-      </Link>
-      <Button
-        asChild
-        className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 h-12 rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
-      >
-        <Link href={href('register?type=developer', 'register?type=developer')} onClick={onLinkClick}>
-          {t.listYourProject}
-        </Link>
-      </Button>
-    </div>
-  );
 }
 
 // Mobile Language Switcher Component
@@ -278,7 +204,37 @@ function MobileLanguageSwitcher({ onLinkClick }: { onLinkClick: () => void }) {
   )
 }
 
-export function MobileNav({ translations }: MobileNavProps) {
+// Public Auth Actions - No auth check, just login/register links
+function PublicAuthActions({ onLinkClick, t }: { onLinkClick: () => void; t: NavigationTranslations }) {
+  const locale = useLocale()
+
+  // Helper function to generate localized URLs
+  const href = (en: string, bg: string) => {
+    return locale === 'bg' ? `/bg/${bg}` : `/${en}`
+  }
+
+  return (
+    <div className="flex flex-col space-y-4">
+      <Link
+        href={href('login', 'login')}
+        onClick={onLinkClick}
+        className="text-lg font-medium text-foreground/80 hover:text-foreground py-3 px-4 rounded-lg hover:bg-muted transition-all duration-200"
+      >
+        {t.login}
+      </Link>
+      <Button
+        asChild
+        className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 h-12 rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
+      >
+        <Link href={href('register?type=developer', 'register?type=developer')} onClick={onLinkClick}>
+          {t.listYourProject}
+        </Link>
+      </Button>
+    </div>
+  )
+}
+
+export function PublicMobileNav({ translations }: PublicMobileNavProps) {
   const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
   const t = translations
@@ -365,8 +321,8 @@ export function MobileNav({ translations }: MobileNavProps) {
           {/* Divider */}
           <div className="border-t" />
 
-          {/* Auth Actions */}
-          <AuthActionsSection onLinkClick={handleLinkClick} t={t} />
+          {/* Public Auth Actions - No auth check */}
+          <PublicAuthActions onLinkClick={handleLinkClick} t={t} />
 
           {/* Footer Info */}
           <div className="pt-8 border-t">

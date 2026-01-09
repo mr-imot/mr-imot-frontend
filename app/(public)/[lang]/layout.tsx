@@ -1,13 +1,12 @@
 import { LocaleProvider } from "@/lib/locale-context"
-import { getDictionary } from "./dictionaries"
-import { SiteHeader } from "@/components/site-header"
+import { getDictionary, type SupportedLocale } from "@/lib/dictionaries"
+import { ServerHeader } from "@/components/server-header"
 import { Footer } from "@/components/footer"
 import { FeedbackButton } from "@/components/feedback-button"
 import CookieConsent from "@/components/cookie-consent"
 import { brandForLang, formatTitleWithBrand, getSiteUrl } from "@/lib/seo"
 import type { Metadata } from "next"
 import ViewportLock from "@/components/ViewportLock"
-import { FairyLights } from "@/components/fairy-lights"
 import { ImageKitProvider } from "@imagekit/next"
 import { IK_URL_ENDPOINT, buildIkUrl } from "@/lib/imagekit"
 
@@ -15,7 +14,7 @@ export async function generateStaticParams() {
   return [{ lang: 'en' }, { lang: 'bg' }, { lang: 'ru' }, { lang: 'gr' }]
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ lang: 'en' | 'bg' | 'ru' | 'gr' }> }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ lang: SupportedLocale }> }): Promise<Metadata> {
   const { lang } = await params
   const siteUrl = getSiteUrl() // Hardcoded production domain for canonical URLs
   const socialImage = buildIkUrl("/Logo/mister-imot-waving-hi-with-bg.png", [
@@ -89,12 +88,12 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: 'en
   }
 }
 
-export default async function RootLayout({
+export default async function PublicLangLayout({
   children,
   params,
 }: Readonly<{
   children: React.ReactNode
-  params: Promise<{ lang: 'en' | 'bg' | 'ru' | 'gr' }>
+  params: Promise<{ lang: SupportedLocale }>
 }>) {
   const { lang } = await params
   
@@ -106,17 +105,15 @@ export default async function RootLayout({
         urlEndpoint={IK_URL_ENDPOINT}
         transformationPosition="path"
       >
-        <LocaleProvider locale={lang} translations={translations}>
-          {/* Fairy lights at the top, overlapping navbar slightly */}
-          <FairyLights />
+        <LocaleProvider locale={lang}>
           <div className="relative flex min-h-screen flex-col">
-            <SiteHeader />
+            <ServerHeader lang={lang} translations={translations} />
             {/* Global viewport fixes: mobile height lock and header height sync */}
             <ViewportLock />
             <main className="flex-1">{children}</main>
-            <Footer />
+            <Footer translations={{ footer: translations.footer, navigation: translations.navigation }} />
           </div>
-          <FeedbackButton />
+          <FeedbackButton translations={translations.feedback} />
           <CookieConsent />
         </LocaleProvider>
       </ImageKitProvider>
@@ -131,15 +128,13 @@ export default async function RootLayout({
         urlEndpoint={IK_URL_ENDPOINT}
         transformationPosition="path"
       >
-        <LocaleProvider locale="en" translations={fallbackTranslations}>
-          {/* Fairy lights at the top, overlapping navbar slightly */}
-          <FairyLights />
+        <LocaleProvider locale="en">
           <div className="relative flex min-h-screen flex-col">
-            <SiteHeader />
+            <ServerHeader lang="en" translations={fallbackTranslations} />
             <main className="flex-1">{children}</main>
-            <Footer />
+            <Footer translations={{ footer: fallbackTranslations.footer, navigation: fallbackTranslations.navigation }} />
           </div>
-          <FeedbackButton />
+          <FeedbackButton translations={fallbackTranslations.feedback} />
           <CookieConsent />
         </LocaleProvider>
       </ImageKitProvider>
