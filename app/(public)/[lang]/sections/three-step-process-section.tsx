@@ -1,3 +1,7 @@
+import cardStyles from "@/components/ui/card.module.css"
+import typographyStyles from "@/components/typography.module.css"
+import effectsStyles from "@/components/effects.module.css"
+
 interface ThreeStepProcessSectionProps {
   dict: any
   lang: string
@@ -11,7 +15,7 @@ export function ThreeStepProcessSection({ dict, lang }: ThreeStepProcessSectionP
         <div className="text-center mb-12 sm:mb-16 md:mb-20 lg:mb-24">
           <div className="inline-block px-4 py-2 rounded-full text-sm font-semibold mb-8 uppercase tracking-wide border-2 bg-charcoal-500 text-white border-charcoal-600" dangerouslySetInnerHTML={{ __html: dict.threeSteps.badge }}>
           </div>
-          <h2 className="headline-gradient text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 font-serif" style={{
+          <h2 className={`${typographyStyles.headlineGradient} text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 font-serif`} style={{
             lineHeight: '1.1',
             fontSize: 'clamp(2.5rem, 5vw, 4.5rem)'
           }}>
@@ -25,7 +29,7 @@ export function ThreeStepProcessSection({ dict, lang }: ThreeStepProcessSectionP
           
           {/* Step 1 */}
           <div className="group">
-            <div className="card p-8 hover:shadow-2xl transition-all duration-500 hover:border-gray-300 group-hover:-translate-y-2">
+            <div className={`${cardStyles.card} p-8 hover:shadow-2xl transition-all duration-500 hover:border-gray-300 group-hover:-translate-y-2`}>
               <div className="text-center">
                 {/* Number + Icon Container */}
                 <div className="flex items-center justify-center gap-4 mb-6">
@@ -38,7 +42,7 @@ export function ThreeStepProcessSection({ dict, lang }: ThreeStepProcessSectionP
                   <div className="relative">
                     <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300 bg-saffron-500 relative overflow-hidden">
                       {/* Liquid Glass Overlay - GPU-accelerated */}
-                      <div className="absolute inset-0 liquid-flow-bg-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out" style={{
+                      <div className={`absolute inset-0 ${effectsStyles.liquidFlowBgWhite} opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out`} style={{
                         borderRadius: '16px',
                         animation: 'liquidFlow 2s ease-in-out infinite',
                         willChange: 'opacity, transform',
@@ -75,7 +79,7 @@ export function ThreeStepProcessSection({ dict, lang }: ThreeStepProcessSectionP
           
           {/* Step 2 */}
           <div className="group">
-            <div className="card p-8 hover:shadow-2xl transition-all duration-500 hover:border-gray-400 group-hover:-translate-y-2">
+            <div className={`${cardStyles.card} p-8 hover:shadow-2xl transition-all duration-500 hover:border-gray-400 group-hover:-translate-y-2`}>
               <div className="text-center">
                 {/* Number + Icon Container */}
                 <div className="flex items-center justify-center gap-4 mb-6">
@@ -88,7 +92,7 @@ export function ThreeStepProcessSection({ dict, lang }: ThreeStepProcessSectionP
                   <div className="relative">
                     <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300 bg-saffron-500 relative overflow-hidden">
                       {/* Liquid Glass Overlay - GPU-accelerated */}
-                      <div className="absolute inset-0 liquid-flow-bg-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out" style={{
+                      <div className={`absolute inset-0 ${effectsStyles.liquidFlowBgWhite} opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out`} style={{
                         borderRadius: '16px',
                         animation: 'liquidFlow 2s ease-in-out infinite',
                         willChange: 'opacity, transform',
@@ -125,7 +129,7 @@ export function ThreeStepProcessSection({ dict, lang }: ThreeStepProcessSectionP
           
           {/* Step 3 */}
           <div className="group">
-            <div className="card p-8 hover:shadow-2xl transition-all duration-500 hover:border-gray-400 group-hover:-translate-y-2">
+            <div className={`${cardStyles.card} p-8 hover:shadow-2xl transition-all duration-500 hover:border-gray-400 group-hover:-translate-y-2`}>
               <div className="text-center">
                 {/* Number + Icon Container */}
                 <div className="flex items-center justify-center gap-4 mb-6">
@@ -138,7 +142,7 @@ export function ThreeStepProcessSection({ dict, lang }: ThreeStepProcessSectionP
                   <div className="relative">
                     <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300 bg-saffron-500 relative overflow-hidden">
                       {/* Liquid Glass Overlay - GPU-accelerated */}
-                      <div className="absolute inset-0 liquid-flow-bg-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out" style={{
+                      <div className={`absolute inset-0 ${effectsStyles.liquidFlowBgWhite} opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out`} style={{
                         borderRadius: '16px',
                         animation: 'liquidFlow 2s ease-in-out infinite',
                         willChange: 'opacity, transform',

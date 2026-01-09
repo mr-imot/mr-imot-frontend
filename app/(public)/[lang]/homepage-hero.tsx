@@ -3,6 +3,7 @@ import { Image } from "@imagekit/next"
 import { toIkPath } from "@/lib/imagekit"
 import clsx from "clsx"
 import styles from "./homepage-hero.module.css"
+import typographyStyles from "@/components/typography.module.css"
 
 interface HomepageHeroProps {
   dict: any
@@ -35,11 +36,11 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
                 }}>
                   {dict.hero.title.find}
                 </span>
-                <span className="headline-gradient">{dict.hero.title.your}</span>
+                <span className={typographyStyles.headlineGradient}>{dict.hero.title.your}</span>
                 <br />
-                <span className="headline-gradient font-semibold">{dict.hero.title.perfectProperty}</span>
+                <span className={`${typographyStyles.headlineGradient} font-semibold`}>{dict.hero.title.perfectProperty}</span>
                 <br />
-                <span className="headline-gradient font-medium">{dict.hero.title.directlyFromDevelopers}</span>
+                <span className={`${typographyStyles.headlineGradient} font-medium`}>{dict.hero.title.directlyFromDevelopers}</span>
               </h1>
             </div>
             

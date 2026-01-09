@@ -10,6 +10,7 @@ import {
   getPricingRule,
   type BillingCycle,
 } from "@/lib/pricing"
+import typographyStyles from "@/components/typography.module.css"
 
 interface PricingSectionProps {
   lang: string
@@ -110,7 +111,7 @@ export function PricingSection({ lang, dict }: PricingSectionProps) {
       style={{ background: 'linear-gradient(180deg, #faf8f5 0%, #f5f2ed 100%)' }}
     >
       <div className="text-center mb-6 sm:mb-8">
-        <h3 className="headline-gradient text-4xl sm:text-5xl md:text-6xl font-bold font-serif">
+        <h3 className={`${typographyStyles.headlineGradient} text-4xl sm:text-5xl md:text-6xl font-bold font-serif`}>
           {pricingDict?.heading || (lang === 'bg' ? 'Прозрачно Ценообразуване' : 'Transparent Pricing')}
         </h3>
         <p className="mt-3 text-base sm:text-lg md:text-xl text-gray-700">

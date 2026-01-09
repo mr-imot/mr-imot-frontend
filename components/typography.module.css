@@ -1,0 +1,4 @@
+.headlineGradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-charcoal-200 via-charcoal-600 to-charcoal-800;
+  padding-bottom: 0.06em;
+}

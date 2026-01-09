@@ -8,6 +8,7 @@ import { LanguageSwitcher } from "@/components/language-switcher"
 import { useLocale } from "@/lib/locale-context"
 import { Image } from "@imagekit/next"
 import { toIkPath } from "@/lib/imagekit"
+import headerStyles from "./header.module.css"
 
 interface NavigationTranslations {
   listings: string
@@ -63,7 +64,7 @@ export function SiteHeader({ translations }: SiteHeaderProps) {
   return (
     <>
       
-      <header className={`header-glass flex items-center justify-between pl-4 pr-0 sm:pl-6 sm:pr-6 md:px-8 py-4 ${isListingsPage ? 'hidden xl:flex' : ''}`}>
+      <header className={`${headerStyles.headerGlass} flex items-center justify-between pl-4 pr-0 sm:pl-6 sm:pr-6 md:px-8 py-4 ${isListingsPage ? 'hidden xl:flex' : ''}`}>
         <div className="w-full flex items-center justify-between md:grid md:grid-cols-[auto,1fr,auto] md:gap-4">
         {/* Logo (always visible) */}
         <div className={`flex items-center justify-start`}>
@@ -124,7 +125,7 @@ export function SiteHeader({ translations }: SiteHeaderProps) {
         <div className="flex items-center justify-end md:space-x-6">
           {/* Primary CTA - List Project */}
           <div className="hidden md:block">
-            <Link href={href('register?type=developer', 'register?type=developer')} className="btn-shine inline-flex items-center px-6 py-2 rounded-full bg-charcoal-500 text-white text-xs font-semibold hover:bg-charcoal-600 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-charcoal-300 h-8 w-40 justify-center whitespace-nowrap">
+            <Link href={href('register?type=developer', 'register?type=developer')} className={`${headerStyles.btnShine} inline-flex items-center px-6 py-2 rounded-full bg-charcoal-500 text-white text-xs font-semibold hover:bg-charcoal-600 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-charcoal-300 h-8 w-40 justify-center whitespace-nowrap`}>
               {t.listYourProject}
             </Link>
           </div>

@@ -1,4 +1,5 @@
 import Image from "next/image"
+import typographyStyles from "./typography.module.css"
 
 interface TestimonialItem {
   quote: string
@@ -43,7 +44,7 @@ export function TestimonialsSection({ lang, heading, subheading, items }: Testim
           <span className="inline-block px-4 py-2 rounded-full text-xs font-semibold tracking-widest uppercase mb-4 bg-charcoal-500 text-white border-2 border-charcoal-600">
             {lang === 'bg' ? 'ОТЗИВ' : 'TESTIMONIALS'}
           </span>
-          <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold font-serif headline-gradient">
+          <h3 className={`text-2xl sm:text-3xl md:text-4xl font-bold font-serif ${typographyStyles.headlineGradient}`}>
             {heading || (lang === 'bg' ? 'Не вярвай само на нас' : "Don't just take our word for it")}
           </h3>
           {subheading && (

@@ -1,0 +1,19 @@
+.edgeFadeL {
+  mask-image: linear-gradient(to right, transparent, #000 24%);
+}
+
+.edgeFadeR {
+  mask-image: linear-gradient(to left, transparent, #000 24%);
+}
+
+.liquidFlowBgWhite {
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.1) 100%);
+  will-change: opacity, transform;
+  transform: translateZ(0);
+}
+
+.liquidFlowBgCharcoal {
+  background: linear-gradient(135deg, rgba(38,70,83,0.1) 0%, rgba(38,70,83,0.2) 50%, rgba(38,70,83,0.1) 100%);
+  will-change: opacity, transform;
+  transform: translateZ(0);
+}

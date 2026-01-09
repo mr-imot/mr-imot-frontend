@@ -5,6 +5,8 @@ import Link from "next/link"
 import Image from "next/image"
 import { getProjects } from "@/lib/api"
 import { getListingUrl } from "@/lib/utils"
+import typographyStyles from "@/components/typography.module.css"
+import effectsStyles from "@/components/effects.module.css"
 
 // Inline SVG icons to avoid loading lucide-react library
 const MapPinIcon = ({ className }: { className?: string }) => (
@@ -56,7 +58,7 @@ export function RecentListingsSection({ dict, lang }: RecentListingsSectionProps
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
         <div className="text-center mb-10">
-          <h3 className="headline-gradient text-4xl sm:text-5xl font-bold font-serif">
+          <h3 className={`${typographyStyles.headlineGradient} text-4xl sm:text-5xl font-bold font-serif`}>
             {lang === 'bg' ? 'Наскоро добавени' : 'Recently added'}
           </h3>
         </div>
@@ -72,7 +74,7 @@ export function RecentListingsSection({ dict, lang }: RecentListingsSectionProps
               ))}
             </div>
           ) : recentListings.length > 0 ? (
-            <div className="flex gap-6 lg:gap-8 overflow-x-auto snap-x snap-mandatory pb-4 edge-fade-l edge-fade-r scrollbar-medium" style={{ scrollSnapType: 'x mandatory' }}>
+            <div className={`flex gap-6 lg:gap-8 overflow-x-auto snap-x snap-mandatory pb-4 ${effectsStyles.edgeFadeL} ${effectsStyles.edgeFadeR} scrollbar-medium`} style={{ scrollSnapType: 'x mandatory' }}>
               {(recentListings.slice(0, 5)).map((listing) => (
                 <Link 
                   key={listing.id} 
@@ -161,7 +163,7 @@ export function RecentListingsSection({ dict, lang }: RecentListingsSectionProps
           <Link href={`/${lang}/listings`}>
             <button className="w-full sm:w-auto px-8 py-4 rounded-2xl text-white font-bold text-lg transition-all duration-300 ease-in-out hover:shadow-2xl hover:scale-105 active:scale-[0.98] cursor-pointer uppercase tracking-wide relative overflow-hidden group bg-charcoal-700 hover:bg-charcoal-800 focus:ring-2 focus:ring-charcoal-300 font-sans">
               {/* Liquid Glass Overlay - GPU-accelerated */}
-              <div className="absolute inset-0 liquid-flow-bg-white opacity-100 transition-opacity duration-300 ease-out" style={{
+              <div className={`absolute inset-0 ${effectsStyles.liquidFlowBgWhite} opacity-100 transition-opacity duration-300 ease-out`} style={{
                 borderRadius: '16px',
                 animation: 'liquidFlow 2s ease-in-out infinite',
                 willChange: 'opacity, transform',

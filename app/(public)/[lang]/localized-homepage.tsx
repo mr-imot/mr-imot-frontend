@@ -5,6 +5,8 @@ import dynamic from "next/dynamic"
 import { HomepageHero } from "./homepage-hero"
 import { ThreeStepProcessSection } from "./sections/three-step-process-section"
 import { LazyPricingSection } from "./components/client-islands"
+import typographyStyles from "@/components/typography.module.css"
+import effectsStyles from "@/components/effects.module.css"
 
 // Lazy load heavy components to reduce initial bundle size (ssr: true is allowed in server components)
 const FaqSection = dynamic(
@@ -49,7 +51,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 relative">
           {/* Section Header */}
           <div className="text-center mb-12 sm:mb-16 md:mb-20 lg:mb-24">
-            <h2 className="headline-gradient text-4xl sm:text-5xl md:text-6xl lg:mb-6 lg:text-7xl font-bold mb-6 font-serif" style={{
+            <h2 className={`${typographyStyles.headlineGradient} text-4xl sm:text-5xl md:text-6xl lg:mb-6 lg:text-7xl font-bold mb-6 font-serif`} style={{
               lineHeight: '1.1',
               fontSize: 'clamp(2.5rem, 5vw, 4.5rem)'
             }}>
@@ -72,7 +74,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                   {/* Icon */}
                   <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300 bg-charcoal-500 relative overflow-hidden">
                     {/* Liquid Glass Overlay - GPU-accelerated */}
-                    <div className="absolute inset-0 liquid-flow-bg-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out" style={{
+                    <div className={`absolute inset-0 ${effectsStyles.liquidFlowBgWhite} opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out`} style={{
                       borderRadius: '16px',
                       animation: 'liquidFlow 2s ease-in-out infinite',
                       willChange: 'opacity, transform',
@@ -116,7 +118,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                   {/* Icon */}
                   <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300 bg-accent relative overflow-hidden">
                     {/* Liquid Glass Overlay - GPU-accelerated */}
-                    <div className="absolute inset-0 liquid-flow-bg-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out" style={{
+                    <div className={`absolute inset-0 ${effectsStyles.liquidFlowBgWhite} opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out`} style={{
                       borderRadius: '16px',
                       animation: 'liquidFlow 2s ease-in-out infinite',
                       willChange: 'opacity, transform',
@@ -160,7 +162,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                   {/* Icon */}
                   <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300 bg-accent relative overflow-hidden">
                     {/* Liquid Glass Overlay - GPU-accelerated */}
-                    <div className="absolute inset-0 liquid-flow-bg-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out" style={{
+                    <div className={`absolute inset-0 ${effectsStyles.liquidFlowBgWhite} opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out`} style={{
                       borderRadius: '16px',
                       animation: 'liquidFlow 2s ease-in-out infinite',
                       willChange: 'opacity, transform',
@@ -204,7 +206,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                   {/* Icon */}
                   <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300 bg-charcoal-500 relative overflow-hidden">
                     {/* Liquid Glass Overlay - GPU-accelerated */}
-                    <div className="absolute inset-0 liquid-flow-bg-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out" style={{
+                    <div className={`absolute inset-0 ${effectsStyles.liquidFlowBgWhite} opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out`} style={{
                       borderRadius: '16px',
                       animation: 'liquidFlow 2s ease-in-out infinite',
                       willChange: 'opacity, transform',

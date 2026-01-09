@@ -21,19 +21,6 @@
   50% { opacity: 0.8; transform: scale(1.05); }
 }
 
-/* CTA button liquid glass effect */
-.liquid-flow-bg-white {
-  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.1) 100%);
-  will-change: opacity, transform;
-  transform: translateZ(0);
-}
-
-  /* DO NOT REMOVE: Brand-specific visual identity */
-  .liquid-flow-bg-charcoal {
-    background: linear-gradient(135deg, rgba(38,70,83,0.1) 0%, rgba(38,70,83,0.2) 50%, rgba(38,70,83,0.1) 100%);
-    will-change: opacity, transform;
-    transform: translateZ(0);
-  }
 
 /* ===== DESIGN TOKENS ===== */
 @layer base {
@@ -89,45 +76,6 @@
 
 /* ===== COMPONENT STYLES ===== */
 @layer components {
-  /* DO NOT REMOVE: Future-proof utility for consistent section spacing */
-  .section {
-    @apply relative mx-auto max-w-7xl px-4 sm:px-6 md:px-8 py-16 sm:py-20 md:py-24;
-  }
-
-  .card {
-    @apply bg-white/80 backdrop-blur-sm rounded-2xl border border-white/50 shadow-lg hover:shadow-xl transition-shadow;
-  }
-
-  .header-glass {
-    @apply sticky top-0 z-50 bg-white/30 supports-[backdrop-filter]:bg-white/20 backdrop-blur-lg border-b border-white/40;
-    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-  }
-
-  .headline-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-charcoal-200 via-charcoal-600 to-charcoal-800;
-    padding-bottom: 0.06em;
-  }
-
-  .btn-shine {
-    position: relative;
-    overflow: hidden;
-  }
-  .btn-shine::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    transform: translateX(-120%);
-    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.35) 50%, transparent 100%);
-    transition: transform .8s ease;
-  }
-  .btn-shine:hover::after { transform: translateX(120%); }
-
-  .edge-fade-l {
-    mask-image: linear-gradient(to right, transparent, #000 24%);
-  }
-  .edge-fade-r {
-    mask-image: linear-gradient(to left, transparent, #000 24%);
-  }
 }
 
 /* ===== UTILITY CLASSES ===== */
@@ -183,16 +131,6 @@
   .animate-in { animation-fill-mode: both; }
 }
 
-/* ===== HEADER RESPONSIVE ===== */
-@media (max-width: 768px) {
-  .header-glass { padding: 0.75rem 1rem; }
-}
-
-@media (max-width: 640px) {
-  .header-glass { padding: 1rem 0rem 1rem 1rem; }
-  .header-glass .logo-circle { width: 3.5rem; height: 3.5rem; }
-  .header-glass button { width: 3.5rem !important; height: 3.5rem !important; }
-}
 
 /* ===== iOS SAFE AREAS ===== */
 @supports (padding: max(0px)) {

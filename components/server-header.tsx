@@ -4,6 +4,7 @@ import { Image } from "@imagekit/next"
 import { toIkPath } from "@/lib/imagekit"
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { PublicMobileNav } from "@/components/public-mobile-nav"
+import headerStyles from "./header.module.css"
 
 type SupportedLocale = 'en' | 'bg' | 'ru' | 'gr'
 
@@ -76,7 +77,7 @@ export async function ServerHeader({ lang, translations }: ServerHeaderProps) {
     'Mister Imot Logo'
 
   return (
-    <header className={`header-glass flex items-center justify-between pl-4 pr-0 sm:pl-6 sm:pr-6 md:px-8 py-4 ${isListingsPage ? 'hidden xl:flex' : ''}`}>
+    <header className={`${headerStyles.headerGlass} flex items-center justify-between pl-4 pr-0 sm:pl-6 sm:pr-6 md:px-8 py-4 ${isListingsPage ? 'hidden xl:flex' : ''}`}>
       <div className="w-full flex items-center justify-between md:grid md:grid-cols-[auto,1fr,auto] md:gap-4">
         {/* Logo (always visible) */}
         <div className="flex items-center justify-start">
@@ -133,7 +134,7 @@ export async function ServerHeader({ lang, translations }: ServerHeaderProps) {
           <div className="hidden md:block">
             <Link 
               href={getLocalizedHref(lang, 'register?type=developer', 'register?type=developer')} 
-              className="btn-shine inline-flex items-center px-6 py-2 rounded-full bg-charcoal-500 text-white text-xs font-semibold hover:bg-charcoal-600 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-charcoal-300 h-8 w-40 justify-center whitespace-nowrap"
+              className={`${headerStyles.btnShine} inline-flex items-center px-6 py-2 rounded-full bg-charcoal-500 text-white text-xs font-semibold hover:bg-charcoal-600 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-charcoal-300 h-8 w-40 justify-center whitespace-nowrap`}
             >
               {t.listYourProject}
             </Link>
