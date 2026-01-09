@@ -30,7 +30,7 @@ import { ListingCardSkeletonGrid } from "@/components/ListingCardSkeleton"
 import { DraggableSheet } from "@/components/draggable-sheet"
 import { AirbnbSearch } from "@/components/airbnb-search"
 import { DesktopSearch } from "@/components/desktop-search"
-import { MobileNav } from "@/components/mobile-nav"
+import { PublicMobileNav } from "@/components/public-mobile-nav"
 import { haptic } from "@/lib/haptic-feedback"
 import { MapDebugPanel } from "@/components/map-debug-panel"
 
@@ -577,7 +577,7 @@ export function ListingsClientContent({
             </button>
             
             <div className="md:hidden flex-shrink-0">
-              <MobileNav />
+              <PublicMobileNav translations={dict.navigation} />
             </div>
           </div>
         </div>

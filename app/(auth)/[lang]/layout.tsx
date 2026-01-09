@@ -2,6 +2,9 @@ import { LocaleProvider } from "@/lib/locale-context"
 import { getDictionary, type SupportedLocale } from "@/lib/dictionaries"
 import { SiteHeader } from "@/components/site-header"
 import { Footer } from "@/components/footer"
+import { FeedbackButton } from "@/components/feedback-button"
+import CookieConsent from "@/components/cookie-consent"
+import ViewportLock from "@/components/ViewportLock"
 
 export async function generateStaticParams() {
   return [{ lang: 'en' }, { lang: 'bg' }, { lang: 'ru' }, { lang: 'gr' }]
@@ -23,9 +26,12 @@ export default async function AuthLangLayout({
     <LocaleProvider locale={lang}>
       <div className="relative flex min-h-screen flex-col">
         <SiteHeader translations={translations.navigation} />
+        <ViewportLock />
         <main className="flex-1">{children}</main>
         <Footer translations={{ footer: translations.footer, navigation: translations.navigation }} />
       </div>
+      <FeedbackButton translations={translations.feedback} />
+      <CookieConsent />
     </LocaleProvider>
   )
 }

@@ -1,4 +1,4 @@
-import { getDictionary } from '../dictionaries'
+import { getDictionary } from '@/lib/dictionaries'
 import RegisterClient from './register-client'
 import { brandForLang, formatTitleWithBrand, getSiteUrl } from '@/lib/seo'
 import type { Metadata } from 'next'
