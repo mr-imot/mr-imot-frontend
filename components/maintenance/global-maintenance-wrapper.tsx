@@ -48,7 +48,7 @@ export const GlobalMaintenanceWrapper: React.FC<GlobalMaintenanceWrapperProps> =
           
           const healthStatus = await fetch(`/health`, { 
             signal: controller.signal,
-            cache: 'no-store' // Prevent caching of health checks
+            cache: 'no-cache' // Use no-cache instead of no-store to allow bfcache
           })
           
           clearTimeout(timeoutId)

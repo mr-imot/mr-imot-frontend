@@ -1,5 +1,6 @@
 import Image from "next/image"
 import typographyStyles from "./typography.module.css"
+import cardStyles from "./ui/card.module.css"
 
 interface TestimonialItem {
   quote: string
@@ -54,7 +55,7 @@ export function TestimonialsSection({ lang, heading, subheading, items }: Testim
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {defaultItems.map((t, idx) => (
-            <article key={idx} className="card p-6 hover:shadow-2xl transition">
+            <article key={idx} className={`${cardStyles.card} p-6 hover:shadow-2xl transition`}>
               <div className="flex gap-2 text-blue-500 mb-3">{'★★★★★'}</div>
               <p className="text-gray-700 mb-6">{t.quote}</p>
               <div className="flex items-center gap-3">

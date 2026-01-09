@@ -10,6 +10,11 @@ export async function generateStaticParams() {
   return [{ lang: 'en' }, { lang: 'bg' }, { lang: 'ru' }, { lang: 'gr' }]
 }
 
+// BFCACHE FIX: Configure caching to allow back/forward cache
+// Force static generation to prevent no-store headers
+export const dynamic = 'force-static'
+export const revalidate = 3600 // Revalidate every hour
+
 interface HomePageProps {
   params: Promise<{ lang: 'en' | 'bg' | 'ru' | 'gr' }>
 }

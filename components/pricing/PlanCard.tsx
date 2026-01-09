@@ -3,6 +3,7 @@ import { Image } from "@imagekit/next"
 import { toIkPath } from "@/lib/imagekit"
 import { CheckCircle, Gift, Info, Sparkles } from "lucide-react"
 import Link from "next/link"
+import cardStyles from "@/components/ui/card.module.css"
 
 interface PlanFeature {
   label: string
@@ -95,7 +96,7 @@ export function PlanCard({
 
   return (
     <div className={isYearly ? 'rounded-3xl bg-gradient-to-r from-amber-200/70 via-sky-200/60 to-emerald-200/70 p-[3px]' : ''}>
-      <div className={`card p-4 sm:p-6 md:p-8 h-full flex flex-col relative overflow-visible rounded-3xl bg-white ${highlight ? 'shadow-2xl' : ''}`}>
+      <div className={`${cardStyles.card} p-4 sm:p-6 md:p-8 h-full flex flex-col relative overflow-visible rounded-3xl bg-white ${highlight ? 'shadow-2xl' : ''}`}>
       {/* Mascot overlay inside the card */}
       <div className="pointer-events-none absolute right-2 bottom-4 md:right-3 md:top-1/2 md:-translate-y-1/2 z-0 opacity-45 md:opacity-60 blur-[0.5px]">
         <div className="relative h-[120px] w-[90px] md:h-[190px] md:w-[140px]">
