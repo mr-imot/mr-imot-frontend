@@ -57,6 +57,13 @@ function ListingCardComponent({ listing, isActive, onCardClick, onCardHover, pri
     const target = e.target as HTMLElement
     if (target.closest('button')) return
     
+    // If onCardClick prop is provided, use it (allows parent to override behavior)
+    if (onCardClick) {
+      onCardClick(listing)
+      return
+    }
+    
+    // Default behavior: Desktop: new tab, Mobile: modal
     const isDesktop = window.innerWidth >= 1024
     
     if (isDesktop) {

@@ -47,7 +47,8 @@ export function ModalClientWrapper({ children }: ModalClientWrapperProps) {
   
   // Use ref to track if we've determined desktop mode to prevent remounts
   // Once desktop is determined, lock it to prevent structure changes that cause remounts
-  const isDesktopRef = useRef(!isMobile)
+  // Start with null to indicate we haven't determined yet
+  const isDesktopRef = useRef<boolean | null>(null)
 
   // Share functionality
   const handleShare = async () => {
@@ -88,8 +89,9 @@ export function ModalClientWrapper({ children }: ModalClientWrapperProps) {
 
   // Update desktop ref when mobile state changes (after mount)
   useEffect(() => {
-    if (!isMobile && !isDesktopRef.current) {
-      isDesktopRef.current = true
+    // Only set once after mount to prevent remounts
+    if (isDesktopRef.current === null) {
+      isDesktopRef.current = !isMobile
     }
   }, [isMobile])
 
@@ -132,11 +134,11 @@ export function ModalClientWrapper({ children }: ModalClientWrapperProps) {
   // DESKTOP: Don't show modal wrapper - let the full page with header render
   // CRITICAL: Once desktop is determined, never change structure to prevent remounts
   // This prevents infinite _rsc request loops and scroll resets
-  if (isDesktopRef.current || !isMobile) {
-    // Lock desktop mode once determined
-    if (!isDesktopRef.current) {
-      isDesktopRef.current = true
-    }
+  // Show modal wrapper on mobile - simple check: if isMobile is true, show modal
+  // On SSR (isMobile = false), return children without wrapper (will re-render after mount if mobile)
+  if (!isMobile) {
+    // Desktop or SSR (not yet determined) - return children without modal wrapper
+    // After mount, if mobile, isMobile will become true and component will re-render with modal
     return <>{children}</>
   }
 
