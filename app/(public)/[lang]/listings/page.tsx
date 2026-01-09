@@ -1,6 +1,7 @@
 import "@/styles/mobile-optimizations.css"
 import "@/styles/maps.css"
 import { getDictionary } from "../dictionaries"
+import ViewportLock from "@/components/ViewportLock"
 import { ListingsLayoutServer, CITY_BOUNDS, CityType, PropertyTypeFilter } from "./listings-layout-server"
 import { ListingsClientWrapper } from "./listings-client-wrapper"
 import { brandForLang, formatTitleWithBrand, getSiteUrl } from "@/lib/seo"
@@ -209,6 +210,7 @@ export default async function ListingsPage({ params, searchParams }: ListingsPag
         baseUrl={baseUrl}
         primaryImageOfPage={socialImage}
       />
+      <ViewportLock />
       <ListingsLayoutServer dict={dict} lang={lang}>
         <ListingsClientWrapper
           dict={dict}

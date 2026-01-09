@@ -1,6 +1,9 @@
 /* ===== GOOGLE MAPS AND LISTINGS MAP STYLES ===== */
 /* Moved from globals.css - import only on listings pages */
 
+/* Import map component styles (price pills, etc.) */
+@import './components/map.css';
+
 /* Google Maps specific cursor fixes */
 .gm-style * {
   cursor: inherit !important;
@@ -22,6 +25,7 @@
 }
 
 /* Map markers and price pills */
+/* Note: .map-price-pill styles are defined in styles/components/map.css */
 .map-marker-icon,
 .map-price-pill,
 .map-price-pill--cluster,
@@ -29,38 +33,6 @@
 .map-price-pill *,
 .map-price-pill--cluster * {
   cursor: pointer !important;
-}
-
-/* Airbnb-style map price pills */
-.map-price-pill {
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 6px 10px;
-  font-weight: 600;
-  font-size: 13px;
-  line-height: 1.125rem;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-  will-change: transform;
-  user-select: none;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-.map-price-pill:hover {
-  transform: scale(1.06);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
-  cursor: pointer;
-}
-
-.map-price-pill--active {
-  outline: 2px solid var(--brand-gray-900);
-  outline-offset: 2px;
-}
-
-.map-price-pill--cluster {
-  background: var(--subtle);
-  color: #ffffff;
-  border-color: var(--subtle);
 }
 
 /* Listings map container */

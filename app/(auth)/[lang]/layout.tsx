@@ -4,7 +4,6 @@ import { SiteHeader } from "@/components/site-header"
 import { Footer } from "@/components/footer"
 import { FeedbackButton } from "@/components/feedback-button"
 import CookieConsent from "@/components/cookie-consent"
-import ViewportLock from "@/components/ViewportLock"
 
 export async function generateStaticParams() {
   return [{ lang: 'en' }, { lang: 'bg' }, { lang: 'ru' }, { lang: 'gr' }]
@@ -26,7 +25,6 @@ export default async function AuthLangLayout({
     <LocaleProvider locale={lang}>
       <div className="relative flex min-h-screen flex-col">
         <SiteHeader translations={translations.navigation} />
-        <ViewportLock />
         <main className="flex-1">{children}</main>
         <Footer lang={lang} translations={{ footer: translations.footer, navigation: translations.navigation }} />
       </div>

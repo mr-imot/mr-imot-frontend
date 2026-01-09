@@ -76,45 +76,15 @@ export function generateViewport() {
 
 // REMOVED: generateThemeColor function that was causing blue background
 
-// Mapping for Greek: route uses 'gr', HTML lang uses 'el' (ISO 639-1)
-const localeToHTMLLang: Record<'en' | 'bg' | 'ru' | 'gr', string> = {
-  en: 'en',
-  bg: 'bg',
-  ru: 'ru',
-  gr: 'el'
-}
-
-// Get language from middleware header for HTML lang attribute
-// This function must never throw errors - it's called during SSR and static generation
-async function getLanguageFromPath(): Promise<string> {
-  try {
-    // Try to get language from middleware header
-    const { headers } = await import('next/headers')
-    const headersList = await headers()
-    const locale = headersList.get('x-locale')
-    
-    if (locale && (locale === 'en' || locale === 'bg' || locale === 'ru' || locale === 'gr')) {
-      return localeToHTMLLang[locale]
-    }
-  } catch (error) {
-    // During static generation, headers() is not available
-    // This is expected and safe to ignore
-  }
-  
-  // Default to 'en' during static generation or if header is not available
-  return 'en'
-}
-
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  // Get language from middleware header, default to 'en'
-  const htmlLang = await getLanguageFromPath()
-  
+  // Root layout is static and dumb - language lives in [lang] route segments
+  // Hardcode lang="en" as default, [lang] layouts will handle locale-specific HTML lang if needed
   return (
-    <html lang={htmlLang} suppressHydrationWarning className={cn(GeistSans.variable, GeistMono.variable, geist.variable, inter.variable)}>
+    <html lang="en" suppressHydrationWarning className={cn(GeistSans.variable, GeistMono.variable, geist.variable, inter.variable)}>
       <head>
         {/* Preconnect to ImageKit for faster image loading (critical for LCP) */}
         <link rel="preconnect" href="https://ik.imagekit.io" crossOrigin="anonymous" />

@@ -6,7 +6,6 @@ import { FeedbackButton } from "@/components/feedback-button"
 import CookieConsent from "@/components/cookie-consent"
 import { brandForLang, formatTitleWithBrand, getSiteUrl } from "@/lib/seo"
 import type { Metadata } from "next"
-import ViewportLock from "@/components/ViewportLock"
 import { ImageKitProvider } from "@imagekit/next"
 import { IK_URL_ENDPOINT, buildIkUrl } from "@/lib/imagekit"
 
@@ -107,9 +106,7 @@ export default async function PublicLangLayout({
       >
         <LocaleProvider locale={lang}>
           <div className="relative flex min-h-screen flex-col">
-            <ServerHeader lang={lang} translations={translations} />
-            {/* Global viewport fixes: mobile height lock and header height sync */}
-            <ViewportLock />
+            <ServerHeader lang={lang} translations={translations} isListings={false} />
             <main className="flex-1">{children}</main>
             <Footer lang={lang} translations={{ footer: translations.footer, navigation: translations.navigation }} />
           </div>
@@ -130,7 +127,7 @@ export default async function PublicLangLayout({
       >
         <LocaleProvider locale="en">
           <div className="relative flex min-h-screen flex-col">
-            <ServerHeader lang="en" translations={fallbackTranslations} />
+            <ServerHeader lang="en" translations={fallbackTranslations} isListings={false} />
             <main className="flex-1">{children}</main>
             <Footer lang="en" translations={{ footer: fallbackTranslations.footer, navigation: fallbackTranslations.navigation }} />
           </div>

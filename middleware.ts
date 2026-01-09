@@ -21,11 +21,70 @@ interface VercelRequest extends NextRequest {
 const SUPPORTED_LOCALES = ['en', 'bg', 'ru', 'gr']
 const DEFAULT_LOCALE = 'en'
 
+// Helper function to determine if a route is static (public) or dynamic (auth/admin)
+// Uses allowlist approach: only explicitly listed routes are static, everything else is dynamic
+// This is a safety guarantee - by default, routes are NOT cached unless explicitly allowed
+// add new public pages here or they won’t be cached
+function isStaticRoute(pathname: string): boolean {
+  // Strip language prefix if present (en, bg, ru, gr)
+  const normalized = pathname.replace(/^\/(en|bg|ru|gr)(?=\/|$)/, '') || '/'
+  
+  // Explicit allowlist of public static routes
+  // Only these exact routes are safe to cache publicly
+  // Dynamic routes with [id], [slug], catch-all [...slug] are NOT included
+  return (
+    normalized === '' ||
+    normalized === '/' ||
+    normalized === '/about-us' ||
+    normalized === '/about-mister-imot' ||
+    normalized === '/contact' ||
+    normalized === '/privacy-policy' ||
+    normalized === '/terms-of-service' ||
+    normalized === '/cookie-policy' ||
+    normalized === '/developers' ||
+    normalized === '/news' ||
+    normalized === '/listings' ||
+    // Bulgarian localized routes (exact matches only)
+    normalized === '/obiavi' ||
+    normalized === '/stroiteli' ||
+    normalized === '/za-mistar-imot' ||
+    normalized === '/kontakt' ||
+    normalized === '/novini' ||
+    // Russian localized routes (exact matches only)
+    normalized === '/obyavleniya' ||
+    normalized === '/zastroyshchiki' ||
+    normalized === '/o-mister-imot' ||
+    normalized === '/kontakty' ||
+    normalized === '/novosti' ||
+    // Greek localized routes (exact matches only)
+    normalized === '/aggelies' ||
+    normalized === '/kataskeuastes' ||
+    normalized === '/sxetika-me-to-mister-imot' ||
+    normalized === '/epikoinonia' ||
+    normalized === '/eidhseis'
+  )
+}
+
+// Helper function to set appropriate cache headers based on route type
+function setCacheHeaders(response: NextResponse, pathname: string): NextResponse {
+  if (isStaticRoute(pathname)) {
+    // Allow caching for static public routes
+    response.headers.set('Cache-Control', 'public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400')
+  } else {
+    // No cache for dynamic auth/admin routes
+    response.headers.set('Cache-Control', 'no-cache, max-age=0, must-revalidate')
+  }
+  return response
+}
+
 // Helper function to set Client Hints headers for responsive images
+// Also sets Vary header to include locale detection factors (Cookie, Accept-Language)
+// This is critical for edge caching safety - ensures different users get correct locale redirects
 function setClientHintsHeaders(response: NextResponse): NextResponse {
   response.headers.set('Accept-CH', 'Width, Viewport-Width, DPR')
   response.headers.set('Accept-CH-Lifetime', '86400') // Persist for 1 day
-  response.headers.set('Vary', 'Accept-CH, Width, Viewport-Width, DPR') // Important for caching
+  // Vary on all headers that affect locale detection and caching decisions
+  response.headers.set('Vary', 'Accept-CH, Width, Viewport-Width, DPR, Accept-Language, Cookie')
   return response
 }
 
@@ -502,10 +561,8 @@ export async function middleware(request: NextRequest) {
     }
     // Set pathname header for server components
     response.headers.set('x-pathname', pathname)
-    // BFCACHE FIX: Allow back/forward cache by using no-cache instead of no-store
-    // no-cache validates freshness but doesn't prevent bfcache restoration
-    // This allows browsers to cache pages for instant back/forward navigation
-    response.headers.set('Cache-Control', 'no-cache, max-age=0, must-revalidate')
+    // Set appropriate cache headers based on route type
+    setCacheHeaders(response, pathname)
     return response
   }
 
@@ -525,22 +582,19 @@ export async function middleware(request: NextRequest) {
       const response = NextResponse.redirect(new URL(`/bg${pathname}`, request.url))
       response.headers.set('x-locale', 'bg')
       response.headers.set('x-pathname', `/bg${pathname}`)
-      // BFCACHE FIX: Allow back/forward cache
-      response.headers.set('Cache-Control', 'no-cache, max-age=0, must-revalidate')
+      setCacheHeaders(response, `/bg${pathname}`)
       return response
     } else if (cookieLocale === 'ru') {
       const response = NextResponse.redirect(new URL(`/ru${pathname}`, request.url))
       response.headers.set('x-locale', 'ru')
       response.headers.set('x-pathname', `/ru${pathname}`)
-      // BFCACHE FIX: Allow back/forward cache
-      response.headers.set('Cache-Control', 'no-cache, max-age=0, must-revalidate')
+      setCacheHeaders(response, `/ru${pathname}`)
       return response
     } else if (cookieLocale === 'gr') {
       const response = NextResponse.redirect(new URL(`/gr${pathname}`, request.url))
       response.headers.set('x-locale', 'gr')
       response.headers.set('x-pathname', `/gr${pathname}`)
-      // BFCACHE FIX: Allow back/forward cache
-      response.headers.set('Cache-Control', 'no-cache, max-age=0, must-revalidate')
+      setCacheHeaders(response, `/gr${pathname}`)
       return response
     }
     // For English (default), rewrite internally to /en for [lang] route handling
@@ -551,8 +605,7 @@ export async function middleware(request: NextRequest) {
       const response = NextResponse.rewrite(url)
       response.headers.set('x-locale', 'en')
       response.headers.set('x-pathname', `/en${pathname}`)
-      // BFCACHE FIX: Allow back/forward cache
-      response.headers.set('Cache-Control', 'no-cache, max-age=0, must-revalidate')
+      setCacheHeaders(response, `/en${pathname}`)
       return response
     }
   }
@@ -579,8 +632,7 @@ export async function middleware(request: NextRequest) {
     // Set language header for root layout to use
     response.headers.set('x-locale', 'bg')
     response.headers.set('x-pathname', `/bg${pathname}`)
-    // BFCACHE FIX: Allow back/forward cache
-    response.headers.set('Cache-Control', 'no-cache, max-age=0, must-revalidate')
+    setCacheHeaders(response, `/bg${pathname}`)
     return setClientHintsHeaders(response)
   }
 
@@ -593,8 +645,7 @@ export async function middleware(request: NextRequest) {
       // Set language header for root layout to use
       response.headers.set('x-locale', negotiated)
       response.headers.set('x-pathname', `/${negotiated}${pathname}`)
-      // BFCACHE FIX: Allow back/forward cache
-      response.headers.set('Cache-Control', 'no-cache, max-age=0, must-revalidate')
+      setCacheHeaders(response, `/${negotiated}${pathname}`)
       return setClientHintsHeaders(response)
     }
   } catch (error) {
@@ -612,8 +663,7 @@ export async function middleware(request: NextRequest) {
     // Set language header for root layout to use
     response.headers.set('x-locale', 'en')
     response.headers.set('x-pathname', `/en${pathname}`)
-    // BFCACHE FIX: Allow back/forward cache
-    response.headers.set('Cache-Control', 'no-cache, max-age=0, must-revalidate')
+    setCacheHeaders(response, `/en${pathname}`)
     return setClientHintsHeaders(response)
   }
   
@@ -629,8 +679,7 @@ export async function middleware(request: NextRequest) {
         : 'en'
   response.headers.set('x-locale', detectedLang)
   response.headers.set('x-pathname', pathname)
-  // BFCACHE FIX: Allow back/forward cache
-  response.headers.set('Cache-Control', 'no-cache, max-age=0, must-revalidate')
+  setCacheHeaders(response, pathname)
   return setClientHintsHeaders(response)
 }
 

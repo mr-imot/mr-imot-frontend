@@ -1,5 +1,4 @@
 import Link from "next/link"
-import { headers } from "next/headers"
 import { Image } from "@imagekit/next"
 import { toIkPath } from "@/lib/imagekit"
 import { LanguageSwitcher } from "@/components/language-switcher"
@@ -20,6 +19,7 @@ interface ServerHeaderProps {
       login: string
     }
   }
+  isListings?: boolean
 }
 
 // Helper to generate localized URLs server-side
@@ -52,22 +52,7 @@ function getLocalizedHref(locale: SupportedLocale, en: string, bg: string): stri
   return `/${en}`
 }
 
-// Get pathname from headers (server-side)
-async function getPathname(lang: SupportedLocale): Promise<string> {
-  try {
-    const headersList = await headers()
-    const pathname = headersList.get('x-pathname')
-    if (pathname) return pathname
-  } catch {
-    // Headers not available (e.g., during static generation)
-  }
-  // Fallback: construct pathname from lang
-  return `/${lang}`
-}
-
-export async function ServerHeader({ lang, translations }: ServerHeaderProps) {
-  const pathname = await getPathname(lang)
-  const isListingsPage = pathname.includes('/listings') || pathname.includes('/obiavi')
+export function ServerHeader({ lang, translations, isListings = false }: ServerHeaderProps) {
   const t = translations.navigation
 
   // Logo alt text based on locale
@@ -77,7 +62,7 @@ export async function ServerHeader({ lang, translations }: ServerHeaderProps) {
     'Mister Imot Logo'
 
   return (
-    <header className={`${headerStyles.headerGlass} flex items-center justify-between pl-4 pr-0 sm:pl-6 sm:pr-6 md:px-8 py-4 ${isListingsPage ? 'hidden xl:flex' : ''}`}>
+    <header className={`${headerStyles.headerGlass} flex items-center justify-between pl-4 pr-0 sm:pl-6 sm:pr-6 md:px-8 py-4 ${isListings ? 'hidden xl:flex' : ''}`}>
       <div className="w-full flex items-center justify-between md:grid md:grid-cols-[auto,1fr,auto] md:gap-4">
         {/* Logo (always visible) */}
         <div className="flex items-center justify-start">
