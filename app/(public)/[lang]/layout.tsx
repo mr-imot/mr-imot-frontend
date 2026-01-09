@@ -106,7 +106,8 @@ export default async function PublicLangLayout({
       >
         <LocaleProvider locale={lang}>
           <div className="relative flex min-h-screen flex-col">
-            <ServerHeader lang={lang} translations={translations} isListings={false} />
+            {/* ServerHeader is hidden on listings pages - listings page has its own mobile search header */}
+            <ServerHeader lang={lang} translations={translations} isListings={true} />
             <main className="flex-1">{children}</main>
             <Footer lang={lang} translations={{ footer: translations.footer, navigation: translations.navigation }} />
           </div>
@@ -127,7 +128,8 @@ export default async function PublicLangLayout({
       >
         <LocaleProvider locale="en">
           <div className="relative flex min-h-screen flex-col">
-            <ServerHeader lang="en" translations={fallbackTranslations} isListings={false} />
+            {/* ServerHeader is hidden on listings pages - listings page has its own mobile search header */}
+            <ServerHeader lang="en" translations={fallbackTranslations} isListings={true} />
             <main className="flex-1">{children}</main>
             <Footer lang="en" translations={{ footer: fallbackTranslations.footer, navigation: fallbackTranslations.navigation }} />
           </div>
