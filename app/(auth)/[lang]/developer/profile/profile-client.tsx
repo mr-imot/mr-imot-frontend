@@ -1,5 +1,7 @@
 "use client"
 
+import { formatDate } from "@/lib/date-formatter"
+
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { z } from "zod"
@@ -1060,7 +1062,7 @@ export default function DeveloperProfilePage({ dict, lang }: ProfileClientProps)
 
                 <div className="flex items-center gap-3">
                   <p className="text-sm text-gray-500">
-                    {t.memberSince || "Member since"} {profile?.created_at ? new Date(profile.created_at).toLocaleDateString() : 'Unknown'}
+                    {t.memberSince || "Member since"} {profile?.created_at ? formatDate(profile.created_at) : 'Unknown'}
                   </p>
                 </div>
               </CardContent>

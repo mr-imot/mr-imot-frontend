@@ -1,5 +1,5 @@
-import { getDictionary } from "./dictionaries"
-import { LocalizedHomePage } from "./localized-homepage"
+import { getDictionary } from "@/lib/dictionaries"
+import { LocalizedHomePage } from "../localized-homepage"
 import { brandForLang, formatTitleWithBrand, getSiteUrl } from "@/lib/seo"
 import type { Metadata } from 'next'
 import WebPageSchema from "@/components/seo/webpage-schema"

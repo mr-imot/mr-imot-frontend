@@ -5,6 +5,7 @@ import NotFoundPage from './not-found-page'
 import { Project, PausedProject, DeletedProject } from '@/lib/api'
 import ListingStructuredData from './listing-structured-data'
 import { getSiteUrl } from '@/lib/seo'
+import { getDictionary } from '@/lib/dictionaries'
 
 interface ListingPageContentProps {
   lang: 'en' | 'bg' | 'ru' | 'gr'
@@ -70,6 +71,7 @@ export default async function ListingPageContent({
   // Active project - return full listing page with structured data
   const activeProject = project as Project
   const baseUrl = getSiteUrl() // Hardcoded production domain for SEO
+  const dict = await getDictionary(lang)
   
   return (
     <>
@@ -77,7 +79,12 @@ export default async function ListingPageContent({
       <ListingDetailClient 
         key={activeProject.id} 
         projectId={id} 
-        initialProject={activeProject} 
+        initialProject={activeProject}
+        translations={{
+          listingDetail: dict.listingDetail,
+          price: dict.price,
+          features: dict.features,
+        }}
       />
     </>
   )

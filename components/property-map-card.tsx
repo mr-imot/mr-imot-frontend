@@ -9,26 +9,10 @@ import { recordProjectPhoneClick, recordProjectWebsiteClick } from '@/lib/api'
 import { translatePrice, PriceTranslations } from '@/lib/price-translator'
 import { useRouter, usePathname } from 'next/navigation'
 import { useEmblaCarouselWithPhysics } from '@/hooks/use-embla-carousel'
-
-interface PropertyData {
-  id: string | number
-  slug?: string
-  title: string
-  location: string
-  image?: string | null
-  images?: string[]
-  price?: string | number | null
-  priceLabel?: string
-  type?: 'house' | 'apartment'
-  developer?: {
-    company_name?: string
-    phone?: string
-    website?: string
-  }
-}
+import { PropertyMapCardData } from '@/lib/types'
 
 interface PropertyMapCardProps {
-  property: PropertyData | null
+  property: PropertyMapCardData | null
   onClose: () => void
   className?: string
   position?: {

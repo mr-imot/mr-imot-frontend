@@ -18,6 +18,7 @@ import { MapFetchController, PropertyTypeFilter as MapPropertyTypeFilter } from 
 import { MarkerManager } from "@/lib/marker-manager"
 import { ListingsClientContent } from "./listings-client-content"
 import { CityType, PropertyTypeFilter, CITY_BOUNDS } from "./listings-layout-server"
+import { useIsMobile } from "@/hooks/use-is-mobile"
 
 export interface ListingsClientWrapperProps {
   dict: any
@@ -122,6 +123,9 @@ export function ListingsClientWrapper({
     }
   }, [])
   
+  // SSR-safe mobile detection hook
+  const isMobile = useIsMobile()
+  
   // Memoized filtered properties
   const filteredProperties = useMemo(() => {
     const all = Array.from(propertyCacheRef.current.values())
@@ -134,8 +138,7 @@ export function ListingsClientWrapper({
       return true
     })
     
-    // Determine which bounds to use
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024
+    // Determine which bounds to use (SSR-safe: isMobile starts as false, updates after mount)
     const activeBounds = isMobile ? mobileBounds : mapBounds
     
     if (activeBounds) {
@@ -146,7 +149,7 @@ export function ListingsClientWrapper({
     }
     
     return typeFiltered
-  }, [propertyTypeFilter, mapBounds, mobileBounds, cacheVersion, isPointInBounds])
+  }, [propertyTypeFilter, mapBounds, mobileBounds, cacheVersion, isPointInBounds, isMobile])
   
   // City change handler
   const handleCityChange = useCallback((city: CityType) => {

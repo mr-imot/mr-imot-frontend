@@ -15,8 +15,6 @@ export interface PropertyData {
   lng: number
   type: "Apartment Complex" | "Residential Houses"
   status: string
-  rating: number
-  reviews: number
   shortPrice: string
 }
 

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { formatDate } from "@/lib/date-formatter"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -101,8 +102,8 @@ export function PerformanceTrendsSection({
               <PopoverTrigger asChild>
                 <Button variant="outline" size="sm">
                   <CalendarIcon className="h-4 w-4 mr-2" />
-                  {range.start.toLocaleDateString("en-US", { month: "short", day: "numeric" })} -{" "}
-                  {range.end.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                  {formatDate(range.start, { month: "short", day: "numeric" })} -{" "}
+                  {formatDate(range.end, { month: "short", day: "numeric" })}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="end">
@@ -233,7 +234,7 @@ export function PerformanceTrendsSection({
 
           {showComparison && (
             <Badge variant="outline" className="text-xs">
-              Comparing {comparison.start.toLocaleDateString()} - {comparison.end.toLocaleDateString()}
+              Comparing {formatDate(comparison.start)} - {formatDate(comparison.end)}
             </Badge>
           )}
         </div>

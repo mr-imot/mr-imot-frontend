@@ -78,8 +78,6 @@ export default function robots(): MetadataRoute.Robots {
       '/ru/forgot-password',
       '/gr/forgot-password',
       '/api/',
-      '/debug/',
-      '/test-api/',
       '/verify-email/',
       '/reset-password/',
     ],

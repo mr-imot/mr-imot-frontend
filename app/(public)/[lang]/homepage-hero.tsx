@@ -40,7 +40,7 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
                 <br />
                 <span className={`${typographyStyles.headlineGradient} font-semibold`}>{dict.hero.title.perfectProperty}</span>
                 <br />
-                <span className={`${typographyStyles.headlineGradient} font-medium`}>{dict.hero.title.directlyFromDevelopers}</span>
+                <span className={`${typographyStyles.headlineGradient} font-normal`}>{dict.hero.title.directlyFromDevelopers}</span>
               </h1>
             </div>
             
@@ -104,7 +104,7 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
                 
                 {/* CTA Button */}
                 <Link href={`/${lang}/listings`} className="flex-1">
-                  <button className="w-full py-4 px-6 rounded-xl text-white font-bold uppercase transition-all duration-300 ease-in-out active:scale-[0.98] cursor-pointer tracking-wide relative overflow-hidden bg-charcoal-700 hover:bg-charcoal-800 focus:ring-2 focus:ring-charcoal-300 font-sans text-base sm:text-lg shadow-lg">
+                  <button className="w-full py-4 px-6 rounded-xl text-white font-semibold uppercase transition-all duration-300 ease-in-out active:scale-[0.98] cursor-pointer tracking-wide relative overflow-hidden bg-charcoal-700 hover:bg-charcoal-800 focus:ring-2 focus:ring-charcoal-300 font-sans text-base sm:text-lg shadow-lg">
                     <div className={clsx("absolute inset-0 opacity-100", styles.liquidFlowBgCharcoal)} style={{
                       borderRadius: '12px'
                     }} />
@@ -118,7 +118,7 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
             {/* Desktop CTA */}
             <div className={clsx("mt-8 hidden lg:block", styles.heroCta)}>
               <Link href={`/${lang}/listings`}>
-                <button className="px-10 py-5 rounded-2xl text-white font-bold uppercase transition-all duration-300 ease-in-out hover:shadow-2xl hover:scale-105 active:scale-[0.98] cursor-pointer tracking-wider relative overflow-hidden group bg-charcoal-700 hover:bg-charcoal-800 focus:ring-2 focus:ring-charcoal-300 font-sans">
+                <button className="px-10 py-5 rounded-2xl text-white font-semibold uppercase transition-all duration-300 ease-in-out hover:shadow-2xl hover:scale-105 active:scale-[0.98] cursor-pointer tracking-wider relative overflow-hidden group bg-charcoal-700 hover:bg-charcoal-800 focus:ring-2 focus:ring-charcoal-300 font-sans">
                   <div className={clsx("absolute inset-0 opacity-100 transition-opacity duration-300 ease-out", styles.liquidFlowBgCharcoal)} style={{
                     borderRadius: '16px',
                     willChange: 'opacity, transform',

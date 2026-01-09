@@ -4,24 +4,8 @@ import React, { useEffect, useMemo, useState, useRef } from 'react'
 import "@/styles/components/map.css"
 import { ensureGoogleMaps, createSvgMarkerIcon } from '@/lib/google-maps'
 import { PropertyMapCard } from './property-map-card'
-
-interface PropertyData {
-  id: string | number
-  title: string
-  location: string
-  image: string
-  images?: string[]
-  rating: number
-  reviewCount: number
-  price: number
-  currency: string
-  dates: string
-  host: string
-  type?: 'house' | 'apartment'
-  lat: number
-  lng: number
-  priceLabel?: string
-}
+import { PropertyData } from '@/lib/marker-manager'
+import { PropertyMapCardData, toPropertyMapCardData } from '@/lib/types'
 
 // API Response structure (matching actual API)
 interface ApiProject {
@@ -53,10 +37,6 @@ interface ApiProject {
 function transformProjectToPropertyData(project: ApiProject): PropertyData | null {
   if (!project.latitude || !project.longitude) return null
 
-  const requestPrice = /request/i.test(project.price_label || '')
-  const priceMatch = project.price_label?.match(/(\d[\d\s.,]*)/)
-  const normalized = priceMatch ? parseInt(priceMatch[1].replace(/[^\d]/g, ''), 10) : 0
-
   const location = [project.neighborhood, project.city].filter(Boolean).join(', ') || project.formatted_address
   const coverImage = project.images?.find(img => img.is_cover)
   const image = coverImage?.urls?.card || project.images?.[0]?.urls?.card || ''
@@ -66,23 +46,24 @@ function transformProjectToPropertyData(project: ApiProject): PropertyData | nul
     .filter(Boolean) as string[]
   const images = coverImage ? [coverImage.urls?.card || coverImage.image_url, ...gallery.filter(u => u !== (coverImage.urls?.card || coverImage.image_url))] : gallery
 
+  const projectType = project.project_type?.toLowerCase().includes('house') ||
+    project.project_type?.toLowerCase().includes('villa')
+    ? 'Residential Houses'
+    : 'Apartment Complex'
+
   return {
-    id: project.id,
+    id: String(project.id),
     title: project.name,
+    priceRange: project.price_label || 'Price on request',
     location,
     image,
     images,
-    rating: 0,
-    reviewCount: 0,
-    price: requestPrice ? 0 : normalized,
-    priceLabel: project.price_label,
-    currency: 'BGN',
-    dates: project.completion_note || 'Available now',
-    host: '',
-    type: project.project_type?.toLowerCase().includes('house') ||
-      project.project_type?.toLowerCase().includes('villa') ? 'house' : 'apartment',
+    description: project.description || '',
     lat: project.latitude,
-    lng: project.longitude
+    lng: project.longitude,
+    type: projectType as "Apartment Complex" | "Residential Houses",
+    status: 'Under Construction',
+    shortPrice: project.price_label || 'Request price',
   }
 }
 
@@ -349,7 +330,7 @@ export function PropertyMapWithCards({
       {/* Airbnb-style Property Card - positioned relative to map container */}
       {selected && (
         <PropertyMapCard
-          property={selected}
+          property={toPropertyMapCardData(selected)}
           onClose={() => setSelected(null)}
           position={cardPosition}
         />

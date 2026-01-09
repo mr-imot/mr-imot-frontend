@@ -1,5 +1,7 @@
 "use client"
 
+import { formatTime } from "@/lib/date-formatter"
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -170,7 +172,7 @@ export function QuickHealthStatus({ healthData, className }: QuickHealthStatusPr
           {/* Last Check */}
           {healthData.lastChecked && (
             <div className="text-xs text-gray-500 text-center pt-2 border-t">
-              Last updated: {new Date(healthData.lastChecked).toLocaleTimeString()}
+              Last updated: {formatTime(healthData.lastChecked)}
             </div>
           )}
         </div>

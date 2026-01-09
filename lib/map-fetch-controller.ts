@@ -304,8 +304,6 @@ export class MapFetchController {
               month: 'short',
             })
           : 'TBD',
-        rating: 4.5 + Math.random() * 0.4,
-        reviews: Math.floor(Math.random() * 30) + 5,
         features:
           project.amenities_list && project.amenities_list.length > 0
             ? project.amenities_list

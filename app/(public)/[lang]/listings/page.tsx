@@ -68,8 +68,6 @@ async function fetchInitialProperties(city: CityType, propertyType: PropertyType
       completionDate: project.expected_completion_date
         ? new Date(project.expected_completion_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })
         : 'TBD',
-      rating: 4.5 + Math.random() * 0.4,
-      reviews: Math.floor(Math.random() * 30) + 5,
       features: project.amenities_list?.length > 0 ? project.amenities_list : ['Modern Design', 'Quality Construction'],
     }))
   } catch (error) {

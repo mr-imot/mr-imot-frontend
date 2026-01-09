@@ -1,4 +1,4 @@
-import { getDictionary } from '../dictionaries'
+import { getDictionary } from '@/lib/dictionaries'
 import ContactClient from './contact-client'
 import ContactStructuredData from './contact-structured-data'
 import { brandForLang, formatTitleWithBrand, getSiteUrl } from '@/lib/seo'

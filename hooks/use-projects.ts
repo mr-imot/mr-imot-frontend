@@ -53,8 +53,6 @@ const transformProjectToPropertyData = (project: any) => {
         year: 'numeric', 
         month: 'short' 
       }) : 'TBD',
-    rating: 4.5 + Math.random() * 0.4, // Random rating for now
-    reviews: Math.floor(Math.random() * 30) + 5, // Random reviews for now
     features: project.amenities_list && project.amenities_list.length > 0 ? project.amenities_list : ['Modern Design', 'Quality Construction'],
     originalPrice: undefined,
   };

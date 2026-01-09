@@ -1,5 +1,7 @@
 "use client"
 
+import { formatDate } from "@/lib/date-formatter"
+
 import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
@@ -305,7 +307,7 @@ export default function DeveloperPropertiesPage({ dict, lang }: PropertiesClient
                           </div>
                           <div className="inline-flex items-center gap-1">
                             <Calendar className="h-3.5 w-3.5" />
-                            {new Date(p.updated_at || p.created_at).toLocaleDateString()}
+                            {formatDate(p.updated_at || p.created_at)}
                           </div>
                         </div>
 

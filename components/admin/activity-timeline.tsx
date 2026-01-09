@@ -1,5 +1,7 @@
 "use client"
 
+import { formatDate } from "@/lib/date-formatter"
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -106,7 +108,7 @@ export function ActivityTimeline() {
     if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
     if (diffInHours < 24) return `${diffInHours}h ago`;
     if (diffInDays < 7) return `${diffInDays}d ago`;
-    return activityTime.toLocaleDateString();
+    return formatDate(activityTime);
   };
 
   const getActivitySummary = () => {

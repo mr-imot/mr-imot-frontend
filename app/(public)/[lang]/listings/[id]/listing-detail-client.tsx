@@ -46,6 +46,13 @@ interface ListingDetailClientProps {
   translations?: {
     listingDetail?: any
     price?: PriceTranslations
+    features?: {
+      buildingInfrastructure?: string
+      securityAccess?: string
+      amenities?: string
+      modernFeatures?: string
+      features?: Record<string, string>
+    }
   }
 }
 
@@ -285,7 +292,7 @@ export default function ListingDetailClient({ projectId, initialProject, transla
     const year = parts[1] || "TBD"
     
     // Translate month name using translation files
-    const translatedMonth = t.listingDetail?.months?.[englishMonth as keyof typeof t.listingDetail.months] || englishMonth
+    const translatedMonth = t.months?.[englishMonth as keyof typeof t.months] || englishMonth
     
     return {
       month: translatedMonth,
@@ -307,7 +314,7 @@ export default function ListingDetailClient({ projectId, initialProject, transla
           className="hidden md:flex"
         >
           <Share2 className="h-4 w-4" />
-          {t.listingDetail?.share || "Share"}
+          {t.share || "Share"}
         </Button>
       </div>
 
@@ -327,7 +334,8 @@ export default function ListingDetailClient({ projectId, initialProject, transla
               />
             ) : (
               <div className="h-96 bg-gray-200 rounded-lg flex items-center justify-center">
-                <p className="text-gray-500">{t.listingDetail?.noImagesAvailable || "No images available for this property"}</p>
+
+                <p className="text-gray-500">{t.noImagesAvailable || "No images available for this property"}</p>
               </div>
             );
           })()}
@@ -338,19 +346,19 @@ export default function ListingDetailClient({ projectId, initialProject, transla
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Euro className="h-5 w-5" />
-                {t.listingDetail?.priceInformation || "Price Information"}
+                {t.priceInformation || "Price Information"}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">{t.listingDetail?.priceRange || "Price Range"}</span>
+                  <span className="text-gray-600">{t.priceRange || "Price Range"}</span>
                   <span className="font-semibold text-lg">
                     {translatePrice(property.price_label || property.price_per_m2, tPrice)}
                   </span>
                 </div>
                 <p className="text-xs text-gray-500">
-                  {t.listingDetail?.priceDisclaimer || "Prices may vary based on unit size, floor, and view. Contact for detailed pricing and available units."}
+                  {t.priceDisclaimer || "Prices may vary based on unit size, floor, and view. Contact for detailed pricing and available units."}
                 </p>
               </div>
             </CardContent>
@@ -360,23 +368,23 @@ export default function ListingDetailClient({ projectId, initialProject, transla
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Calendar className="h-5 w-5" />
-                {t.listingDetail?.projectTimeline || "Project Timeline"}
+                {t.projectTimeline || "Project Timeline"}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">{t.listingDetail?.expectedCompletion || "Expected Completion"}</span>
+                  <span className="text-gray-600">{t.expectedCompletion || "Expected Completion"}</span>
                   <span className="font-medium">
                     {completionData.month} {completionData.year}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">{t.listingDetail?.buildingType || "Building Type"}</span>
+                  <span className="text-gray-600">{t.buildingType || "Building Type"}</span>
                   <span className="font-medium">
                   {property.project_type === 'apartment_building' 
-                    ? (t.projectTypes?.apartmentBuilding || 'Apartment complex') 
-                    : (t.projectTypes?.houseComplex || 'Housing complex')}
+                    ? (t.apartmentComplex || 'Apartment complex') 
+                    : (t.houseComplex || 'Housing complex')}
                   </span>
                 </div>
               </div>
@@ -385,11 +393,11 @@ export default function ListingDetailClient({ projectId, initialProject, transla
 
           <Card>
             <CardHeader className="pb-4">
-              <CardTitle className="text-lg">{t.listingDetail?.contactDeveloper || "Contact Developer"}</CardTitle>
+              <CardTitle className="text-lg">{t.contactDeveloper || "Contact Developer"}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-1">
-                <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">{t.listingDetail?.company || "Company"}</p>
+                <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">{t.company || "Company"}</p>
                 <div className="flex items-center gap-3">
                   <Avatar 
                     className="h-10 w-10 cursor-pointer hover:opacity-80 transition-opacity" 
@@ -419,20 +427,20 @@ export default function ListingDetailClient({ projectId, initialProject, transla
               </div>
               
               <div className="space-y-1">
-                <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">{t.listingDetail?.contactPerson || "Contact Person"}</p>
+                <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">{t.contactPerson || "Contact Person"}</p>
                 <p className="text-sm text-gray-700">{property.developer?.contact_person || 'Contact Person'}</p>
               </div>
               
               {!isMobile && (
                 <div className="space-y-1">
-                  <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">{t.listingDetail?.phone || "Phone"}</p>
+                  <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">{t.phone || "Phone"}</p>
                   <div className="flex items-center gap-2">
                     <Phone className="h-4 w-4 text-gray-500" />
                     <span
                       onClick={() => handlePhoneNumberClick(property.developer?.phone)}
                       className="text-sm text-gray-700 font-mono cursor-pointer hover:text-gray-900 transition-colors"
                     >
-                      {property.developer?.phone || t.listingDetail?.contactForDetails || 'Contact for details'}
+                      {property.developer?.phone || t.contactForDetails || 'Contact for details'}
                     </span>
                   </div>
                 </div>
@@ -447,7 +455,7 @@ export default function ListingDetailClient({ projectId, initialProject, transla
                     disabled={!property.developer?.phone}
                   >
                     <Phone className="h-3 w-3 mr-1 cursor-pointer" />
-                    {t.listingDetail?.callNow || "Call Now"}
+                    {t.callNow || "Call Now"}
                   </Button>
                 )}
                 
@@ -458,7 +466,7 @@ export default function ListingDetailClient({ projectId, initialProject, transla
                   onClick={handleOfficeAddressClick}
                 >
                   <MapPin className="h-3 w-3 mr-1 cursor-pointer" />
-                  {t.listingDetail?.officeAddress || "Office Address"}
+                  {t.officeAddress || "Office Address"}
                 </Button>
                 
                 <Button 
@@ -469,7 +477,7 @@ export default function ListingDetailClient({ projectId, initialProject, transla
                   disabled={!property.developer?.website && !property.website}
                 >
                   <Globe className="h-3 w-3 mr-1 cursor-pointer" />
-                  {t.listingDetail?.visitWebsite || "Visit Website"}
+                  {t.visitWebsite || "Visit Website"}
                 </Button>
               </div>
 
@@ -480,7 +488,7 @@ export default function ListingDetailClient({ projectId, initialProject, transla
 
       <div className="mt-6 lg:mt-8">
         <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3 lg:mb-4">
-          {property.title || property.name || t.listingDetail?.untitledProject || 'Untitled Project'}
+          {property.title || property.name || t.untitledProject || 'Untitled Project'}
         </h1>
         
         {/* Verified Developer Badge */}
@@ -488,13 +496,13 @@ export default function ListingDetailClient({ projectId, initialProject, transla
           <div className="mb-4">
             <Badge className="bg-green-500 text-white hover:bg-green-600">
               <CheckCircle className="w-3 h-3 mr-1" />
-              {t.listingDetail?.publishedByVerifiedDeveloper || 'Published directly by a verified developer'}
+              {t.publishedByVerifiedDeveloper || 'Published directly by a verified developer'}
             </Badge>
             
             {/* Micro Trust Signals */}
             <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-gray-700">
               <p className="mb-1">
-                <span className="font-medium">{t.listingDetail?.source || 'Source'}: </span>
+                <span className="font-medium">{t.source || 'Source'}: </span>
                 {developerProfileUrl ? (
                   <Link 
                     href={developerProfileUrl}
@@ -507,10 +515,10 @@ export default function ListingDetailClient({ projectId, initialProject, transla
                 )}
               </p>
               <p className="mt-1 text-gray-600">
-                {t.listingDetail?.noBrokersNoIntermediaries || 'No brokers · No intermediaries · No fake listings'}
+                {t.noBrokersNoIntermediaries || 'No brokers · No intermediaries · No fake listings'}
               </p>
               <p className="mt-1 text-gray-600">
-                {t.listingDetail?.accountVerifiedByMrImot || 'The developer account is verified by Mister Imot'}
+                {t.accountVerifiedByMrImot || 'The developer account is verified by Mister Imot'}
               </p>
             </div>
           </div>
@@ -537,7 +545,7 @@ export default function ListingDetailClient({ projectId, initialProject, transla
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Building className="h-5 w-5" />
-              {t.listingDetail?.aboutThisProperty || "About This Property"}
+              {t.aboutThisProperty || "About This Property"}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -552,7 +560,7 @@ export default function ListingDetailClient({ projectId, initialProject, transla
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <CheckCircle className="h-5 w-5" />
-                {t.listingDetail?.propertyFeatures || "Property Features & Amenities"}
+                {t.propertyFeatures || "Property Features & Amenities"}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -561,6 +569,7 @@ export default function ListingDetailClient({ projectId, initialProject, transla
                 title=""
                 compact={false}
                 showCategories={true}
+                translations={translations?.features}
               />
             </CardContent>
           </Card>
@@ -569,11 +578,11 @@ export default function ListingDetailClient({ projectId, initialProject, transla
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <CheckCircle className="h-5 w-5" />
-                {t.listingDetail?.propertyFeatures || "Property Features & Amenities"}
+                {t.propertyFeatures || "Property Features & Amenities"}
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-500 text-center py-8">{t.listingDetail?.noFeaturesAvailable || "No features available for this property"}</p>
+              <p className="text-gray-500 text-center py-8">{t.noFeaturesAvailable || "No features available for this property"}</p>
             </CardContent>
           </Card>
         )}
@@ -584,15 +593,15 @@ export default function ListingDetailClient({ projectId, initialProject, transla
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <MapPin className="h-5 w-5" />
-              {t.listingDetail?.propertyLocation || "Property Location"}
+              {t.propertyLocation || "Property Location"}
             </CardTitle>
             <p className="text-gray-600 mt-2">
-              {t.listingDetail?.locationDescription || "Explore the neighborhood and visit the property location without a broker - take your time, no obligations!"}
+              {t.locationDescription || "Explore the neighborhood and visit the property location without a broker - take your time, no obligations!"}
             </p>
           </CardHeader>
           <CardContent>
             <div className="mb-6">
-              <h4 className="font-medium mb-2">{t.listingDetail?.address || "Address"}</h4>
+              <h4 className="font-medium mb-2">{t.address || "Address"}</h4>
               <p className="text-gray-600">{property.formatted_address || property.location || property.city}</p>
             </div>
             
@@ -610,13 +619,13 @@ export default function ListingDetailClient({ projectId, initialProject, transla
                     onClick={() => handleGetDirections(property.latitude, property.longitude, property.title)}
                   >
                     <Navigation className="h-3 w-3 mr-1 cursor-pointer" />
-                    {t.listingDetail?.getDirections || "Get Directions"}
+                    {t.getDirections || "Get Directions"}
                   </Button>
                 </div>
               </>
             ) : (
               <div className="mt-4 h-64 bg-gray-100 rounded-lg flex items-center justify-center">
-                <p className="text-gray-500">{t.listingDetail?.locationNotAvailable || "Location coordinates not available"}</p>
+                <p className="text-gray-500">{t.locationNotAvailable || "Location coordinates not available"}</p>
               </div>
             )}
           </CardContent>
@@ -629,15 +638,15 @@ export default function ListingDetailClient({ projectId, initialProject, transla
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Building className="h-5 w-5" />
-                {t.listingDetail?.officeLocation || "Office Location"}
+                {t.officeLocation || "Office Location"}
               </CardTitle>
               <p className="text-gray-600 mt-2">
-                {t.listingDetail?.officeDescription || "Visit our office to discuss your investment and get personalized assistance."}
+                {t.officeDescription || "Visit our office to discuss your investment and get personalized assistance."}
               </p>
             </CardHeader>
             <CardContent>
               <div className="mb-6">
-                <h4 className="font-medium mb-2">{t.listingDetail?.officeAddressLabel || "Office Address"}</h4>
+                <h4 className="font-medium mb-2">{t.officeAddressLabel || "Office Address"}</h4>
                 <p className="text-gray-600">{property.developer.office_address || t.developersDetail?.addressNotAvailable || 'Address not available'}</p>
               </div>
               
@@ -655,13 +664,13 @@ export default function ListingDetailClient({ projectId, initialProject, transla
                       onClick={() => handleGetDirections(property.developer.office_latitude, property.developer.office_longitude, property.developer.company_name)}
                     >
                       <Navigation className="h-3 w-3 mr-1 cursor-pointer" />
-                      {t.listingDetail?.getDirectionsToOffice || "Get Directions to Office"}
+                      {t.getDirectionsToOffice || "Get Directions to Office"}
                     </Button>
                   </div>
                 </>
               ) : (
                 <div className="mt-4 h-64 bg-gray-100 rounded-lg flex items-center justify-center">
-                  <p className="text-gray-500">{t.listingDetail?.officeLocationNotAvailable || "Office location not available"}</p>
+                  <p className="text-gray-500">{t.officeLocationNotAvailable || "Office location not available"}</p>
                 </div>
               )}
             </CardContent>

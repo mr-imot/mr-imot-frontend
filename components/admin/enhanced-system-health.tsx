@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from 'react';
+import { formatDate, formatTime } from "@/lib/date-formatter";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -202,7 +203,7 @@ export function EnhancedSystemHealth({
         </div>
         <div className="flex items-center space-x-2">
           <Badge variant="outline" className="text-xs">
-            Last updated: {lastRefresh.toLocaleTimeString()}
+            Last updated: {formatTime(lastRefresh)}
           </Badge>
           <Button 
             onClick={refresh} 
@@ -307,7 +308,7 @@ export function EnhancedSystemHealth({
                 </div>
                 <div className="flex justify-between text-xs text-gray-500">
                   <span>Last Restart</span>
-                  <span>{new Date(healthData.uptime.last_restart).toLocaleDateString()}</span>
+                  <span>{formatDate(healthData.uptime.last_restart)}</span>
                 </div>
               </div>
             </div>

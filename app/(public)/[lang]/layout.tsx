@@ -1,13 +1,11 @@
 import { LocaleProvider } from "@/lib/locale-context"
 import { getDictionary, type SupportedLocale } from "@/lib/dictionaries"
-import { ServerHeader } from "@/components/server-header"
 import { Footer } from "@/components/footer"
 import { FeedbackButton } from "@/components/feedback-button"
 import CookieConsent from "@/components/cookie-consent"
 import { brandForLang, formatTitleWithBrand, getSiteUrl } from "@/lib/seo"
 import type { Metadata } from "next"
-import { ImageKitProvider } from "@imagekit/next"
-import { IK_URL_ENDPOINT, buildIkUrl } from "@/lib/imagekit"
+import { buildIkUrl } from "@/lib/imagekit"
 
 export async function generateStaticParams() {
   return [{ lang: 'en' }, { lang: 'bg' }, { lang: 'ru' }, { lang: 'gr' }]
@@ -100,21 +98,16 @@ export default async function PublicLangLayout({
     const translations = await getDictionary(lang)
     
     return (
-      <ImageKitProvider
-        urlEndpoint={IK_URL_ENDPOINT}
-        transformationPosition="path"
-      >
-        <LocaleProvider locale={lang}>
-          <div className="relative flex min-h-screen flex-col">
-            {/* ServerHeader is hidden on listings pages - listings page has its own mobile search header */}
-            <ServerHeader lang={lang} translations={translations} isListings={true} />
-            <main className="flex-1">{children}</main>
-            <Footer lang={lang} translations={{ footer: translations.footer, navigation: translations.navigation }} />
-          </div>
-          <FeedbackButton translations={translations.feedback} />
-          <CookieConsent />
-        </LocaleProvider>
-      </ImageKitProvider>
+      <LocaleProvider locale={lang}>
+        <div className="relative flex min-h-screen flex-col">
+          {/* ServerHeader is rendered by (pages)/layout.tsx for normal pages - outside main */}
+          {/* Listings pages have their own layout without ServerHeader */}
+          {children}
+          <Footer lang={lang} translations={{ footer: translations.footer, navigation: translations.navigation }} />
+        </div>
+        <FeedbackButton translations={translations.feedback} />
+        <CookieConsent />
+      </LocaleProvider>
     )
   } catch (error) {
     console.error('Failed to load dictionary:', error)
@@ -122,21 +115,16 @@ export default async function PublicLangLayout({
     const fallbackTranslations = await getDictionary('en')
     
     return (
-      <ImageKitProvider
-        urlEndpoint={IK_URL_ENDPOINT}
-        transformationPosition="path"
-      >
-        <LocaleProvider locale="en">
-          <div className="relative flex min-h-screen flex-col">
-            {/* ServerHeader is hidden on listings pages - listings page has its own mobile search header */}
-            <ServerHeader lang="en" translations={fallbackTranslations} isListings={true} />
-            <main className="flex-1">{children}</main>
-            <Footer lang="en" translations={{ footer: fallbackTranslations.footer, navigation: fallbackTranslations.navigation }} />
-          </div>
-          <FeedbackButton translations={fallbackTranslations.feedback} />
-          <CookieConsent />
-        </LocaleProvider>
-      </ImageKitProvider>
+      <LocaleProvider locale="en">
+        <div className="relative flex min-h-screen flex-col">
+          {/* ServerHeader is rendered by (pages)/layout.tsx for normal pages - outside main */}
+          {/* Listings pages have their own layout without ServerHeader */}
+          {children}
+          <Footer lang="en" translations={{ footer: fallbackTranslations.footer, navigation: fallbackTranslations.navigation }} />
+        </div>
+        <FeedbackButton translations={fallbackTranslations.feedback} />
+        <CookieConsent />
+      </LocaleProvider>
     )
   }
 }

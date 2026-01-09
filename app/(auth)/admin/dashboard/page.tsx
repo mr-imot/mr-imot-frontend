@@ -1,5 +1,7 @@
 "use client"
 
+import { formatDate, formatTime } from "@/lib/date-formatter"
+
 // Admin Dashboard Main Page
 // Provides overview of system statistics and pending developer applications
 
@@ -70,6 +72,7 @@ function AdminDashboardContent() {
   const [error, setError] = useState('');
   const [processingDevelopers, setProcessingDevelopers] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState('overview');
+  const [lastUpdatedTime, setLastUpdatedTime] = useState<string>('');
 
   // Load dashboard data
   const loadDashboardData = async () => {
@@ -104,6 +107,11 @@ function AdminDashboardContent() {
 
   useEffect(() => {
     loadDashboardData();
+  }, []);
+
+  // Update last updated time after mount (SSR-safe)
+  useEffect(() => {
+    setLastUpdatedTime(new Date().toLocaleTimeString());
   }, []);
 
   const handleDeveloperAction = async (developerId: string, action: 'verify' | 'reject') => {
@@ -234,7 +242,7 @@ function AdminDashboardContent() {
             Refresh
           </Button>
           <Badge variant="outline" className="text-sm">
-            Last updated: {new Date().toLocaleTimeString()}
+            Last updated: {lastUpdatedTime || 'Loading...'}
           </Badge>
         </div>
       </div>
@@ -269,7 +277,7 @@ function AdminDashboardContent() {
           value={systemHealth?.status === 'healthy' ? 'Healthy' : 'Issues'}
           icon={systemHealth?.status === 'healthy' ? CheckCircle : AlertTriangle}
           color={systemHealth?.status === 'healthy' ? 'green' : 'red'}
-          change={systemHealth?.lastChecked ? 'Last checked: ' + new Date(systemHealth.lastChecked).toLocaleTimeString() : 'Unknown'}
+          change={systemHealth?.lastChecked ? 'Last checked: ' + formatTime(systemHealth.lastChecked) : 'Unknown'}
         />
       </div>
 
@@ -534,7 +542,7 @@ function DeveloperApplicationCard({
             </a>
           )}
           <span className="text-xs text-gray-400">
-            Applied: {new Date(developer.created_at).toLocaleDateString()}
+            Applied: {formatDate(developer.created_at)}
           </span>
         </div>
       </div>

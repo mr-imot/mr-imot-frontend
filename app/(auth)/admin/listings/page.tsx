@@ -1,5 +1,7 @@
 "use client"
 
+import { formatDate } from "@/lib/date-formatter"
+
 // Admin Listings Management Page
 // View and manage all listings with search, pagination, and delete functionality
 
@@ -483,7 +485,7 @@ function ProjectCard({
           </span>
           <span className="flex items-center">
             <Calendar className="h-3 w-3 mr-1" />
-            {new Date(project.created_at).toLocaleDateString()}
+            {formatDate(project.created_at)}
           </span>
           {project.images_count > 0 && (
             <span className="text-gray-400">

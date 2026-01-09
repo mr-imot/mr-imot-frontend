@@ -1,5 +1,7 @@
 "use client"
 
+import { formatDate, formatTime } from "@/lib/date-formatter"
+
 // Admin Developer Management Page
 // Comprehensive interface for managing developer applications with bulk operations
 
@@ -470,9 +472,9 @@ function DeveloperCard({
 
               <div className="mt-4 flex items-center space-x-2 text-xs text-gray-400">
                 <Calendar className="h-3 w-3" />
-                <span>Applied {new Date(developer.created_at).toLocaleDateString()}</span>
+                <span>Applied {formatDate(developer.created_at)}</span>
                 <span>•</span>
-                <span>{new Date(developer.created_at).toLocaleTimeString()}</span>
+                <span>{formatTime(developer.created_at)}</span>
               </div>
             </div>
 

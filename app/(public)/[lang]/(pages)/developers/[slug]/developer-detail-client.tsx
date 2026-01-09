@@ -1,6 +1,7 @@
 "use client"
 
 import { useRef, useEffect } from "react"
+import { formatDate } from "@/lib/date-formatter"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -266,7 +267,7 @@ export default function DeveloperDetailClient({ developer, lang, translations }:
                     <div>
                       <p className="text-sm text-muted-foreground uppercase tracking-wide font-medium">{tDev?.memberSince ?? 'Member Since'}</p>
                       <p className="text-sm text-muted-foreground">
-                        {new Date(developer.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}
+                        {formatDate(developer.created_at, { year: 'numeric', month: 'long' })}
                       </p>
                     </div>
                   </div>

@@ -2,12 +2,11 @@ import Link from "next/link"
 import { Image } from "@imagekit/next"
 import { toIkPath } from "@/lib/imagekit"
 import { LanguageSwitcher } from "@/components/language-switcher"
-import { PublicMobileNav } from "@/components/public-mobile-nav"
 import headerStyles from "./header.module.css"
 
 type SupportedLocale = 'en' | 'bg' | 'ru' | 'gr'
 
-interface ServerHeaderProps {
+interface DesktopHeaderProps {
   lang: SupportedLocale
   translations: {
     navigation: {
@@ -19,7 +18,6 @@ interface ServerHeaderProps {
       login: string
     }
   }
-  isListings?: boolean
 }
 
 // Helper to generate localized URLs server-side
@@ -52,7 +50,16 @@ function getLocalizedHref(locale: SupportedLocale, en: string, bg: string): stri
   return `/${en}`
 }
 
-export function ServerHeader({ lang, translations, isListings = false }: ServerHeaderProps) {
+/**
+ * Desktop-only header for listings pages
+ * 
+ * This is a minimal header that:
+ * - Only renders on desktop (xl and above) - hidden on mobile via CSS
+ * - Does NOT include PublicMobileNav (listings mobile header has its own)
+ * - Only includes desktop navigation, language switcher, and login
+ * - Prevents duplicate hydration of mobile nav components
+ */
+export function DesktopHeader({ lang, translations }: DesktopHeaderProps) {
   const t = translations.navigation
 
   // Logo alt text based on locale
@@ -62,7 +69,7 @@ export function ServerHeader({ lang, translations, isListings = false }: ServerH
     'Mister Imot Logo'
 
   return (
-    <header className={`${headerStyles.headerGlass} flex items-center justify-between pl-4 pr-0 sm:pl-6 sm:pr-6 md:px-8 py-4 ${isListings ? 'hidden xl:flex' : ''}`}>
+    <header className={`${headerStyles.headerGlass} hidden xl:flex items-center justify-between pl-4 pr-0 sm:pl-6 sm:pr-6 md:px-8 py-4`}>
       <div className="w-full flex items-center justify-between md:grid md:grid-cols-[auto,1fr,auto] md:gap-4">
         {/* Logo (always visible) */}
         <div className="flex items-center justify-start">
@@ -113,7 +120,7 @@ export function ServerHeader({ lang, translations, isListings = false }: ServerH
           </Link>
         </nav>
 
-        {/* Right Side - Language Switcher + Login + Mobile Nav */}
+        {/* Right Side - Language Switcher + Login (NO Mobile Nav) */}
         <div className="flex items-center justify-end md:space-x-6">
           {/* Primary CTA - List Project */}
           <div className="hidden md:block">
@@ -124,12 +131,12 @@ export function ServerHeader({ lang, translations, isListings = false }: ServerH
               {t.listYourProject}
             </Link>
           </div>
-          {/* Language Switcher - Hidden on mobile (client component) */}
+          {/* Language Switcher - Desktop only */}
           <div className="hidden md:block">
             <LanguageSwitcher />
           </div>
           
-          {/* Static Login Button - Always shows Login (no auth check) */}
+          {/* Static Login Button - Desktop only */}
           <div className="hidden md:block">
             <Link href={getLocalizedHref(lang, 'login', 'login')}>
               <button className="group relative overflow-hidden px-6 py-2 rounded-full bg-white text-black font-semibold text-xs transition-all duration-300 hover:bg-gray-50 cursor-pointer h-8 flex items-center justify-between w-24 border border-gray-200 shadow-sm hover:shadow-md">
@@ -143,10 +150,7 @@ export function ServerHeader({ lang, translations, isListings = false }: ServerH
             </Link>
           </div>
           
-          {/* Mobile Navigation - Only visible on mobile, positioned at far right */}
-          <div className="md:hidden flex items-center justify-end">
-            <PublicMobileNav translations={t} />
-          </div>
+          {/* NO Mobile Navigation - listings mobile header handles this */}
         </div>
       </div>
     </header>

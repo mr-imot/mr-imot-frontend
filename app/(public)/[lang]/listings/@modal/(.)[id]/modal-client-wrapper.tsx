@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import { ArrowLeft, Share2, Building } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useIsMobile } from "@/hooks/use-is-mobile"
 
 interface ModalClientWrapperProps {
   children: React.ReactNode
@@ -41,12 +42,8 @@ export function ModalClientWrapper({ children }: ModalClientWrapperProps) {
   // Track whether we actually applied body styles (only on mobile)
   const hasAppliedStylesRef = useRef<boolean>(false)
   
-  // Mobile detection - check on initial render to avoid flash
-  // Use same breakpoint as useIsMobile (1024px)
-  const [isMobile, setIsMobile] = useState(() => {
-    if (typeof window === 'undefined') return false
-    return window.innerWidth < 1024 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
-  })
+  // Mobile detection - SSR-safe hook to prevent hydration mismatch
+  const isMobile = useIsMobile()
   
   // Use ref to track if we've determined desktop mode to prevent remounts
   // Once desktop is determined, lock it to prevent structure changes that cause remounts
@@ -75,6 +72,7 @@ export function ModalClientWrapper({ children }: ModalClientWrapperProps) {
   }
 
   const handleBack = () => {
+    // Check history length only on client (after mount)
     const isInitialEntry = typeof window !== 'undefined' ? window.history.length <= 1 : false
     if (isInitialEntry) {
       const baseListingsPath = pathname?.startsWith('/bg')
@@ -88,20 +86,12 @@ export function ModalClientWrapper({ children }: ModalClientWrapperProps) {
     router.back()
   }
 
-  // Mobile detection - update on resize, using 1024px breakpoint
+  // Update desktop ref when mobile state changes (after mount)
   useEffect(() => {
-    const checkMobile = () => {
-      const newIsMobile = window.innerWidth < 1024 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
-      setIsMobile(newIsMobile)
-      // Once we've determined desktop, lock it to prevent remounts
-      if (!newIsMobile && !isDesktopRef.current) {
-        isDesktopRef.current = true
-      }
+    if (!isMobile && !isDesktopRef.current) {
+      isDesktopRef.current = true
     }
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
+  }, [isMobile])
 
   // Handle modal open/close animations and scroll preservation
   // FIX: Only apply/restore body styles on mobile to prevent desktop scroll reset

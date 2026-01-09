@@ -1,25 +1,15 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { GeistSans } from "geist/font/sans"
-import { GeistMono } from "geist/font/mono"
-import { Geist, Inter } from "next/font/google"
+import { Geist } from "next/font/google"
 import "./globals.css"
 import { cn } from "@/lib/utils"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 
-// Geist for hero/headings with Cyrillic support (trimmed weights)
+// Geist for all text (headings and body) with Cyrillic support - only 2 weights above fold
 const geist = Geist({
   subsets: ["latin", "cyrillic"],
-  weight: ["500", "600", "700"],
-  variable: "--font-geist",
-  display: "swap",
-})
-
-// Inter for body text with Cyrillic support (trimmed weights)
-const inter = Inter({
-  subsets: ["latin", "cyrillic"],
   weight: ["400", "600"],
-  variable: "--font-inter",
+  variable: "--font-geist",
   display: "swap",
 })
 
@@ -84,7 +74,7 @@ export default function RootLayout({
   // Root layout is static and dumb - language lives in [lang] route segments
   // Hardcode lang="en" as default, [lang] layouts will handle locale-specific HTML lang if needed
   return (
-    <html lang="en" suppressHydrationWarning className={cn(GeistSans.variable, GeistMono.variable, geist.variable, inter.variable)}>
+    <html lang="en" suppressHydrationWarning className={cn(geist.variable)}>
       <head>
         {/* Preconnect to ImageKit for faster image loading (critical for LCP) */}
         <link rel="preconnect" href="https://ik.imagekit.io" crossOrigin="anonymous" />
@@ -107,16 +97,14 @@ export default function RootLayout({
         
         <style>{`
 html {
-  font-family: ${inter.style.fontFamily};
-  --font-sans: ${inter.variable};
+  font-family: ${geist.style.fontFamily};
+  --font-sans: ${geist.variable};
   --font-serif: ${geist.variable};
-  --font-mono: ${GeistMono.variable};
   --font-geist: ${geist.variable};
-  --font-inter: ${inter.variable};
 }
         `}</style>
       </head>
-      <body className={cn("min-h-screen font-sans antialiased", inter.variable, geist.variable)}>
+      <body className={cn("min-h-screen font-sans antialiased", geist.variable)}>
         {children}
         <SpeedInsights />
       </body>

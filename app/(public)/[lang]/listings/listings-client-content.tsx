@@ -27,12 +27,15 @@ import { Button } from "@/components/ui/button"
 import { MapPin, Building, Home, Loader2, Maximize2, X, Search, SlidersHorizontal } from "lucide-react"
 import { PropertyMapCard } from "@/components/property-map-card"
 import { ListingCardSkeletonGrid } from "@/components/ListingCardSkeleton"
+import { toPropertyMapCardData } from "@/lib/types"
 import { DraggableSheet } from "@/components/draggable-sheet"
 import { AirbnbSearch } from "@/components/airbnb-search"
 import { DesktopSearch } from "@/components/desktop-search"
 import { PublicMobileNav } from "@/components/public-mobile-nav"
+import { MobileOnlyWrapper } from "@/components/mobile-only-wrapper"
 import { haptic } from "@/lib/haptic-feedback"
 import { MapDebugPanel } from "@/components/map-debug-panel"
+import { useIsDesktop } from "@/hooks/use-is-desktop"
 
 import { CityType, PropertyTypeFilter, CITY_COORDINATES } from "./listings-layout-server"
 
@@ -135,6 +138,9 @@ export function ListingsClientContent({
   const [headerSnapPct, setHeaderSnapPct] = useState(90)
   const [cardPosition, setCardPosition] = useState<{ top?: number; left?: number }>({})
   
+  // Desktop detection hook (SSR-safe, prevents hydration mismatch)
+  const isDesktop = useIsDesktop()
+  
   // Refs for UI elements
   const searchButtonRef = useRef<HTMLButtonElement>(null)
   const listContainerRef = useRef<HTMLDivElement>(null)
@@ -183,21 +189,7 @@ export function ListingsClientContent({
   
   // Transform PropertyData to PropertyMapCard format
   const transformToPropertyMapData = useCallback((property: PropertyData) => {
-    const image = property.image || (Array.isArray(property.images) ? property.images[0] : undefined)
-    return {
-      id: property.id,
-      title: property.title,
-      location: property.location,
-      image,
-      images: (property as any).images || (image ? [image] : undefined),
-      priceLabel: property.shortPrice || undefined,
-      type: (property.type?.toLowerCase().includes('house') ? 'house' : 'apartment') as 'house' | 'apartment',
-      developer: (property as any).developer ? {
-        company_name: (property as any).developer.company_name,
-        phone: (property as any).developer.phone,
-        website: (property as any).developer.website,
-      } : undefined,
-    }
+    return toPropertyMapCardData(property)
   }, [])
   
   // Calculate card position for desktop
@@ -549,38 +541,40 @@ export function ListingsClientContent({
         {/* Full screen map */}
         <div ref={mobileMapRef} className="w-full h-full" />
         
-        {/* Mobile header */}
-        <div id="mobile-map-header" className="absolute top-4 left-4 right-4 z-40">
-          <div className="flex items-center gap-3">
-            <Link href="/" className="flex-shrink-0">
-              <div className="relative w-14 h-14 flex items-center justify-center rounded-full bg-white/95 backdrop-blur-md border border-white/30 shadow-lg">
-                <Image src="/images/mr-imot-logo-no-background.png" alt="Logo" width={56} height={56} className="object-contain" priority />
+        {/* Mobile header - conditionally rendered only on mobile to prevent desktop hydration */}
+        <MobileOnlyWrapper>
+          <div id="mobile-map-header" className="absolute top-4 left-4 right-4 z-40">
+            <div className="flex items-center gap-3">
+              <Link href="/" className="flex-shrink-0">
+                <div className="relative w-14 h-14 flex items-center justify-center rounded-full bg-white/95 backdrop-blur-md border border-white/30 shadow-lg">
+                  <Image src="/images/mr-imot-logo-no-background.png" alt="Logo" width={56} height={56} className="object-contain" priority />
+                </div>
+              </Link>
+              
+              <button
+                ref={searchButtonRef}
+                onClick={() => setIsSearchOpen(true)}
+                className="flex-1 flex items-center gap-3 px-5 py-4 bg-white/95 backdrop-blur-md rounded-2xl shadow-lg"
+              >
+                <Search className="w-5 h-5 text-gray-500" />
+                <span className="text-base text-gray-600 truncate">
+                  {lang === 'bg' ? 'Търси София, Пловдив...' : 'Search Sofia, Plovdiv...'}
+                </span>
+              </button>
+              
+              <button
+                onClick={() => setIsFilterModalOpen(true)}
+                className="w-14 h-14 bg-white/95 backdrop-blur-md rounded-2xl shadow-lg flex items-center justify-center"
+              >
+                <SlidersHorizontal className="w-6 h-6 text-gray-700" />
+              </button>
+              
+              <div className="md:hidden flex-shrink-0">
+                <PublicMobileNav translations={dict.navigation} />
               </div>
-            </Link>
-            
-            <button
-              ref={searchButtonRef}
-              onClick={() => setIsSearchOpen(true)}
-              className="flex-1 flex items-center gap-3 px-5 py-4 bg-white/95 backdrop-blur-md rounded-2xl shadow-lg"
-            >
-              <Search className="w-5 h-5 text-gray-500" />
-              <span className="text-base text-gray-600 truncate">
-                {lang === 'bg' ? 'Търси София, Пловдив...' : 'Search Sofia, Plovdiv...'}
-              </span>
-            </button>
-            
-            <button
-              onClick={() => setIsFilterModalOpen(true)}
-              className="w-14 h-14 bg-white/95 backdrop-blur-md rounded-2xl shadow-lg flex items-center justify-center"
-            >
-              <SlidersHorizontal className="w-6 h-6 text-gray-700" />
-            </button>
-            
-            <div className="md:hidden flex-shrink-0">
-              <PublicMobileNav translations={dict.navigation} />
             </div>
           </div>
-        </div>
+        </MobileOnlyWrapper>
         
         {/* Search overlay */}
         {isSearchOpen && (
@@ -727,7 +721,7 @@ export function ListingsClientContent({
                   onPropertyTypeChange={(type) => handlePropertyTypeFilter(type as PropertyTypeFilter)}
                   propertyTypeFilter={propertyTypeFilter}
                   placeholder={dict.listings.filters.chooseCity}
-                  locale={lang}
+                  locale={lang === 'gr' ? 'en' : lang}
                   dict={dict.listings}
                 />
               </CardContent>
@@ -796,8 +790,8 @@ export function ListingsClientContent({
         </aside>
       </div>
       
-      {/* Desktop property card */}
-      {selectedProperty && typeof window !== 'undefined' && window.innerWidth >= 1024 && (
+      {/* Desktop property card - SSR-safe conditional rendering */}
+      {selectedProperty && isDesktop && (
         <PropertyMapCard
           property={transformToPropertyMapData(selectedProperty)}
           onClose={() => onPropertySelect(null)}
