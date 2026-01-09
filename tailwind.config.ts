@@ -1,12 +1,17 @@
 import type { Config } from "tailwindcss"
 
+type ThemeFunction = (path: string) => string
+
 const config = {
     darkMode: ["class"],
+    mode: "jit",
   content: [
     "./app/**/*.{ts,tsx,mdx}",
     "./components/**/*.{ts,tsx,mdx}",
-    "./pages/**/*.{ts,tsx,mdx}",
-    "./src/**/*.{ts,tsx,mdx}",
+    "./content/**/*.mdx",
+    "./hooks/**/*.{ts,tsx}",
+    "./lib/**/*.{ts,tsx}",
+    "./theme/**/*.{ts,tsx}",
   ],
   prefix: "",
   theme: {
@@ -260,7 +265,7 @@ const config = {
   		transitionTimingFunction: {
   			soft: 'cubic-bezier(.2,.8,.2,1)'
   		},
-		typography: ({ theme }) => ({
+		typography: ({ theme }: { theme: ThemeFunction }) => ({
 			DEFAULT: {
 				css: {
 					color: theme('colors.charcoal.400'),
