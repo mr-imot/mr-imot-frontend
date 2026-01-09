@@ -28,7 +28,7 @@ export default async function AuthLangLayout({
         <SiteHeader translations={translations.navigation} />
         <ViewportLock />
         <main className="flex-1">{children}</main>
-        <Footer translations={{ footer: translations.footer, navigation: translations.navigation }} />
+        <Footer lang={lang} translations={{ footer: translations.footer, navigation: translations.navigation }} />
       </div>
       <FeedbackButton translations={translations.feedback} />
       <CookieConsent />

@@ -1,10 +1,9 @@
-"use client"
-
 import Link from "next/link"
 import Image from "next/image"
 import { Separator } from "@/components/ui/separator"
 import { Facebook, Twitter, Instagram, Youtube } from "lucide-react"
-import { useLocale } from "@/lib/locale-context"
+import { CookieSettingsButton } from "@/components/cookie-settings-button"
+import type { SupportedLocale } from "@/lib/locale-context"
 
 interface FooterTranslations {
   footer: {
@@ -33,54 +32,67 @@ interface FooterTranslations {
 
 interface FooterProps {
   translations: FooterTranslations
+  lang: SupportedLocale
 }
 
-export function Footer({ translations }: FooterProps) {
+// Helper to generate localized URLs server-side
+function getLocalizedHref(locale: SupportedLocale, en: string, bg: string): string {
+  if (locale === 'bg') return `/bg/${bg}`
+  if (locale === 'ru') {
+    const ruMap: Record<string, string> = {
+      listings: 'obyavleniya',
+      developers: 'zastroyshchiki',
+      'about-mister-imot': 'o-mister-imot',
+      contact: 'kontakty',
+      'register?type=developer': 'register?type=developer',
+      login: 'login',
+    }
+    return `/ru/${ruMap[en] ?? en}`
+  }
+  if (locale === 'gr') {
+    const grMap: Record<string, string> = {
+      listings: 'aggelies',
+      developers: 'kataskeuastes',
+      'about-mister-imot': 'sxetika-me-to-mister-imot',
+      contact: 'epikoinonia',
+      'register?type=developer': 'register?type=developer',
+      login: 'login',
+    }
+    return `/gr/${grMap[en] ?? en}`
+  }
+  return `/${en}`
+}
+
+export function Footer({ translations, lang }: FooterProps) {
   const t = translations.footer
   const tNav = translations.navigation
-  const locale = useLocale()
-
-  // Helper function to generate localized URLs
-  const href = (en: string, bg: string) => {
-    if (locale === 'bg') return `/bg/${bg}`
-    if (locale === 'ru') {
-      const ruMap: Record<string, string> = {
-        'listings': 'obyavleniya',
-        'developers': 'zastroyshchiki',
-        'about-mister-imot': 'o-mister-imot',
-        'contact': 'kontakty',
-      }
-      return `/ru/${ruMap[en] ?? en}`
-    }
-    return `/${en}`
-  }
 
   const navColumns = [
     {
       title: t.explore,
       links: [
-        { href: href('listings', 'obiavi'), label: tNav.listings },
-        { href: href('developers', 'stroiteli'), label: tNav.developers },
-        { href: href('about-mister-imot', 'za-mistar-imot'), label: tNav.aboutUs },
-        { href: href('contact', 'kontakt'), label: tNav.contact },
+        { href: getLocalizedHref(lang, 'listings', 'obiavi'), label: tNav.listings },
+        { href: getLocalizedHref(lang, 'developers', 'stroiteli'), label: tNav.developers },
+        { href: getLocalizedHref(lang, 'about-mister-imot', 'za-mistar-imot'), label: tNav.aboutUs },
+        { href: getLocalizedHref(lang, 'contact', 'kontakt'), label: tNav.contact },
       ],
     },
     {
       title: t.forDevelopers,
       links: [
-        { href: href('register?type=developer', 'register?type=developer'), label: tNav.listYourProject },
-        { href: href('developer/dashboard', 'developer/dashboard'), label: tNav.developerDashboard },
-        { href: href('login', 'login'), label: tNav.login },
-        { href: href('register?type=developer', 'register?type=developer'), label: tNav.register },
+        { href: getLocalizedHref(lang, 'register?type=developer', 'register?type=developer'), label: tNav.listYourProject },
+        { href: getLocalizedHref(lang, 'developer/dashboard', 'developer/dashboard'), label: tNav.developerDashboard },
+        { href: getLocalizedHref(lang, 'login', 'login'), label: tNav.login },
+        { href: getLocalizedHref(lang, 'register?type=developer', 'register?type=developer'), label: tNav.register },
       ],
     },
   ]
 
-  const legalLinks = [
-  { href: href('privacy-policy', 'privacy-policy'), label: t.privacyPolicy },
-  { href: href('terms-of-service', 'terms-of-service'), label: t.termsOfService },
-  { href: '#cookie-settings', label: t.cookiePolicy }, // Opens cookie preferences banner
-]
+  const legalLinks: Array<{ href: string; label: string; isCookieButton?: boolean }> = [
+    { href: getLocalizedHref(lang, 'privacy-policy', 'privacy-policy'), label: t.privacyPolicy },
+    { href: getLocalizedHref(lang, 'terms-of-service', 'terms-of-service'), label: t.termsOfService },
+    { href: '#cookie-settings', label: t.cookiePolicy, isCookieButton: true }, // Opens cookie preferences banner
+  ]
 
   // TikTok Icon Component (lucide-react doesn't have TikTok icon)
   const TikTokIcon = ({ className }: { className?: string }) => (
@@ -113,7 +125,7 @@ export function Footer({ translations }: FooterProps) {
             <div className="flex items-center space-x-3">
               <div className="h-8 w-8 rounded bg-foreground/90" />
               <span className="text-lg font-semibold">
-                {locale === 'bg' ? 'Мистър Имот' : locale === 'ru' ? 'Мистер Имот' : 'Mister Imot'}
+                {lang === 'bg' ? 'Мистър Имот' : lang === 'ru' ? 'Мистер Имот' : 'Mister Imot'}
               </span>
             </div>
             <p className="mt-6 text-muted-foreground leading-relaxed">
@@ -192,19 +204,8 @@ export function Footer({ translations }: FooterProps) {
             <nav className="flex flex-wrap justify-center md:justify-end gap-x-8 gap-y-2 text-sm">
               {legalLinks.map((link, index) => {
                 // Special handling for cookie settings link
-                if (link.href === '#cookie-settings') {
-                  return (
-                    <button
-                      key={index}
-                      onClick={(e) => {
-                        e.preventDefault()
-                        window.dispatchEvent(new CustomEvent('mi-open-cookie-settings'))
-                      }}
-                      className="text-muted-foreground hover:text-foreground transition-colors duration-200"
-                    >
-                      {link.label}
-                    </button>
-                  )
+                if (link.isCookieButton) {
+                  return <CookieSettingsButton key={index} label={link.label} />
                 }
                 return (
                   <Link

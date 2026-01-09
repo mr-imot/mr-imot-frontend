@@ -111,7 +111,7 @@ export default async function PublicLangLayout({
             {/* Global viewport fixes: mobile height lock and header height sync */}
             <ViewportLock />
             <main className="flex-1">{children}</main>
-            <Footer translations={{ footer: translations.footer, navigation: translations.navigation }} />
+            <Footer lang={lang} translations={{ footer: translations.footer, navigation: translations.navigation }} />
           </div>
           <FeedbackButton translations={translations.feedback} />
           <CookieConsent />
@@ -132,7 +132,7 @@ export default async function PublicLangLayout({
           <div className="relative flex min-h-screen flex-col">
             <ServerHeader lang="en" translations={fallbackTranslations} />
             <main className="flex-1">{children}</main>
-            <Footer translations={{ footer: fallbackTranslations.footer, navigation: fallbackTranslations.navigation }} />
+            <Footer lang="en" translations={{ footer: fallbackTranslations.footer, navigation: fallbackTranslations.navigation }} />
           </div>
           <FeedbackButton translations={fallbackTranslations.feedback} />
           <CookieConsent />
