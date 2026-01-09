@@ -1,4 +1,4 @@
-import { getDictionary } from '@/app/[lang]/dictionaries'
+import { getDictionary } from '@/lib/dictionaries'
 import { AnalyticsWrapper } from './analytics-wrapper'
 
 interface AnalyticsPageProps {

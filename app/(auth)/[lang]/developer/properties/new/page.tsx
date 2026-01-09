@@ -1,4 +1,4 @@
-import { getDictionary } from '@/app/[lang]/dictionaries'
+import { getDictionary } from '@/lib/dictionaries'
 import NewPropertyClient from './new-client'
 
 interface NewPropertyPageProps {

@@ -1,4 +1,4 @@
-import { getDictionary } from '@/app/[lang]/dictionaries'
+import { getDictionary } from '@/lib/dictionaries'
 import ForgotPasswordClient from './forgot-password-client'
 import { brandForLang, formatTitleWithBrand, getSiteUrl } from '@/lib/seo'
 import type { Metadata } from 'next'

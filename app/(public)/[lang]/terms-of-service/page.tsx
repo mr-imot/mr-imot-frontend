@@ -1,4 +1,4 @@
-import { getDictionary } from '@/app/[lang]/dictionaries'
+import { getDictionary } from '@/lib/dictionaries'
 import { formatTitleWithBrand } from '@/lib/seo'
 import { Metadata } from 'next'
 import TermsOfServiceClient from './terms-of-service-client'

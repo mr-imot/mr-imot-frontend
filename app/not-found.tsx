@@ -1,4 +1,4 @@
-import { getDictionary } from './[lang]/dictionaries'
+import { getDictionary } from '@/lib/dictionaries'
 import { formatTitleWithBrand } from '@/lib/seo'
 import { Metadata } from 'next'
 import { headers, cookies } from 'next/headers'
@@ -7,7 +7,7 @@ import { Image } from "@imagekit/next"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Home, Search } from "lucide-react"
-import { GoBackButton } from './[lang]/not-found-client-button'
+import { GoBackButton } from '@/app/(public)/[lang]/not-found-client-button'
 import { toIkPath } from "@/lib/imagekit"
 
 const SUPPORTED_LOCALES = ['en', 'bg', 'ru', 'gr'] as const
