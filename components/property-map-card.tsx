@@ -16,6 +16,8 @@ interface PropertyMapCardProps {
   onClose: () => void
   className?: string
   position?: {
+    x?: number
+    y?: number
     top?: number
     left?: number
     right?: number
@@ -76,12 +78,16 @@ export function PropertyMapCard({
     }
   })
 
+  const hasTransformPosition = !floating && position && (position.x !== undefined || position.y !== undefined)
   const positionStyles = !floating && position ? {
-    top: position.top,
-    left: position.left,
+    top: hasTransformPosition ? 0 : position.top,
+    left: hasTransformPosition ? 0 : position.left,
     right: position.right,
     bottom: position.bottom,
   } : {}
+  const resolvedTransform = hasTransformPosition
+    ? `translate3d(${position?.x ?? 0}px, ${position?.y ?? 0}px, 0)`
+    : undefined
 
   const handleClose = () => {
     setIsClosing(true)
@@ -279,9 +285,9 @@ export function PropertyMapCard({
       )}
       style={{
         ...(forceMobile && floating ? {} : positionStyles),
-        transform: forceMobile && floating 
-          ? `translate(-50%, ${dragOffset}px)` 
-          : undefined,
+        transform: forceMobile && floating
+          ? `translate(-50%, ${dragOffset}px)`
+          : resolvedTransform,
         transition: isDragging ? 'none' : 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease-out',
       }}
       onClick={(e) => {
@@ -477,4 +483,3 @@ export function PropertyMapCard({
     </WrapperTag>
   )
 }
-

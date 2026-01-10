@@ -91,14 +91,17 @@ export function PropertyMapWithCards({
   const [loadingData, setLoadingData] = useState(false)
   const [isLoaded, setIsLoaded] = useState(false)
   const [cardPosition, setCardPosition] = useState<{
-    top?: number
-    left?: number
-    right?: number
-    bottom?: number
+    x?: number
+    y?: number
   }>({})
   const mapRef = useRef<google.maps.Map | null>(null)
   const mapContainerRef = useRef<HTMLDivElement | null>(null)
   const markersRef = useRef<Record<string | number, google.maps.marker.AdvancedMarkerElement>>({})
+  const mapMetricsRef = useRef<{
+    bounds: google.maps.LatLngBounds | null
+    projection: google.maps.Projection | null
+    containerRect: DOMRect | null
+  }>({ bounds: null, projection: null, containerRect: null })
 
   useEffect(() => {
     if (!useRealData) {
@@ -132,33 +135,31 @@ export function PropertyMapWithCards({
 
   // Calculate Airbnb-style intelligent card position based on marker location
   const calculateCardPosition = useMemo(() => {
-    return (property: any, mapInstance: google.maps.Map) => {
-      const mapContainer = document.querySelector('.property-map-container')
-      if (!mapContainer || !mapInstance) return {}
+    return (property: PropertyData) => {
+      const { bounds, projection, containerRect } = mapMetricsRef.current
+      if (!containerRect) return {}
       
-      const mapBounds = mapContainer.getBoundingClientRect()
+      const mapBounds = containerRect
       const cardWidth = 327
       const cardHeight = 321
       const padding = 20
       
       // Convert property lat/lng to screen coordinates
-      const projection = mapInstance.getProjection()
       if (!projection) {
         // Fallback to center positioning
         return {
-          top: mapBounds.top + mapBounds.height * 0.3,
-          left: mapBounds.left + mapBounds.width * 0.6 - cardWidth / 2
+          x: mapBounds.left + mapBounds.width * 0.6 - cardWidth / 2,
+          y: mapBounds.top + mapBounds.height * 0.3,
         }
       }
       
       const markerLatLng = new google.maps.LatLng(property.lat, property.lng)
       const markerPoint = projection.fromLatLngToPoint(markerLatLng)
-      const bounds = mapInstance.getBounds()
       
       if (!markerPoint || !bounds) {
         return {
-          top: mapBounds.top + mapBounds.height * 0.3,
-          left: mapBounds.left + mapBounds.width * 0.6 - cardWidth / 2
+          x: mapBounds.left + mapBounds.width * 0.6 - cardWidth / 2,
+          y: mapBounds.top + mapBounds.height * 0.3,
         }
       }
       
@@ -166,7 +167,7 @@ export function PropertyMapWithCards({
       const sw = projection.fromLatLngToPoint(bounds.getSouthWest())
       const ne = projection.fromLatLngToPoint(bounds.getNorthEast())
       
-      if (!sw || !ne) return { top: mapBounds.top + 100, left: mapBounds.left + 100 }
+      if (!sw || !ne) return { x: mapBounds.left + 100, y: mapBounds.top + 100 }
       
       // Normalize marker position to 0-1 range within viewport
       const markerX = (markerPoint.x - sw.x) / (ne.x - sw.x)
@@ -208,7 +209,7 @@ export function PropertyMapWithCards({
         top = window.innerHeight - cardHeight - padding
       }
       
-      return { top, left }
+      return { x: left, y: top }
     }
   }, [])
 
@@ -239,6 +240,18 @@ export function PropertyMapWithCards({
         map.addListener('click', () => {
           setSelected(null)
         })
+        
+        const updateMapMetrics = () => {
+          if (!mapContainerRef.current) return
+          mapMetricsRef.current = {
+            bounds: map.getBounds() ?? null,
+            projection: map.getProjection() ?? null,
+            containerRect: mapContainerRef.current.getBoundingClientRect(),
+          }
+        }
+        
+        map.addListener('idle', updateMapMetrics)
+        map.addListener('zoom_changed', updateMapMetrics)
       } catch (err) {
         console.error('Failed to initialize map:', err)
         setError('Failed to load map')
@@ -284,9 +297,7 @@ export function PropertyMapWithCards({
       // Add event listeners
       marker.addEventListener('click', () => {
         setSelected(p)
-        if (mapRef.current) {
-          setCardPosition(calculateCardPosition(p, mapRef.current))
-        }
+        setCardPosition(calculateCardPosition(p))
       })
       
       marker.addEventListener('mouseover', () => {
