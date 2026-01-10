@@ -149,6 +149,8 @@ export function ListingsClientContent({
   const searchButtonRef = useRef<HTMLButtonElement>(null)
   const listContainerRef = useRef<HTMLDivElement>(null)
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const hasDesktopIdleRef = useRef(false)
+  const hasMobileIdleRef = useRef(false)
   
   // Refs to track current filter values for map idle callbacks (avoids stale closures)
   const propertyTypeFilterRef = useRef(propertyTypeFilter)
@@ -299,18 +301,22 @@ export function ListingsClientContent({
               const ne = bounds.getNorthEast()
               // Only fetch if we don't have enough cached data
               const cachedCount = propertyCacheRef.current.size
+              const isInitialIdle = !hasDesktopIdleRef.current
+              hasDesktopIdleRef.current = true
+              const reason = isInitialIdle ? 'initial' : 'interaction'
               if (cachedCount === 0) {
                 // No SSR data - fetch immediately
                 getOrCreateFetchController().schedule(
                   sw.lat(), sw.lng(), ne.lat(), ne.lng(),
                   propertyTypeFilterRef.current as MapPropertyTypeFilter,
-                  { immediate: true }
+                  { immediate: true, reason }
                 )
               } else {
                 // Have SSR/cached data - use debounced fetch for updates
                 getOrCreateFetchController().schedule(
                   sw.lat(), sw.lng(), ne.lat(), ne.lng(),
-                  propertyTypeFilterRef.current as MapPropertyTypeFilter
+                  propertyTypeFilterRef.current as MapPropertyTypeFilter,
+                  { reason }
                 )
               }
             }
@@ -374,16 +380,20 @@ export function ListingsClientContent({
             const sw = bounds.getSouthWest()
             const ne = bounds.getNorthEast()
             const cachedCount = propertyCacheRef.current.size
+            const isInitialIdle = !hasMobileIdleRef.current
+            hasMobileIdleRef.current = true
+            const reason = isInitialIdle ? 'initial' : 'interaction'
             if (cachedCount === 0) {
               getOrCreateFetchController().schedule(
                 sw.lat(), sw.lng(), ne.lat(), ne.lng(),
                 propertyTypeFilterRef.current as MapPropertyTypeFilter,
-                { immediate: true }
+                { immediate: true, reason }
               )
             } else {
               getOrCreateFetchController().schedule(
                 sw.lat(), sw.lng(), ne.lat(), ne.lng(),
-                propertyTypeFilterRef.current as MapPropertyTypeFilter
+                propertyTypeFilterRef.current as MapPropertyTypeFilter,
+                { reason }
               )
             }
           }
@@ -519,7 +529,7 @@ export function ListingsClientContent({
     getOrCreateFetchController().schedule(
       sw_lat, sw_lng, ne_lat, ne_lng,
       propertyTypeFilterRef.current as MapPropertyTypeFilter,
-      { immediate: true }
+      { immediate: true, reason: 'city' }
     )
   }, [selectedCity, getOrCreateFetchController])
   
@@ -537,7 +547,7 @@ export function ListingsClientContent({
       getOrCreateFetchController().schedule(
         sw.lat(), sw.lng(), ne.lat(), ne.lng(),
         propertyTypeFilter as MapPropertyTypeFilter,
-        { immediate: true }
+        { immediate: true, reason: 'filter' }
       )
     }
   }, [propertyTypeFilter, getOrCreateFetchController])

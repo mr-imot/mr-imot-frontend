@@ -48,19 +48,19 @@ class BoundsBasedCacheManager {
   }
 
   // Get cached data for bounds + property type
-  getCachedData(
+  getCachedEntry(
     sw_lat: number,
     sw_lng: number,
     ne_lat: number,
     ne_lng: number,
     propertyType: string
-  ): PropertyData[] | null {
+  ): BoundsCacheEntry | null {
     const key = getBoundsCacheKey(sw_lat, sw_lng, ne_lat, ne_lng, propertyType)
     
     // Try in-memory cache first (fastest)
     const memoryEntry = this.sessionCache.get(key)
     if (memoryEntry && this.isCacheValid(memoryEntry)) {
-      return memoryEntry.data
+      return memoryEntry
     }
 
     // Try sessionStorage
@@ -71,7 +71,7 @@ class BoundsBasedCacheManager {
         if (this.isCacheValid(entry)) {
           // Promote to memory cache for faster access
           this.sessionCache.set(key, entry)
-          return entry.data
+          return entry
         } else {
           // Expired, remove it
           sessionStorage.removeItem(key)
@@ -82,6 +82,22 @@ class BoundsBasedCacheManager {
     }
 
     return null
+  }
+
+  // Get cached data for bounds + property type
+  getCachedData(
+    sw_lat: number,
+    sw_lng: number,
+    ne_lat: number,
+    ne_lng: number,
+    propertyType: string
+  ): PropertyData[] | null {
+    const entry = this.getCachedEntry(sw_lat, sw_lng, ne_lat, ne_lng, propertyType)
+    return entry ? entry.data : null
+  }
+
+  isEntryStale(entry: BoundsCacheEntry, staleMs: number): boolean {
+    return Date.now() - entry.timestamp > staleMs
   }
 
   // Set cached data for bounds + property type

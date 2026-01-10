@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState, useRef } from 'react'
 import "@/styles/components/map.css"
-import { ensureGoogleMaps, createSvgMarkerIcon } from '@/lib/google-maps'
+import { ensureGoogleMapsBasic, createSvgMarkerIcon } from '@/lib/google-maps'
 import { PropertyMapCard } from './property-map-card'
 import { PropertyData } from '@/lib/marker-manager'
 import { PropertyMapCardData, toPropertyMapCardData } from '@/lib/types'
@@ -218,7 +218,7 @@ export function PropertyMapWithCards({
       if (!mapContainerRef.current) return
       
       try {
-        await ensureGoogleMaps()
+        await ensureGoogleMapsBasic()
         
         const map = new google.maps.Map(mapContainerRef.current, {
           center: defaultCenter,

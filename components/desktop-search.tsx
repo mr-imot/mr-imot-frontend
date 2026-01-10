@@ -170,8 +170,10 @@ export function DesktopSearch({
 
   const fetchPredictions = useRef(
     debounce(async (query: string) => {
-      if (!query || !autocompleteSuggestionRef.current) return
+      if (!query) return
       try {
+        const ready = await ensurePlacesReady()
+        if (!ready || !autocompleteSuggestionRef.current) return
         // Reuse token within a session; create if missing
         if (!sessionTokenRef.current) {
           sessionTokenRef.current = new google.maps.places.AutocompleteSessionToken()

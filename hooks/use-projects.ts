@@ -29,7 +29,10 @@ const transformProjectToPropertyData = (project: any) => {
   const city: string = project.city || project.location || '';
   const priceLabel: string | undefined = project.price_label || project.price_per_m2;
   const images: string[] = Array.isArray(project.images)
-    ? project.images.map((img: any) => img?.urls?.card || img?.image_url).filter(Boolean)
+    ? project.images
+        .map((img: any) => img?.urls?.card || img?.image_url)
+        .filter(Boolean)
+        .slice(0, 2)
     : [];
   const cover = project.cover_image_url || images[0] || '/placeholder.svg?height=300&width=400';
   return {

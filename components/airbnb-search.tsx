@@ -155,8 +155,10 @@ export function AirbnbSearch({
 
   const fetchPredictions = useRef(
     debounce(async (query: string) => {
-      if (!query || !autocompleteSuggestionRef.current) return
+      if (!query) return
       try {
+        const ready = await ensurePlacesReady()
+        if (!ready || !autocompleteSuggestionRef.current) return
         if (!sessionTokenRef.current) {
           sessionTokenRef.current = new google.maps.places.AutocompleteSessionToken()
         }

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import { MapPin, Search, X } from "lucide-react"
-import { ensureGoogleMaps, ensurePlacesLibrary } from "@/lib/google-maps"
+import { ensurePlacesLibrary } from "@/lib/google-maps"
 import { cn } from "@/lib/utils"
 
 type NormalizedPrediction = {
@@ -41,6 +41,7 @@ export function AddressSearchField({
   const sessionTokenRef = useRef<google.maps.places.AutocompleteSessionToken | null>(null)
   const autocompleteSuggestionRef = useRef<typeof google.maps.places.AutocompleteSuggestion | null>(null)
   const placesLibraryRef = useRef<google.maps.PlacesLibrary | null>(null)
+  const placesReadyRef = useRef(false)
 
   const getPlacesLibrary = async () => {
     if (!placesLibraryRef.current) {
@@ -49,24 +50,20 @@ export function AddressSearchField({
     return placesLibraryRef.current
   }
 
-  // Init library + session token
-  useEffect(() => {
-    const init = async () => {
-      try {
-        await ensureGoogleMaps()
-        await getPlacesLibrary()
-        if (!autocompleteSuggestionRef.current) {
-          autocompleteSuggestionRef.current = google.maps.places.AutocompleteSuggestion
-        }
-        if (!sessionTokenRef.current) {
-          sessionTokenRef.current = new google.maps.places.AutocompleteSessionToken()
-        }
-      } catch (e) {
-        console.error("Failed to init places autocomplete", e)
+  const ensurePlacesReady = async () => {
+    if (placesReadyRef.current) return true
+    try {
+      await getPlacesLibrary()
+      if (!autocompleteSuggestionRef.current) {
+        autocompleteSuggestionRef.current = google.maps.places.AutocompleteSuggestion
       }
+      placesReadyRef.current = true
+      return true
+    } catch (e) {
+      console.error("Failed to init places autocomplete", e)
+      return false
     }
-    init()
-  }, [])
+  }
 
   // Simple debounce
   const debounce = <T extends (...args: any[]) => void>(fn: T, wait: number) => {
@@ -79,8 +76,10 @@ export function AddressSearchField({
 
   const fetchPredictions = useRef(
     debounce(async (query: string) => {
-      if (!query || !autocompleteSuggestionRef.current) return
+      if (!query) return
       try {
+        const ready = await ensurePlacesReady()
+        if (!ready || !autocompleteSuggestionRef.current) return
         if (!sessionTokenRef.current) {
           sessionTokenRef.current = new google.maps.places.AutocompleteSessionToken()
         }
@@ -165,7 +164,10 @@ export function AddressSearchField({
           ref={inputRef}
           type="text"
           value={value}
-          onFocus={() => setIsExpanded(true)}
+          onFocus={() => {
+            setIsExpanded(true)
+            void ensurePlacesReady()
+          }}
           onChange={(e) => {
             onChange(e.target.value)
             setIsExpanded(true)
