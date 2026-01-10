@@ -44,8 +44,10 @@ function ListingCardComponent({ listing, isActive, onCardClick, onCardHover, pri
   const pathname = usePathname()
   const router = useRouter()
   const [hasTrackedView, setHasTrackedView] = useState(false)
-  const hasMultipleImages = listing.images?.length > 1
+  const [isCarouselExpanded, setIsCarouselExpanded] = useState(priority)
   const cardRef = useRef<HTMLElement>(null)
+  const carouselImages = isCarouselExpanded ? listing.images : listing.images.slice(0, 1)
+  const hasMultipleImages = carouselImages.length > 1
   
   // Detect locale from pathname
   const lang = pathname.startsWith('/bg/') ? 'bg' : 'en'
@@ -78,6 +80,7 @@ function ListingCardComponent({ listing, isActive, onCardClick, onCardHover, pri
   // Embla carousel hook with physics-based configuration
   const {
     emblaRef,
+    emblaApi,
     selectedIndex,
     scrollPrev,
     scrollNext,
@@ -99,10 +102,18 @@ function ListingCardComponent({ listing, isActive, onCardClick, onCardHover, pri
 
   const handleMouseEnter = () => {
     onCardHover?.(listing.id)
+    setIsCarouselExpanded(true)
   }
 
   const handleMouseLeave = () => {
     onCardHover?.(null)
+    if (!priority) {
+      setIsCarouselExpanded(false)
+    }
+  }
+
+  const handleTouchStart = () => {
+    setIsCarouselExpanded(true)
   }
 
   const nextImage = (e: React.MouseEvent) => {
@@ -122,6 +133,18 @@ function ListingCardComponent({ listing, isActive, onCardClick, onCardHover, pri
     e.stopPropagation()
     scrollTo(index)
   }
+
+  useEffect(() => {
+    setIsCarouselExpanded(priority)
+  }, [priority])
+
+  useEffect(() => {
+    if (!emblaApi) return
+    emblaApi.reInit()
+    if (!isCarouselExpanded) {
+      emblaApi.scrollTo(0, true)
+    }
+  }, [emblaApi, isCarouselExpanded, carouselImages.length])
 
   // Track view when card becomes visible
   useEffect(() => {
@@ -175,6 +198,9 @@ function ListingCardComponent({ listing, isActive, onCardClick, onCardHover, pri
         }}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
+        onTouchStart={handleTouchStart}
+        onFocus={handleMouseEnter}
+        onBlur={handleMouseLeave}
       >
       {/* Image Container - Embla Carousel with smooth transitions */}
       <div className="relative overflow-hidden h-[240px] w-full cursor-pointer" style={{ 
@@ -187,7 +213,7 @@ function ListingCardComponent({ listing, isActive, onCardClick, onCardHover, pri
       }}>
         <div className="embla" ref={emblaRef}>
           <div className="embla__container flex">
-            {listing.images.map((image, index) => (
+            {carouselImages.map((image, index) => (
               <div key={index} className="embla__slide flex-[0_0_100%] min-w-0">
                 <div className="relative w-full h-[240px]">
                   <Image
@@ -211,7 +237,7 @@ function ListingCardComponent({ listing, isActive, onCardClick, onCardHover, pri
           <>
             {/* Dots - Mobile-optimized positioning */}
             <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 mobile-dots">
-              {listing.images.map((_, idx) => (
+              {carouselImages.map((_, idx) => (
                 <button
                   key={idx}
                   type="button"

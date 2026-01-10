@@ -3,6 +3,13 @@ import { PropertyData } from '@/lib/marker-manager'
 import { Listing } from '@/components/ListingCard'
 
 export function propertyToListing(property: PropertyData): Listing {
+  const rawImages =
+    (property as any).images ??
+    property.images ??
+    (property.image ? [property.image] : [])
+  const normalizedImages = Array.isArray(rawImages) ? rawImages : [rawImages]
+  const limitedImages = normalizedImages.filter(Boolean).slice(0, 2)
+
   return {
     id: property.id,
     slug: property.slug, // Pass through slug for SEO-friendly URLs
@@ -17,7 +24,7 @@ export function propertyToListing(property: PropertyData): Listing {
     reviewCount: 0,
     status: property.status,
     propertyType: property.type, // Add property type for icon display
-    images: (property as any).images || property.images || [property.image],
+    images: limitedImages.length > 0 ? limitedImages : [property.image].filter(Boolean),
   }
 }
 
