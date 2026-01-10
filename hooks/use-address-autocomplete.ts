@@ -26,11 +26,18 @@ export function useAddressAutocomplete({
   const [autocompleteOpen, setAutocompleteOpen] = useState(false)
   const [placesBlocked, setPlacesBlocked] = useState(false)
   const checkIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const initializedRef = useRef(false)
 
   useEffect(() => {
     if (!enabled || !inputRef.current) return
 
+    const inputElement = inputRef.current
+
     const initAutocomplete = async () => {
+      if (initializedRef.current || placesBlocked) {
+        return
+      }
+
       try {
         const google = await ensureGoogleMaps()
 
@@ -47,7 +54,6 @@ export function useAddressAutocomplete({
         autocompleteRef.current = autocomplete
 
         // Track when autocomplete dropdown opens/closes
-        const inputElement = inputRef.current
         const startCheckingDropdown = () => {
           if (checkIntervalRef.current) return
           checkIntervalRef.current = setInterval(() => {
@@ -108,22 +114,31 @@ export function useAddressAutocomplete({
             onAddressChange?.(formattedAddress)
           }
         })
+
+        initializedRef.current = true
       } catch (error) {
         console.error('Error initializing autocomplete:', error)
         setPlacesBlocked(true)
       }
     }
 
-    initAutocomplete()
+    const handleFocus = () => {
+      void initAutocomplete()
+    }
+
+    inputElement.addEventListener('focus', handleFocus)
+    inputElement.addEventListener('input', handleFocus)
+
+    if (document.activeElement === inputElement) {
+      void initAutocomplete()
+    }
 
     // Cleanup function
     return () => {
+      inputElement.removeEventListener('focus', handleFocus)
+      inputElement.removeEventListener('input', handleFocus)
       if (checkIntervalRef.current) {
         clearInterval(checkIntervalRef.current)
-      }
-      if (inputRef.current) {
-        // Note: We can't remove listeners without storing the function reference
-        // This is acceptable as the component will unmount
       }
       if (autocompleteRef.current && typeof window !== 'undefined' && window.google) {
         window.google.maps.event.clearInstanceListeners(autocompleteRef.current)
@@ -146,4 +161,3 @@ export function useAddressAutocomplete({
     placesBlocked,
   }
 }
-

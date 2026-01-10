@@ -1,8 +1,8 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { Search, X, MapPin, Navigation, Building, Home, SlidersHorizontal } from "lucide-react"
-import { ensureGoogleMaps, ensurePlacesLibrary } from "@/lib/google-maps"
+import { ensurePlacesLibrary } from "@/lib/google-maps"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 
 interface CityOption {
@@ -102,13 +102,29 @@ export function DesktopSearch({
   const sessionTokenRef = useRef<google.maps.places.AutocompleteSessionToken | null>(null)
   const autocompleteSuggestionRef = useRef<typeof google.maps.places.AutocompleteSuggestion | null>(null)
   const placesLibraryRef = useRef<google.maps.PlacesLibrary | null>(null)
+  const placesReadyRef = useRef(false)
 
-  const getPlacesLibrary = async () => {
+  const getPlacesLibrary = useCallback(async () => {
     if (!placesLibraryRef.current) {
       placesLibraryRef.current = await ensurePlacesLibrary()
     }
     return placesLibraryRef.current
-  }
+  }, [])
+
+  const ensurePlacesReady = useCallback(async () => {
+    if (placesReadyRef.current) return true
+    try {
+      await getPlacesLibrary()
+      if (!autocompleteSuggestionRef.current) {
+        autocompleteSuggestionRef.current = google.maps.places.AutocompleteSuggestion
+      }
+      placesReadyRef.current = true
+      return true
+    } catch (e) {
+      console.error('Failed to init Google Places:', e)
+      return false
+    }
+  }, [getPlacesLibrary])
 
   function debounce<T extends (...args: any[]) => void>(fn: T, wait: number) {
     let t: any
@@ -145,27 +161,18 @@ export function DesktopSearch({
     )
   }
 
-  // Initialize Places library and session token
   useEffect(() => {
-    const init = async () => {
-      try {
-        await ensureGoogleMaps()
-        await getPlacesLibrary()
-        if (!autocompleteSuggestionRef.current) {
-          autocompleteSuggestionRef.current = google.maps.places.AutocompleteSuggestion
-        }
-        sessionTokenRef.current = new google.maps.places.AutocompleteSessionToken()
-      } catch (e) {
-        console.error('Failed to init Google Places:', e)
-      }
+    if (isExpanded) {
+      void ensurePlacesReady()
     }
-    init()
-  }, [])
+  }, [isExpanded, ensurePlacesReady])
 
   const fetchPredictions = useRef(
     debounce(async (query: string) => {
-      if (!query || !autocompleteSuggestionRef.current) return
+      if (!query) return
       try {
+        const ready = await ensurePlacesReady()
+        if (!ready || !autocompleteSuggestionRef.current) return
         // Reuse token within a session; create if missing
         if (!sessionTokenRef.current) {
           sessionTokenRef.current = new google.maps.places.AutocompleteSessionToken()
@@ -270,7 +277,11 @@ export function DesktopSearch({
   const handleExpand = () => {
     setIsExpanded(true)
     setTimeout(() => inputRef.current?.focus(), 100)
-    sessionTokenRef.current = new google.maps.places.AutocompleteSessionToken()
+    void ensurePlacesReady().then((ready) => {
+      if (ready) {
+        sessionTokenRef.current = new google.maps.places.AutocompleteSessionToken()
+      }
+    })
   }
 
   const nearbyText = {
@@ -491,4 +502,3 @@ export function DesktopSearch({
     </div>
   )
 }
-

@@ -16,7 +16,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { getProject, updateProject, attachProjectImages, deleteProjectImage, getProjectImages, updateProjectImagesOrder, type Project } from "@/lib/api"
 import { upload } from "@imagekit/next";
-import { ensureGoogleMaps } from "@/lib/google-maps"
+import { ensureGoogleMaps, ensureGoogleMapsBasic } from "@/lib/google-maps"
 import { AddressSearchField } from "@/components/address-search-field"
 import { Info, Loader, Upload, X, Move, Star, Image as ImageIcon, Plus, ArrowLeft, Maximize2 } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
@@ -252,7 +252,7 @@ export default function EditProjectPage({ dict, lang, params }: EditPropertyClie
     if (!loading && form.getValues('latitude') && form.getValues('longitude')) {
       const initMapAndPlaces = async () => {
         try {
-          const google = await ensureGoogleMaps()
+          const google = await ensureGoogleMapsBasic()
           const mapContainer = mapRef.current
           if (!mapContainer) return
 
@@ -446,7 +446,7 @@ export default function EditProjectPage({ dict, lang, params }: EditPropertyClie
   // Forward geocode function for manual address input
   const forwardGeocode = async (address: string) => {
     try {
-      const google = await ensureGoogleMaps()
+      const google = await ensureGoogleMapsBasic()
       const geocoder = new google.maps.Geocoder()
       
       geocoder.geocode({ address }, (results, status) => {

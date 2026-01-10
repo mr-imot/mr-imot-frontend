@@ -14,7 +14,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { ensureGoogleMaps } from "@/lib/google-maps"
+import { ensureGoogleMapsBasic } from "@/lib/google-maps"
 import { useAuth } from "@/lib/auth-context"
 import { getCurrentDeveloper, updateDeveloperProfile, changeDeveloperPassword } from "@/lib/api"
 import { Loader, MapPin, Building, User, Phone, Mail, Globe, Lock, Save, Eye, EyeOff, Upload, Camera, X, Maximize2 } from "lucide-react"
@@ -187,7 +187,7 @@ export default function DeveloperProfilePage({ dict, lang }: ProfileClientProps)
       if (!mapRef.current) return
 
       try {
-        await ensureGoogleMaps()
+        await ensureGoogleMapsBasic()
         
         const mapCenter = profile?.office_latitude && profile?.office_longitude 
           ? { lat: profile.office_latitude, lng: profile.office_longitude }
@@ -321,7 +321,7 @@ export default function DeveloperProfilePage({ dict, lang }: ProfileClientProps)
   // Reverse geocode function
   const reverseGeocode = async (lat: number, lng: number) => {
     try {
-      const google = await ensureGoogleMaps()
+      const google = await ensureGoogleMapsBasic()
       const geocoder = new google.maps.Geocoder()
       
       geocoder.geocode({ location: { lat, lng } }, (results, status) => {
@@ -346,7 +346,7 @@ export default function DeveloperProfilePage({ dict, lang }: ProfileClientProps)
   // Forward geocode function for manual address input
   const forwardGeocode = async (address: string) => {
     try {
-      const google = await ensureGoogleMaps()
+      const google = await ensureGoogleMapsBasic()
       const geocoder = new google.maps.Geocoder()
       
       geocoder.geocode({ address }, (results, status) => {

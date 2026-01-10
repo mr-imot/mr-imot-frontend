@@ -16,7 +16,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { createProject, attachProjectImages } from "@/lib/api"
 import { upload } from "@imagekit/next";
-import { ensureGoogleMaps } from "@/lib/google-maps"
+import { ensureGoogleMapsBasic } from "@/lib/google-maps"
 import { AddressSearchField } from "@/components/address-search-field"
 import { preventEnterSubmit } from "@/lib/form-utils"
 import { Info, Loader, Upload, X, Move, Star, Image as ImageIcon, Plus, Maximize2 } from "lucide-react"
@@ -286,7 +286,7 @@ export default function NewPropertyPage({ dict, lang }: NewPropertyClientProps) 
   useEffect(() => {
     const initMapAndPlaces = async () => {
       try {
-        const google = await ensureGoogleMaps()
+        const google = await ensureGoogleMapsBasic()
 
         if (!mapRef.current) return
 
@@ -486,7 +486,7 @@ export default function NewPropertyPage({ dict, lang }: NewPropertyClientProps) 
     form.setValue("address", address, { shouldValidate: true })
 
     try {
-      const google = await ensureGoogleMaps()
+      const google = await ensureGoogleMapsBasic()
       const geocoder = new google.maps.Geocoder()
       geocoder.geocode({ location: newCenter }, (results, status) => {
         if (status === google.maps.GeocoderStatus.OK && results && results[0]) {
@@ -1358,5 +1358,4 @@ export default function NewPropertyPage({ dict, lang }: NewPropertyClientProps) 
     </div>
   )
 }
-
 
