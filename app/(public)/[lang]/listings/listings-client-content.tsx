@@ -16,7 +16,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 
-import { ensureGoogleMaps } from "@/lib/google-maps"
+import { ensureGoogleMapsBasic } from "@/lib/google-maps"
 import { MarkerManager, PropertyData } from "@/lib/marker-manager"
 import { ListingCard } from "@/components/ListingCard"
 import { propertyToListing } from "@/lib/listing-adapter"
@@ -268,7 +268,7 @@ export function ListingsClientContent({
       if (!mapRef.current || googleMapRef.current) return
       
       try {
-        await ensureGoogleMaps()
+        await ensureGoogleMapsBasic()
         
         const map = new google.maps.Map(mapRef.current, {
           center: CITY_COORDINATES[selectedCity],
@@ -345,7 +345,7 @@ export function ListingsClientContent({
       if (!mobileMapRef.current || mobileGoogleMapRef.current) return
       
       try {
-        await ensureGoogleMaps()
+        await ensureGoogleMapsBasic()
         
         const mobileMap = new google.maps.Map(mobileMapRef.current, {
           center: CITY_COORDINATES[selectedCity],
@@ -814,4 +814,3 @@ export function ListingsClientContent({
     </>
   )
 }
-

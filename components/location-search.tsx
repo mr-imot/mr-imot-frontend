@@ -15,43 +15,49 @@ export function LocationSearch({ onPlaceSelected, placeholder = "Search location
   const [value, setValue] = useState(defaultValue)
   const [isFocused, setIsFocused] = useState(false)
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null)
+  const autocompleteReadyRef = useRef(false)
+  const onPlaceSelectedRef = useRef(onPlaceSelected)
 
   useEffect(() => {
-    const initAutocomplete = async () => {
-      if (!inputRef.current) return
-      
-      try {
-        await ensureGoogleMaps()
-        
-        // Initialize autocomplete - no country restriction for global support
-        autocompleteRef.current = new google.maps.places.Autocomplete(inputRef.current, {
-          types: ['(cities)'],
-          // No componentRestrictions - allows all countries
-          fields: ['name', 'geometry', 'formatted_address', 'place_id']
-        })
-        
-        // Listen for place selection
-        autocompleteRef.current.addListener('place_changed', () => {
-          const place = autocompleteRef.current?.getPlace()
-          if (place && place.geometry) {
-            onPlaceSelected(place)
-            setValue(place.name || place.formatted_address || '')
-            inputRef.current?.blur() // Close keyboard on mobile
-          }
-        })
-      } catch (error) {
-        console.error('Failed to initialize Google Places:', error)
-      }
+    onPlaceSelectedRef.current = onPlaceSelected
+  }, [onPlaceSelected])
+
+  const initAutocomplete = async () => {
+    if (!inputRef.current || autocompleteReadyRef.current) return
+
+    try {
+      await ensureGoogleMaps()
+
+      // Initialize autocomplete - no country restriction for global support
+      autocompleteRef.current = new google.maps.places.Autocomplete(inputRef.current, {
+        types: ['(cities)'],
+        // No componentRestrictions - allows all countries
+        fields: ['name', 'geometry', 'formatted_address', 'place_id']
+      })
+
+      // Listen for place selection
+      autocompleteRef.current.addListener('place_changed', () => {
+        const place = autocompleteRef.current?.getPlace()
+        if (place && place.geometry) {
+          onPlaceSelectedRef.current(place)
+          setValue(place.name || place.formatted_address || '')
+          inputRef.current?.blur() // Close keyboard on mobile
+        }
+      })
+
+      autocompleteReadyRef.current = true
+    } catch (error) {
+      console.error('Failed to initialize Google Places:', error)
     }
-    
-    initAutocomplete()
-    
+  }
+
+  useEffect(() => {
     return () => {
       if (autocompleteRef.current) {
         google.maps.event.clearInstanceListeners(autocompleteRef.current)
       }
     }
-  }, [onPlaceSelected])
+  }, [])
 
   const handleClear = () => {
     setValue('')
@@ -74,7 +80,10 @@ export function LocationSearch({ onPlaceSelected, placeholder = "Search location
         type="text"
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        onFocus={() => setIsFocused(true)}
+        onFocus={() => {
+          setIsFocused(true)
+          void initAutocomplete()
+        }}
         onBlur={() => setTimeout(() => setIsFocused(false), 200)}
         placeholder={placeholder}
         className="w-full pl-12 pr-12 py-3 bg-transparent border-0 focus:outline-none focus:ring-0 text-gray-900 placeholder-gray-400 text-base font-medium"
@@ -92,4 +101,3 @@ export function LocationSearch({ onPlaceSelected, placeholder = "Search location
     </div>
   )
 }
-

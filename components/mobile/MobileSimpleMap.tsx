@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { ensureGoogleMaps } from "@/lib/google-maps"
+import { ensureGoogleMapsBasic } from "@/lib/google-maps"
 import { PropertyData } from "@/lib/marker-manager"
 import { Loader2, MapPin } from "lucide-react"
 
@@ -40,7 +40,7 @@ export function MobileSimpleMap({
       
       try {
         setIsLoading(true)
-        await ensureGoogleMaps()
+        await ensureGoogleMapsBasic()
         
         // Create mobile-optimized map with Airbnb-style styling
         const map = new google.maps.Map(mapRef.current, {

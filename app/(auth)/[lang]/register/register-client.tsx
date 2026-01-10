@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils"
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from "@/lib/auth-constants"
 import { createAuthError, getErrorDisplayMessage } from "@/lib/auth-errors"
 import { useAuth } from "@/lib/auth-context"
-import { ensureGoogleMaps } from "@/lib/google-maps"
+import { ensureGoogleMapsBasic } from "@/lib/google-maps"
 import { AddressSearchField } from "@/components/address-search-field"
 import { preventEnterSubmit } from "@/lib/form-utils"
 import Link from "next/link"
@@ -124,7 +124,7 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
 
     const initMap = async () => {
       try {
-        await ensureGoogleMaps()
+        await ensureGoogleMapsBasic()
         const map = new google.maps.Map(mapRef.current!, {
           center: defaultCenter,
           zoom: 15,
@@ -231,7 +231,7 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
   // Reverse geocode function
   const reverseGeocode = async (lat: number, lng: number) => {
     try {
-      const google = await ensureGoogleMaps()
+      const google = await ensureGoogleMapsBasic()
       const geocoder = new google.maps.Geocoder()
       
       geocoder.geocode({ location: { lat, lng } }, (results, status) => {
@@ -263,7 +263,7 @@ function RegisterFormContent({ dict, lang }: RegisterClientProps) {
     if (!address || !address.trim()) return null
     
     try {
-      const google = await ensureGoogleMaps()
+      const google = await ensureGoogleMapsBasic()
       const geocoder = new google.maps.Geocoder()
       
       return new Promise((resolve) => {
@@ -870,4 +870,3 @@ export default function RegisterClient({ dict, lang }: RegisterClientProps) {
     </div>
   )
 }
-

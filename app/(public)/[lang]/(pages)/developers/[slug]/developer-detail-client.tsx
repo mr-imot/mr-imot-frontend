@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { MapPin, Building, Phone, Globe, Navigation, CheckCircle } from "lucide-react"
 import Link from "next/link"
 import { ListingCard, Listing } from "@/components/ListingCard"
-import { ensureGoogleMaps } from "@/lib/google-maps"
+import { ensureGoogleMapsBasic } from "@/lib/google-maps"
 import { DeveloperProfile } from "@/lib/api"
 
 interface DeveloperTranslations {
@@ -52,7 +52,7 @@ const OfficeMap = ({ latitude, longitude, title }: { latitude: number, longitude
   useEffect(() => {
     const initMap = async () => {
       try {
-        await ensureGoogleMaps()
+        await ensureGoogleMapsBasic()
         if (mapRef.current && window.google) {
           const map = new window.google.maps.Map(mapRef.current, {
             center: { lat: latitude, lng: longitude },
@@ -335,4 +335,3 @@ export default function DeveloperDetailClient({ developer, lang, translations }:
     </div>
   )
 }
-
