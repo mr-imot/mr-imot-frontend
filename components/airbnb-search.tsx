@@ -1,8 +1,8 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { Search, X, MapPin, Navigation, SlidersHorizontal } from "lucide-react"
-import { ensureGoogleMaps, ensurePlacesLibrary } from "@/lib/google-maps"
+import { ensurePlacesLibrary } from "@/lib/google-maps"
 
 interface CityOption {
   name: string
@@ -88,13 +88,30 @@ export function AirbnbSearch({
   const sessionTokenRef = useRef<google.maps.places.AutocompleteSessionToken | null>(null)
   const autocompleteSuggestionRef = useRef<typeof google.maps.places.AutocompleteSuggestion | null>(null)
   const placesLibraryRef = useRef<google.maps.PlacesLibrary | null>(null)
+  const [isPlacesReady, setIsPlacesReady] = useState(false)
 
-  const getPlacesLibrary = async () => {
+  const getPlacesLibrary = useCallback(async () => {
     if (!placesLibraryRef.current) {
       placesLibraryRef.current = await ensurePlacesLibrary()
     }
     return placesLibraryRef.current
-  }
+  }, [])
+
+  const ensurePlacesReady = useCallback(async () => {
+    if (isPlacesReady) return
+    try {
+      await getPlacesLibrary()
+      if (!autocompleteSuggestionRef.current) {
+        autocompleteSuggestionRef.current = google.maps.places.AutocompleteSuggestion
+      }
+      if (!sessionTokenRef.current) {
+        sessionTokenRef.current = new google.maps.places.AutocompleteSessionToken()
+      }
+      setIsPlacesReady(true)
+    } catch (e) {
+      console.error('Failed to init Google Places:', e)
+    }
+  }, [getPlacesLibrary, isPlacesReady])
 
   function debounce<T extends (...args: any[]) => void>(fn: T, wait: number) {
     let t: any
@@ -130,22 +147,11 @@ export function AirbnbSearch({
     )
   }
 
-  // Initialize Places library and session token
+  // Initialize Places library only when search is expanded
   useEffect(() => {
-    const init = async () => {
-      try {
-        await ensureGoogleMaps()
-        await getPlacesLibrary()
-        if (!autocompleteSuggestionRef.current) {
-          autocompleteSuggestionRef.current = google.maps.places.AutocompleteSuggestion
-        }
-        sessionTokenRef.current = new google.maps.places.AutocompleteSessionToken()
-      } catch (e) {
-        console.error('Failed to init Google Places:', e)
-      }
-    }
-    init()
-  }, [])
+    if (!isExpanded) return
+    ensurePlacesReady()
+  }, [ensurePlacesReady, isExpanded])
 
   const fetchPredictions = useRef(
     debounce(async (query: string) => {
@@ -256,8 +262,7 @@ export function AirbnbSearch({
   const handleExpand = () => {
     setIsExpanded(true)
     setTimeout(() => inputRef.current?.focus(), 100)
-    // New token for a new session
-    sessionTokenRef.current = new google.maps.places.AutocompleteSessionToken()
+    ensurePlacesReady()
   }
 
   // Auto-focus input when defaultExpanded is true on mount
@@ -466,4 +471,3 @@ export function AirbnbSearch({
     </div>
   )
 }
-
