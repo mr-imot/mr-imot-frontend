@@ -101,6 +101,22 @@ html {
   --font-geist: ${geist.variable};
 }
         `}</style>
+        <link rel="preload" as="style" href="/styles/deferred.css" />
+        <link
+          rel="stylesheet"
+          href="/styles/deferred.css"
+          media="print"
+          id="deferred-css"
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "const deferredCss=document.getElementById('deferred-css');if(deferredCss){deferredCss.addEventListener('load',()=>{deferredCss.media='all';});}",
+          }}
+        />
+        <noscript>
+          <link rel="stylesheet" href="/styles/deferred.css" />
+        </noscript>
       </head>
       <body className={cn("min-h-screen font-sans antialiased", geist.variable)}>
         {children}

@@ -1,0 +1,9 @@
+@media (max-width: 63.9375em) { /* 1023px */
+  /* Mobile-optimized dots for image carousels */
+  .mobile-dots button {
+    min-width: 0.25rem !important; /* 4px */
+    min-height: 0.25rem !important; /* 4px */
+    max-width: 0.5rem !important;   /* 8px */
+    max-height: 0.5rem !important;  /* 8px */
+  }
+}
