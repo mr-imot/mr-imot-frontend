@@ -767,7 +767,8 @@ export function ListingsClientContent({
                     <MemoizedListingCard
                       listing={propertyToListing(property)}
                       isActive={selectedPropertyId === property.id}
-                      onCardClick={() => onPropertySelect(property.id)}
+                      // On desktop, don't pass onCardClick to allow default behavior (opens in new tab)
+                      // onCardHover still works for map marker highlighting
                       onCardHover={(id) => setDebouncedHover(id, 100)}
                       priority={index < 6}
                       priceTranslations={dict.price}
