@@ -98,7 +98,7 @@ export function AirbnbSearch({
   }, [])
 
   const ensurePlacesReady = useCallback(async () => {
-    if (isPlacesReady) return
+    if (isPlacesReady) return true
     try {
       await getPlacesLibrary()
       if (!autocompleteSuggestionRef.current) {
@@ -108,8 +108,10 @@ export function AirbnbSearch({
         sessionTokenRef.current = new google.maps.places.AutocompleteSessionToken()
       }
       setIsPlacesReady(true)
+      return true
     } catch (e) {
       console.error('Failed to init Google Places:', e)
+      return false
     }
   }, [getPlacesLibrary, isPlacesReady])
 

@@ -39,6 +39,10 @@ export default async function ListingsLayout({
     
     return (
       <>
+        <head>
+          <link rel="preconnect" href="https://maps.googleapis.com" crossOrigin="anonymous" />
+          <link rel="preconnect" href="https://mapsresources-pa.googleapis.com" crossOrigin="anonymous" />
+        </head>
         {/* DesktopHeader: minimal header for desktop only (xl+), no mobile nav to prevent duplicate hydration */}
         {/* Mobile listings header handles mobile navigation via PublicMobileNav */}
         <DesktopHeader lang={lang} translations={translations} />
@@ -55,6 +59,10 @@ export default async function ListingsLayout({
     
     return (
       <>
+        <head>
+          <link rel="preconnect" href="https://maps.googleapis.com" crossOrigin="anonymous" />
+          <link rel="preconnect" href="https://mapsresources-pa.googleapis.com" crossOrigin="anonymous" />
+        </head>
         {/* DesktopHeader: minimal header for desktop only (xl+), no mobile nav to prevent duplicate hydration */}
         {/* Mobile listings header handles mobile navigation via PublicMobileNav */}
         <DesktopHeader lang="en" translations={fallbackTranslations} />
