@@ -139,7 +139,7 @@ export function ListingsClientContent({
   const [mobileMapReady, setMobileMapReady] = useState(false)
   const [isMobileMapActivated, setIsMobileMapActivated] = useState(false)
   const [headerSnapPct, setHeaderSnapPct] = useState(90)
-  const [cardPosition, setCardPosition] = useState<{ top?: number; left?: number }>({})
+  const [cardPosition, setCardPosition] = useState<{ x?: number; y?: number }>({})
   
   // Desktop detection hook (SSR-safe, prevents hydration mismatch)
   const isDesktop = useIsDesktop()
@@ -151,6 +151,11 @@ export function ListingsClientContent({
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const hasDesktopIdleRef = useRef(false)
   const hasMobileIdleRef = useRef(false)
+  const desktopMapMetricsRef = useRef<{
+    bounds: google.maps.LatLngBounds | null
+    projection: google.maps.Projection | null
+    containerRect: DOMRect | null
+  }>({ bounds: null, projection: null, containerRect: null })
   
   // Refs to track current filter values for map idle callbacks (avoids stale closures)
   const propertyTypeFilterRef = useRef(propertyTypeFilter)
@@ -198,32 +203,42 @@ export function ListingsClientContent({
     return toPropertyMapCardData(property)
   }, [])
   
+  const updateDesktopMapMetrics = useCallback(() => {
+    const map = googleMapRef.current
+    const container = mapRef.current
+    if (!map || !container) return
+    desktopMapMetricsRef.current = {
+      bounds: map.getBounds() ?? null,
+      projection: map.getProjection() ?? null,
+      containerRect: container.getBoundingClientRect(),
+    }
+  }, [googleMapRef, mapRef])
+  
   // Calculate card position for desktop
   const calculateCardPosition = useCallback((property: PropertyData) => {
-    if (!mapRef.current || !googleMapRef.current) return {}
+    const { bounds, projection, containerRect } = desktopMapMetricsRef.current
+    if (!containerRect) return {}
     
-    const mapBounds = mapRef.current.getBoundingClientRect()
+    const mapBounds = containerRect
     const cardWidth = 327
     const cardHeight = 321
     const padding = 20
     
-    const projection = googleMapRef.current.getProjection()
     if (!projection) {
-      return { top: mapBounds.top + mapBounds.height * 0.3, left: mapBounds.left + mapBounds.width * 0.6 - cardWidth / 2 }
+      return { x: mapBounds.left + mapBounds.width * 0.6 - cardWidth / 2, y: mapBounds.top + mapBounds.height * 0.3 }
     }
     
     const markerLatLng = new google.maps.LatLng(property.lat, property.lng)
     const markerPoint = projection.fromLatLngToPoint(markerLatLng)
-    const bounds = googleMapRef.current.getBounds()
     
     if (!markerPoint || !bounds) {
-      return { top: mapBounds.top + 100, left: mapBounds.left + 100 }
+      return { x: mapBounds.left + 100, y: mapBounds.top + 100 }
     }
     
     const sw = projection.fromLatLngToPoint(bounds.getSouthWest())
     const ne = projection.fromLatLngToPoint(bounds.getNorthEast())
     
-    if (!sw || !ne) return { top: mapBounds.top + 100, left: mapBounds.left + 100 }
+    if (!sw || !ne) return { x: mapBounds.left + 100, y: mapBounds.top + 100 }
     
     const markerX = (markerPoint.x - sw.x) / (ne.x - sw.x)
     const markerY = (markerPoint.y - ne.y) / (sw.y - ne.y)
@@ -241,8 +256,8 @@ export function ListingsClientContent({
     left = Math.max(mapBounds.left + padding, Math.min(left, mapBounds.left + mapBounds.width - cardWidth - padding))
     top = Math.max(mapBounds.top + padding, Math.min(top, mapBounds.top + mapBounds.height - cardHeight - padding))
     
-    return { top, left }
-  }, [mapRef, googleMapRef])
+    return { x: left, y: top }
+  }, [])
   
   // ─────────────────────────────────────────────────────────────────────────
   // EFFECTS - Map initialization
@@ -295,6 +310,7 @@ export function ListingsClientContent({
         google.maps.event.addListener(map, "idle", () => {
           const bounds = map.getBounds()
           if (bounds) {
+            updateDesktopMapMetrics()
             onMapBoundsChange(bounds)
             if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
               const sw = bounds.getSouthWest()
@@ -323,13 +339,15 @@ export function ListingsClientContent({
           }
         })
         
+        map.addListener('zoom_changed', updateDesktopMapMetrics)
+        
       } catch (e) {
         console.error("Error initializing Google Maps:", e)
       }
     }
     
     initMap()
-  }, []) // Only run once on mount
+  }, [updateDesktopMapMetrics]) // Only run once on mount
   
   // Add click handler to desktop map to close property card (Airbnb-style UX)
   useEffect(() => {
