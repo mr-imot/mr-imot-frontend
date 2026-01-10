@@ -25,7 +25,7 @@ import { MapFetchController, PropertyTypeFilter as MapPropertyTypeFilter } from 
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 
-import { MapPin, Building, Home, Loader2, Maximize2, X, Search, SlidersHorizontal } from "lucide-react"
+import { Building, Home, Loader2, Maximize2, X, Search, SlidersHorizontal } from "lucide-react"
 import { PropertyMapCard } from "@/components/property-map-card"
 import { ListingCardSkeletonGrid } from "@/components/ListingCardSkeleton"
 import { toPropertyMapCardData } from "@/lib/types"
@@ -137,7 +137,6 @@ export function ListingsClientContent({
   const [mobileSheetSnap, setMobileSheetSnap] = useState(0)
   const [desktopMapReady, setDesktopMapReady] = useState(false)
   const [mobileMapReady, setMobileMapReady] = useState(false)
-  const [isMobileMapActivated, setIsMobileMapActivated] = useState(false)
   const [headerSnapPct, setHeaderSnapPct] = useState(90)
   const [cardPosition, setCardPosition] = useState<{ x?: number; y?: number }>({})
   
@@ -367,7 +366,6 @@ export function ListingsClientContent({
   useEffect(() => {
     const initMobileMap = async () => {
       if (typeof window !== 'undefined' && window.innerWidth >= 1024) return
-      if (!isMobileMapActivated) return
       if (!mobileMapRef.current || mobileGoogleMapRef.current) return
       
       try {
@@ -423,13 +421,6 @@ export function ListingsClientContent({
     }
     
     initMobileMap()
-  }, [isMobileMapActivated])
-
-  // Activate mobile map after first paint (or user interaction)
-  useEffect(() => {
-    if (typeof window === 'undefined' || window.innerWidth >= 1024) return
-    const frame = window.requestAnimationFrame(() => setIsMobileMapActivated(true))
-    return () => window.cancelAnimationFrame(frame)
   }, [])
 
   // Lazy-load Places library when mobile search UI opens
@@ -592,22 +583,8 @@ export function ListingsClientContent({
       {/* Mobile Layout */}
       <div className="xl:hidden fixed inset-0 z-10">
         {/* Full screen map */}
-        <div
-          className="relative w-full h-full"
-          onClick={() => setIsMobileMapActivated(true)}
-          onTouchStart={() => setIsMobileMapActivated(true)}
-        >
+        <div className="relative w-full h-full">
           <div ref={mobileMapRef} className="w-full h-full" />
-          {!mobileMapReady && (
-            <div className="absolute inset-0 bg-gradient-to-br from-gray-100 via-gray-50 to-gray-200 flex items-center justify-center">
-              <div className="flex flex-col items-center gap-3 text-gray-500">
-                <MapPin className="w-8 h-8" />
-                <span className="text-sm font-medium">
-                  {lang === 'bg' ? 'Докоснете за активиране на картата' : 'Tap to activate the map'}
-                </span>
-              </div>
-            </div>
-          )}
         </div>
         
         {/* Mobile header - conditionally rendered only on mobile to prevent desktop hydration */}

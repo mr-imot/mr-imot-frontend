@@ -1,6 +1,5 @@
 import { LocaleProvider } from "@/lib/locale-context"
 import { getDictionary, type SupportedLocale } from "@/lib/dictionaries"
-import { Footer } from "@/components/footer"
 import { FeedbackButton } from "@/components/feedback-button"
 import CookieConsent from "@/components/cookie-consent"
 import { brandForLang, formatTitleWithBrand, getSiteUrl } from "@/lib/seo"
@@ -101,9 +100,8 @@ export default async function PublicLangLayout({
       <LocaleProvider locale={lang}>
         <div className="relative flex min-h-screen flex-col">
           {/* ServerHeader is rendered by (pages)/layout.tsx for normal pages - outside main */}
-          {/* Listings pages have their own layout without ServerHeader */}
+          {/* Listings pages have their own layout without ServerHeader or footer */}
           {children}
-          <Footer lang={lang} translations={{ footer: translations.footer, navigation: translations.navigation }} />
         </div>
         <FeedbackButton translations={translations.feedback} />
         <CookieConsent />
@@ -118,9 +116,8 @@ export default async function PublicLangLayout({
       <LocaleProvider locale="en">
         <div className="relative flex min-h-screen flex-col">
           {/* ServerHeader is rendered by (pages)/layout.tsx for normal pages - outside main */}
-          {/* Listings pages have their own layout without ServerHeader */}
+          {/* Listings pages have their own layout without ServerHeader or footer */}
           {children}
-          <Footer lang="en" translations={{ footer: fallbackTranslations.footer, navigation: fallbackTranslations.navigation }} />
         </div>
         <FeedbackButton translations={fallbackTranslations.feedback} />
         <CookieConsent />

@@ -1,5 +1,6 @@
 import { getDictionary, type SupportedLocale } from "@/lib/dictionaries"
 import { ServerHeader } from "@/components/server-header"
+import { Footer } from "@/components/footer"
 
 /**
  * Layout for normal public pages (homepage, about, contact, etc.)
@@ -29,6 +30,7 @@ export default async function PagesLayout({
       <>
         <ServerHeader lang={lang} translations={translations} isListings={false} />
         {children}
+        <Footer lang={lang} translations={{ footer: translations.footer, navigation: translations.navigation }} />
       </>
     )
   } catch (error) {
@@ -40,6 +42,7 @@ export default async function PagesLayout({
       <>
         <ServerHeader lang="en" translations={fallbackTranslations} isListings={false} />
         {children}
+        <Footer lang="en" translations={{ footer: fallbackTranslations.footer, navigation: fallbackTranslations.navigation }} />
       </>
     )
   }
