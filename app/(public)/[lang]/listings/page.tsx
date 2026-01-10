@@ -22,7 +22,7 @@ async function fetchInitialProperties(city: CityType, propertyType: PropertyType
     const bounds = CITY_BOUNDS[city]
     
     const params = new URLSearchParams({
-      per_page: '50',
+      per_page: '24',
       sw_lat: String(bounds.sw_lat),
       sw_lng: String(bounds.sw_lng),
       ne_lat: String(bounds.ne_lat),
@@ -57,7 +57,10 @@ async function fetchInitialProperties(city: CityType, propertyType: PropertyType
       location: project.neighborhood ? `${project.neighborhood}, ${project.city}` : project.city,
       image: project.cover_image_url || '/placeholder.svg',
       images: Array.isArray(project.images)
-        ? project.images.map((img: any) => img?.urls?.card || img?.image_url).filter(Boolean)
+        ? project.images
+            .map((img: any) => img?.urls?.card || img?.image_url)
+            .filter(Boolean)
+            .slice(0, 2)
         : [],
       description: project.description || '',
       lat: typeof project.latitude === 'number' ? project.latitude : 42.6977,

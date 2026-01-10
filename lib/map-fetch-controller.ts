@@ -30,6 +30,8 @@ export interface MapFetchControllerConfig {
   debounceMs?: number      // default 600
   throttleMs?: number      // default 1500
   cacheTtlMs?: number      // default 30 * 60 * 1000 (30 min)
+  initialPerPage?: number  // default 24
+  interactionPerPage?: number // default 60
   onDataUpdate: (properties: PropertyData[]) => void
   onLoadingChange?: (isLoading: boolean) => void
   onError?: (err: Error) => void
@@ -42,6 +44,8 @@ export class MapFetchController {
   private debounceMs: number
   private throttleMs: number
   private cacheTtlMs: number
+  private initialPerPage: number
+  private interactionPerPage: number
 
   private onDataUpdate: (properties: PropertyData[]) => void
   private onLoadingChange?: (isLoading: boolean) => void
@@ -56,6 +60,7 @@ export class MapFetchController {
     ne_lat: number
     ne_lng: number
     propertyType: PropertyTypeFilter
+    reason?: 'initial' | 'interaction' | 'city' | 'filter'
   } | null = null
 
   public metrics: FetchMetrics = {
@@ -70,6 +75,8 @@ export class MapFetchController {
     this.debounceMs = config.debounceMs ?? 600
     this.throttleMs = config.throttleMs ?? 1500
     this.cacheTtlMs = config.cacheTtlMs ?? 30 * 60 * 1000
+    this.initialPerPage = config.initialPerPage ?? 24
+    this.interactionPerPage = config.interactionPerPage ?? 60
     this.onDataUpdate = config.onDataUpdate
     this.onLoadingChange = config.onLoadingChange
     this.onError = config.onError
@@ -85,7 +92,7 @@ export class MapFetchController {
     ne_lat: number,
     ne_lng: number,
     propertyType: PropertyTypeFilter,
-    options?: { immediate?: boolean }
+    options?: { immediate?: boolean; reason?: 'initial' | 'interaction' | 'city' | 'filter' }
   ): void {
     // Guard: Reject zero-sized or invalid bounds (map not ready)
     const latDiff = Math.abs(ne_lat - sw_lat)
@@ -95,7 +102,7 @@ export class MapFetchController {
     }
 
     // Store pending bounds
-    this.pendingBounds = { sw_lat, sw_lng, ne_lat, ne_lng, propertyType }
+    this.pendingBounds = { sw_lat, sw_lng, ne_lat, ne_lng, propertyType, reason: options?.reason }
 
     // Clear existing debounce timer
     if (this.debounceTimer) {
@@ -151,7 +158,7 @@ export class MapFetchController {
   private async executeScheduled(skipThrottle: boolean = false): Promise<void> {
     if (!this.pendingBounds) return
 
-    const { sw_lat, sw_lng, ne_lat, ne_lng, propertyType } = this.pendingBounds
+    const { sw_lat, sw_lng, ne_lat, ne_lng, propertyType, reason } = this.pendingBounds
     this.pendingBounds = null
 
     // Throttle check (skip for immediate requests like city/filter changes)
@@ -160,7 +167,7 @@ export class MapFetchController {
       const timeSinceLast = now - this.lastFetchTime
       if (timeSinceLast < this.throttleMs) {
         // Re-schedule after remaining throttle time
-        this.pendingBounds = { sw_lat, sw_lng, ne_lat, ne_lng, propertyType }
+        this.pendingBounds = { sw_lat, sw_lng, ne_lat, ne_lng, propertyType, reason }
         this.debounceTimer = setTimeout(() => {
           this.executeScheduled()
         }, this.throttleMs - timeSinceLast)
@@ -169,20 +176,23 @@ export class MapFetchController {
     }
 
     // ─── Check cache first ───────────────────────────────────────────────────
-    const cacheKey = `${sw_lat.toFixed(3)},${sw_lng.toFixed(3)},${ne_lat.toFixed(3)},${ne_lng.toFixed(3)},${propertyType}`
-    const cached = boundsCache.getCachedData(sw_lat, sw_lng, ne_lat, ne_lng, propertyType)
-    if (cached && cached.length > 0) {
+    const cacheEntry = boundsCache.getCachedEntry(sw_lat, sw_lng, ne_lat, ne_lng, propertyType)
+    if (cacheEntry && cacheEntry.data.length > 0) {
       this.metrics.cacheHits++
-      this.onDataUpdate(cached)
-      // Background refresh (fire and forget, don't block)
-      this.backgroundFetch(sw_lat, sw_lng, ne_lat, ne_lng, propertyType)
+      this.onDataUpdate(cacheEntry.data)
+      const isStale = boundsCache.isEntryStale(cacheEntry, this.cacheTtlMs)
+      const isInteraction = reason === 'interaction'
+      if (isStale || isInteraction) {
+        // Background refresh (fire and forget, don't block)
+        this.backgroundFetch(sw_lat, sw_lng, ne_lat, ne_lng, propertyType, reason)
+      }
       return
     }
 
     this.metrics.cacheMisses++
 
     // ─── Network fetch ───────────────────────────────────────────────────────
-    await this.networkFetch(sw_lat, sw_lng, ne_lat, ne_lng, propertyType)
+    await this.networkFetch(sw_lat, sw_lng, ne_lat, ne_lng, propertyType, reason)
   }
 
   private async networkFetch(
@@ -190,7 +200,8 @@ export class MapFetchController {
     sw_lng: number,
     ne_lat: number,
     ne_lng: number,
-    propertyType: PropertyTypeFilter
+    propertyType: PropertyTypeFilter,
+    reason?: 'initial' | 'interaction' | 'city' | 'filter'
   ): Promise<void> {
     // Abort previous request
     if (this.abortController) {
@@ -208,7 +219,7 @@ export class MapFetchController {
 
     try {
       const params: Record<string, unknown> = {
-        per_page: 100,
+        per_page: reason === 'interaction' ? this.interactionPerPage : this.initialPerPage,
         sw_lat,
         sw_lng,
         ne_lat,
@@ -248,12 +259,13 @@ export class MapFetchController {
     sw_lng: number,
     ne_lat: number,
     ne_lng: number,
-    propertyType: PropertyTypeFilter
+    propertyType: PropertyTypeFilter,
+    reason?: 'initial' | 'interaction' | 'city' | 'filter'
   ): Promise<void> {
     // Lightweight background refresh — no loading state, no abort tracking
     try {
       const params: Record<string, unknown> = {
-        per_page: 100,
+        per_page: reason === 'interaction' ? this.interactionPerPage : this.initialPerPage,
         sw_lat,
         sw_lng,
         ne_lat,
@@ -289,7 +301,10 @@ export class MapFetchController {
         location: project.neighborhood ? `${project.neighborhood}, ${project.city}` : project.city,
         image: project.cover_image_url || '/placeholder.svg?height=300&width=400',
         images: Array.isArray(project.images)
-          ? project.images.map((img: any) => img?.urls?.card || img?.image_url).filter(Boolean)
+          ? project.images
+              .map((img: any) => img?.urls?.card || img?.image_url)
+              .filter(Boolean)
+              .slice(0, 2)
           : [],
         description: project.description || '',
         lat: typeof project.latitude === 'number' ? project.latitude : 42.6977,
@@ -322,4 +337,3 @@ export class MapFetchController {
     return `Calls: ${calls} | Hits: ${cacheHits} | Misses: ${cacheMisses} | Aborted: ${aborted} | Last: ${lastDurationMs}ms | HitRate: ${hitRate}%`
   }
 }
-
