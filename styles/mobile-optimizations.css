@@ -28,108 +28,6 @@
     font-size: 16px;
   }
 
-  /* Optimize map performance on mobile */
-  .mobile-map-container {
-    transform: translateZ(0);
-    -webkit-transform: translateZ(0);
-    will-change: transform;
-  }
-
-  /* Style map marker icons - high contrast with strong shadows */
-  .map-marker-icon {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    cursor: pointer !important;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    /* Strong shadow for contrast against map */
-    filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.4)) drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3)) !important;
-  }
-
-  .map-marker-icon svg {
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    transform-origin: center;
-  }
-
-  /* Default state */
-  .map-marker-default {
-    transform: scale(1) !important;
-  }
-
-  .map-marker-default svg {
-    transform: scale(1) !important;
-  }
-
-  /* Hovered state - teal color with larger shadow and scale */
-  .map-marker-hovered {
-    transform: scale(1.15) !important;
-    filter: drop-shadow(0 6px 12px rgba(13, 148, 136, 0.5)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3)) !important;
-    z-index: 500 !important;
-  }
-
-  .map-marker-hovered svg {
-    transform: scale(1.1) !important;
-  }
-
-  /* Selected state - largest scale, strongest shadow */
-  .map-marker-selected {
-    transform: scale(1.2) !important;
-    filter: drop-shadow(0 8px 16px rgba(13, 148, 136, 0.6)) drop-shadow(0 3px 6px rgba(0, 0, 0, 0.35)) !important;
-    z-index: 999 !important;
-  }
-
-  .map-marker-selected svg {
-    transform: scale(1.15) !important;
-  }
-
-  /* Smooth transitions for state changes */
-  .map-marker-icon.map-marker-default {
-    animation: markerStateChange 0.2s ease-out;
-  }
-
-  .map-marker-icon.map-marker-hovered {
-    animation: markerHover 0.2s ease-out;
-  }
-
-  .map-marker-icon.map-marker-selected {
-    animation: markerSelect 0.2s ease-out;
-  }
-
-  @keyframes markerStateChange {
-    0% {
-      transform: scale(0.95);
-      opacity: 0.8;
-    }
-    100% {
-      transform: scale(1);
-      opacity: 1;
-    }
-  }
-
-  @keyframes markerHover {
-    0% {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.2);
-    }
-    100% {
-      transform: scale(1.15);
-    }
-  }
-
-  @keyframes markerSelect {
-    0% {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.25);
-    }
-    100% {
-      transform: scale(1.2);
-    }
-  }
-
   /* Improve scrolling performance */
   .mobile-scroll-container {
     -webkit-overflow-scrolling: touch;
@@ -142,16 +40,6 @@
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
     }
-  }
-
-  /* Mobile-optimized dots for image carousels */
-
-
-  .mobile-dots button {
-    min-width: 0.25rem !important; /* 4px */
-    min-height: 0.25rem !important; /* 4px */
-    max-width: 0.5rem !important;   /* 8px */
-    max-height: 0.5rem !important;  /* 8px */
   }
 
   /* Mobile filters balance and symmetry - Force equal widths */
@@ -228,4 +116,3 @@
     /* All existing desktop styles are preserved */
   }
 }
-
