@@ -102,7 +102,7 @@ export function DesktopSearch({
   const sessionTokenRef = useRef<google.maps.places.AutocompleteSessionToken | null>(null)
   const autocompleteSuggestionRef = useRef<typeof google.maps.places.AutocompleteSuggestion | null>(null)
   const placesLibraryRef = useRef<google.maps.PlacesLibrary | null>(null)
-  const placesReadyRef = useRef(false)
+  const [isPlacesReady, setIsPlacesReady] = useState(false)
 
   const getPlacesLibrary = useCallback(async () => {
     if (!placesLibraryRef.current) {
@@ -112,19 +112,20 @@ export function DesktopSearch({
   }, [])
 
   const ensurePlacesReady = useCallback(async () => {
-    if (placesReadyRef.current) return true
+    if (isPlacesReady) return
     try {
       await getPlacesLibrary()
       if (!autocompleteSuggestionRef.current) {
         autocompleteSuggestionRef.current = google.maps.places.AutocompleteSuggestion
       }
-      placesReadyRef.current = true
-      return true
+      if (!sessionTokenRef.current) {
+        sessionTokenRef.current = new google.maps.places.AutocompleteSessionToken()
+      }
+      setIsPlacesReady(true)
     } catch (e) {
       console.error('Failed to init Google Places:', e)
-      return false
     }
-  }, [getPlacesLibrary])
+  }, [getPlacesLibrary, isPlacesReady])
 
   function debounce<T extends (...args: any[]) => void>(fn: T, wait: number) {
     let t: any
@@ -161,11 +162,11 @@ export function DesktopSearch({
     )
   }
 
+  // Initialize Places library only when search is expanded
   useEffect(() => {
-    if (isExpanded) {
-      void ensurePlacesReady()
-    }
-  }, [isExpanded, ensurePlacesReady])
+    if (!isExpanded) return
+    ensurePlacesReady()
+  }, [ensurePlacesReady, isExpanded])
 
   const fetchPredictions = useRef(
     debounce(async (query: string) => {
@@ -277,11 +278,7 @@ export function DesktopSearch({
   const handleExpand = () => {
     setIsExpanded(true)
     setTimeout(() => inputRef.current?.focus(), 100)
-    void ensurePlacesReady().then((ready) => {
-      if (ready) {
-        sessionTokenRef.current = new google.maps.places.AutocompleteSessionToken()
-      }
-    })
+    ensurePlacesReady()
   }
 
   const nearbyText = {
