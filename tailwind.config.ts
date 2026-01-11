@@ -4,6 +4,8 @@ type ThemeFunction = (path: string) => string
 
 const config = {
     darkMode: ["class"],
+    // JIT mode enabled: Tailwind only generates CSS for classes actually used in the codebase
+    // This significantly reduces CSS bundle size by eliminating unused utilities
     mode: "jit",
   content: [
     "./app/**/*.{ts,tsx,mdx}",
@@ -54,54 +56,6 @@ const config = {
 				'800': '#95bece',
 				'900': '#cadee7',
 				DEFAULT: '#264653'
-			},
-			'persian-green': {
-				'100': '#081f1d',
-				'200': '#113f39',
-				'300': '#195e56',
-				'400': '#217e73',
-				'500': '#2a9d8f',
-				'600': '#3acbba',
-				'700': '#6cd8cb',
-				'800': '#9de5dc',
-				'900': '#cef2ee',
-				DEFAULT: '#2a9d8f'
-			},
-			'saffron': {
-				'100': '#3b2c09',
-				'200': '#755912',
-				'300': '#b0851a',
-				'400': '#e0ad2e',
-				'500': '#e9c46a',
-				'600': '#edd086',
-				'700': '#f1dca4',
-				'800': '#f6e7c3',
-				'900': '#faf3e1',
-				DEFAULT: '#e9c46a'
-			},
-			'sandy-brown': {
-				'100': '#401f04',
-				'200': '#803e09',
-				'300': '#c05e0d',
-				'400': '#f07e22',
-				'500': '#f4a261',
-				'600': '#f6b681',
-				'700': '#f8c8a1',
-				'800': '#fbdac0',
-				'900': '#fdede0',
-				DEFAULT: '#f4a261'
-			},
-			'burnt-sienna': {
-				'100': '#371107',
-				'200': '#6e220f',
-				'300': '#a43316',
-				'400': '#db441e',
-				'500': '#e76f51',
-				'600': '#ec8b73',
-				'700': '#f1a896',
-				'800': '#f5c5b9',
-				'900': '#fae2dc',
-				DEFAULT: '#e76f51'
 			},
   			primary: {
   				DEFAULT: 'var(--primary)',

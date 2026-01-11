@@ -25,7 +25,8 @@ const nextConfig = {
       },
     ],
   },
-  // Compress output
+  // Compress output (includes CSS minification)
+  // CSS optimization: Next.js automatically tree-shakes and minifies CSS in production builds
   compress: true,
   // SWC minification is enabled by default in Next.js 15
   // Configure compiler to not transpile modern features unnecessarily

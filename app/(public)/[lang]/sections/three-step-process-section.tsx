@@ -40,7 +40,7 @@ export function ThreeStepProcessSection({ dict, lang }: ThreeStepProcessSectionP
                   
                   {/* Icon with Liquid Glass Effect */}
                   <div className="relative">
-                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300 bg-saffron-500 relative overflow-hidden">
+                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300 bg-accent relative overflow-hidden">
                       {/* Liquid Glass Overlay - GPU-accelerated */}
                       <div className={`absolute inset-0 ${effectsStyles.liquidFlowBgWhite} opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out`} style={{
                         borderRadius: '16px',
@@ -90,7 +90,7 @@ export function ThreeStepProcessSection({ dict, lang }: ThreeStepProcessSectionP
                   
                   {/* Icon with Liquid Glass Effect */}
                   <div className="relative">
-                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300 bg-saffron-500 relative overflow-hidden">
+                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300 bg-accent relative overflow-hidden">
                       {/* Liquid Glass Overlay - GPU-accelerated */}
                       <div className={`absolute inset-0 ${effectsStyles.liquidFlowBgWhite} opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out`} style={{
                         borderRadius: '16px',
@@ -140,7 +140,7 @@ export function ThreeStepProcessSection({ dict, lang }: ThreeStepProcessSectionP
                   
                   {/* Icon with Liquid Glass Effect */}
                   <div className="relative">
-                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300 bg-saffron-500 relative overflow-hidden">
+                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300 bg-accent relative overflow-hidden">
                       {/* Liquid Glass Overlay - GPU-accelerated */}
                       <div className={`absolute inset-0 ${effectsStyles.liquidFlowBgWhite} opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out`} style={{
                         borderRadius: '16px',
