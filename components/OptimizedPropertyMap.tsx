@@ -31,6 +31,15 @@ export const OptimizedPropertyMap = ({ latitude, longitude, title }: OptimizedPr
         
         if (!isMounted || !mapRef.current || !window.google) return
 
+        // Verify that maps library and Map constructor are available
+        if (!window.google.maps || !window.google.maps.Map) {
+          // Wait a bit and retry if Map constructor is not yet available
+          await new Promise(resolve => setTimeout(resolve, 100))
+          if (!window.google.maps || !window.google.maps.Map) {
+            throw new Error('Google Maps Map constructor is not available')
+          }
+        }
+
         // Prevent double initialization
         if (isInitializedRef.current) return
         isInitializedRef.current = true

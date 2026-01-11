@@ -588,7 +588,7 @@ export default function ListingDetailClient({ projectId, initialProject, transla
         )}
       </div>
 
-      <div className="mt-12">
+      <div className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-start">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -630,11 +630,9 @@ export default function ListingDetailClient({ projectId, initialProject, transla
             )}
           </CardContent>
         </Card>
-      </div>
 
-      {property.developer && (
-        <div className="mt-8" id="office-location-section">
-          <Card>
+        {property.developer && (
+          <Card id="office-location-section">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Building className="h-5 w-5" />
@@ -675,8 +673,8 @@ export default function ListingDetailClient({ projectId, initialProject, transla
               )}
             </CardContent>
           </Card>
-        </div>
-      )}
+        )}
+      </div>
 
     </div>
   )

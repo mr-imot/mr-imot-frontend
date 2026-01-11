@@ -81,12 +81,22 @@ export async function ensureGoogleMapsBasic(): Promise<typeof google> {
     basicLoadPromise = Promise.all([
       importLibrary("maps"),
       importLibrary("marker"),
-    ]).then(() => window.google)
+    ]).then(() => {
+      // Verify that Map constructor is available
+      if (!window.google?.maps?.Map) {
+        throw new Error('Google Maps Map constructor is not available after loading')
+      }
+      return window.google
+    })
   }
 
   try {
-    await basicLoadPromise
-    return window.google
+    const google = await basicLoadPromise
+    // Double-check Map constructor is available
+    if (!google.maps?.Map) {
+      throw new Error('Google Maps Map constructor is not available')
+    }
+    return google
   } catch (error) {
     console.error("Failed to load Google Maps:", error)
     throw error
