@@ -439,8 +439,11 @@ export default function ListingDetailClient({ projectId, initialProject, isModal
                 <p className="text-sm text-gray-700">{property.developer?.contact_person || 'Contact Person'}</p>
               </div>
               
-              {/* Desktop phone display - hidden on mobile */}
-              <div className={`space-y-1 ${isMounted && isMobile ? 'hidden' : ''}`} suppressHydrationWarning>
+              {/* Desktop phone display - hidden on mobile after hydration */}
+              <div 
+                className={`space-y-1 ${isMounted && isMobile ? 'hidden md:block' : ''}`} 
+                suppressHydrationWarning
+              >
                 <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">{t.phone || "Phone"}</p>
                 <div className="flex items-center gap-2">
                   <Phone className="h-4 w-4 text-gray-500" />
@@ -454,7 +457,7 @@ export default function ListingDetailClient({ projectId, initialProject, isModal
               </div>
               
               <div className="space-y-2 pt-2">
-                {/* Mobile call button - only shown on mobile after mount */}
+                {/* Mobile call button - only shown on mobile after mount to prevent hydration mismatch */}
                 {isMounted && isMobile && (
                   <div suppressHydrationWarning>
                     <Button 
