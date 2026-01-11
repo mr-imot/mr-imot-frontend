@@ -21,20 +21,22 @@
   },
   "hero": {
     "title": {
-      "find": "Квартиры",
-      "your": "&",
+      "find": "Квартиры и",
+      "your": "",
       "perfectProperty": "Дома",
-      "directlyFromDevelopers": "Напрямую от застройщиков"
+      "directlyFromDevelopers": "от инвесторов"
     },
     "description": {
       "intro": "Единственная",
-      "platform": "платформа в Болгарии для новых проектов в строительстве и на этапе планирования,",
-      "noBrokers": "без брокеров и без комиссий"
+      "platform": " платформа в Болгарии, в которой ",
+      "noBrokers": "нет объявлений от брокеров",
+      "noBrokersBold": "нет",
+      "noBrokersRest": " объявлений от брокеров"
     },
     "promises": {
-      "heading": "Обещания Mister Imot:",
-      "noFakeListings": "Никаких фейковых объявлений",
-      "noWastedTime": "Никакой потери времени"
+      "heading": "В Mister Imot вы получаете:",
+      "noFakeListings": "точное местоположение объекта",
+      "noWastedTime": "прямой контакт с инвестором"
     },
     "cta": "Посмотреть объекты",
     "imageAlt": "Талисман Mister Imot с флагом «0% комиссий» – платформа недвижимости"

@@ -47,7 +47,7 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
             {/* Subtitle + Promise */}
             <div className="mt-4 sm:mt-6 lg:mt-8">
               <p className={clsx("font-normal leading-relaxed font-sans text-gray-600", styles.heroSubtitle)}>
-                <span className="font-semibold text-gray-800">{dict.hero.description.intro}</span> {dict.hero.description.platform} <span className="font-semibold text-gray-800">{dict.hero.description.noBrokers}</span>.
+                <span className="font-semibold text-gray-800">{dict.hero.description.intro}</span>{dict.hero.description.platform}<span className="font-semibold text-gray-800">{dict.hero.description.noBrokersBold || dict.hero.description.noBrokers}</span>{dict.hero.description.noBrokersRest || ""}.
               </p>
               
               {/* Promise checkmarks */}

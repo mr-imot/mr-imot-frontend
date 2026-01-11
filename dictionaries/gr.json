@@ -21,20 +21,22 @@
   },
   "hero": {
     "title": {
-      "find": "Διαμερίσματα",
-      "your": "&",
+      "find": "Διαμερίσματα και",
+      "your": "",
       "perfectProperty": "Κατοικίες",
-      "directlyFromDevelopers": "Απευθείας από Κατασκευαστές"
+      "directlyFromDevelopers": "από Επενδυτές"
     },
     "description": {
       "intro": "Η μοναδική",
-      "platform": "πλατφόρμα στη Βουλγαρία για νέα έργα υπό κατασκευή και εκτός σχεδίου,",
-      "noBrokers": "χωρίς μεσίτες και χωρίς προμήθειες"
+      "platform": " πλατφόρμα στη Βουλγαρία, στην οποία ",
+      "noBrokers": "δεν υπάρχουν αγγελίες από μεσίτες",
+      "noBrokersBold": "δεν",
+      "noBrokersRest": " υπάρχουν αγγελίες από μεσίτες"
     },
     "promises": {
-      "heading": "Το Mister Imot Υπόσχεται:",
-      "noFakeListings": "Καμία ψεύτικη αγγελία",
-      "noWastedTime": "Καμία άσκοπη χρονοτριβή"
+      "heading": "Στο Mister Imot παίρνεις:",
+      "noFakeListings": "την ακριβή τοποθεσία του ακινήτου",
+      "noWastedTime": "άμεση επικοινωνία με τον επενδυτή"
     },
     "cta": "Δες Ακίνητα",
     "imageAlt": "Η μασκότ του Mister Imot προβάλλει 0% προμήθειες – χωρίς μεσίτες"

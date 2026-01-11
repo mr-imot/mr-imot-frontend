@@ -21,20 +21,22 @@
   },
   "hero": {
     "title": {
-      "find": "Apartments",
-      "your": "&",
+      "find": "Apartments and",
+      "your": "",
       "perfectProperty": "Houses",
-      "directlyFromDevelopers": "Directly from Developers"
+      "directlyFromDevelopers": "from Investors"
     },
     "description": {
       "intro": "The only",
-      "platform": "platform in Bulgaria for new residential projects under construction and off-plan,",
-      "noBrokers": "with no brokers and no commissions"
+      "platform": " platform in Bulgaria where there are ",
+      "noBrokers": "there are no listings from brokers",
+      "noBrokersBold": "no",
+      "noBrokersRest": " listings from brokers"
     },
     "promises": {
-      "heading": "Mister Imot Promises:",
-      "noFakeListings": "No fake listings",
-      "noWastedTime": "No wasted time"
+      "heading": "At Mister Imot you get:",
+      "noFakeListings": "the exact location of the property",
+      "noWastedTime": "direct contact with the investor"
     },
     "cta": "Explore Properties",
     "imageAlt": "Mister Imot mascot promoting 0% commissions – no brokers"
