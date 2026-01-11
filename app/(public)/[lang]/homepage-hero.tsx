@@ -77,7 +77,7 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
             {/* Mobile: Mascot + CTA side by side */}
             <div className="mt-6 sm:mt-8 lg:hidden">
               <div className="flex items-center gap-4">
-                {/* Small mascot on mobile */}
+                {/* Small mascot on mobile - LCP element optimized */}
                 <div className="flex-shrink-0">
                   <Image
                     src={lang === 'bg' 
@@ -92,11 +92,16 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
                     height={90}
                     priority
                     fetchPriority="high"
+                    decoding="async"
                     transformation={[{ quality: 60, format: "webp", focus: "auto" }]}
-                    className="w-auto h-auto drop-shadow-lg"
+                    className="w-auto h-auto"
                     style={{
                       width: 'clamp(100px, 28vw, 140px)',
-                      height: 'auto'
+                      height: 'auto',
+                      // Inline critical CSS to avoid render-blocking Tailwind class
+                      filter: 'drop-shadow(0 10px 15px rgba(0, 0, 0, 0.1))',
+                      willChange: 'transform',
+                      transform: 'translateZ(0)'
                     }}
                     sizes="120px"
                   />
@@ -132,7 +137,7 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
             </div>
           </div>
 
-          {/* Right Column - Mascot (Desktop Only) */}
+          {/* Right Column - Mascot (Desktop Only) - LCP element optimized */}
             <div className={clsx("hidden lg:flex lg:items-center lg:justify-end", styles.heroVisual)}>
             <Image
               src={lang === 'bg' 
@@ -143,18 +148,22 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
                 ? 'Талисман Мистър Имот от mrimot.com, държащ знак с надпис 0% комисиони за платформа за недвижими имоти'
                 : 'Mister Imot mascot of mrimot.com holding a sign with 0% commissions message for real estate platform'
               }
-              width={960}
-              height={640}
+              width={700}
+              height={560}
               loading="eager"
               priority
               fetchPriority="high"
-              transformation={[{ quality: 60, format: "webp", focus: "auto" }]}
-              className={clsx("w-auto h-auto transition-all duration-700 hover:scale-105 hover:rotate-1", styles.heroImage)}
+              decoding="async"
+              transformation={[{ width: 700, quality: 60, format: "webp", focus: "auto" }]}
+              className={clsx("w-auto h-auto", styles.heroImage)}
               style={{
                 width: 'clamp(300px, min(40vw, 700px), 800px)',
-                height: 'auto'
+                height: 'auto',
+                // Critical styles inlined to reduce render delay
+                willChange: 'transform',
+                transform: 'translateZ(0)'
               }}
-              sizes="(max-width: 1024px) 1px, 40vw"
+              sizes="(max-width: 1024px) 1px, 700px"
             />
           </div>
         </div>

@@ -21,16 +21,20 @@ export default function ViewportLock(): null {
     const isMobile = currentWidth < 1024 // Treat tablets/phones as mobile context
 
     // 1. HEADER CALCULATION
+    // Optimize header height calculation to reduce forced reflows
+    // Use ResizeObserver for ongoing updates (handled separately below)
+    // Only calculate here if header ref is not set yet
     if (!headerRef.current) {
       headerRef.current = document.querySelector('header')
-    }
-    
-    let currentHeaderHeight = 0
-    if (headerRef.current) {
-      currentHeaderHeight = headerRef.current.getBoundingClientRect().height
-      if (headerHeightRef.current !== currentHeaderHeight) {
-        headerHeightRef.current = currentHeaderHeight
-        document.documentElement.style.setProperty('--header-height', `${Math.round(currentHeaderHeight)}px`)
+      // Initial header height - defer to avoid blocking initial render
+      if (headerRef.current && headerHeightRef.current === 0) {
+        requestAnimationFrame(() => {
+          if (headerRef.current) {
+            const currentHeaderHeight = headerRef.current.getBoundingClientRect().height
+            headerHeightRef.current = currentHeaderHeight
+            document.documentElement.style.setProperty('--header-height', `${Math.round(currentHeaderHeight)}px`)
+          }
+        })
       }
     }
 
@@ -82,13 +86,25 @@ export default function ViewportLock(): null {
     })
 
     // 3. Header Observer (Only for header height, not viewport lock)
+    // Use ResizeObserver with borderBoxSize to avoid getBoundingClientRect forced reflow
     let resizeObserver: ResizeObserver | null = null
     if (typeof ResizeObserver !== 'undefined') {
       const header = document.querySelector('header')
       if (header) {
-        resizeObserver = new ResizeObserver(() => {
-          // Only update header height, don't trigger viewport lock update
-          const newHeight = header.getBoundingClientRect().height
+        resizeObserver = new ResizeObserver((entries) => {
+          // Use ResizeObserver's borderBoxSize to avoid forced reflow
+          // Fallback to getBoundingClientRect only if borderBoxSize is unavailable
+          const entry = entries[0]
+          let newHeight = 0
+          
+          if (entry.borderBoxSize && entry.borderBoxSize.length > 0) {
+            // Modern browsers: use borderBoxSize (no forced reflow)
+            newHeight = entry.borderBoxSize[0].blockSize
+          } else {
+            // Fallback for older browsers
+            newHeight = entry.target.getBoundingClientRect().height
+          }
+          
           if (headerHeightRef.current !== newHeight) {
             headerHeightRef.current = newHeight
             document.documentElement.style.setProperty('--header-height', `${Math.round(newHeight)}px`)
