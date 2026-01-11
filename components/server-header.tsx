@@ -62,7 +62,7 @@ export function ServerHeader({ lang, translations, isListings = false }: ServerH
     'Mister Imot Logo'
 
   return (
-    <header className={`${headerStyles.headerGlass} flex items-center justify-between pl-4 pr-0 sm:pl-6 sm:pr-6 md:px-8 py-4 ${isListings ? 'hidden xl:flex' : ''}`}>
+    <header role="banner" className={`${headerStyles.headerGlass} flex items-center justify-between pl-4 pr-0 sm:pl-6 sm:pr-6 md:px-8 py-4 ${isListings ? 'hidden xl:flex' : ''}`}>
       <div className="w-full flex items-center justify-between md:grid md:grid-cols-[auto,1fr,auto] md:gap-4">
         {/* Logo (always visible) */}
         <div className="flex items-center justify-start">
@@ -86,7 +86,7 @@ export function ServerHeader({ lang, translations, isListings = false }: ServerH
         </div>
 
         {/* Desktop Navigation - Visible from md and up */}
-        <nav className="hidden md:flex items-center justify-start gap-3 lg:justify-center lg:gap-4">
+        <nav role="navigation" className="hidden md:flex items-center justify-start gap-3 lg:justify-center lg:gap-4">
           <Link
             href={getLocalizedHref(lang, 'listings', 'obiavi')}
             className="text-white hover:text-white text-sm font-normal px-4 lg:px-5 py-2.5 rounded-full bg-charcoal-500 border border-charcoal-600 shadow-sm hover:bg-charcoal-600 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-charcoal-300 active:scale-95"

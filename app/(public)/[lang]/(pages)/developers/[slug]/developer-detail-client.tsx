@@ -171,7 +171,7 @@ export default function DeveloperDetailClient({ developer, lang, translations }:
                 {/* Verified Developer Badge and Trust Signals */}
                 {developer.is_verified && (
                   <div className="mt-2">
-                    <Badge className="bg-green-500 text-white hover:bg-green-600">
+                    <Badge className="bg-green-600 text-white hover:bg-green-700 border-green-700">
                       <CheckCircle className="w-3 h-3 mr-1" />
                       {tDevs?.verified || 'Verified Developer'}
                     </Badge>

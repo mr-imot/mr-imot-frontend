@@ -127,12 +127,12 @@ export const OptimizedPropertyMap = ({ latitude, longitude, title }: OptimizedPr
     <div className="mt-4 h-64 bg-gray-100 rounded-lg overflow-hidden relative">
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
-          <div className="animate-pulse text-gray-400">Loading map...</div>
+          <div className="animate-pulse text-gray-600">Loading map...</div>
         </div>
       )}
       {hasError && (
         <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
-          <div className="text-gray-500">Failed to load map</div>
+          <div className="text-gray-600">Failed to load map</div>
         </div>
       )}
       <div 

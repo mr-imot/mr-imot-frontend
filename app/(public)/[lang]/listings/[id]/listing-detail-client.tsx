@@ -34,7 +34,7 @@ const OptimizedPropertyMap = dynamic(
     ssr: false,
     loading: () => (
       <div className="mt-4 h-64 bg-gray-100 rounded-lg flex items-center justify-center">
-        <div className="animate-pulse text-gray-400">Loading map...</div>
+        <div className="animate-pulse text-gray-600">Loading map...</div>
       </div>
     )
   }
@@ -111,8 +111,14 @@ export default function ListingDetailClient({ projectId, initialProject, isModal
   const [loading, setLoading] = useState(!initialProject) // Don't show loading if we have data
   const [error, setError] = useState<string | null>(null)
   const [isSaved, setIsSaved] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
   const isMobile = useIsMobile()
   const t = translations?.listingDetail || defaultTranslations.listingDetail
+  
+  // Ensure client-side only rendering for mobile-specific UI to prevent hydration mismatches
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
   // Provide fallback translations for price to prevent runtime errors
   const tPrice: PriceTranslations = translations?.price || {
     requestPrice: 'Request price',
@@ -306,7 +312,7 @@ export default function ListingDetailClient({ projectId, initialProject, isModal
   const developerProfileUrl = developerProfilePath ? `/developers/${developerProfilePath}` : null
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6">
+    <main role="main" className="max-w-7xl mx-auto px-4 py-6">
       <div className="flex justify-end mb-6">
         <Button 
           variant="outline" 
@@ -433,32 +439,34 @@ export default function ListingDetailClient({ projectId, initialProject, isModal
                 <p className="text-sm text-gray-700">{property.developer?.contact_person || 'Contact Person'}</p>
               </div>
               
-              {!isMobile && (
-                <div className="space-y-1">
-                  <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">{t.phone || "Phone"}</p>
-                  <div className="flex items-center gap-2">
-                    <Phone className="h-4 w-4 text-gray-500" />
-                    <span
-                      onClick={() => handlePhoneNumberClick(property.developer?.phone)}
-                      className="text-sm text-gray-700 font-mono cursor-pointer hover:text-gray-900 transition-colors"
-                    >
-                      {property.developer?.phone || t.contactForDetails || 'Contact for details'}
-                    </span>
-                  </div>
+              {/* Desktop phone display - hidden on mobile */}
+              <div className={`space-y-1 ${isMounted && isMobile ? 'hidden' : ''}`} suppressHydrationWarning>
+                <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">{t.phone || "Phone"}</p>
+                <div className="flex items-center gap-2">
+                  <Phone className="h-4 w-4 text-gray-500" />
+                  <span
+                    onClick={() => handlePhoneNumberClick(property.developer?.phone)}
+                    className="text-sm text-gray-700 font-mono cursor-pointer hover:text-gray-900 transition-colors"
+                  >
+                    {property.developer?.phone || t.contactForDetails || 'Contact for details'}
+                  </span>
                 </div>
-              )}
+              </div>
               
               <div className="space-y-2 pt-2">
-                {isMobile && (
-                  <Button 
-                    size="sm"
-                    className="w-full text-xs cursor-pointer"
-                    onClick={() => handlePhoneClick(property.developer?.phone)}
-                    disabled={!property.developer?.phone}
-                  >
-                    <Phone className="h-3 w-3 mr-1 cursor-pointer" />
-                    {t.callNow || "Call Now"}
-                  </Button>
+                {/* Mobile call button - only shown on mobile after mount */}
+                {isMounted && isMobile && (
+                  <div suppressHydrationWarning>
+                    <Button 
+                      size="sm"
+                      className="w-full text-xs cursor-pointer"
+                      onClick={() => handlePhoneClick(property.developer?.phone)}
+                      disabled={!property.developer?.phone}
+                    >
+                      <Phone className="h-3 w-3 mr-1 cursor-pointer" />
+                      {t.callNow || "Call Now"}
+                    </Button>
+                  </div>
                 )}
                 
                 <Button 
@@ -496,7 +504,7 @@ export default function ListingDetailClient({ projectId, initialProject, isModal
         {/* Verified Developer Badge */}
         {property.developer?.verification_status === 'verified' && (
           <div className="mb-4">
-            <Badge className="bg-green-500 text-white hover:bg-green-600">
+            <Badge className="bg-green-600 text-white hover:bg-green-700 border-green-700">
               <CheckCircle className="w-3 h-3 mr-1" />
               {t.publishedByVerifiedDeveloper || 'Published directly by a verified developer'}
             </Badge>
@@ -678,7 +686,7 @@ export default function ListingDetailClient({ projectId, initialProject, isModal
         )}
       </div>
 
-    </div>
+    </main>
   )
 }
 

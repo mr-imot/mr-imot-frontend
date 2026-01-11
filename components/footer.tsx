@@ -115,7 +115,7 @@ export function Footer({ translations, lang }: FooterProps) {
   ]
 
   return (
-    <footer className="bg-card border-t text-card-foreground min-h-[400px] md:min-h-[450px]">
+    <footer role="contentinfo" className="bg-card border-t text-card-foreground min-h-[400px] md:min-h-[450px]">
       <div className="h-px w-full bg-gradient-to-r from-transparent via-blue-200/60 to-transparent" />
       {/* Main Footer Content */}
       <div className="container px-4 md:px-6 py-16 md:py-20">

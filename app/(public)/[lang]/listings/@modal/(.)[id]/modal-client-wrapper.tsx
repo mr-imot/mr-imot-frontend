@@ -95,13 +95,16 @@ export function ModalClientWrapper({ children }: ModalClientWrapperProps) {
     }
   }, [isMobile])
 
-  // Add modal-open class to body on mount (both mobile and desktop) to hide footer and prevent layout shifts
+  // Add modal-open class to body on mount (mobile only) to hide footer and prevent layout shifts
+  // On desktop, modal doesn't use full-screen overlay, so footer should remain visible
   useEffect(() => {
-    document.body.classList.add('modal-open')
-    return () => {
-      document.body.classList.remove('modal-open')
+    if (isMobile) {
+      document.body.classList.add('modal-open')
+      return () => {
+        document.body.classList.remove('modal-open')
+      }
     }
-  }, [])
+  }, [isMobile])
 
   // Handle modal open/close animations and scroll preservation
   // FIX: Only apply/restore body styles on mobile to prevent desktop scroll reset
@@ -144,6 +147,7 @@ export function ModalClientWrapper({ children }: ModalClientWrapperProps) {
   // This prevents infinite _rsc request loops and scroll resets
   // Show modal wrapper on mobile - simple check: if isMobile is true, show modal
   // On SSR (isMobile = false), return children without wrapper (will re-render after mount if mobile)
+  // Note: children (ListingDetailClient) already has main landmark, so we don't wrap it again
   if (!isMobile) {
     // Desktop or SSR (not yet determined) - return children without modal wrapper
     // After mount, if mobile, isMobile will become true and component will re-render with modal
@@ -173,6 +177,7 @@ export function ModalClientWrapper({ children }: ModalClientWrapperProps) {
       </div>
 
       {/* Existing Listing Page Content - Scrollable */}
+      {/* Note: children (ListingDetailClient) already has main landmark, so we don't wrap it again */}
       <div className="flex-1 overflow-y-auto">
         <div className="w-full">
           {children}

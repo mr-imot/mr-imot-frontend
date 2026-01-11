@@ -102,7 +102,7 @@ export function FeaturesDisplay({ features, title, compact = false, showCategori
   if (compact) {
     return (
       <div className="space-y-3">
-        {title && <h4 className="font-semibold text-gray-900">{title}</h4>}
+        {title && <h2 className="font-semibold text-gray-900">{title}</h2>}
         <div className="flex flex-wrap gap-2">
           {features.map((feature, index) => (
             <Badge
@@ -130,16 +130,16 @@ export function FeaturesDisplay({ features, title, compact = false, showCategori
 
   return (
     <div className="space-y-6">
-      {title && <h3 className="text-xl font-bold text-gray-900">{title}</h3>}
+      {title && <h2 className="text-xl font-bold text-gray-900">{title}</h2>}
       
       {Object.entries(groupedFeatures).map(([category, categoryFeatures]) => {
         const categoryKey = category as FeatureCategory
         return (
           <div key={category} className="space-y-3">
-            <h4 className="font-semibold text-gray-900 flex items-center gap-2">
+            <h3 className="font-semibold text-gray-900 flex items-center gap-2">
               <span className={`w-3 h-3 rounded-full ${getCategoryDotColor(categoryKey)}`}></span>
               {getCategoryLabel(categoryKey)}
-            </h4>
+            </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {categoryFeatures.map((feature, index) => (
                 <div
