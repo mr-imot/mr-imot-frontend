@@ -78,8 +78,7 @@ export default function RootLayout({
       <head>
         {/* Preconnect to ImageKit for faster image loading (critical for LCP) */}
         <link rel="preconnect" href="https://ik.imagekit.io" crossOrigin="anonymous" />
-        {/* Preconnect to Google Maps API for faster map loading (300ms LCP savings) */}
-        <link rel="preconnect" href="https://maps.googleapis.com" crossOrigin="anonymous" />
+        {/* Google Maps preconnect removed - now only on pages that need it (listings page) */}
         
         {/* Mobile Viewport Meta Tags */}
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes, viewport-fit=cover" />

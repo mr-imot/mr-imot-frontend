@@ -1,5 +1,6 @@
 import { getDictionary, type SupportedLocale } from "@/lib/dictionaries"
 import { DesktopHeader } from "@/components/desktop-header"
+import { GoogleMapsPreconnect } from "@/components/google-maps-preconnect"
 
 /**
  * Listings-specific layout
@@ -39,6 +40,8 @@ export default async function ListingsLayout({
     
     return (
       <>
+        {/* Preconnect to Google Maps resources for faster map loading (only on listings page) */}
+        <GoogleMapsPreconnect />
         {/* DesktopHeader: minimal header for desktop only (xl+), no mobile nav to prevent duplicate hydration */}
         {/* Mobile listings header handles mobile navigation via PublicMobileNav */}
         <DesktopHeader lang={lang} translations={translations} />
@@ -55,6 +58,8 @@ export default async function ListingsLayout({
     
     return (
       <>
+        {/* Preconnect to Google Maps resources for faster map loading (only on listings page) */}
+        <GoogleMapsPreconnect />
         {/* DesktopHeader: minimal header for desktop only (xl+), no mobile nav to prevent duplicate hydration */}
         {/* Mobile listings header handles mobile navigation via PublicMobileNav */}
         <DesktopHeader lang="en" translations={fallbackTranslations} />

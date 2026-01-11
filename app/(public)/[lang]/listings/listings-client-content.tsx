@@ -153,6 +153,10 @@ export function ListingsClientContent({
   const propertyTypeFilterRef = useRef(propertyTypeFilter)
   propertyTypeFilterRef.current = propertyTypeFilter
   
+  // Skip first idle fetch to prevent duplicate requests (SSR data already loaded)
+  const skipNextMobileIdleFetchRef = useRef(true)
+  const skipNextDesktopIdleFetchRef = useRef(true)
+  
   // ─────────────────────────────────────────────────────────────────────────
   // DERIVED STATE
   // ─────────────────────────────────────────────────────────────────────────
@@ -262,66 +266,148 @@ export function ListingsClientContent({
     return () => window.removeEventListener('resize', computeHeaderSnap)
   }, [])
   
-  // Desktop map initialization
+  // Optimized map initialization - only loads ONE map instance based on viewport size
   useEffect(() => {
     const initMap = async () => {
-      if (!mapRef.current || googleMapRef.current) return
+      // Check viewport size to determine which map to initialize
+      const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024
       
-      try {
-        await ensureGoogleMaps()
+      if (isMobile) {
+        // Initialize mobile map only
+        if (!mobileMapRef.current || mobileGoogleMapRef.current) return
         
-        const map = new google.maps.Map(mapRef.current, {
-          center: CITY_COORDINATES[selectedCity],
-          zoom: CITY_COORDINATES[selectedCity].zoom,
-          streetViewControl: false,
-          mapTypeControl: false,
-          fullscreenControl: false,
-          zoomControl: true,
-          scrollwheel: true,
-          gestureHandling: 'greedy',
-          mapId: 'e1ea25ce333a0b0deb34ff54',
-          draggableCursor: 'grab',
-          draggingCursor: 'grabbing',
-        })
-        
-        googleMapRef.current = map
-        setDesktopMapReady(true)
-        
-        // Single idle listener - handles both initial and subsequent fetches
-        // With SSR data hydrated, we have properties immediately; fetch updates via debounce
-        google.maps.event.addListener(map, "idle", () => {
-          const bounds = map.getBounds()
-          if (bounds) {
-            onMapBoundsChange(bounds)
-            if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
-              const sw = bounds.getSouthWest()
-              const ne = bounds.getNorthEast()
-              // Only fetch if we don't have enough cached data
-              const cachedCount = propertyCacheRef.current.size
-              if (cachedCount === 0) {
-                // No SSR data - fetch immediately
-                getOrCreateFetchController().schedule(
-                  sw.lat(), sw.lng(), ne.lat(), ne.lng(),
-                  propertyTypeFilterRef.current as MapPropertyTypeFilter,
-                  { immediate: true }
-                )
-              } else {
-                // Have SSR/cached data - use debounced fetch for updates
-                getOrCreateFetchController().schedule(
-                  sw.lat(), sw.lng(), ne.lat(), ne.lng(),
-                  propertyTypeFilterRef.current as MapPropertyTypeFilter
-                )
-              }
+        try {
+          await ensureGoogleMaps()
+          
+          const mobileMap = new google.maps.Map(mobileMapRef.current, {
+            center: CITY_COORDINATES[selectedCity],
+            zoom: CITY_COORDINATES[selectedCity].zoom,
+            streetViewControl: false,
+            mapTypeControl: false,
+            fullscreenControl: false,
+            zoomControl: false,
+            scrollwheel: true,
+            gestureHandling: 'greedy',
+            mapId: 'e1ea25ce333a0b0deb34ff54',
+            draggableCursor: 'grab',
+            draggingCursor: 'grabbing',
+          })
+          
+          mobileGoogleMapRef.current = mobileMap
+          setMobileMapReady(true)
+          
+          // Bounds listener - skip first idle fetch to prevent duplicate requests
+          // The city change effect already triggers the initial fetch with SSR bounds
+          mobileMap.addListener('idle', () => {
+            const bounds = mobileMap.getBounds()
+            if (!bounds) return
+            
+            // Always update bounds state (for UI filtering)
+            onMobileBoundsChange(bounds)
+            
+            // Skip the first idle fetch - city change effect already handled initial fetch
+            if (skipNextMobileIdleFetchRef.current) {
+              skipNextMobileIdleFetchRef.current = false
+              return // <--- kills the 2nd initial request
             }
-          }
-        })
+            
+            // Subsequent idle events (pan/zoom) - fetch with debounce
+            const sw = bounds.getSouthWest()
+            const ne = bounds.getNorthEast()
+            getOrCreateFetchController().schedule(
+              sw.lat(), sw.lng(), ne.lat(), ne.lng(),
+              propertyTypeFilterRef.current as MapPropertyTypeFilter
+              // No immediate flag - uses debounce for smooth pan/zoom
+            )
+          })
+          
+        } catch (e) {
+          console.error("Error initializing mobile map:", e)
+        }
+      } else {
+        // Initialize desktop map only
+        if (!mapRef.current || googleMapRef.current) return
         
-      } catch (e) {
-        console.error("Error initializing Google Maps:", e)
+        try {
+          await ensureGoogleMaps()
+          
+          const map = new google.maps.Map(mapRef.current, {
+            center: CITY_COORDINATES[selectedCity],
+            zoom: CITY_COORDINATES[selectedCity].zoom,
+            streetViewControl: false,
+            mapTypeControl: false,
+            fullscreenControl: false,
+            zoomControl: true,
+            scrollwheel: true,
+            gestureHandling: 'greedy',
+            mapId: 'e1ea25ce333a0b0deb34ff54',
+            draggableCursor: 'grab',
+            draggingCursor: 'grabbing',
+          })
+          
+          googleMapRef.current = map
+          setDesktopMapReady(true)
+          
+          // Single idle listener - skip first idle fetch to prevent duplicate requests
+          // The city change effect already triggers the initial fetch with SSR bounds
+          google.maps.event.addListener(map, "idle", () => {
+            const bounds = map.getBounds()
+            if (!bounds) return
+            
+            // Always update bounds state (for UI filtering)
+            onMapBoundsChange(bounds)
+            
+            // Skip the first idle fetch - city change effect already handled initial fetch
+            if (skipNextDesktopIdleFetchRef.current) {
+              skipNextDesktopIdleFetchRef.current = false
+              return // <--- kills the 2nd initial request
+            }
+            
+            // Subsequent idle events (pan/zoom) - fetch with debounce
+            const sw = bounds.getSouthWest()
+            const ne = bounds.getNorthEast()
+            getOrCreateFetchController().schedule(
+              sw.lat(), sw.lng(), ne.lat(), ne.lng(),
+              propertyTypeFilterRef.current as MapPropertyTypeFilter
+              // No immediate flag - uses debounce for smooth pan/zoom
+            )
+          })
+          
+        } catch (e) {
+          console.error("Error initializing desktop map:", e)
+        }
       }
     }
     
     initMap()
+    
+    // Handle window resize - initialize the other map if viewport changes significantly
+    const handleResize = () => {
+      const isMobile = window.innerWidth < 1024
+      const hasMobileMap = mobileGoogleMapRef.current !== null
+      const hasDesktopMap = googleMapRef.current !== null
+      
+      // Only initialize the other map if viewport changed and map doesn't exist
+      if (isMobile && !hasMobileMap && hasDesktopMap) {
+        // Switched to mobile, but mobile map not initialized
+        initMap()
+      } else if (!isMobile && !hasDesktopMap && hasMobileMap) {
+        // Switched to desktop, but desktop map not initialized
+        initMap()
+      }
+    }
+    
+    // Debounce resize handler to avoid excessive calls
+    let resizeTimeout: NodeJS.Timeout
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimeout)
+      resizeTimeout = setTimeout(handleResize, 250)
+    })
+    
+    return () => {
+      window.removeEventListener('resize', handleResize)
+      clearTimeout(resizeTimeout)
+    }
   }, []) // Only run once on mount
   
   // Add click handler to desktop map to close property card (Airbnb-style UX)
@@ -337,63 +423,6 @@ export function ListingsClientContent({
       google.maps.event.removeListener(clickListener)
     }
   }, [desktopMapReady, selectedPropertyId, onPropertySelect])
-  
-  // Mobile map initialization
-  useEffect(() => {
-    const initMobileMap = async () => {
-      if (typeof window !== 'undefined' && window.innerWidth >= 1024) return
-      if (!mobileMapRef.current || mobileGoogleMapRef.current) return
-      
-      try {
-        await ensureGoogleMaps()
-        
-        const mobileMap = new google.maps.Map(mobileMapRef.current, {
-          center: CITY_COORDINATES[selectedCity],
-          zoom: CITY_COORDINATES[selectedCity].zoom,
-          streetViewControl: false,
-          mapTypeControl: false,
-          fullscreenControl: false,
-          zoomControl: false,
-          scrollwheel: true,
-          gestureHandling: 'greedy',
-          mapId: 'e1ea25ce333a0b0deb34ff54',
-          draggableCursor: 'grab',
-          draggingCursor: 'grabbing',
-        })
-        
-        mobileGoogleMapRef.current = mobileMap
-        setMobileMapReady(true)
-        
-        // Bounds listener - use ref to get current filter value
-        mobileMap.addListener('idle', () => {
-          const bounds = mobileMap.getBounds()
-          if (bounds) {
-            onMobileBoundsChange(bounds)
-            const sw = bounds.getSouthWest()
-            const ne = bounds.getNorthEast()
-            const cachedCount = propertyCacheRef.current.size
-            if (cachedCount === 0) {
-              getOrCreateFetchController().schedule(
-                sw.lat(), sw.lng(), ne.lat(), ne.lng(),
-                propertyTypeFilterRef.current as MapPropertyTypeFilter,
-                { immediate: true }
-              )
-            } else {
-              getOrCreateFetchController().schedule(
-                sw.lat(), sw.lng(), ne.lat(), ne.lng(),
-                propertyTypeFilterRef.current as MapPropertyTypeFilter
-              )
-            }
-          }
-        })
-        
-      } catch (e) {
-        console.error("Error initializing mobile map:", e)
-      }
-    }
-    
-    initMobileMap()
-  }, [])
   
   // Add click handler to mobile map to close property card (Airbnb-style UX)
   useEffect(() => {

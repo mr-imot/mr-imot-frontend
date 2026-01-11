@@ -57,6 +57,11 @@ export class MapFetchController {
     ne_lng: number
     propertyType: PropertyTypeFilter
   } | null = null
+  
+  // Hard deduplication: track last successful fetch and in-flight requests
+  // Using normalized keys (toFixed(3)) to prevent jitter from creating "new" requests
+  private lastKey: string | null = null
+  private inFlightKey: string | null = null
 
   public metrics: FetchMetrics = {
     calls: 0,
@@ -192,7 +197,24 @@ export class MapFetchController {
     ne_lng: number,
     propertyType: PropertyTypeFilter
   ): Promise<void> {
-    // Abort previous request
+    // Hard deduplication: create normalized key to prevent duplicate requests
+    // toFixed(3) prevents tiny bound jitter from creating "new" requests
+    const key = `${sw_lat.toFixed(3)}:${sw_lng.toFixed(3)}:${ne_lat.toFixed(3)}:${ne_lng.toFixed(3)}:${propertyType}`
+    
+    // Skip if this is an exact duplicate of the last successful fetch
+    if (key === this.lastKey) {
+      return
+    }
+    
+    // Skip if this request is already in flight
+    if (key === this.inFlightKey) {
+      return
+    }
+    
+    // Mark this request as in-flight
+    this.inFlightKey = key
+    
+    // Abort previous request (if different key)
     if (this.abortController) {
       this.abortController.abort()
       this.metrics.aborted++
@@ -231,6 +253,9 @@ export class MapFetchController {
 
       this.metrics.lastDurationMs = Math.round(performance.now() - start)
       this.onDataUpdate(mapped)
+      
+      // Mark this key as successfully fetched
+      this.lastKey = key
     } catch (err: any) {
       if (err?.name === 'AbortError' || signal.aborted) {
         // Aborted, ignore
@@ -240,6 +265,10 @@ export class MapFetchController {
       this.onError?.(err)
     } finally {
       this.onLoadingChange?.(false)
+      // Clear in-flight key if this was the current request
+      if (this.inFlightKey === key) {
+        this.inFlightKey = null
+      }
     }
   }
 
