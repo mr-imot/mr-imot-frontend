@@ -13,15 +13,17 @@ import { toIkPath } from '@/lib/imagekit';
 interface PropertyGalleryProps {
   images: string[];
   title: string;
+  isModal?: boolean; // Indicates if gallery is rendered in a modal context
 }
 
-const mainImageTransformations = (isMobile: boolean) =>
+const mainImageTransformations = (isMobile: boolean, isModal: boolean = false) =>
   [
     {
       // Mobile: closer to actual render size to avoid over-fetch
-      width: isMobile ? 900 : 1600,
-      height: isMobile ? 700 : 1100,
-      quality: isMobile ? 72 : 82,
+      // Modal: use smaller sizes even on desktop to reduce download size
+      width: isMobile ? 900 : (isModal ? 1200 : 1600),
+      height: isMobile ? 700 : (isModal ? 900 : 1100),
+      quality: isMobile ? 72 : (isModal ? 75 : 82),
       format: "webp",
       focus: "auto",
       progressive: true,
@@ -50,7 +52,7 @@ const fullscreenTransformations =
     },
   ] satisfies Transformation[];
 
-export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
+export const PropertyGallery = ({ images, title, isModal = false }: PropertyGalleryProps) => {
   // Filter out non-string values and ensure we have valid images
   const validImages = images.filter((img): img is string => typeof img === 'string' && img.length > 0)
   
@@ -259,9 +261,12 @@ export const PropertyGallery = ({ images, title }: PropertyGalleryProps) => {
                       src={toIkPath(image)}
                       alt={`${title || "Property"} - View ${index + 1}`}
                       fill
-                      transformation={mainImageTransformations(isMobile)}
+                      transformation={mainImageTransformations(isMobile, isModal)}
                       className="object-cover md:transition-all md:duration-500 md:group-hover:scale-110 cursor-pointer"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
+                      sizes={isModal 
+                        ? "(max-width: 768px) 100vw, 50vw"  // Smaller sizes for modal context
+                        : "(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"  // Original sizes for full page
+                      }
                       priority={index === 0}
                       fetchPriority={index === 0 ? "high" : "auto"}
                       loading={index === 0 ? "eager" : "lazy"}

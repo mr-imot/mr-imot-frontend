@@ -43,6 +43,7 @@ const OptimizedPropertyMap = dynamic(
 interface ListingDetailClientProps {
   projectId: string
   initialProject?: Project
+  isModal?: boolean // Indicates if rendered in modal context
   translations?: {
     listingDetail?: any
     price?: PriceTranslations
@@ -105,7 +106,7 @@ const defaultTranslations = {
   }
 }
 
-export default function ListingDetailClient({ projectId, initialProject, translations }: ListingDetailClientProps) {
+export default function ListingDetailClient({ projectId, initialProject, isModal = false, translations }: ListingDetailClientProps) {
   const [property, setProperty] = useState<any>(initialProject || null)
   const [loading, setLoading] = useState(!initialProject) // Don't show loading if we have data
   const [error, setError] = useState<string | null>(null)
@@ -331,6 +332,7 @@ export default function ListingDetailClient({ projectId, initialProject, transla
               <PropertyGallery 
                 images={allImages} 
                 title={property.title}
+                isModal={isModal}
               />
             ) : (
               <div className="h-96 bg-gray-200 rounded-lg flex items-center justify-center">

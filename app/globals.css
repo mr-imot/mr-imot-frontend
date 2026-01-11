@@ -134,3 +134,8 @@ textarea, [contenteditable="true"] {
 
 button, a, [role="button"] { cursor: pointer; }
 button:disabled, input:disabled, [aria-disabled="true"] { cursor: not-allowed; }
+
+/* Hide footer when modal is open to prevent layout shifts */
+body.modal-open footer {
+  display: none;
+}

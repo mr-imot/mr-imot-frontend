@@ -206,6 +206,7 @@ export function MobileListingModal({
             <PropertyGallery 
               images={property.images}
               title={property.title}
+              isModal={true}
             />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">

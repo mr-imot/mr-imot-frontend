@@ -11,6 +11,7 @@ interface ListingPageContentProps {
   lang: 'en' | 'bg' | 'ru' | 'gr'
   id: string
   initialProject?: Project | PausedProject | DeletedProject
+  isModal?: boolean // Indicates if rendered in modal context
 }
 
 // Server-side function to fetch project data with caching
@@ -48,7 +49,8 @@ async function getProjectData(id: string, lang: string): Promise<Project | Pause
 export default async function ListingPageContent({ 
   lang, 
   id, 
-  initialProject 
+  initialProject,
+  isModal = false
 }: ListingPageContentProps) {
   // Use initial project if provided, otherwise fetch
   const project = initialProject || await getProjectData(id, lang)
@@ -80,6 +82,7 @@ export default async function ListingPageContent({
         key={activeProject.id} 
         projectId={id} 
         initialProject={activeProject}
+        isModal={isModal}
         translations={{
           listingDetail: dict.listingDetail,
           price: dict.price,

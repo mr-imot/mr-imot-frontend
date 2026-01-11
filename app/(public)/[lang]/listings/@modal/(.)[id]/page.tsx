@@ -50,7 +50,7 @@ export default async function InterceptedListingModal({ params }: PageProps) {
   
   return (
     <ModalClientWrapper>
-      <ListingPageContent lang={lang} id={projectId} initialProject={project} />
+      <ListingPageContent lang={lang} id={projectId} initialProject={project} isModal={true} />
     </ModalClientWrapper>
   )
 }

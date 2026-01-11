@@ -95,6 +95,14 @@ export function ModalClientWrapper({ children }: ModalClientWrapperProps) {
     }
   }, [isMobile])
 
+  // Add modal-open class to body on mount (both mobile and desktop) to hide footer and prevent layout shifts
+  useEffect(() => {
+    document.body.classList.add('modal-open')
+    return () => {
+      document.body.classList.remove('modal-open')
+    }
+  }, [])
+
   // Handle modal open/close animations and scroll preservation
   // FIX: Only apply/restore body styles on mobile to prevent desktop scroll reset
   useEffect(() => {
