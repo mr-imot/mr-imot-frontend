@@ -52,11 +52,17 @@ export function UserAuthNav({ translations }: UserAuthNavProps) {
     return `/${en}`
   }
 
+  // Fixed dimensions to prevent layout shift
+  // Login button: h-8 w-24
+  // Avatar container: w-20 h-10 (but we'll use fixed w-24 to match login button width)
+  const fixedWidth = "w-24"; // Match login button width
+  const fixedHeight = "h-8"; // Match login button height
+
   if (isLoading) {
     return (
-      <div className="flex items-center space-x-4">
-        {/* Loading placeholder that matches the login button dimensions */}
-        <div className="h-8 w-24 bg-white/20 rounded-full animate-pulse"></div>
+      <div className={`flex items-center justify-center ${fixedWidth} ${fixedHeight}`}>
+        {/* Loading placeholder that matches both login button and avatar dimensions */}
+        <div className={`${fixedHeight} ${fixedWidth} bg-white/20 rounded-full animate-pulse`}></div>
       </div>
     );
   }
@@ -67,16 +73,16 @@ export function UserAuthNav({ translations }: UserAuthNavProps) {
       : 'U';
 
     return (
-      <div className="flex items-center space-x-4">
-        {/* User Avatar with Gooey Logout Effect */}
-        <div className="group relative overflow-hidden rounded-full w-20 h-10 bg-white hover:bg-white/90 transition-colors duration-300">
-          {/* Dashboard Link (Avatar) */}
+      <div className={`flex items-center justify-center ${fixedWidth} ${fixedHeight}`}>
+        {/* User Avatar with Gooey Logout Effect - Fixed container dimensions */}
+        <div className={`group relative overflow-hidden rounded-full ${fixedWidth} ${fixedHeight} bg-white hover:bg-white/90 transition-colors duration-300`}>
+          {/* Dashboard Link (Avatar) - Fixed 40x40px */}
           <Link 
             href={getDashboardUrl()}
             className="absolute top-0 left-0 flex items-center justify-center w-10 h-10 rounded-full text-black font-normal text-sm cursor-pointer transition-transform duration-300 ease-out group-hover:-translate-x-1"
           >
-            <Avatar className="h-8 w-8">
-              <AvatarFallback className="bg-transparent text-black text-sm font-semibold">
+            <Avatar className="h-10 w-10">
+              <AvatarFallback className="bg-transparent text-black text-sm font-semibold w-10 h-10 flex items-center justify-center">
                 {userInitials}
               </AvatarFallback>
             </Avatar>
@@ -97,17 +103,19 @@ export function UserAuthNav({ translations }: UserAuthNavProps) {
     );
   }
 
-  // Not authenticated - show the branded login button
+  // Not authenticated - show the branded login button (fixed dimensions)
   return (
-    <Link href={href('login', 'login')}>
-      <button className="group relative overflow-hidden px-6 py-2 rounded-full bg-white text-black font-semibold text-xs transition-all duration-300 hover:bg-gray-50 cursor-pointer h-8 flex items-center justify-between w-24 border border-gray-200 shadow-sm hover:shadow-md">
-        <span className="transition-transform duration-300 ease-out group-hover:-translate-x-1 cursor-pointer">
-          {t.login}
-        </span>
-        <svg className="w-3 h-3 transition-all duration-300 ease-out transform translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 17L17 7M17 7H7M17 7V17" />
-        </svg>
-      </button>
-    </Link>
+    <div className={`flex items-center justify-center ${fixedWidth} ${fixedHeight}`}>
+      <Link href={href('login', 'login')}>
+        <button className={`group relative overflow-hidden px-6 py-2 rounded-full bg-white text-black font-semibold text-xs transition-all duration-300 hover:bg-gray-50 cursor-pointer ${fixedHeight} flex items-center justify-between ${fixedWidth} border border-gray-200 shadow-sm hover:shadow-md`}>
+          <span className="transition-transform duration-300 ease-out group-hover:-translate-x-1 cursor-pointer">
+            {t.login}
+          </span>
+          <svg className="w-3 h-3 transition-all duration-300 ease-out transform translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 17L17 7M17 7H7M17 7V17" />
+          </svg>
+        </button>
+      </Link>
+    </div>
   );
 }
