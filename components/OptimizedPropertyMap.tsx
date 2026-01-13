@@ -21,6 +21,17 @@ export const OptimizedPropertyMap = ({ latitude, longitude, title }: OptimizedPr
   useEffect(() => {
     let isMounted = true
 
+    const waitForMapsReady = async (maxAttempts = 8, baseDelayMs = 75) => {
+      for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+        if (window.google?.maps?.Map) {
+          return true
+        }
+        const delay = baseDelayMs * Math.pow(2, attempt)
+        await new Promise(resolve => setTimeout(resolve, delay))
+      }
+      return false
+    }
+
     const initMap = async () => {
       if (!mapRef.current || isInitializedRef.current) return
 
@@ -31,13 +42,9 @@ export const OptimizedPropertyMap = ({ latitude, longitude, title }: OptimizedPr
         
         if (!isMounted || !mapRef.current || !window.google) return
 
-        // Verify that maps library and Map constructor are available
-        if (!window.google.maps || !window.google.maps.Map) {
-          // Wait a bit and retry if Map constructor is not yet available
-          await new Promise(resolve => setTimeout(resolve, 100))
-          if (!window.google.maps || !window.google.maps.Map) {
-            throw new Error('Google Maps Map constructor is not available')
-          }
+        const isReady = await waitForMapsReady()
+        if (!isReady) {
+          throw new Error('Google Maps Map constructor is not available')
         }
 
         // Prevent double initialization

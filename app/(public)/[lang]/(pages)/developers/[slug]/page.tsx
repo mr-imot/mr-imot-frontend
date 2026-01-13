@@ -5,6 +5,7 @@ import DeveloperStructuredData from './developer-structured-data'
 import { DeveloperProfile } from '@/lib/api'
 import { brandForLang, formatTitleWithBrand, getSiteUrl } from '@/lib/seo'
 import { buildIkUrl } from '@/lib/imagekit'
+import { getDictionary } from '@/lib/dictionaries'
 
 interface PageProps {
   params: Promise<{
@@ -141,11 +142,20 @@ export default async function DeveloperDetailPage({ params }: PageProps) {
   }
   
   const baseUrl = getSiteUrl() // Hardcoded production domain for canonical URLs
+  const dict = await getDictionary(lang)
   
   return (
     <>
       <DeveloperStructuredData developer={developer} lang={lang} baseUrl={baseUrl} />
-      <DeveloperDetailClient developer={developer} lang={lang} />
+      <DeveloperDetailClient
+        developer={developer}
+        lang={lang}
+        translations={{
+          developersDetail: dict.developersDetail,
+          developers: dict.developers,
+          listingDetail: dict.listingDetail,
+        }}
+      />
     </>
   )
 }
