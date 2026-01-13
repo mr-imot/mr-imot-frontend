@@ -67,13 +67,41 @@ function isStaticRoute(pathname: string): boolean {
 
 // Helper function to set appropriate cache headers based on route type
 function setCacheHeaders(response: NextResponse, pathname: string): NextResponse {
+  // Root path / depends on locale negotiation (cookie, Accept-Language, geo)
+  // Cannot be publicly cached as it can serve different locales to different users
+  if (pathname === '/') {
+    response.headers.set('Cache-Control', 'private, no-cache, must-revalidate')
+    return response
+  }
+  
+  // English routes without prefix (like /listings) are rewritten internally to /en/*
+  // These depend on middleware logic, so should not be publicly cached
+  if (!pathname.startsWith('/bg/') && !pathname.startsWith('/ru/') && !pathname.startsWith('/gr/') && !pathname.startsWith('/en/')) {
+    response.headers.set('Cache-Control', 'private, no-cache, must-revalidate')
+    return response
+  }
+  
   if (isStaticRoute(pathname)) {
-    // Allow caching for static public routes
+    // Allow caching for static public routes with locale prefix (URL determines locale)
     response.headers.set('Cache-Control', 'public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400')
   } else {
     // No cache for dynamic auth/admin routes
     response.headers.set('Cache-Control', 'no-cache, max-age=0, must-revalidate')
   }
+  return response
+}
+
+// Helper function to append to Vary header instead of overwriting
+// Prevents breaking Next.js/Vercel's own Vary headers (RSC, Next-Router-State-Tree, etc.)
+function addVary(response: NextResponse, value: string): NextResponse {
+  const existing = response.headers.get('Vary')
+  if (!existing) {
+    response.headers.set('Vary', value)
+    return response
+  }
+  const set = new Set(existing.split(',').map(v => v.trim()).filter(Boolean))
+  value.split(',').map(v => v.trim()).filter(Boolean).forEach(v => set.add(v))
+  response.headers.set('Vary', Array.from(set).join(', '))
   return response
 }
 
@@ -84,8 +112,18 @@ function setClientHintsHeaders(response: NextResponse): NextResponse {
   response.headers.set('Accept-CH', 'Width, Viewport-Width, DPR')
   response.headers.set('Accept-CH-Lifetime', '86400') // Persist for 1 day
   // Vary on all headers that affect locale detection and caching decisions
-  response.headers.set('Vary', 'Accept-CH, Width, Viewport-Width, DPR, Accept-Language, Cookie')
+  // Use addVary to append instead of overwriting (preserves Next.js/Vercel headers)
+  addVary(response, 'Accept-CH, Width, Viewport-Width, DPR, Accept-Language, Cookie')
   return response
+}
+
+// Redirect with proper Vary headers and cache control
+// All redirects that depend on locale/cookie should use this helper
+function redirectWithHints(request: NextRequest, url: URL, status = 308): NextResponse {
+  const res = NextResponse.redirect(url, status)
+  // All redirects that depend on locale/cookie should be private
+  res.headers.set('Cache-Control', 'private, no-cache, must-revalidate')
+  return setClientHintsHeaders(res)
 }
 
 function getLocale(request: NextRequest) {
@@ -158,14 +196,12 @@ export async function middleware(request: NextRequest) {
   // Enforce no /en prefix in canonical URLs – redirect /en/* → /* (preserve path/query)
   // These redirects depend on locale detection, so must set Vary headers to prevent cache issues
   if (pathname === '/en') {
-    const response = NextResponse.redirect(new URL('/', request.url))
-    return setClientHintsHeaders(response)
+    return redirectWithHints(request, new URL('/', request.url))
   }
   if (pathname.startsWith('/en/')) {
     const url = request.nextUrl.clone()
     url.pathname = pathname.replace(/^\/en/, '') || '/'
-    const response = NextResponse.redirect(url)
-    return setClientHintsHeaders(response)
+    return redirectWithHints(request, url)
   }
 
   // Handle old /listing/ route - redirect to proper localized route
@@ -175,22 +211,22 @@ export async function middleware(request: NextRequest) {
     // Check cookie preference first
     const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value
     if (cookieLocale === 'bg') {
-      return NextResponse.redirect(new URL(`/bg/obiavi/${listingId}`, request.url))
+      return redirectWithHints(request, new URL(`/bg/obiavi/${listingId}`, request.url))
     } else {
-      return NextResponse.redirect(new URL(`/listings/${listingId}`, request.url))
+      return redirectWithHints(request, new URL(`/listings/${listingId}`, request.url))
     }
   }
 
   // Handle /bg/listing/ route - redirect to /bg/obiavi/
   if (pathname.startsWith('/bg/listing/')) {
     const listingId = pathname.replace('/bg/listing/', '')
-    return NextResponse.redirect(new URL(`/bg/obiavi/${listingId}`, request.url))
+    return redirectWithHints(request, new URL(`/bg/obiavi/${listingId}`, request.url))
   }
 
   // Handle /en/listing/ route - redirect to /en/listings/
   if (pathname.startsWith('/en/listing/')) {
     const listingId = pathname.replace('/en/listing/', '')
-    return NextResponse.redirect(new URL(`/listings/${listingId}`, request.url))
+    return redirectWithHints(request, new URL(`/listings/${listingId}`, request.url))
   }
 
   // Handle /register route - block access without type=developer
@@ -205,7 +241,7 @@ export async function middleware(request: NextRequest) {
       const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value
       const locale = cookieLocale === 'bg' ? 'bg' : cookieLocale === 'ru' ? 'ru' : cookieLocale === 'gr' ? 'gr' : 'en'
       // Redirect to a route that doesn't exist to trigger not-found naturally
-      return NextResponse.redirect(new URL(`/${locale}/__404__`, request.url))
+      return redirectWithHints(request, new URL(`/${locale}/__404__`, request.url))
     }
     
     // Check cookie preference first
@@ -252,7 +288,7 @@ export async function middleware(request: NextRequest) {
     // Only allow developer registration - redirect others to trigger not-found
     if (type !== 'developer') {
       // Redirect to non-existent route to trigger not-found naturally
-      return NextResponse.redirect(new URL('/bg/__404__', request.url))
+      return redirectWithHints(request, new URL('/bg/__404__', request.url))
     }
   }
 
@@ -264,7 +300,7 @@ export async function middleware(request: NextRequest) {
     // Only allow developer registration - redirect others to trigger not-found
     if (type !== 'developer') {
       // Redirect to non-existent route to trigger not-found naturally
-      return NextResponse.redirect(new URL('/ru/__404__', request.url))
+      return redirectWithHints(request, new URL('/ru/__404__', request.url))
     }
   }
 
@@ -276,7 +312,7 @@ export async function middleware(request: NextRequest) {
     // Only allow developer registration - redirect others to trigger not-found
     if (type !== 'developer') {
       // Redirect to non-existent route to trigger not-found naturally
-      return NextResponse.redirect(new URL('/gr/__404__', request.url))
+      return redirectWithHints(request, new URL('/gr/__404__', request.url))
     }
   }
 
@@ -288,7 +324,7 @@ export async function middleware(request: NextRequest) {
     // Only allow developer registration - redirect others to trigger not-found
     if (type !== 'developer') {
       // Redirect to non-existent route to trigger not-found naturally
-      return NextResponse.redirect(new URL('/en/__404__', request.url))
+      return redirectWithHints(request, new URL('/en/__404__', request.url))
     }
   }
 
@@ -307,7 +343,7 @@ export async function middleware(request: NextRequest) {
     if (pathname === from || pathname.startsWith(from + '/')) {
       const url = request.nextUrl.clone()
       url.pathname = pathname.replace(from, to)
-      return NextResponse.redirect(url)
+      return redirectWithHints(request, url)
     }
   }
 
@@ -323,7 +359,7 @@ export async function middleware(request: NextRequest) {
     if (pathname === from || pathname.startsWith(from + '/')) {
       const url = request.nextUrl.clone()
       url.pathname = pathname.replace(from, to)
-      return NextResponse.redirect(url)
+      return redirectWithHints(request, url)
     }
   }
 
@@ -331,7 +367,7 @@ export async function middleware(request: NextRequest) {
   if (pathname === '/bg/news' || pathname.startsWith('/bg/news/')) {
     const url = request.nextUrl.clone()
     url.pathname = pathname.replace('/bg/news', '/bg/novini')
-    return NextResponse.redirect(url)
+    return redirectWithHints(request, url)
   }
 
   // Russian aliases → canonical RU pretty URLs
@@ -346,7 +382,7 @@ export async function middleware(request: NextRequest) {
     if (pathname === from || pathname.startsWith(from + '/')) {
       const url = request.nextUrl.clone()
       url.pathname = pathname.replace(from, to)
-      return NextResponse.redirect(url)
+      return redirectWithHints(request, url)
     }
   }
 
@@ -354,7 +390,7 @@ export async function middleware(request: NextRequest) {
   if (pathname === '/ru/news' || pathname.startsWith('/ru/news/')) {
     const url = request.nextUrl.clone()
     url.pathname = pathname.replace('/ru/news', '/ru/novosti')
-    return NextResponse.redirect(url)
+    return redirectWithHints(request, url)
   }
 
   // Greek aliases → canonical GR pretty URLs
@@ -369,7 +405,7 @@ export async function middleware(request: NextRequest) {
     if (pathname === from || pathname.startsWith(from + '/')) {
       const url = request.nextUrl.clone()
       url.pathname = pathname.replace(from, to)
-      return NextResponse.redirect(url)
+      return redirectWithHints(request, url)
     }
   }
 
@@ -377,7 +413,7 @@ export async function middleware(request: NextRequest) {
   if (pathname === '/gr/news' || pathname.startsWith('/gr/news/')) {
     const url = request.nextUrl.clone()
     url.pathname = pathname.replace('/gr/news', '/gr/eidhseis')
-    return NextResponse.redirect(url)
+    return redirectWithHints(request, url)
   }
 
   // News article slug translation - 301 redirect for SEO
@@ -423,7 +459,7 @@ export async function middleware(request: NextRequest) {
             : `/${lang}${newsPath}/${correctSlug}`
           
           // 301 Permanent Redirect for SEO (canonical URL correction)
-          return NextResponse.redirect(url, 301)
+          return redirectWithHints(request, url, 301)
         }
       }
     } catch (error) {
@@ -579,24 +615,20 @@ export async function middleware(request: NextRequest) {
     !pathname.startsWith('/gr/not-found')
   ) {
     if (cookieLocale === 'bg') {
-      const response = NextResponse.redirect(new URL(`/bg${pathname}`, request.url))
+      const response = redirectWithHints(request, new URL(`/bg${pathname}`, request.url))
       response.headers.set('x-locale', 'bg')
       response.headers.set('x-pathname', `/bg${pathname}`)
-      // Locale redirects are user-specific, don't cache publicly
-      response.headers.set('Cache-Control', 'private, no-cache, must-revalidate')
-      return setClientHintsHeaders(response)
+      return response
     } else if (cookieLocale === 'ru') {
-      const response = NextResponse.redirect(new URL(`/ru${pathname}`, request.url))
+      const response = redirectWithHints(request, new URL(`/ru${pathname}`, request.url))
       response.headers.set('x-locale', 'ru')
       response.headers.set('x-pathname', `/ru${pathname}`)
-      response.headers.set('Cache-Control', 'private, no-cache, must-revalidate')
-      return setClientHintsHeaders(response)
+      return response
     } else if (cookieLocale === 'gr') {
-      const response = NextResponse.redirect(new URL(`/gr${pathname}`, request.url))
+      const response = redirectWithHints(request, new URL(`/gr${pathname}`, request.url))
       response.headers.set('x-locale', 'gr')
       response.headers.set('x-pathname', `/gr${pathname}`)
-      response.headers.set('Cache-Control', 'private, no-cache, must-revalidate')
-      return setClientHintsHeaders(response)
+      return response
     }
     // For English (default), rewrite internally to /en for [lang] route handling
     // But skip root path / to avoid conflict with redirect that prevents /en
@@ -637,7 +669,7 @@ export async function middleware(request: NextRequest) {
   }
   
   if (country === 'BG') {
-    const response = NextResponse.redirect(new URL(`/bg${pathname}`, request.url))
+    const response = redirectWithHints(request, new URL(`/bg${pathname}`, request.url))
     // Set cookie to persist Bulgarian preference (so we don't re-detect on every request)
     response.cookies.set('NEXT_LOCALE', 'bg', {
       path: '/',
@@ -647,9 +679,7 @@ export async function middleware(request: NextRequest) {
     // Set language header for root layout to use
     response.headers.set('x-locale', 'bg')
     response.headers.set('x-pathname', `/bg${pathname}`)
-    // Geo-based redirects are user-specific, don't cache publicly
-    response.headers.set('Cache-Control', 'private, no-cache, must-revalidate')
-    return setClientHintsHeaders(response)
+    return response
   }
 
   // 3. Check Accept-Language header
@@ -657,13 +687,11 @@ export async function middleware(request: NextRequest) {
   try {
   const negotiated = getLocale(request)
   if (negotiated && negotiated !== DEFAULT_LOCALE && !isNotFoundPage) {
-      const response = NextResponse.redirect(new URL(`/${negotiated}${pathname}`, request.url))
+      const response = redirectWithHints(request, new URL(`/${negotiated}${pathname}`, request.url))
       // Set language header for root layout to use
       response.headers.set('x-locale', negotiated)
       response.headers.set('x-pathname', `/${negotiated}${pathname}`)
-      // Accept-Language redirects are user-specific, don't cache publicly
-      response.headers.set('Cache-Control', 'private, no-cache, must-revalidate')
-      return setClientHintsHeaders(response)
+      return response
     }
   } catch (error) {
     // If Accept-Language detection fails, continue to fallback
