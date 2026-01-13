@@ -156,13 +156,16 @@ export async function middleware(request: NextRequest) {
   }
 
   // Enforce no /en prefix in canonical URLs – redirect /en/* → /* (preserve path/query)
+  // These redirects depend on locale detection, so must set Vary headers to prevent cache issues
   if (pathname === '/en') {
-    return NextResponse.redirect(new URL('/', request.url))
+    const response = NextResponse.redirect(new URL('/', request.url))
+    return setClientHintsHeaders(response)
   }
   if (pathname.startsWith('/en/')) {
     const url = request.nextUrl.clone()
     url.pathname = pathname.replace(/^\/en/, '') || '/'
-    return NextResponse.redirect(url)
+    const response = NextResponse.redirect(url)
+    return setClientHintsHeaders(response)
   }
 
   // Handle old /listing/ route - redirect to proper localized route
@@ -579,20 +582,21 @@ export async function middleware(request: NextRequest) {
       const response = NextResponse.redirect(new URL(`/bg${pathname}`, request.url))
       response.headers.set('x-locale', 'bg')
       response.headers.set('x-pathname', `/bg${pathname}`)
-      setCacheHeaders(response, `/bg${pathname}`)
-      return response
+      // Locale redirects are user-specific, don't cache publicly
+      response.headers.set('Cache-Control', 'private, no-cache, must-revalidate')
+      return setClientHintsHeaders(response)
     } else if (cookieLocale === 'ru') {
       const response = NextResponse.redirect(new URL(`/ru${pathname}`, request.url))
       response.headers.set('x-locale', 'ru')
       response.headers.set('x-pathname', `/ru${pathname}`)
-      setCacheHeaders(response, `/ru${pathname}`)
-      return response
+      response.headers.set('Cache-Control', 'private, no-cache, must-revalidate')
+      return setClientHintsHeaders(response)
     } else if (cookieLocale === 'gr') {
       const response = NextResponse.redirect(new URL(`/gr${pathname}`, request.url))
       response.headers.set('x-locale', 'gr')
       response.headers.set('x-pathname', `/gr${pathname}`)
-      setCacheHeaders(response, `/gr${pathname}`)
-      return response
+      response.headers.set('Cache-Control', 'private, no-cache, must-revalidate')
+      return setClientHintsHeaders(response)
     }
     // For English (default), rewrite internally to /en for [lang] route handling
     // But skip root path / to avoid conflict with redirect that prevents /en
@@ -603,8 +607,9 @@ export async function middleware(request: NextRequest) {
       const response = NextResponse.rewrite(url)
       response.headers.set('x-locale', 'en')
       response.headers.set('x-pathname', `/en${pathname}`)
-      setCacheHeaders(response, `/en${pathname}`)
-      return response
+      // Internal rewrites for locale routing are user-specific, don't cache publicly
+      response.headers.set('Cache-Control', 'private, no-cache, must-revalidate')
+      return setClientHintsHeaders(response)
     }
     // For root path / with English cookie, rewrite to /en internally for Next.js routing
     // This is an internal rewrite, so it won't conflict with the redirect that prevents external /en access
@@ -614,7 +619,8 @@ export async function middleware(request: NextRequest) {
       const response = NextResponse.rewrite(url)
       response.headers.set('x-locale', 'en')
       response.headers.set('x-pathname', '/en')
-      setCacheHeaders(response, '/en')
+      // Internal rewrites for locale routing are user-specific, don't cache publicly
+      response.headers.set('Cache-Control', 'private, no-cache, must-revalidate')
       return setClientHintsHeaders(response)
     }
   }
@@ -641,7 +647,8 @@ export async function middleware(request: NextRequest) {
     // Set language header for root layout to use
     response.headers.set('x-locale', 'bg')
     response.headers.set('x-pathname', `/bg${pathname}`)
-    setCacheHeaders(response, `/bg${pathname}`)
+    // Geo-based redirects are user-specific, don't cache publicly
+    response.headers.set('Cache-Control', 'private, no-cache, must-revalidate')
     return setClientHintsHeaders(response)
   }
 
@@ -654,7 +661,8 @@ export async function middleware(request: NextRequest) {
       // Set language header for root layout to use
       response.headers.set('x-locale', negotiated)
       response.headers.set('x-pathname', `/${negotiated}${pathname}`)
-      setCacheHeaders(response, `/${negotiated}${pathname}`)
+      // Accept-Language redirects are user-specific, don't cache publicly
+      response.headers.set('Cache-Control', 'private, no-cache, must-revalidate')
       return setClientHintsHeaders(response)
     }
   } catch (error) {
@@ -674,7 +682,8 @@ export async function middleware(request: NextRequest) {
     // Set language header for root layout to use
     response.headers.set('x-locale', 'en')
     response.headers.set('x-pathname', `/en${pathname}`)
-    setCacheHeaders(response, `/en${pathname}`)
+    // Internal rewrites for locale routing are user-specific, don't cache publicly
+    response.headers.set('Cache-Control', 'private, no-cache, must-revalidate')
     return setClientHintsHeaders(response)
   }
   
@@ -687,7 +696,8 @@ export async function middleware(request: NextRequest) {
     // Set language header for root layout to use
     response.headers.set('x-locale', 'en')
     response.headers.set('x-pathname', '/en')
-    setCacheHeaders(response, '/en')
+    // Internal rewrites for locale routing are user-specific, don't cache publicly
+    response.headers.set('Cache-Control', 'private, no-cache, must-revalidate')
     return setClientHintsHeaders(response)
   }
   
