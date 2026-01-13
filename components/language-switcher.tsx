@@ -169,10 +169,20 @@ export function LanguageSwitcher() {
     }
 
     // 4. For English, use clean URLs without /en/ prefix (middleware rewrites internally)
+    // Special case: root path / stays as / (don't navigate to same path if already there)
     // For Bulgarian, prefix with /bg/
-    const newPath = newLocale === 'en' 
-      ? pathWithoutLocale  // Clean URL: /listings/[id] (middleware rewrites to /en/listings/[id] internally)
-      : `/${newLocale}${pathWithoutLocale}`  // Localized prefixes: /bg/obiavi/[id], /ru/..., /gr/...
+    let newPath: string
+    if (newLocale === 'en') {
+      // For English, use clean URL without prefix
+      // Special handling for root path: if already on / and switching to English, do nothing
+      if (pathWithoutLocale === '/' && pathname === '/') {
+        setIsSwitching(false)
+        return
+      }
+      newPath = pathWithoutLocale  // Clean URL: /listings/[id] (middleware rewrites to /en/listings/[id] internally)
+    } else {
+      newPath = `/${newLocale}${pathWithoutLocale}`  // Localized prefixes: /bg/obiavi/[id], /ru/..., /gr/...
+    }
     
     // 5. Preserve query parameters (e.g., ?type=developer)
     const queryString = searchParams.toString()

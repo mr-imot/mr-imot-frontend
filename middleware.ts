@@ -595,8 +595,9 @@ export async function middleware(request: NextRequest) {
       return response
     }
     // For English (default), rewrite internally to /en for [lang] route handling
-    // But skip if pathname already starts with /en/
-    if (!pathname.startsWith('/en/')) {
+    // But skip root path / to avoid conflict with redirect that prevents /en
+    // Root path / is handled by the fallback rewrite below which has special logic
+    if (pathname !== '/' && !pathname.startsWith('/en/')) {
       const url = request.nextUrl.clone()
       url.pathname = `/en${pathname}`
       const response = NextResponse.rewrite(url)
@@ -604,6 +605,15 @@ export async function middleware(request: NextRequest) {
       response.headers.set('x-pathname', `/en${pathname}`)
       setCacheHeaders(response, `/en${pathname}`)
       return response
+    }
+    // For root path / with English cookie, just set headers and pass through
+    // The fallback rewrite below will handle it with special root path logic
+    if (pathname === '/') {
+      const response = NextResponse.next()
+      response.headers.set('x-locale', 'en')
+      response.headers.set('x-pathname', '/en')
+      setCacheHeaders(response, '/en')
+      return setClientHintsHeaders(response)
     }
   }
 
@@ -652,8 +662,10 @@ export async function middleware(request: NextRequest) {
   }
 
   // 4. Fallback to default locale (English) - rewrite internally to /en
-  // BUT exclude not-found pages and paths that already start with /en/
-  if (!isNotFoundPage && !pathname.startsWith('/en/') && !pathnameHasRuLocale && !pathnameHasBgLocale && !pathnameHasGrLocale) {
+  // BUT exclude not-found pages, paths that already start with /en/, and root path /
+  // Root path / is special: we rewrite to /en for Next.js routing but this is internal only
+  // The redirect at line 159 prevents external access to /en, but internal rewrites are fine
+  if (!isNotFoundPage && pathname !== '/' && !pathname.startsWith('/en/') && !pathnameHasRuLocale && !pathnameHasBgLocale && !pathnameHasGrLocale) {
     const url = request.nextUrl.clone()
     url.pathname = `/en${pathname}`
     const response = NextResponse.rewrite(url)
@@ -661,6 +673,19 @@ export async function middleware(request: NextRequest) {
     response.headers.set('x-locale', 'en')
     response.headers.set('x-pathname', `/en${pathname}`)
     setCacheHeaders(response, `/en${pathname}`)
+    return setClientHintsHeaders(response)
+  }
+  
+  // Special handling for root path / with default locale (English)
+  // Rewrite to /en internally for Next.js [lang] routing, but this is invisible to users
+  if (!isNotFoundPage && pathname === '/' && !pathnameHasRuLocale && !pathnameHasBgLocale && !pathnameHasGrLocale) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/en'
+    const response = NextResponse.rewrite(url)
+    // Set language header for root layout to use
+    response.headers.set('x-locale', 'en')
+    response.headers.set('x-pathname', '/en')
+    setCacheHeaders(response, '/en')
     return setClientHintsHeaders(response)
   }
   
