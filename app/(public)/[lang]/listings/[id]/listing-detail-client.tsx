@@ -22,7 +22,6 @@ import { recordProjectPhoneClick, recordProjectWebsiteClick, Project } from "@/l
 import { PropertyGallery } from "@/components/PropertyGallery"
 import { FeaturesDisplay } from "@/components/FeaturesDisplay"
 import dynamic from "next/dynamic"
-import { useIsMobile } from "@/hooks/use-mobile"
 import { translatePrice, PriceTranslations } from "@/lib/price-translator"
 
 // Dynamically import map component with no SSR to reduce initial bundle size
@@ -111,14 +110,8 @@ export default function ListingDetailClient({ projectId, initialProject, isModal
   const [loading, setLoading] = useState(!initialProject) // Don't show loading if we have data
   const [error, setError] = useState<string | null>(null)
   const [isSaved, setIsSaved] = useState(false)
-  const [isMounted, setIsMounted] = useState(false)
-  const isMobile = useIsMobile()
   const t = translations?.listingDetail || defaultTranslations.listingDetail
   
-  // Ensure client-side only rendering for mobile-specific UI to prevent hydration mismatches
-  useEffect(() => {
-    setIsMounted(true)
-  }, [])
   // Provide fallback translations for price to prevent runtime errors
   const tPrice: PriceTranslations = translations?.price || {
     requestPrice: 'Request price',
@@ -439,11 +432,8 @@ export default function ListingDetailClient({ projectId, initialProject, isModal
                 <p className="text-sm text-gray-700">{property.developer?.contact_person || 'Contact Person'}</p>
               </div>
               
-              {/* Desktop phone display - hidden on mobile after hydration */}
-              <div 
-                className={`space-y-1 ${isMounted && isMobile ? 'hidden md:block' : ''}`} 
-                suppressHydrationWarning
-              >
+              {/* Desktop phone display */}
+              <div className="space-y-1 hidden md:block">
                 <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">{t.phone || "Phone"}</p>
                 <div className="flex items-center gap-2">
                   <Phone className="h-4 w-4 text-gray-500" />
@@ -457,20 +447,18 @@ export default function ListingDetailClient({ projectId, initialProject, isModal
               </div>
               
               <div className="space-y-2 pt-2">
-                {/* Mobile call button - only shown on mobile after mount to prevent hydration mismatch */}
-                {isMounted && isMobile && (
-                  <div suppressHydrationWarning>
-                    <Button 
-                      size="sm"
-                      className="w-full text-xs cursor-pointer"
-                      onClick={() => handlePhoneClick(property.developer?.phone)}
-                      disabled={!property.developer?.phone}
-                    >
-                      <Phone className="h-3 w-3 mr-1 cursor-pointer" />
-                      {t.callNow || "Call Now"}
-                    </Button>
-                  </div>
-                )}
+                {/* Mobile call button */}
+                <div className="md:hidden">
+                  <Button 
+                    size="sm"
+                    className="w-full text-xs cursor-pointer"
+                    onClick={() => handlePhoneClick(property.developer?.phone)}
+                    disabled={!property.developer?.phone}
+                  >
+                    <Phone className="h-3 w-3 mr-1 cursor-pointer" />
+                    {t.callNow || "Call Now"}
+                  </Button>
+                </div>
                 
                 <Button 
                   variant="outline" 
@@ -692,4 +680,3 @@ export default function ListingDetailClient({ projectId, initialProject, isModal
     </main>
   )
 }
-
