@@ -606,10 +606,12 @@ export async function middleware(request: NextRequest) {
       setCacheHeaders(response, `/en${pathname}`)
       return response
     }
-    // For root path / with English cookie, just set headers and pass through
-    // The fallback rewrite below will handle it with special root path logic
+    // For root path / with English cookie, rewrite to /en internally for Next.js routing
+    // This is an internal rewrite, so it won't conflict with the redirect that prevents external /en access
     if (pathname === '/') {
-      const response = NextResponse.next()
+      const url = request.nextUrl.clone()
+      url.pathname = '/en'
+      const response = NextResponse.rewrite(url)
       response.headers.set('x-locale', 'en')
       response.headers.set('x-pathname', '/en')
       setCacheHeaders(response, '/en')
