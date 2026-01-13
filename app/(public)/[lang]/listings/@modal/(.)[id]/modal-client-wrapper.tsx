@@ -41,6 +41,8 @@ export function ModalClientWrapper({ children }: ModalClientWrapperProps) {
   const scrollPositionRef = useRef<number>(0)
   // Track whether we actually applied body styles (only on mobile)
   const hasAppliedStylesRef = useRef<boolean>(false)
+  // Track if component has mounted to prevent scroll manipulation during SSR/hydration
+  const isMountedRef = useRef<boolean>(false)
   
   // Mobile detection - SSR-safe hook to prevent hydration mismatch
   const isMobile = useIsMobile()
@@ -95,6 +97,11 @@ export function ModalClientWrapper({ children }: ModalClientWrapperProps) {
     }
   }, [isMobile])
 
+  // Mark component as mounted after first render
+  useEffect(() => {
+    isMountedRef.current = true
+  }, [])
+
   // Add modal-open class to body on mount (mobile only) to hide footer and prevent layout shifts
   // On desktop, modal doesn't use full-screen overlay, so footer should remain visible
   useEffect(() => {
@@ -108,27 +115,31 @@ export function ModalClientWrapper({ children }: ModalClientWrapperProps) {
 
   // Handle modal open/close animations and scroll preservation
   // FIX: Only apply/restore body styles on mobile to prevent desktop scroll reset
+  // FIX: Only run after mount to prevent hydration scroll resets
+  // FIX: Don't run on desktop at all to prevent any scroll interference
   useEffect(() => {
-    if (isMobile) {
-      // Store current scroll position
-      scrollPositionRef.current = window.scrollY
-      // Prevent body scroll
-      document.body.style.overflow = 'hidden'
-      document.body.style.position = 'fixed'
-      document.body.style.top = `-${scrollPositionRef.current}px`
-      document.body.style.width = '100%'
-      // Mark that we've applied styles so cleanup knows to restore
-      hasAppliedStylesRef.current = true
-    } else {
-      // On desktop, we don't apply styles, so mark that we haven't
+    // Don't run during SSR or before mount completes
+    if (!isMountedRef.current) return
+    
+    // CRITICAL: Don't run any scroll manipulation on desktop
+    // Desktop should have normal scroll behavior
+    if (!isMobile) {
       hasAppliedStylesRef.current = false
+      return
     }
 
+    // Mobile only: Store current scroll position and prevent body scroll
+    scrollPositionRef.current = window.scrollY
+    document.body.style.overflow = 'hidden'
+    document.body.style.position = 'fixed'
+    document.body.style.top = `-${scrollPositionRef.current}px`
+    document.body.style.width = '100%'
+    hasAppliedStylesRef.current = true
+
     return () => {
-      // Only restore body scroll and scroll position if we actually applied styles
-      // This prevents the scroll reset bug on desktop where cleanup was running
-      // even though we never modified body styles
-      if (hasAppliedStylesRef.current) {
+      // Only restore if we actually applied styles AND component is still mounted
+      // This prevents cleanup on unmount from resetting scroll
+      if (hasAppliedStylesRef.current && isMountedRef.current) {
         // Restore body scroll
         document.body.style.overflow = ''
         document.body.style.position = ''

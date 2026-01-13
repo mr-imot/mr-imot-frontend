@@ -23,6 +23,7 @@ import { Info, Loader, Upload, X, Move, Star, Image as ImageIcon, Plus, Maximize
 import { useAuth } from "@/lib/auth-context"
 import { getCurrentDeveloper } from "@/lib/api"
 import { FeaturesSelector } from "@/components/FeaturesSelector"
+import { getListingUrl } from "@/lib/utils"
 
 interface NewPropertyClientProps {
   dict: any
@@ -625,7 +626,9 @@ export default function NewPropertyPage({ dict, lang }: NewPropertyClientProps) 
       }
       
       // Redirect immediately after project creation (and image upload if any)
-      router.push(`/listing/${project.id}`)
+      // Use getListingUrl to get the proper slug-based URL and prevent scroll
+      const listingUrl = getListingUrl(project, lang)
+      router.push(listingUrl, { scroll: false })
       
     } catch (err: any) {
       console.error("Failed to create project", err)
