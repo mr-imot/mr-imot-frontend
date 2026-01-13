@@ -33,7 +33,8 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: Sup
     ? `${brand}: единствената платформа в България за ново строителство – директна връзка със строители, без брокери и без комисиони.`
     : `${brand}: Bulgaria's platform for new construction – connect directly with developers, no brokers and 0% commissions.`
 
-  const url = `${siteUrl}/${lang}`
+  // English uses root / (no /en prefix) to match redirect behavior and clean URLs
+  const url = lang === 'en' ? siteUrl : `${siteUrl}/${lang}`
   const ogLocale = isBg ? 'bg_BG' : isGr ? 'el_GR' : isRu ? 'ru_RU' : 'en_US'
 
   return {
@@ -49,11 +50,11 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: Sup
     alternates: {
       canonical: url,
       languages: {
-        en: `${siteUrl}/en`,
+        en: siteUrl,
         bg: `${siteUrl}/bg`,
         ru: `${siteUrl}/ru`,
         el: `${siteUrl}/gr`,
-        'x-default': `${siteUrl}/en`,
+        'x-default': siteUrl,
       },
     },
     openGraph: {

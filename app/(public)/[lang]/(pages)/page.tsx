@@ -45,7 +45,8 @@ export async function generateMetadata({ params }: HomePageProps): Promise<Metad
   const description = seoContent?.description || fallbackDescription
   const keywords = Array.isArray(seoContent?.keywords) ? seoContent?.keywords : undefined
 
-  const canonicalUrl = `${baseUrl}/${lang}`
+  // English uses root / (no /en prefix) to match redirect behavior and clean URLs
+  const canonicalUrl = lang === 'en' ? baseUrl : `${baseUrl}/${lang}`
   const ogLocale = isBg ? 'bg_BG' : isRu ? 'ru_RU' : 'en_US'
   return {
     title,
@@ -59,11 +60,11 @@ export async function generateMetadata({ params }: HomePageProps): Promise<Metad
     alternates: {
       canonical: canonicalUrl,
       languages: {
-        en: `${baseUrl}/en`,
+        en: baseUrl,
         bg: `${baseUrl}/bg`,
         ru: `${baseUrl}/ru`,
-          el: `${baseUrl}/gr`,
-        'x-default': `${baseUrl}/en`,
+        el: `${baseUrl}/gr`,
+        'x-default': baseUrl,
       },
     },
     openGraph: {
@@ -117,7 +118,8 @@ export default async function HomePage({ params }: HomePageProps) {
   const rawTitle = seoContent?.title || fallbackTitle
   const title = formatTitleWithBrand(rawTitle, lang)
   const description = seoContent?.description || fallbackDescription
-  const canonicalUrl = `${baseUrl}/${lang}`
+  // English uses root / (no /en prefix) to match redirect behavior and clean URLs
+  const canonicalUrl = lang === 'en' ? baseUrl : `${baseUrl}/${lang}`
 
   // Generate JSON-LD schemas on server
   const organizationSchema = {
@@ -125,8 +127,8 @@ export default async function HomePage({ params }: HomePageProps) {
     "@type": "Organization",
     name: lang === 'bg' ? 'Мистър Имот' : 'Mister Imot',
     alternateName: ['mrimot', 'mrimot.com'],
-    url: lang === 'bg' ? 'https://mrimot.com/bg' : 'https://mrimot.com/en',
-    inLanguage: lang === 'bg' ? 'bg' : 'en',
+    url: lang === 'en' ? 'https://mrimot.com' : lang === 'bg' ? 'https://mrimot.com/bg' : lang === 'ru' ? 'https://mrimot.com/ru' : 'https://mrimot.com/gr',
+    inLanguage: lang === 'bg' ? 'bg' : lang === 'ru' ? 'ru' : lang === 'gr' ? 'el' : 'en',
     logo: buildIkUrl("/Logo/mr-imot-logo.png"),
     sameAs: [
       'https://www.facebook.com/misterimot/',
@@ -142,11 +144,13 @@ export default async function HomePage({ params }: HomePageProps) {
     "@type": "WebSite",
     name: lang === 'bg' ? 'Мистър Имот' : 'Mister Imot',
     alternateName: ['mrimot', 'mrimot.com'],
-    url: lang === 'bg' ? 'https://mrimot.com/bg' : 'https://mrimot.com/en',
-    inLanguage: lang === 'bg' ? 'bg' : 'en',
+    url: lang === 'en' ? 'https://mrimot.com' : lang === 'bg' ? 'https://mrimot.com/bg' : lang === 'ru' ? 'https://mrimot.com/ru' : 'https://mrimot.com/gr',
+    inLanguage: lang === 'bg' ? 'bg' : lang === 'ru' ? 'ru' : lang === 'gr' ? 'el' : 'en',
     potentialAction: {
       "@type": "SearchAction",
-      target: `https://mrimot.com/${lang}/listings?query={search_term_string}`,
+      target: lang === 'en' 
+        ? `https://mrimot.com/listings?query={search_term_string}`
+        : `https://mrimot.com/${lang}/listings?query={search_term_string}`,
       "query-input": "required name=search_term_string"
     }
   }

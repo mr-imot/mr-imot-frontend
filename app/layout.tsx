@@ -14,15 +14,10 @@ const geist = Geist({
 })
 
 export const metadata: Metadata = {
-  title: "Real Estate Development Directory",
-  description: "Find and connect with real estate developers directly. No brokers, no commissions.",
-  generator: 'v0.dev',
+  title: "Mister Imot – Off-plan properties directly from developers",
+  description: "Mister Imot: Bulgaria's platform for new construction – connect directly with developers, no brokers and 0% commissions.",
   manifest: '/manifest.json',
-  robots: {
-    // Root layout should not be indexed - all content is under /en or /bg
-    index: false,
-    follow: true,
-  },
+  // Note: robots index is handled by [lang] layout which sets index: true for public pages
   icons: {
     icon: [
       { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
@@ -44,13 +39,14 @@ export const metadata: Metadata = {
   alternates: {
     // Hardcode production domain for canonical URLs to prevent build-time issues
     // See: https://www.reddit.com/r/nextjs/s/otIdK3NiqK
-    canonical: 'https://mrimot.com/en',
+    // English uses root / (no /en prefix) to match redirect behavior
+    canonical: 'https://mrimot.com',
     languages: {
-      en: 'https://mrimot.com/en',
+      en: 'https://mrimot.com',
       bg: 'https://mrimot.com/bg',
       ru: 'https://mrimot.com/ru',
       el: 'https://mrimot.com/gr',
-      'x-default': 'https://mrimot.com/en',
+      'x-default': 'https://mrimot.com',
     },
   },
 }
