@@ -52,10 +52,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   // User is authenticated if we have user data (cookies handle the session)
   const isAuthenticated = !!user;
 
-  // API call to login with credentials
+  // API call to login with credentials - uses developer-specific endpoint
   const login = async (email: string, password: string) => {
     try {
-      const response = await fetch('/api/v1/auth/login', {
+      const response = await fetch('/api/v1/developer/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -84,8 +84,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       const data = await response.json();
       
+      // Validate that this is a developer login (backend should enforce this, but double-check)
+      if (data.user_type !== 'developer') {
+        throw new Error('Access denied. Developer account required.');
+      }
+      
       // After successful login, fetch user info
-      await checkAuth();
+      // If checkAuth fails with 403, it will throw and be caught by the login form
+      try {
+        await checkAuth();
+      } catch (error) {
+        // If checkAuth throws (e.g., 403), re-throw so login form can display error
+        throw error;
+      }
       
       return data;
     } catch (error) {
@@ -129,6 +140,21 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           setUser(null);
           return false;
         }
+        // 403 means wrong user type (e.g., admin trying to access developer endpoint)
+        // Throw error so login form can display it
+        if (response.status === 403) {
+          const errorText = await response.text();
+          let errorMessage = 'Access denied. Developer account required.';
+          try {
+            const errorData = JSON.parse(errorText);
+            errorMessage = errorData.detail || errorData.message || errorMessage;
+          } catch {
+            // Use default message if parsing fails
+          }
+          const error = new Error(errorMessage);
+          (error as any).statusCode = 403;
+          throw error;
+        }
         throw new Error(`Auth check failed: ${response.status}`);
       }
 
@@ -136,6 +162,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setUser(userData);
       return true;
     } catch (error) {
+      // Re-throw 403 errors so login form can catch them
+      if (error instanceof Error && ((error as any).statusCode === 403 || error.message.includes('Access denied'))) {
+        setUser(null);
+        throw error;
+      }
       // Only log unexpected errors, not 401s
       if (error instanceof Error && !error.message.includes('401')) {
         console.error('Auth check failed:', error);

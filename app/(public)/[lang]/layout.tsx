@@ -1,4 +1,5 @@
 import { LocaleProvider } from "@/lib/locale-context"
+import { AuthProvider } from "@/lib/auth-context"
 import { getDictionary, type SupportedLocale } from "@/lib/dictionaries"
 import { Footer } from "@/components/footer"
 import { FeedbackButton } from "@/components/feedback-button"
@@ -99,14 +100,16 @@ export default async function PublicLangLayout({
     
     return (
       <LocaleProvider locale={lang}>
-        <div className="relative flex min-h-screen flex-col">
-          {/* ServerHeader is rendered by (pages)/layout.tsx for normal pages - outside main */}
-          {/* Listings pages have their own layout without ServerHeader */}
-          {children}
-          <Footer lang={lang} translations={{ footer: translations.footer, navigation: translations.navigation }} />
-        </div>
-        <FeedbackButton translations={translations.feedback} />
-        <CookieConsent />
+        <AuthProvider>
+          <div className="relative flex min-h-screen flex-col">
+            {/* ServerHeader is rendered by (pages)/layout.tsx for normal pages - outside main */}
+            {/* Listings pages have their own layout without ServerHeader */}
+            {children}
+            <Footer lang={lang} translations={{ footer: translations.footer, navigation: translations.navigation }} />
+          </div>
+          <FeedbackButton translations={translations.feedback} />
+          <CookieConsent />
+        </AuthProvider>
       </LocaleProvider>
     )
   } catch (error) {
@@ -116,14 +119,16 @@ export default async function PublicLangLayout({
     
     return (
       <LocaleProvider locale="en">
-        <div className="relative flex min-h-screen flex-col">
-          {/* ServerHeader is rendered by (pages)/layout.tsx for normal pages - outside main */}
-          {/* Listings pages have their own layout without ServerHeader */}
-          {children}
-          <Footer lang="en" translations={{ footer: fallbackTranslations.footer, navigation: fallbackTranslations.navigation }} />
-        </div>
-        <FeedbackButton translations={fallbackTranslations.feedback} />
-        <CookieConsent />
+        <AuthProvider>
+          <div className="relative flex min-h-screen flex-col">
+            {/* ServerHeader is rendered by (pages)/layout.tsx for normal pages - outside main */}
+            {/* Listings pages have their own layout without ServerHeader */}
+            {children}
+            <Footer lang="en" translations={{ footer: fallbackTranslations.footer, navigation: fallbackTranslations.navigation }} />
+          </div>
+          <FeedbackButton translations={fallbackTranslations.feedback} />
+          <CookieConsent />
+        </AuthProvider>
       </LocaleProvider>
     )
   }

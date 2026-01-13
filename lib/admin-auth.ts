@@ -31,7 +31,7 @@ export interface AdminLoginResponse {
 // Admin API client for cookie-based authentication
 class AdminAuthAPI {
   static async login(email: string, password: string): Promise<AdminLoginResponse> {
-    const response = await fetch(`/api/v1/auth/login`, {
+    const response = await fetch(`/api/v1/admin/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -50,7 +50,7 @@ class AdminAuthAPI {
 
     const data = await response.json();
     
-    // Validate that this is an admin login
+    // Validate that this is an admin login (backend should enforce this, but double-check)
     if (data.user_type !== 'admin') {
       throw new Error('Access denied. Admin account required.');
     }
@@ -59,7 +59,7 @@ class AdminAuthAPI {
   }
 
   static async getCurrentAdmin(): Promise<AdminUser> {
-    const response = await fetch(`/api/v1/auth/me`, {
+    const response = await fetch(`/api/v1/admin/me`, {
       method: 'GET',
       credentials: 'include', // Include cookies
     });
@@ -108,6 +108,12 @@ export const useAdminAuthProvider = (): AdminAuthContextType => {
 
       // Login and get response
       await AdminAuthAPI.login(email, password);
+      
+      // Reset access denied flag in AdminApiClient after successful login
+      if (typeof window !== 'undefined') {
+        const { adminApiClient } = await import('./admin-api');
+        adminApiClient.resetAccessDenied();
+      }
       
       // Get admin profile
       const adminUser = await AdminAuthAPI.getCurrentAdmin();

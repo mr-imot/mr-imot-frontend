@@ -32,7 +32,7 @@ import { toPropertyMapCardData } from "@/lib/types"
 import { DraggableSheet } from "@/components/draggable-sheet"
 import { AirbnbSearch } from "@/components/airbnb-search"
 import { DesktopSearch } from "@/components/desktop-search"
-import { PublicMobileNav } from "@/components/public-mobile-nav"
+import { LazyMobileNavButton } from "@/components/lazy-mobile-nav-button"
 import { MobileOnlyWrapper } from "@/components/mobile-only-wrapper"
 import { haptic } from "@/lib/haptic-feedback"
 import { MapDebugPanel } from "@/components/map-debug-panel"
@@ -602,7 +602,7 @@ export function ListingsClientContent({
               </button>
               
               <div className="md:hidden flex-shrink-0">
-                <PublicMobileNav translations={dict.navigation} />
+                <LazyMobileNavButton translations={dict.navigation} />
               </div>
             </div>
           </div>

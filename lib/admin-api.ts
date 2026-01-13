@@ -161,15 +161,30 @@ export class AdminApiError extends Error {
 // Admin API client class
 class AdminApiClient {
   private baseURL: string;
+  private accessDenied: boolean = false; // Track if we've been denied access
 
   constructor(baseURL: string) {
     this.baseURL = baseURL;
+  }
+
+  // Reset access denied flag (call this after successful login)
+  resetAccessDenied(): void {
+    this.accessDenied = false;
   }
 
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
+    // Short-circuit all requests if we've been denied access
+    if (this.accessDenied) {
+      throw new AdminApiError(
+        'Access denied. Admin privileges required.',
+        403,
+        'ACCESS_DENIED'
+      );
+    }
+
     const url = `${this.baseURL}${endpoint}`;
     const headers = getAdminAuthHeaders();
 
@@ -193,8 +208,9 @@ class AdminApiClient {
         throw new AdminApiError('Authentication required', 401, 'AUTH_REQUIRED');
       }
 
-      // Handle authorization errors
+      // Handle authorization errors - set flag to short-circuit future requests
       if (response.status === 403) {
+        this.accessDenied = true;
         throw new AdminApiError(
           'Access denied. Admin privileges required.',
           403,
@@ -221,7 +237,10 @@ class AdminApiClient {
       const data = await response.json();
       return data;
     } catch (error) {
-      console.error(`[Admin API] Request failed for: ${endpoint}`, error);
+      // Don't log errors if we've been denied access (prevents console spam)
+      if (!this.accessDenied && !(error instanceof AdminApiError && error.status === 403)) {
+        console.error(`[Admin API] Request failed for: ${endpoint}`, error);
+      }
       
       if (error instanceof AdminApiError) {
         throw error;
