@@ -658,45 +658,51 @@ export async function middleware(request: NextRequest) {
   }
 
   // 2. Check Vercel geo header (IP-based detection)
+  // BUT only if no cookie preference is set (cookie takes priority)
   // Note: request.geo might be undefined during cold starts or in preview deployments
   // Cast to any to access geo property which is injected by Vercel Edge
-  const geo = (request as any).geo
-  let country = geo?.country?.toUpperCase()
-  
-  // Fallback to x-vercel-ip-country header if geo is not available
-  if (!country) {
-    country = request.headers.get('x-vercel-ip-country')?.toUpperCase() || undefined
-  }
-  
-  if (country === 'BG') {
-    const response = redirectWithHints(request, new URL(`/bg${pathname}`, request.url))
-    // Set cookie to persist Bulgarian preference (so we don't re-detect on every request)
-    response.cookies.set('NEXT_LOCALE', 'bg', {
-      path: '/',
-      maxAge: 60 * 60 * 24 * 365, // 1 year
-      sameSite: 'lax',
-    })
-    // Set language header for root layout to use
-    response.headers.set('x-locale', 'bg')
-    response.headers.set('x-pathname', `/bg${pathname}`)
-    return response
+  if (!cookieLocale) {
+    const geo = (request as any).geo
+    let country = geo?.country?.toUpperCase()
+    
+    // Fallback to x-vercel-ip-country header if geo is not available
+    if (!country) {
+      country = request.headers.get('x-vercel-ip-country')?.toUpperCase() || undefined
+    }
+    
+    if (country === 'BG') {
+      const response = redirectWithHints(request, new URL(`/bg${pathname}`, request.url))
+      // Set cookie to persist Bulgarian preference (so we don't re-detect on every request)
+      response.cookies.set('NEXT_LOCALE', 'bg', {
+        path: '/',
+        maxAge: 60 * 60 * 24 * 365, // 1 year
+        sameSite: 'lax',
+      })
+      // Set language header for root layout to use
+      response.headers.set('x-locale', 'bg')
+      response.headers.set('x-pathname', `/bg${pathname}`)
+      return response
+    }
   }
 
   // 3. Check Accept-Language header
-  // BUT exclude not-found pages to prevent redirect loops
-  try {
-  const negotiated = getLocale(request)
-  if (negotiated && negotiated !== DEFAULT_LOCALE && !isNotFoundPage) {
-      const response = redirectWithHints(request, new URL(`/${negotiated}${pathname}`, request.url))
-      // Set language header for root layout to use
-      response.headers.set('x-locale', negotiated)
-      response.headers.set('x-pathname', `/${negotiated}${pathname}`)
-      return response
+  // BUT only if no cookie preference is set (cookie takes priority)
+  // AND exclude not-found pages to prevent redirect loops
+  if (!cookieLocale) {
+    try {
+      const negotiated = getLocale(request)
+      if (negotiated && negotiated !== DEFAULT_LOCALE && !isNotFoundPage) {
+        const response = redirectWithHints(request, new URL(`/${negotiated}${pathname}`, request.url))
+        // Set language header for root layout to use
+        response.headers.set('x-locale', negotiated)
+        response.headers.set('x-pathname', `/${negotiated}${pathname}`)
+        return response
+      }
+    } catch (error) {
+      // If Accept-Language detection fails, continue to fallback
+      // This ensures the middleware never crashes due to locale detection errors
+      console.error('Error in Accept-Language detection:', error)
     }
-  } catch (error) {
-    // If Accept-Language detection fails, continue to fallback
-    // This ensures the middleware never crashes due to locale detection errors
-    console.error('Error in Accept-Language detection:', error)
   }
 
   // 4. Fallback to default locale (English) - rewrite internally to /en

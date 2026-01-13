@@ -169,16 +169,12 @@ export function LanguageSwitcher() {
     }
 
     // 4. For English, use clean URLs without /en/ prefix (middleware rewrites internally)
-    // Special case: root path / stays as / (don't navigate to same path if already there)
     // For Bulgarian, prefix with /bg/
     let newPath: string
     if (newLocale === 'en') {
       // For English, use clean URL without prefix
-      // Special handling for root path: if already on / and switching to English, do nothing
-      if (pathWithoutLocale === '/' && pathname === '/') {
-        setIsSwitching(false)
-        return
-      }
+      // Always navigate to force middleware to re-evaluate with new cookie
+      // Even if pathWithoutLocale is /, we need to navigate to ensure cookie is picked up
       newPath = pathWithoutLocale  // Clean URL: /listings/[id] (middleware rewrites to /en/listings/[id] internally)
     } else {
       newPath = `/${newLocale}${pathWithoutLocale}`  // Localized prefixes: /bg/obiavi/[id], /ru/..., /gr/...
