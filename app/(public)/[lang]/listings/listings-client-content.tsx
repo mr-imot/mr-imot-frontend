@@ -157,6 +157,89 @@ export function ListingsClientContent({
   const skipNextMobileIdleFetchRef = useRef(true)
   const skipNextDesktopIdleFetchRef = useRef(true)
   
+  // Refs for diagnostics and fix - avoid stale closures in map click handlers
+  const selectedPropertyIdRef = useRef<string | null>(selectedPropertyId)
+  const suppressMapClickRef = useRef(false)
+  
+  // Guard to prevent auto-clearing selection right after marker click opens it
+  // This prevents race conditions where effects try to clear selection during the same tick
+  const ignoreNextAutoClearRef = useRef(false)
+  
+  // Property lookup ref - always current, prevents stale closure issues
+  // This is the authoritative source for property lookup in callbacks
+  const propertyByIdRef = useRef<Map<string, PropertyData>>(new Map())
+  
+  // Wrapped onPropertySelect with tracing for null calls (debugging)
+  const tracedOnPropertySelect = useCallback((id: string | null) => {
+    if (id === null) {
+      // Check if we should ignore this auto-clear (it's from a race condition)
+      if (ignoreNextAutoClearRef.current) {
+        console.log('🛡️ IGNORED: onPropertySelect(null) - blocked by ignoreNextAutoClearRef guard')
+        ignoreNextAutoClearRef.current = false
+        return
+      }
+      console.trace('🔍 TRACE: onPropertySelect(null) called - full call stack:')
+    } else {
+      // When opening a card, set the guard to prevent immediate auto-clear
+      ignoreNextAutoClearRef.current = true
+      // Release guard after microtask (allows legitimate closes but blocks race conditions)
+      queueMicrotask(() => {
+        ignoreNextAutoClearRef.current = false
+      })
+    }
+    onPropertySelect(id)
+  }, [onPropertySelect])
+  
+  // Keep propertyByIdRef current whenever properties change
+  useEffect(() => {
+    const map = new Map<string, PropertyData>()
+    
+    // Use propertyCacheRef if available (more complete), otherwise filteredProperties
+    const sourceProperties = propertyCacheRef.current.size > 0 
+      ? Array.from(propertyCacheRef.current.values())
+      : filteredProperties
+    
+    sourceProperties.forEach(property => {
+      map.set(property.id, property)
+    })
+    
+    propertyByIdRef.current = map
+    
+    const timestamp = new Date().toISOString()
+    console.log('📦 propertyByIdRef UPDATED:', {
+      timestamp,
+      propertyCount: map.size,
+      source: propertyCacheRef.current.size > 0 ? 'propertyCacheRef' : 'filteredProperties',
+      ids: Array.from(map.keys()).slice(0, 5)
+    })
+  }, [filteredProperties, propertyCacheRef])
+  
+  // Track selectedPropertyId changes (ground truth for diagnostics)
+  useEffect(() => {
+    const timestamp = new Date().toISOString()
+    console.log('🟣 selectedPropertyId CHANGED (ground truth):', {
+      timestamp,
+      newValue: selectedPropertyId,
+      previousValue: selectedPropertyIdRef.current,
+      willOpenCard: !!selectedPropertyId,
+      willCloseCard: !selectedPropertyId && !!selectedPropertyIdRef.current
+    })
+    selectedPropertyIdRef.current = selectedPropertyId
+  }, [selectedPropertyId])
+  
+  // Track filteredProperties changes (critical for Pattern 2 diagnosis)
+  useEffect(() => {
+    const timestamp = new Date().toISOString()
+    console.log('🧨 filteredProperties CHANGED:', {
+      timestamp,
+      city: selectedCity,
+      count: filteredProperties.length,
+      ids: filteredProperties.slice(0, 5).map(p => p.id), // don't spam
+      hasSelectedProperty: selectedPropertyId ? filteredProperties.some(p => p.id === selectedPropertyId) : false,
+      selectedPropertyId: selectedPropertyId
+    })
+  }, [filteredProperties, selectedCity, selectedPropertyId])
+  
   // ─────────────────────────────────────────────────────────────────────────
   // DERIVED STATE
   // ─────────────────────────────────────────────────────────────────────────
@@ -169,6 +252,46 @@ export function ListingsClientContent({
   const selectedProperty = selectedPropertyId
     ? filteredProperties.find(p => p.id === selectedPropertyId)
     : null
+  
+  // Log card rendering state
+  useEffect(() => {
+    if (selectedPropertyId) {
+      const timestamp = new Date().toISOString()
+      console.log('🟪 CARD RENDER CHECK:', {
+        timestamp,
+        selectedPropertyId,
+        selectedProperty: selectedProperty ? selectedProperty.title : 'NOT FOUND',
+        foundInFilteredProperties: !!selectedProperty,
+        filteredPropertiesCount: filteredProperties.length,
+        filteredPropertyIds: filteredProperties.map(p => p.id)
+      })
+    }
+  }, [selectedPropertyId, selectedProperty, filteredProperties])
+  
+  // FIX: Only clear selection if property is genuinely invalid (not found in any source)
+  // Never call onPropertySelect(null) here - that re-enters marker manager callbacks
+  // Only directly set state if the property truly doesn't exist
+  useEffect(() => {
+    if (!selectedPropertyId) return
+    
+    // Check if property exists in authoritative sources
+    const existsInRef = propertyByIdRef.current?.has?.(selectedPropertyId)
+    const existsInFiltered = filteredProperties.some(p => p.id === selectedPropertyId)
+    
+    // Only clear if property is genuinely missing from all sources
+    // This prevents clearing during valid selection or UI event races
+    if (!existsInRef && !existsInFiltered) {
+      console.log('🛡️ AUTO-CLEAR: Property not found in any source, clearing selection', {
+        selectedPropertyId,
+        propertyCacheSize: propertyByIdRef.current.size,
+        filteredCount: filteredProperties.length
+      })
+      // IMPORTANT: Set state directly, do NOT call onPropertySelect(null)
+      // Calling onPropertySelect(null) would re-enter marker manager callbacks and cause loops
+      // This is only for genuinely invalid selections (e.g., after city switch where property doesn't exist)
+      onPropertySelect(null)
+    }
+  }, [selectedPropertyId, filteredProperties, onPropertySelect])
   
   // ─────────────────────────────────────────────────────────────────────────
   // HANDLERS
@@ -411,32 +534,90 @@ export function ListingsClientContent({
   }, []) // Only run once on mount
   
   // Add click handler to desktop map to close property card (Airbnb-style UX)
+  // Bind once per map instance, use refs to avoid listener churn
   useEffect(() => {
     if (!desktopMapReady || !googleMapRef.current) return
     
     const map = googleMapRef.current
-    const clickListener = map.addListener('click', () => {
-      if (selectedPropertyId) onPropertySelect(null)
+    const clickListener = map.addListener('click', (e: google.maps.MapMouseEvent) => {
+      const timestamp = new Date().toISOString()
+      const currentSelectedId = selectedPropertyIdRef.current
+      
+      console.log('🟢 MAP CLICK FIRED (desktop):', {
+        timestamp,
+        currentSelectedId,
+        hasSelectedProperty: !!currentSelectedId,
+        suppressFlag: suppressMapClickRef.current,
+        lat: e.latLng?.lat(),
+        lng: e.latLng?.lng()
+      })
+      
+      // Suppress if marker click just happened (prevents conflict)
+      // This is the ONLY place we clear the suppress flag (consumes it)
+      if (suppressMapClickRef.current) {
+        console.log('🟢 MAP CLICK: Suppressed (marker click in progress)')
+        suppressMapClickRef.current = false
+        return
+      }
+      
+      // If suppress flag wasn't set but we have a selected property, 
+      // this is a legitimate empty-space click
+      
+      if (currentSelectedId) {
+        console.log('🟢 MAP CLICK: Closing card')
+        tracedOnPropertySelect(null)
+      } else {
+        console.log('🟢 MAP CLICK: No card to close (empty space click)')
+      }
     })
     
     return () => {
       google.maps.event.removeListener(clickListener)
     }
-  }, [desktopMapReady, selectedPropertyId, onPropertySelect])
+  }, [desktopMapReady, onPropertySelect]) // Removed selectedPropertyId dependency
   
   // Add click handler to mobile map to close property card (Airbnb-style UX)
+  // Bind once per map instance, use refs to avoid listener churn
   useEffect(() => {
     if (!mobileMapReady || !mobileGoogleMapRef.current) return
     
     const mobileMap = mobileGoogleMapRef.current
-    const clickListener = mobileMap.addListener('click', () => {
-      if (selectedPropertyId) onPropertySelect(null)
+    const clickListener = mobileMap.addListener('click', (e: google.maps.MapMouseEvent) => {
+      const timestamp = new Date().toISOString()
+      const currentSelectedId = selectedPropertyIdRef.current
+      
+      console.log('🟢 MAP CLICK FIRED (mobile):', {
+        timestamp,
+        currentSelectedId,
+        hasSelectedProperty: !!currentSelectedId,
+        suppressFlag: suppressMapClickRef.current,
+        lat: e.latLng?.lat(),
+        lng: e.latLng?.lng()
+      })
+      
+      // Suppress if marker click just happened (prevents conflict)
+      // This is the ONLY place we clear the suppress flag (consumes it)
+      if (suppressMapClickRef.current) {
+        console.log('🟢 MAP CLICK: Suppressed (marker click in progress)')
+        suppressMapClickRef.current = false
+        return
+      }
+      
+      // If suppress flag wasn't set but we have a selected property, 
+      // this is a legitimate empty-space click
+      
+      if (currentSelectedId) {
+        console.log('🟢 MAP CLICK: Closing card')
+        tracedOnPropertySelect(null)
+      } else {
+        console.log('🟢 MAP CLICK: No card to close (empty space click)')
+      }
     })
     
     return () => {
       google.maps.event.removeListener(clickListener)
     }
-  }, [mobileMapReady, selectedPropertyId, onPropertySelect])
+  }, [mobileMapReady, onPropertySelect]) // Removed selectedPropertyId dependency
   
   // Track previous properties length to detect changes
   const prevPropertiesLengthRef = useRef(0)
@@ -468,12 +649,61 @@ export function ListingsClientContent({
       markerManagerRef.current = new MarkerManager({
         maps: availableMaps,
         properties: filteredProperties,
-        onPropertySelect: (id) => {
-          onPropertySelect(id)
+        onPropertySelect: (id, propertyFromMarker) => {
+          const timestamp = new Date().toISOString()
+          console.log('🟡 onPropertySelect CALLED (from marker manager):', {
+            timestamp,
+            propertyId: id,
+            hasPropertyObject: !!propertyFromMarker,
+            propertyTitle: propertyFromMarker?.title,
+            previousSelectedId: selectedPropertyIdRef.current,
+            willOpenCard: !!id,
+            willCloseCard: !id && !!selectedPropertyIdRef.current
+          })
+          
+          // Set suppress flag before calling to prevent map click conflict
+          // This flag will be consumed by map click handler (safer than auto-reset)
           if (id) {
-            const property = filteredProperties.find(p => p.id === id)
-            if (property) setCardPosition(calculateCardPosition(property))
+            suppressMapClickRef.current = true
+            console.log('🟡 onPropertySelect: Set suppressMapClickRef = true')
+            
+            // Safety net: clear suppress flag on next tick if map click never fires
+            // This prevents the flag from getting stuck
+            setTimeout(() => {
+              if (suppressMapClickRef.current) {
+                console.log('🟡 onPropertySelect: Safety net - clearing suppress flag (map click did not fire)')
+                suppressMapClickRef.current = false
+              }
+            }, 100) // 100ms should be enough for any map click to fire
           }
+          
+          tracedOnPropertySelect(id)
+          if (id) {
+            // FIX: Use property object passed from MarkerManager (most reliable)
+            // Fallback to propertyByIdRef if not provided (backwards compatibility)
+            // This completely eliminates stale closure issues
+            const property = propertyFromMarker || propertyByIdRef.current.get(id)
+            if (property) {
+              console.log('🟡 onPropertySelect: Setting card position for', property.title, {
+                source: propertyFromMarker ? 'from marker' : 'from ref'
+              })
+              setCardPosition(calculateCardPosition(property))
+            } else {
+              console.warn('🟡 onPropertySelect: Property not found!', {
+                propertyId: id,
+                propertyCacheSize: propertyByIdRef.current.size,
+                availableIds: Array.from(propertyByIdRef.current.keys()).slice(0, 5)
+              })
+            }
+          } else {
+            console.log('🟡 onPropertySelect: Clearing selection (from marker manager callback)')
+            // Clear suppress flag when closing (no conflict possible)
+            suppressMapClickRef.current = false
+          }
+          
+          // Note: suppress flag is consumed by map click handler if it fires
+          // Otherwise cleared by safety net timeout above
+          // This prevents race conditions where map click fires in same event loop
         },
         onPropertyHover: (id) => setDebouncedHover(id, 50),
         onAriaAnnouncement: () => {},
@@ -731,7 +961,7 @@ export function ListingsClientContent({
         {selectedProperty && (
           <PropertyMapCard
             property={transformToPropertyMapData(selectedProperty)}
-            onClose={() => onPropertySelect(null)}
+            onClose={() => tracedOnPropertySelect(null)}
             floating
             forceMobile
             priceTranslations={dict.price}

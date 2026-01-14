@@ -21,7 +21,7 @@ export interface PropertyData {
 export interface MarkerManagerConfig {
   maps: google.maps.Map[]
   properties: PropertyData[]
-  onPropertySelect: (propertyId: string | null) => void
+  onPropertySelect: (propertyId: string | null, property?: PropertyData) => void
   onPropertyHover: (propertyId: string | null) => void
   onAriaAnnouncement: (message: string) => void
   selectedPropertyId: string | null
@@ -50,6 +50,15 @@ export class MarkerManager {
 
   // Main method to render all markers (clustering disabled for now)
   renderMarkers(force: boolean = false) {
+    const timestamp = new Date().toISOString()
+    console.log('🟠 MARKER RENDER:', {
+      timestamp,
+      force,
+      propertyCount: this.config.properties.length,
+      isInitialized: this.isInitialized,
+      existingMarkerCount: Object.keys(this.markers).length
+    })
+    
     // Always render individual markers - clustering disabled
     // TODO: Re-enable clustering when property count grows significantly
     const shouldCluster = false // Disabled: was `currentZoom < 12 && this.config.properties.length > 3`
@@ -192,6 +201,15 @@ export class MarkerManager {
 
   // Update properties without recreating markers
   updateProperties(newProperties: PropertyData[]) {
+    const timestamp = new Date().toISOString()
+    console.log('🟠 MARKER UPDATE (updateProperties):', {
+      timestamp,
+      newPropertyCount: newProperties.length,
+      existingMarkerCount: Object.keys(this.markers).length,
+      newPropertyIds: newProperties.map(p => p.id),
+      reason: 'properties changed'
+    })
+    
     const newPropertyIds = new Set(newProperties.map(p => p.id))
     const primaryMap = this.config.maps[0]
     if (!primaryMap) return
@@ -282,6 +300,14 @@ export class MarkerManager {
   }
 
   private clearAllMarkers() {
+    const timestamp = new Date().toISOString()
+    const markerCount = Object.keys(this.markers).length
+    console.log('🟠 CLEAR ALL MARKERS:', {
+      timestamp,
+      markerCount,
+      markerIds: Object.keys(this.markers)
+    })
+    
     // Clear all markers from maps (unified approach - no clones to clean up)
     Object.values(this.markers).forEach((marker) => {
       if ('setMap' in marker) {
@@ -348,6 +374,17 @@ export class MarkerManager {
     if (typeof property.lat !== "number" || typeof property.lng !== "number") {
       return
     }
+    
+    const timestamp = new Date().toISOString()
+    console.log('🟠 CREATE MARKER:', {
+      timestamp,
+      propertyId: property.id,
+      propertyTitle: property.title,
+      lat: property.lat,
+      lng: property.lng,
+      alreadyExists: !!this.markers[property.id],
+      fromCache: !!(this.markerCache[property.id] && this.markerContents[property.id])
+    })
 
     // Check if marker is already cached AND we have its original content to clone
     if (this.markerCache[property.id] && this.markerContents[property.id]) {
@@ -485,12 +522,38 @@ export class MarkerManager {
     const isTouchDevice = getDeviceType() === 'mobile' || getDeviceType() === 'tablet'
 
     // Click marker to select/deselect
-    marker.addListener("click", () => {
-      if (this.config.selectedPropertyId === property.id) {
+    marker.addListener("click", (e: google.maps.MapMouseEvent) => {
+      const timestamp = new Date().toISOString()
+      const currentConfigSelectedId = this.config.selectedPropertyId
+      const willOpen = currentConfigSelectedId !== property.id
+      const willClose = currentConfigSelectedId === property.id
+      
+      // FIX: Stop propagation to prevent pill element touch/click handlers from also firing
+      // This prevents double-firing and race conditions where card opens then immediately closes
+      if (e.domEvent) {
+        e.domEvent.stopPropagation()
+        e.domEvent.preventDefault()
+      }
+      
+      console.log('🔵 MARKER CLICK FIRED:', {
+        timestamp,
+        propertyId: property.id,
+        propertyTitle: property.title,
+        currentConfigSelectedId,
+        willOpen,
+        willClose,
+        action: willOpen ? 'OPENING card' : 'CLOSING card'
+      })
+      
+      if (currentConfigSelectedId === property.id) {
+        console.log('🔵 MARKER CLICK: Calling onPropertySelect(null) to close')
         this.config.onPropertySelect(null)
         this.config.onAriaAnnouncement("Property details closed")
       } else {
-        this.config.onPropertySelect(property.id)
+        console.log('🔵 MARKER CLICK: Calling onPropertySelect(property.id, property) to open')
+        // FIX: Pass the full property object to avoid stale closure issues
+        // The callback can use this directly instead of searching filteredProperties
+        this.config.onPropertySelect(property.id, property)
         this.config.onAriaAnnouncement(`Selected property: ${property.title} - ${property.shortPrice || 'Contact for price'}`)
       }
     })
@@ -504,58 +567,27 @@ export class MarkerManager {
       }
     })
 
+    // FIX: Remove duplicate touch/click handlers on pill element
+    // The marker click handler already handles all selection logic
+    // Having both causes race conditions where both fire and the card closes immediately
+    // We only need visual hover effects on the pill, not selection logic
     if (isTouchDevice) {
-      // Touch device: Use touch events with preventDefault to avoid map gesture conflicts
-      let touchStartTime = 0
-      let touchStartX = 0
-      let touchStartY = 0
-
+      // Touch device: Only add visual feedback, no selection logic
+      // Selection is handled by marker click handler which stops propagation
       pillElement.addEventListener('touchstart', (e: TouchEvent) => {
-        e.preventDefault()
-        touchStartTime = Date.now()
-        const touch = e.touches[0]
-        touchStartX = touch.clientX
-        touchStartY = touch.clientY
-      }, { passive: false })
+        // Just visual feedback, don't prevent default (let marker click handle it)
+        pillElement.style.transform = 'scale(1.05)'
+      }, { passive: true })
 
       pillElement.addEventListener('touchend', (e: TouchEvent) => {
-        e.preventDefault()
-        e.stopPropagation()
-        
-        const touchEndTime = Date.now()
-        const touchDuration = touchEndTime - touchStartTime
+        // Reset visual feedback
+        pillElement.style.transform = 'scale(1)'
+      }, { passive: true })
 
-        if (touchDuration < 500) {
-          const touch = e.changedTouches[0]
-          const deltaX = Math.abs(touch.clientX - touchStartX)
-          const deltaY = Math.abs(touch.clientY - touchStartY)
-
-          if (deltaX < 20 && deltaY < 20) {
-            if (this.config.selectedPropertyId === property.id) {
-              this.config.onPropertySelect(null)
-              this.config.onAriaAnnouncement("Property details closed")
-            } else {
-              this.config.onPropertySelect(property.id)
-              this.config.onAriaAnnouncement(`Selected property: ${property.title} - ${property.shortPrice || 'Contact for price'}`)
-            }
-          }
-        }
-      }, { passive: false })
-
-      pillElement.addEventListener('touchcancel', () => {}, { passive: false })
-      
-      pillElement.addEventListener('click', (e: MouseEvent) => {
-        e.preventDefault()
-        e.stopPropagation()
-        
-        if (this.config.selectedPropertyId === property.id) {
-          this.config.onPropertySelect(null)
-          this.config.onAriaAnnouncement("Property details closed")
-        } else {
-          this.config.onPropertySelect(property.id)
-          this.config.onAriaAnnouncement(`Selected property: ${property.title} - ${property.shortPrice || 'Contact for price'}`)
-        }
-      })
+      pillElement.addEventListener('touchcancel', () => {
+        // Reset visual feedback
+        pillElement.style.transform = 'scale(1)'
+      }, { passive: true })
     } else {
       // Desktop: Use mouse events
       pillElement.addEventListener('mouseenter', () => {
