@@ -958,7 +958,8 @@ export function ListingsClientContent({
         )}
         
         {/* Selected property card (mobile) - Floating card style */}
-        {selectedProperty && (
+        {/* FIX: Only render on mobile to avoid double-rendering on desktop */}
+        {selectedProperty && !isDesktop && (
           <PropertyMapCard
             property={transformToPropertyMapData(selectedProperty)}
             onClose={() => tracedOnPropertySelect(null)}
