@@ -16,6 +16,8 @@ export default function AuthLayout({
         transformationPosition="path"
       >
         <GlobalMaintenanceWrapper>
+          {/* AuthProvider needed here because (auth) and (public) are separate route groups
+              The in-flight guard in auth-context.tsx prevents duplicate /me calls */}
           <AuthProvider>
             {children}
           </AuthProvider>

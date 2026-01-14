@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
 
 // User types
 export interface AuthUser {
@@ -48,6 +48,9 @@ interface AuthProviderProps {
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  // In-flight guard to prevent duplicate auth checks
+  const authInFlightRef = useRef<Promise<boolean> | null>(null);
 
   // User is authenticated if we have user data (cookies handle the session)
   const isAuthenticated = !!user;
@@ -128,52 +131,71 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   // Check authentication status by calling /me endpoint
   const checkAuth = async (): Promise<boolean> => {
-    try {
-      const response = await fetch('/api/v1/developers/me', {
-        method: 'GET',
-        credentials: 'include', // Include cookies
-      });
+    // If a check is already in flight, return the same promise
+    if (authInFlightRef.current) {
+      return authInFlightRef.current;
+    }
 
-      if (!response.ok) {
-        if (response.status === 401) {
-          // Not authenticated - this is expected behavior, don't log as error
-          setUser(null);
-          return false;
-        }
-        // 403 means wrong user type (e.g., admin trying to access developer endpoint)
-        // Throw error so login form can display it
-        if (response.status === 403) {
-          const errorText = await response.text();
-          let errorMessage = 'Access denied. Developer account required.';
-          try {
-            const errorData = JSON.parse(errorText);
-            errorMessage = errorData.detail || errorData.message || errorMessage;
-          } catch {
-            // Use default message if parsing fails
+    // Create new auth check promise
+    authInFlightRef.current = (async () => {
+      try {
+        const response = await fetch('/api/v1/developers/me', {
+          method: 'GET',
+          credentials: 'include', // Include cookies
+        });
+
+        if (!response.ok) {
+          if (response.status === 401) {
+            // Not authenticated - clear user and session hint cookie
+            // Backend also clears it, but frontend clearing ensures it's gone even if domain is set
+            setUser(null);
+            clearSessionCookie();
+            return false;
           }
-          const error = new Error(errorMessage);
-          (error as any).statusCode = 403;
+          // 403 means wrong user type (e.g., admin trying to access developer endpoint)
+          // Throw error so login form can display it
+          if (response.status === 403) {
+            const errorText = await response.text();
+            let errorMessage = 'Access denied. Developer account required.';
+            try {
+              const errorData = JSON.parse(errorText);
+              errorMessage = errorData.detail || errorData.message || errorMessage;
+            } catch {
+              // Use default message if parsing fails
+            }
+            const error = new Error(errorMessage);
+            (error as any).statusCode = 403;
+            throw error;
+          }
+          throw new Error(`Auth check failed: ${response.status}`);
+        }
+
+        const userData = await response.json();
+        setUser(userData);
+        return true;
+      } catch (error) {
+        // Re-throw 403 errors so login form can catch them
+        if (error instanceof Error && ((error as any).statusCode === 403 || error.message.includes('Access denied'))) {
+          setUser(null);
           throw error;
         }
-        throw new Error(`Auth check failed: ${response.status}`);
-      }
-
-      const userData = await response.json();
-      setUser(userData);
-      return true;
-    } catch (error) {
-      // Re-throw 403 errors so login form can catch them
-      if (error instanceof Error && ((error as any).statusCode === 403 || error.message.includes('Access denied'))) {
+        // Only log unexpected errors, not 401s
+        if (error instanceof Error && !error.message.includes('401')) {
+          console.error('Auth check failed:', error);
+        }
         setUser(null);
-        throw error;
+        // If it's a network error that might be 401, clear the cookie to be safe
+        if (error instanceof TypeError || (error instanceof Error && error.message.includes('fetch'))) {
+          clearSessionCookie();
+        }
+        return false;
+      } finally {
+        // Clear the in-flight ref when done
+        authInFlightRef.current = null;
       }
-      // Only log unexpected errors, not 401s
-      if (error instanceof Error && !error.message.includes('401')) {
-        console.error('Auth check failed:', error);
-      }
-      setUser(null);
-      return false;
-    }
+    })();
+
+    return authInFlightRef.current;
   };
 
   // Get dashboard URL based on user type
@@ -192,10 +214,36 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  // Check auth on component mount - ALWAYS check to preserve login state
-  // This ensures users stay logged in even when navigating to public pages
+  // Helper function to check if has_session cookie exists
+  const hasSessionCookie = (): boolean => {
+    if (typeof document === 'undefined') return false;
+    return document.cookie.split(';').some(cookie => {
+      const [name, value] = cookie.trim().split('=');
+      return name === 'has_session' && value === '1';
+    });
+  };
+
+  // Helper function to clear has_session cookie
+  // Matches backend settings: SameSite=Lax (default), Secure in production
+  const clearSessionCookie = (): void => {
+    if (typeof document === 'undefined') return;
+    // Clear cookie by setting it to expire immediately
+    // Use SameSite=Lax to match backend default, Secure if HTTPS
+    const secureFlag = window.location.protocol === 'https:' ? '; Secure' : '';
+    document.cookie = `has_session=; Path=/; Max-Age=0; SameSite=Lax${secureFlag}`;
+  };
+
+  // Check auth on component mount - only if session hint cookie exists
+  // This prevents unnecessary 401 requests when user is not logged in
   useEffect(() => {
     const initAuth = async () => {
+      // Only check auth if has_session cookie exists (set by backend on login)
+      if (!hasSessionCookie()) {
+        setIsLoading(false);
+        setUser(null);
+        return;
+      }
+
       try {
         await checkAuth();
       } catch (error) {
