@@ -1,6 +1,6 @@
 import Link from "next/link"
-import { Image } from "@imagekit/next"
-import { toIkPath } from "@/lib/imagekit"
+import Image from "next/image"
+import { IK_URL_ENDPOINT } from "@/lib/imagekit"
 import clsx from "clsx"
 import styles from "./homepage-hero.module.css"
 import typographyStyles from "@/components/typography.module.css"
@@ -99,8 +99,8 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
             <Image
               src={
                 lang === "bg"
-                  ? toIkPath("https://ik.imagekit.io/ts59gf2ul/Logo/mrimot.com-mascot-bg-0_-komisiona.png")
-                  : toIkPath("https://ik.imagekit.io/ts59gf2ul/Logo/0_-commissions-mr-imot.png")
+                  ? "/Logo/mrimot.com-mascot-bg-0_-komisiona.png"
+                  : "/Logo/0_-commissions-mr-imot.png"
               }
               alt={
                 lang === "bg"
@@ -113,13 +113,12 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
               fetchPriority="high"
               sizes="(max-width: 639px) 220px, (max-width: 1023px) 385px, 498px"
               className={styles.heroImage}
-              transformation={[
-                {
-                  quality: 60,
-                  format: "auto",
-                  focus: "auto",
-                },
-              ]}
+              loader={({ src, width, quality = 55 }) => {
+                // ImageKit loader: clean path-based transformation
+                // src is already a relative path like "/Logo/..."
+                const q = quality ?? 55
+                return `${IK_URL_ENDPOINT}/tr:w-${width},q-${q},f-avif,fo-auto${src}`
+              }}
             />
           </div>
         </div>
