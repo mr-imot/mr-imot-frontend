@@ -6,6 +6,14 @@ import styles from "./homepage-hero.module.css"
 import typographyStyles from "@/components/typography.module.css"
 import { listingsHref, asLocale } from "@/lib/routes"
 
+// ImageKit loader for next/image - must be defined outside component for Server Components
+const imagekitLoader = ({ src, width, quality = 55 }: { src: string; width: number; quality?: number }) => {
+  // ImageKit loader: clean path-based transformation
+  // src is already a relative path like "/Logo/..."
+  const q = quality ?? 55
+  return `${IK_URL_ENDPOINT}/tr:w-${width},q-${q},f-avif,fo-auto${src}`
+}
+
 interface HomepageHeroProps {
   dict: any
   lang: string
@@ -113,12 +121,7 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
               fetchPriority="high"
               sizes="(max-width: 639px) 220px, (max-width: 1023px) 385px, 498px"
               className={styles.heroImage}
-              loader={({ src, width, quality = 55 }) => {
-                // ImageKit loader: clean path-based transformation
-                // src is already a relative path like "/Logo/..."
-                const q = quality ?? 55
-                return `${IK_URL_ENDPOINT}/tr:w-${width},q-${q},f-avif,fo-auto${src}`
-              }}
+              loader={imagekitLoader}
             />
           </div>
         </div>
