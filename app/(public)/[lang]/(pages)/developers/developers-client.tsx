@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { ScrollAnimationWrapper } from "@/components/scroll-animation-wrapper"
 import { MapPin, Building, CheckCircle, Globe, ExternalLink } from "lucide-react"
 import { useDevelopers } from "@/hooks/use-developers"
+import { developerHref, asLocale } from "@/lib/routes"
 
 interface DevelopersClientProps {
   dict: any
@@ -157,7 +158,7 @@ export default function DevelopersClient({ dict, lang }: DevelopersClientProps) 
 
                             {/* Action Button */}
                             <Button asChild className="w-full mt-auto">
-                              <Link href={`/${lang === 'bg' ? 'stroiteli' : 'developers'}/${profilePath}`}>
+                              <Link href={developerHref(asLocale(lang), profilePath)}>
                                 {dict.developers.viewProfile}
                                 <ExternalLink className="w-4 h-4 ml-2" />
                               </Link>

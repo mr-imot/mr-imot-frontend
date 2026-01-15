@@ -6,7 +6,7 @@ import { UserAuthNav } from "@/components/user-auth-nav"
 import { MobileNav } from "@/components/mobile-nav"
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { useLocale } from "@/lib/locale-context"
-import { registerDeveloperHref } from "@/lib/routes"
+import { registerDeveloperHref, listingsHref, developersHref, newsHref, aboutHref, asLocale } from "@/lib/routes"
 import { Image } from "@imagekit/next"
 import { toIkPath } from "@/lib/imagekit"
 import headerStyles from "./header.module.css"
@@ -21,6 +21,7 @@ interface NavigationTranslations {
   register?: string
   contact?: string
   developerDashboard?: string
+  [key: string]: string | undefined
 }
 
 interface SiteHeaderProps {
@@ -32,33 +33,6 @@ export function SiteHeader({ translations }: SiteHeaderProps) {
   const pathname = usePathname()
   const isListingsPage = pathname.includes('/listings') || pathname.includes('/obiavi')
   const locale = useLocale()
-
-  const href = (en: string, bg: string) => {
-    if (locale === 'bg') return `/bg/${bg}`
-    if (locale === 'ru') {
-      const ruMap: Record<string, string> = {
-        listings: 'obyavleniya',
-        developers: 'zastroyshchiki',
-        'about-mister-imot': 'o-mister-imot',
-        contact: 'kontakty',
-        news: 'novosti',
-        login: 'login',
-      }
-      return `/ru/${ruMap[en] ?? en}`
-    }
-    if (locale === 'gr') {
-      const grMap: Record<string, string> = {
-        listings: 'aggelies',
-        developers: 'kataskeuastes',
-        'about-mister-imot': 'sxetika-me-to-mister-imot',
-        contact: 'epikoinonia',
-        news: 'eidhseis',
-        login: 'login',
-      }
-      return `/gr/${grMap[en] ?? en}`
-    }
-    return `/${en}`
-  }
 
   return (
     <>
@@ -95,25 +69,25 @@ export function SiteHeader({ translations }: SiteHeaderProps) {
         {/* Desktop Navigation - Visible from md and up */}
         <nav className="hidden md:flex items-center justify-start gap-3 lg:justify-center lg:gap-4">
           <Link
-            href={href('listings', 'obiavi')}
+            href={listingsHref(asLocale(locale))}
             className="text-white hover:text-white text-sm font-medium px-4 lg:px-5 py-2.5 rounded-full bg-charcoal-500 border border-charcoal-600 shadow-sm hover:bg-charcoal-600 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-charcoal-300 active:scale-95"
           >
             {t.listings}
           </Link>
           <Link
-            href={href('developers', 'stroiteli')}
+            href={developersHref(asLocale(locale))}
             className="text-white hover:text-white text-sm font-medium px-4 lg:px-5 py-2.5 rounded-full bg-charcoal-500 border border-charcoal-600 shadow-sm hover:bg-charcoal-600 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-charcoal-300 active:scale-95"
           >
             {t.developers}
           </Link>
           <Link
-            href={href('news', 'novini')}
+            href={newsHref(asLocale(locale))}
             className="text-white hover:text-white text-sm font-medium px-4 lg:px-5 py-2.5 rounded-full bg-charcoal-500 border border-charcoal-600 shadow-sm hover:bg-charcoal-600 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-charcoal-300 active:scale-95"
           >
             {t.blog ?? 'News'}
           </Link>
           <Link
-            href={href('about-mister-imot', 'za-mistar-imot')}
+            href={aboutHref(asLocale(locale))}
             className="text-white hover:text-white text-sm font-medium px-4 lg:px-5 py-2.5 rounded-full bg-charcoal-500 border border-charcoal-600 shadow-sm hover:bg-charcoal-600 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-charcoal-300 active:scale-95"
           >
             {t.aboutUs}
@@ -124,7 +98,7 @@ export function SiteHeader({ translations }: SiteHeaderProps) {
         <div className="flex items-center justify-end md:space-x-6">
           {/* Primary CTA - List Project */}
           <div className="hidden md:block">
-            <Link href={registerDeveloperHref(locale)} className={`${headerStyles.btnShine} inline-flex items-center px-6 py-2 rounded-full bg-charcoal-500 text-white text-xs font-semibold hover:bg-charcoal-600 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-charcoal-300 h-8 w-40 justify-center whitespace-nowrap`}>
+            <Link href={registerDeveloperHref(asLocale(locale))} className={`${headerStyles.btnShine} inline-flex items-center px-6 py-2 rounded-full bg-charcoal-500 text-white text-xs font-semibold hover:bg-charcoal-600 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-charcoal-300 h-8 w-40 justify-center whitespace-nowrap`}>
               {t.listYourProject}
             </Link>
           </div>

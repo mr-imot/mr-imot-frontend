@@ -5,6 +5,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { getProjects } from "@/lib/api"
 import { getListingUrl } from "@/lib/utils"
+import { listingsHref, asLocale } from "@/lib/routes"
 import typographyStyles from "@/components/typography.module.css"
 import effectsStyles from "@/components/effects.module.css"
 import cardStyles from "@/components/ui/card.module.css"
@@ -134,7 +135,7 @@ export function RecentListingsSection({ dict, lang }: RecentListingsSectionProps
               ))}
               {/* View more tile as last item (6th) */}
               <Link
-                href={`/${lang}/listings`}
+                href={listingsHref(asLocale(lang))}
                 className="min-w-[340px] max-w-[360px] lg:min-w-[400px] lg:max-w-[400px] snap-start"
               >
                 <article className={`${cardStyles.card} p-6 h-full flex flex-col items-center justify-center text-center hover:-translate-y-1 transition-transform cursor-pointer`}>
@@ -161,7 +162,7 @@ export function RecentListingsSection({ dict, lang }: RecentListingsSectionProps
 
         {/* CTA moved here below cards */}
         <div className="mt-10 flex justify-center">
-          <Link href={`/${lang}/listings`}>
+          <Link href={listingsHref(asLocale(lang))}>
             <button className="w-full sm:w-auto px-8 py-4 rounded-2xl text-white font-bold text-lg transition-all duration-300 ease-in-out hover:shadow-2xl hover:scale-105 active:scale-[0.98] cursor-pointer uppercase tracking-wide relative overflow-hidden group bg-charcoal-700 hover:bg-charcoal-800 focus:ring-2 focus:ring-charcoal-300 font-sans">
               {/* Liquid Glass Overlay - GPU-accelerated */}
               <div className={`absolute inset-0 ${effectsStyles.liquidFlowBgWhite} opacity-100 transition-opacity duration-300 ease-out`} style={{

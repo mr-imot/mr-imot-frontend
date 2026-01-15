@@ -6,9 +6,10 @@ import { Project, PausedProject, DeletedProject } from '@/lib/api'
 import ListingStructuredData from './listing-structured-data'
 import { getSiteUrl } from '@/lib/seo'
 import { getDictionary } from '@/lib/dictionaries'
+import { type SupportedLocale } from '@/lib/routes'
 
 interface ListingPageContentProps {
-  lang: 'en' | 'bg' | 'ru' | 'gr'
+  lang: SupportedLocale
   id: string
   initialProject?: Project | PausedProject | DeletedProject
   isModal?: boolean // Indicates if rendered in modal context

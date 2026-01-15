@@ -4,6 +4,7 @@ import { Separator } from "@/components/ui/separator"
 import { Facebook, Twitter, Instagram, Youtube } from "lucide-react"
 import { CookieSettingsButton } from "@/components/cookie-settings-button"
 import type { SupportedLocale } from "@/lib/locale-context"
+import { listingsHref, developersHref, aboutHref, contactHref, loginHref, registerDeveloperHref, type SupportedLocale as RoutesSupportedLocale } from "@/lib/routes"
 
 interface FooterTranslations {
   footer: {
@@ -35,70 +36,33 @@ interface FooterProps {
   lang: SupportedLocale
 }
 
-// Helper to generate localized pathnames (no query strings)
-// Returns only the pathname, e.g. "/register" or "/bg/register"
-function getLocalizedHref(locale: SupportedLocale, en: string, bg: string): string {
-  // Strip query strings from input (e.g. "register?type=developer" -> "register")
-  const enPath = en.split('?')[0]
-  const bgPath = bg.split('?')[0]
-  
-  if (locale === 'bg') return `/bg/${bgPath}`
-  if (locale === 'ru') {
-    const ruMap: Record<string, string> = {
-      listings: 'obyavleniya',
-      developers: 'zastroyshchiki',
-      'about-mister-imot': 'o-mister-imot',
-      contact: 'kontakty',
-      register: 'register',
-      login: 'login',
-    }
-    return `/ru/${ruMap[enPath] ?? enPath}`
-  }
-  if (locale === 'gr') {
-    const grMap: Record<string, string> = {
-      listings: 'aggelies',
-      developers: 'kataskeuastes',
-      'about-mister-imot': 'sxetika-me-to-mister-imot',
-      contact: 'epikoinonia',
-      register: 'register',
-      login: 'login',
-    }
-    return `/gr/${grMap[enPath] ?? enPath}`
-  }
-  return `/${enPath}`
-}
-
 export function Footer({ translations, lang }: FooterProps) {
   const t = translations.footer
   const tNav = translations.navigation
+
+  const langRoutes = lang as RoutesSupportedLocale
 
   const navColumns = [
     {
       title: t.explore,
       links: [
-        { href: getLocalizedHref(lang, 'listings', 'obiavi'), label: tNav.listings },
-        { href: getLocalizedHref(lang, 'developers', 'stroiteli'), label: tNav.developers },
-        { href: getLocalizedHref(lang, 'about-mister-imot', 'za-mistar-imot'), label: tNav.aboutUs },
-        { href: getLocalizedHref(lang, 'contact', 'kontakt'), label: tNav.contact },
+        { href: listingsHref(langRoutes), label: tNav.listings },
+        { href: developersHref(langRoutes), label: tNav.developers },
+        { href: aboutHref(langRoutes), label: tNav.aboutUs },
+        { href: contactHref(langRoutes), label: tNav.contact },
       ],
     },
     {
       title: t.forDevelopers,
       links: [
         { 
-          href: {
-            pathname: getLocalizedHref(lang, 'register', 'register'),
-            query: { type: 'developer' }
-          }, 
+          href: registerDeveloperHref(langRoutes), 
           label: tNav.listYourProject 
         },
-        { href: getLocalizedHref(lang, 'developer/dashboard', 'developer/dashboard'), label: tNav.developerDashboard },
-        { href: getLocalizedHref(lang, 'login', 'login'), label: tNav.login },
+        { href: langRoutes === 'en' ? '/developer/dashboard' : `/${langRoutes}/developer/dashboard`, label: tNav.developerDashboard },
+        { href: loginHref(langRoutes), label: tNav.login },
         { 
-          href: {
-            pathname: getLocalizedHref(lang, 'register', 'register'),
-            query: { type: 'developer' }
-          }, 
+          href: registerDeveloperHref(langRoutes), 
           label: tNav.register 
         },
       ],
@@ -106,8 +70,8 @@ export function Footer({ translations, lang }: FooterProps) {
   ]
 
   const legalLinks: Array<{ href: string; label: string; isCookieButton?: boolean }> = [
-    { href: getLocalizedHref(lang, 'privacy-policy', 'privacy-policy'), label: t.privacyPolicy },
-    { href: getLocalizedHref(lang, 'terms-of-service', 'terms-of-service'), label: t.termsOfService },
+    { href: langRoutes === 'en' ? '/privacy-policy' : `/${langRoutes}/privacy-policy`, label: t.privacyPolicy },
+    { href: langRoutes === 'en' ? '/terms-of-service' : `/${langRoutes}/terms-of-service`, label: t.termsOfService },
     { href: '#cookie-settings', label: t.cookiePolicy, isCookieButton: true }, // Opens cookie preferences banner
   ]
 

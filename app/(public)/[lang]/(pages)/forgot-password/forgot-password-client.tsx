@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { AuthError } from '@/components/ui/auth-error';
 import { RateLimitInfo } from '@/components/ui/rate-limit-info';
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/lib/auth-constants';
-import { registerDeveloperHref } from '@/lib/routes';
+import { registerDeveloperHref, loginHref, asLocale } from '@/lib/routes';
 import { cn } from '@/lib/utils';
 
 interface ForgotPasswordClientProps {
@@ -156,7 +156,7 @@ export default function ForgotPasswordClient({ dict, lang }: ForgotPasswordClien
                   />
 
                   <div className="flex gap-3">
-                    <Button variant="outline" onClick={() => router.push(`/${lang}/login`)} className="flex-1">
+                    <Button variant="outline" onClick={() => router.push(loginHref(asLocale(lang)))} className="flex-1">
                       {t.login?.signIn || "Back to Sign In"}
                     </Button>
                     <Button onClick={handleResendReset} disabled={!canRequest() || isSubmitting} className="flex-1">
@@ -268,7 +268,7 @@ export default function ForgotPasswordClient({ dict, lang }: ForgotPasswordClien
                 </div>
 
                 <div className="mt-6">
-                  <Button variant="outline" className="w-full" onClick={() => router.push(`/${lang}/login`)}>
+                  <Button variant="outline" className="w-full" onClick={() => router.push(loginHref(asLocale(lang)))}>
                     {t.forgotPassword?.backToSignIn || "Back to Sign In"}
                   </Button>
                 </div>

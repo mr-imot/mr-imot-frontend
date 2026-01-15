@@ -4,7 +4,7 @@ import Link from "next/link"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { useAuth } from "@/lib/auth-context"
 import { useLocale } from "@/lib/locale-context"
-import { registerDeveloperHref } from "@/lib/routes"
+import { registerDeveloperHref, loginHref, asLocale } from "@/lib/routes"
 import { LogOut } from "lucide-react"
 
 interface NavigationTranslations {
@@ -20,36 +20,6 @@ export function UserAuthNav({ translations }: UserAuthNavProps) {
   const { user, isAuthenticated, isLoading, logout, getDashboardUrl } = useAuth();
   const t = translations;
   const locale = useLocale();
-
-  // Helper function to generate localized URLs (no query strings)
-  const href = (en: string, bg: string) => {
-    if (locale === 'bg') return `/bg/${bg}`
-    if (locale === 'ru') {
-      const ruMap: Record<string, string> = {
-        'login': 'login',
-        'developer/dashboard': 'developer/dashboard',
-        'listings': 'obyavleniya',
-        'developers': 'zastroyshchiki',
-        'about-mister-imot': 'o-mister-imot',
-        'contact': 'kontakty',
-        'news': 'novosti',
-      }
-      return `/ru/${ruMap[en] ?? en}`
-    }
-    if (locale === 'gr') {
-      const grMap: Record<string, string> = {
-        'login': 'login',
-        'developer/dashboard': 'developer/dashboard',
-        'listings': 'aggelies',
-        'developers': 'kataskeuastes',
-        'about-mister-imot': 'sxetika-me-to-mister-imot',
-        'contact': 'epikoinonia',
-        'news': 'nea',
-      }
-      return `/gr/${grMap[en] ?? en}`
-    }
-    return `/${en}`
-  }
 
   // Fixed dimensions to prevent layout shift
   // Login button: h-8 w-24
@@ -105,7 +75,7 @@ export function UserAuthNav({ translations }: UserAuthNavProps) {
   // Not authenticated - show the branded login button (fixed dimensions)
   return (
     <div className={`flex items-center justify-center ${fixedWidth} ${fixedHeight}`}>
-      <Link href={href('login', 'login')}>
+      <Link href={loginHref(asLocale(locale))}>
         <button className={`group relative overflow-hidden px-6 py-2 rounded-full bg-white text-black font-semibold text-xs transition-all duration-300 hover:bg-gray-50 cursor-pointer ${fixedHeight} flex items-center justify-between ${fixedWidth} border border-gray-200 shadow-sm hover:shadow-md`}>
           <span className="transition-transform duration-300 ease-out group-hover:-translate-x-1 cursor-pointer">
             {t.login}

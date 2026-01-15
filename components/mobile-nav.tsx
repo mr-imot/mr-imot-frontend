@@ -8,7 +8,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Menu, LogOut, User, Settings } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
 import { useLocale } from "@/lib/locale-context"
-import { registerDeveloperHref } from "@/lib/routes"
+import { registerDeveloperHref, listingsHref, developersHref, newsHref, aboutHref, loginHref, asLocale } from "@/lib/routes"
 import { MobileLanguageSwitcher } from "@/components/mobile-language-switcher"
 import { cn } from "@/lib/utils"
 
@@ -33,11 +33,6 @@ interface MobileNavProps {
 function AuthActionsSection({ onLinkClick, t }: { onLinkClick: () => void; t: NavigationTranslations }) {
   const { user, isAuthenticated, logout, getDashboardUrl } = useAuth();
   const locale = useLocale();
-
-  // Helper function to generate localized URLs
-  const href = (en: string, bg: string) => {
-    return locale === 'bg' ? `/bg/${bg}` : `/${en}`
-  }
 
   if (isAuthenticated && user) {
     return (
@@ -84,7 +79,7 @@ function AuthActionsSection({ onLinkClick, t }: { onLinkClick: () => void; t: Na
   return (
     <div className="flex flex-col space-y-4">
       <Link
-        href={href('login', 'login')}
+        href={loginHref(asLocale(locale))}
         onClick={onLinkClick}
         className="text-lg font-medium text-foreground/80 hover:text-foreground py-3 px-4 rounded-lg hover:bg-muted transition-all duration-200"
       >
@@ -94,7 +89,7 @@ function AuthActionsSection({ onLinkClick, t }: { onLinkClick: () => void; t: Na
         asChild
         className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 h-12 rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
       >
-        <Link href={registerDeveloperHref(locale)} onClick={onLinkClick}>
+        <Link href={registerDeveloperHref(asLocale(locale))} onClick={onLinkClick}>
           {t.listYourProject}
         </Link>
       </Button>
@@ -108,38 +103,12 @@ export function MobileNav({ translations }: MobileNavProps) {
   const pathname = usePathname()
   const t = translations
   const locale = useLocale()
-  const href = (en: string, bg: string) => {
-    if (locale === 'bg') return `/bg/${bg}`
-    if (locale === 'ru') {
-      const ruMap: Record<string, string> = {
-        'listings': 'obyavleniya',
-        'developers': 'zastroyshchiki',
-        'about-mister-imot': 'o-mister-imot',
-        'contact': 'kontakty',
-        'news': 'novosti',
-        'login': 'login',
-      }
-      return `/ru/${ruMap[en] ?? en}`
-    }
-    if (locale === 'gr') {
-      const grMap: Record<string, string> = {
-        'listings': 'aggelies',
-        'developers': 'kataskeuastes',
-        'about-mister-imot': 'sxetika-me-to-mister-imot',
-        'contact': 'epikoinonia',
-        'news': 'eidhseis',
-        'login': 'login',
-      }
-      return `/gr/${grMap[en] ?? en}`
-    }
-    return `/${en}`
-  }
 
   const navItems = [
-    { href: href('listings', 'obiavi'), label: t.listings },
-    { href: href('developers', 'stroiteli'), label: t.developers },
-    { href: href('news', 'novini'), label: t.news ?? t.blog ?? 'News' },
-    { href: href('about-mister-imot', 'za-mistar-imot'), label: t.aboutUs },
+    { href: listingsHref(asLocale(locale)), label: t.listings },
+    { href: developersHref(asLocale(locale)), label: t.developers },
+    { href: newsHref(asLocale(locale)), label: t.news ?? t.blog ?? 'News' },
+    { href: aboutHref(asLocale(locale)), label: t.aboutUs },
   ]
 
   const handleLinkClick = () => {

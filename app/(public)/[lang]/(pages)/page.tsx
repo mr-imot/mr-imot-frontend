@@ -5,6 +5,7 @@ import type { Metadata } from 'next'
 import WebPageSchema from "@/components/seo/webpage-schema"
 import { buildIkUrl } from "@/lib/imagekit"
 import ViewportLock from "@/components/ViewportLock"
+import { listingsHref, asLocale } from "@/lib/routes"
 
 // Enable SSG for all language variants
 export async function generateStaticParams() {
@@ -148,9 +149,7 @@ export default async function HomePage({ params }: HomePageProps) {
     inLanguage: lang === 'bg' ? 'bg' : lang === 'ru' ? 'ru' : lang === 'gr' ? 'el' : 'en',
     potentialAction: {
       "@type": "SearchAction",
-      target: lang === 'en' 
-        ? `https://mrimot.com/listings?query={search_term_string}`
-        : `https://mrimot.com/${lang}/listings?query={search_term_string}`,
+      target: `https://mrimot.com${listingsHref(asLocale(lang))}?query={search_term_string}`,
       "query-input": "required name=search_term_string"
     }
   }

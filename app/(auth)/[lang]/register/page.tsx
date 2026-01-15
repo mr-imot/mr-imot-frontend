@@ -3,6 +3,7 @@ import RegisterClient from './register-client'
 import { brandForLang, formatTitleWithBrand, getSiteUrl } from '@/lib/seo'
 import type { Metadata } from 'next'
 import { buildIkUrl } from '@/lib/imagekit'
+import { PUBLIC_ROUTES, asLocale } from '@/lib/routes'
 
 interface RegisterPageProps {
   params: Promise<{
@@ -29,7 +30,7 @@ export async function generateMetadata({ params }: RegisterPageProps): Promise<M
     ? `Регистрирайте се като строител в ${brand} и започнете да публикувате вашите проекти за ново строителство. Без комисиони, директна връзка с клиенти.`
     : `Register as a developer on ${brand} and start publishing your new construction projects. No commissions, direct connection with clients.`
   
-  const canonicalUrl = `${baseUrl}/${lang}/register`
+  const canonicalUrl = `${baseUrl}${PUBLIC_ROUTES[asLocale(lang)].register}`
   const ogLocale = isBg ? 'bg_BG' : 'en_US'
   
   return {

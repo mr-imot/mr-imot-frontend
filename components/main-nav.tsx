@@ -4,6 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { useLocale } from "@/lib/locale-context"
+import { listingsHref, developersHref, newsHref, aboutHref, asLocale } from "@/lib/routes"
 import {
   NavigationMenu,
   NavigationMenuList,
@@ -16,37 +17,11 @@ export function MainNav() {
   const pathname = usePathname()
   const locale = useLocale()
 
-  // Helper function to generate localized URLs
-  const href = (en: string, bg: string) => {
-    if (locale === 'bg') return `/bg/${bg}`
-    if (locale === 'ru') {
-      const ruMap: Record<string, string> = {
-        'listings': 'obyavleniya',
-        'developers': 'zastroyshchiki',
-        'about-mister-imot': 'o-mister-imot',
-        'contact': 'kontakty',
-        'news': 'novosti',
-      }
-      return `/ru/${ruMap[en] ?? en}`
-    }
-    if (locale === 'gr') {
-      const grMap: Record<string, string> = {
-        'listings': 'aggelies',
-        'developers': 'kataskeuastes',
-        'about-mister-imot': 'sxetika-me-to-mister-imot',
-        'contact': 'epikoinonia',
-        'news': 'nea',
-      }
-      return `/gr/${grMap[en] ?? en}`
-    }
-    return `/${en}`
-  }
-
   const navItems = [
-    { href: href('listings', 'obiavi'), label: "Listings" },
-    { href: href('developers', 'stroiteli'), label: "Developers" },
-    { href: href('news', 'novini'), label: "News" },
-    { href: href('about-mister-imot', 'za-mistar-imot'), label: "About Us" },
+    { href: listingsHref(asLocale(locale)), label: "Listings" },
+    { href: developersHref(asLocale(locale)), label: "Developers" },
+    { href: newsHref(asLocale(locale)), label: "News" },
+    { href: aboutHref(asLocale(locale)), label: "About Us" },
   ]
 
   return (

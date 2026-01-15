@@ -3,9 +3,8 @@ import { Image } from "@imagekit/next"
 import { toIkPath } from "@/lib/imagekit"
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { ServerHeaderAuthSlot } from "@/components/server-header-auth-slot"
+import { listingsHref, developersHref, newsHref, aboutHref, registerDeveloperHref, type SupportedLocale } from "@/lib/routes"
 import headerStyles from "./header.module.css"
-
-type SupportedLocale = 'en' | 'bg' | 'ru' | 'gr'
 
 interface DesktopHeaderProps {
   lang: SupportedLocale
@@ -19,41 +18,6 @@ interface DesktopHeaderProps {
       login: string
     }
   }
-}
-
-// Helper to generate localized pathnames (no query strings)
-// Returns only the pathname, e.g. "/register" or "/bg/register"
-function getLocalizedHref(locale: SupportedLocale, en: string, bg: string): string {
-  // Strip query strings from input (e.g. "register?type=developer" -> "register")
-  const enPath = en.split('?')[0]
-  const bgPath = bg.split('?')[0]
-  
-  if (locale === 'bg') return `/bg/${bgPath}`
-  if (locale === 'ru') {
-    const ruMap: Record<string, string> = {
-      listings: 'obyavleniya',
-      developers: 'zastroyshchiki',
-      'about-mister-imot': 'o-mister-imot',
-      contact: 'kontakty',
-      news: 'novosti',
-      register: 'register',
-      login: 'login',
-    }
-    return `/ru/${ruMap[enPath] ?? enPath}`
-  }
-  if (locale === 'gr') {
-    const grMap: Record<string, string> = {
-      listings: 'aggelies',
-      developers: 'kataskeuastes',
-      'about-mister-imot': 'sxetika-me-to-mister-imot',
-      contact: 'epikoinonia',
-      news: 'eidhseis',
-      register: 'register',
-      login: 'login',
-    }
-    return `/gr/${grMap[enPath] ?? enPath}`
-  }
-  return `/${enPath}`
 }
 
 /**
@@ -102,25 +66,25 @@ export function DesktopHeader({ lang, translations }: DesktopHeaderProps) {
         {/* Center Column - Desktop Navigation (independent of right side width) */}
         <nav role="navigation" className="flex items-center justify-center gap-3 lg:gap-4">
           <Link
-            href={getLocalizedHref(lang, 'listings', 'obiavi')}
+            href={listingsHref(lang)}
             className="text-white hover:text-white text-sm font-normal px-4 lg:px-5 py-2.5 rounded-full bg-charcoal-500 border border-charcoal-600 shadow-sm hover:bg-charcoal-600 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-charcoal-300 active:scale-95"
           >
             {t.listings}
           </Link>
           <Link
-            href={getLocalizedHref(lang, 'developers', 'stroiteli')}
+            href={developersHref(lang)}
             className="text-white hover:text-white text-sm font-normal px-4 lg:px-5 py-2.5 rounded-full bg-charcoal-500 border border-charcoal-600 shadow-sm hover:bg-charcoal-600 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-charcoal-300 active:scale-95"
           >
             {t.developers}
           </Link>
           <Link
-            href={getLocalizedHref(lang, 'news', 'novini')}
+            href={newsHref(lang)}
             className="text-white hover:text-white text-sm font-normal px-4 lg:px-5 py-2.5 rounded-full bg-charcoal-500 border border-charcoal-600 shadow-sm hover:bg-charcoal-600 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-charcoal-300 active:scale-95"
           >
             {t.blog ?? 'News'}
           </Link>
           <Link
-            href={getLocalizedHref(lang, 'about-mister-imot', 'za-mistar-imot')}
+            href={aboutHref(lang)}
             className="text-white hover:text-white text-sm font-normal px-4 lg:px-5 py-2.5 rounded-full bg-charcoal-500 border border-charcoal-600 shadow-sm hover:bg-charcoal-600 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-charcoal-300 active:scale-95"
           >
             {t.aboutUs}
@@ -131,10 +95,7 @@ export function DesktopHeader({ lang, translations }: DesktopHeaderProps) {
         <div className="flex items-center justify-end gap-3 lg:gap-6">
           {/* Primary CTA - List Project */}
           <Link 
-            href={{
-              pathname: getLocalizedHref(lang, 'register', 'register'),
-              query: { type: 'developer' }
-            }}
+            href={registerDeveloperHref(lang)}
             className={`${headerStyles.btnShine} inline-flex items-center px-6 py-2 rounded-full bg-charcoal-500 text-white text-xs font-semibold hover:bg-charcoal-600 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-charcoal-300 h-8 w-40 justify-center whitespace-nowrap`}
           >
             {t.listYourProject}

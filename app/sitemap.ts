@@ -2,6 +2,7 @@ import { MetadataRoute } from 'next'
 import { getDevelopers, getProjects, DevelopersListResponse, ProjectListResponse } from '@/lib/api'
 import { getNewsPostsForLang, type BlogLang } from '@/lib/news-index'
 import { getSiteUrl } from '@/lib/seo'
+import { PUBLIC_ROUTES, homeHref, listingsHref, listingHref, developersHref, developerHref, newsHref, newsArticleHref, aboutHref, contactHref, type SupportedLocale } from '@/lib/routes'
 
 // Refresh sitemap periodically to pick up new content
 export const revalidate = 3600 // 1 hour
@@ -204,124 +205,46 @@ async function getAllDevelopers(): Promise<{ id: string; slug?: string }[]> {
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = getBaseUrl()
-  const languages = ['en', 'bg', 'ru', 'gr']
+  const languages: SupportedLocale[] = ['en', 'bg', 'ru', 'gr']
 
   // Static routes (no lastModified - these are stable pages)
   const staticRoutes: MetadataRoute.Sitemap = [
-    // Homepage (canonical for English)
-    {
-      url: baseUrl,
-      changeFrequency: 'daily' as const,
-      priority: 1.0,
-    },
-    // Language-specific homepages (avoid duplicate EN root)
-    {
-      url: `${baseUrl}/bg`,
-      changeFrequency: 'daily' as const,
-      priority: 1.0,
-    },
-    {
-      url: `${baseUrl}/ru`,
-      changeFrequency: 'daily' as const,
-      priority: 1.0,
-    },
-    {
-      url: `${baseUrl}/gr`,
-      changeFrequency: 'daily' as const,
-      priority: 1.0,
-    },
-    // Listings pages (using clean English URL)
-    {
-      url: `${baseUrl}/listings`,
-      changeFrequency: 'weekly' as const,
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/ru/obyavleniya`,
-      changeFrequency: 'weekly' as const,
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/bg/obiavi`,
-      changeFrequency: 'weekly' as const,
-      priority: 0.8,
-    },
-    // Developers pages
+    // Homepages
     ...languages.map((lang): MetadataRoute.Sitemap[0] => ({
-      url:
-        lang === 'bg'
-          ? `${baseUrl}/bg/stroiteli`
-          : lang === 'ru'
-            ? `${baseUrl}/ru/zastroyshchiki`
-            : lang === 'gr'
-              ? `${baseUrl}/gr/kataskeuastes`
-              : `${baseUrl}/developers`,
+      url: `${baseUrl}${homeHref(lang)}`,
+      changeFrequency: 'daily' as const,
+      priority: 1.0,
+    })),
+    // Listings pages
+    ...languages.map((lang): MetadataRoute.Sitemap[0] => ({
+      url: `${baseUrl}${listingsHref(lang)}`,
       changeFrequency: 'weekly' as const,
       priority: 0.8,
     })),
-    // About Us pages (using pretty URLs for Bulgarian)
-    {
-      url: `${baseUrl}/about-mister-imot`,
+    // Developers pages
+    ...languages.map((lang): MetadataRoute.Sitemap[0] => ({
+      url: `${baseUrl}${developersHref(lang)}`,
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    })),
+    // About Us pages
+    ...languages.map((lang): MetadataRoute.Sitemap[0] => ({
+      url: `${baseUrl}${aboutHref(lang)}`,
       changeFrequency: 'monthly' as const,
       priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/ru/o-mister-imot`,
+    })),
+    // Contact pages
+    ...languages.map((lang): MetadataRoute.Sitemap[0] => ({
+      url: `${baseUrl}${contactHref(lang)}`,
       changeFrequency: 'monthly' as const,
       priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/bg/za-mistar-imot`,
-      changeFrequency: 'monthly' as const,
-      priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/gr/sxetika-me-to-mister-imot`,
-      changeFrequency: 'monthly' as const,
-      priority: 0.5,
-    },
-    // Contact pages (using pretty URLs for Bulgarian)
-    {
-      url: `${baseUrl}/contact`,
-      changeFrequency: 'monthly' as const,
-      priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/ru/kontakty`,
-      changeFrequency: 'monthly' as const,
-      priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/bg/kontakt`,
-      changeFrequency: 'monthly' as const,
-      priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/gr/epikoinonia`,
-      changeFrequency: 'monthly' as const,
-      priority: 0.5,
-    },
-    // News indexes (localized slugs)
-    {
-      url: `${baseUrl}/news`,
+    })),
+    // News indexes
+    ...languages.map((lang): MetadataRoute.Sitemap[0] => ({
+      url: `${baseUrl}${newsHref(lang)}`,
       changeFrequency: 'weekly' as const,
       priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/bg/novini`,
-      changeFrequency: 'weekly' as const,
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/ru/novosti`,
-      changeFrequency: 'weekly' as const,
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/gr/eidhseis`,
-      changeFrequency: 'weekly' as const,
-      priority: 0.7,
-    },
+    })),
   ]
 
   // Dynamic routes - fetch all active projects (filtered by status)
@@ -332,14 +255,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     projectRoutes = projects.flatMap((project) =>
       languages.map((lang): MetadataRoute.Sitemap[0] => {
         // Use slug-based URL if available, otherwise fallback to ID
-        const urlPath = project.slug || String(project.id)
-        const url = lang === 'bg' 
-          ? `${baseUrl}/bg/obiavi/${urlPath}`
-          : lang === 'ru'
-            ? `${baseUrl}/ru/obyavleniya/${urlPath}`
-            : lang === 'gr'
-              ? `${baseUrl}/gr/aggelies/${urlPath}`
-              : `${baseUrl}/listings/${urlPath}` // Clean English URL without /en/
+        const identifier = project.slug || String(project.id)
+        const url = `${baseUrl}${listingHref(lang, identifier)}`
         
         // Use updated_at if available, fallback to created_at, otherwise omit lastModified
         const route: MetadataRoute.Sitemap[0] = {
@@ -372,15 +289,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const developers = await getAllDevelopers()
     developerRoutes = developers.flatMap((developer) =>
       languages.map((lang): MetadataRoute.Sitemap[0] => ({
-        url: `${baseUrl}/${
-          lang === 'bg'
-            ? 'bg/stroiteli'
-            : lang === 'ru'
-              ? 'ru/zastroyshchiki'
-              : lang === 'gr'
-                ? 'gr/kataskeuastes'
-                : 'developers'
-        }/${developer.slug || developer.id}`,
+        url: `${baseUrl}${developerHref(lang, developer.slug || String(developer.id))}`,
         changeFrequency: 'monthly' as const,
         priority: 0.7,
       }))

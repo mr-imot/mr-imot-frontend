@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation"
+import { permanentRedirect } from "next/navigation"
 import type { Metadata } from 'next'
 import ListingPageContent from '../[id]/listing-page-content'
 import NotFoundPage from '../[id]/not-found-page'
@@ -6,6 +6,7 @@ import { Project, PausedProject, DeletedProject } from '@/lib/api'
 import { brandForLang, formatTitleWithBrand, getSiteUrl } from '@/lib/seo'
 import { ModalClientWrapper } from '../@modal/(.)[id]/modal-client-wrapper'
 import { buildIkUrl } from '@/lib/imagekit'
+import { asLocale, listingHref, listingsHref, type SupportedLocale } from '@/lib/routes'
 
 interface PageProps {
   params: Promise<{
@@ -14,33 +15,8 @@ interface PageProps {
   }>
 }
 
-// Helper to check if a string is a UUID
-function isUUID(str: string): boolean {
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-  return uuidRegex.test(str)
-}
-
-// Extract ID from slug - could be UUID or slug format
-function extractProjectId(slugParts: string[]): string {
-  // Join all parts back together
-  const fullSlug = slugParts.join('/')
-  
-  // If it's a UUID, return it directly
-  if (isUUID(fullSlug)) {
-    return fullSlug
-  }
-  
-  // If it's a slug format, extract the ID from the end
-  // Format: {name-slug}-{city-slug}-{id}
-  // The ID is the last segment after splitting by '-'
-  const parts = fullSlug.split('-')
-  // The last 8 characters should be the short ID, but we need the full UUID
-  // For now, we'll use the full slug to look up the project
-  return fullSlug
-}
-
 // Server-side function to fetch project data for metadata
-export async function getProjectData(identifier: string, lang: string): Promise<Project | PausedProject | DeletedProject | null> {
+export async function getProjectData(identifier: string): Promise<Project | PausedProject | DeletedProject | null> {
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
     const baseUrl = apiUrl.replace(/\/$/, '')
@@ -79,14 +55,15 @@ export async function getProjectData(identifier: string, lang: string): Promise<
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { lang, slug } = await params
+  const locale = asLocale(lang)
   const baseUrl = getSiteUrl() // Hardcoded production domain for canonical URLs
   const socialFallback = buildIkUrl("/Logo/mister-imot-waving-hi-with-bg.png", [
     { width: 1200, height: 630, quality: 85, format: "webp", focus: "auto" },
   ])
   
-  // Join slug parts to get full identifier
-  const identifier = slug.join('/')
-  const project = await getProjectData(identifier, lang)
+  // Use last slug segment as identifier (robust against extra segments)
+  const identifier = slug.at(-1) ?? ''
+  const project = await getProjectData(identifier)
   
   // Project never existed - return 404 metadata
   if (!project) {
@@ -111,6 +88,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     )
     // PausedProject doesn't have slug, use projectId or identifier
     const urlPath = projectId || identifier
+    const canonicalPath = listingHref(locale, urlPath)
     return {
       title,
       description: isBg 
@@ -121,7 +99,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         follow: false,
       },
       alternates: {
-        canonical: `${baseUrl}/${lang === 'bg' ? 'bg/obiavi' : 'listings'}/${urlPath}`,
+        canonical: `${baseUrl}${canonicalPath}`,
       },
     }
   }
@@ -135,6 +113,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     )
     // DeletedProject doesn't have slug, use projectId or identifier
     const urlPath = projectId || identifier
+    const canonicalPath = listingHref(locale, urlPath)
     return {
       title,
       description: isBg 
@@ -145,7 +124,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         follow: false,
       },
       alternates: {
-        canonical: `${baseUrl}/${lang === 'bg' ? 'bg/obiavi' : 'listings'}/${urlPath}`,
+        canonical: `${baseUrl}${canonicalPath}`,
       },
     }
   }
@@ -168,12 +147,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const title = formatTitleWithBrand(rawTitle, lang)
   
   // Use slug-based URL if available, otherwise fallback to ID
-  const urlPath = fullProject.slug || projectId || identifier
-  const canonicalUrl = isBg 
-    ? `${baseUrl}/bg/obiavi/${urlPath}`
-    : isRu
-      ? `${baseUrl}/ru/obyavleniya/${urlPath}`
-      : `${baseUrl}/listings/${urlPath}`
+  const canonicalIdentifier = fullProject.slug || fullProject.id || identifier
+  const canonicalPath = listingHref(locale, canonicalIdentifier)
+  const canonicalUrl = `${baseUrl}${canonicalPath}`
   
   const ogLocale = isBg ? 'bg_BG' : isRu ? 'ru_RU' : 'en_US'
   const rawImage =
@@ -198,11 +174,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     alternates: {
       canonical: canonicalUrl,
       languages: {
-        en: `${baseUrl}/listings/${urlPath}`,
-        bg: `${baseUrl}/bg/obiavi/${urlPath}`,
-        ru: `${baseUrl}/ru/obyavleniya/${urlPath}`,
-        el: `${baseUrl}/gr/aggelies/${urlPath}`,
-        'x-default': `${baseUrl}/listings/${urlPath}`,
+        en: `${baseUrl}${listingHref('en', canonicalIdentifier)}`,
+        bg: `${baseUrl}${listingHref('bg', canonicalIdentifier)}`,
+        ru: `${baseUrl}${listingHref('ru', canonicalIdentifier)}`,
+        'el-GR': `${baseUrl}${listingHref('gr', canonicalIdentifier)}`,
+        'x-default': `${baseUrl}${listingHref('en', canonicalIdentifier)}`,
       },
     },
     openGraph: {
@@ -233,47 +209,43 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function ListingPage({ params }: PageProps) {
   const { lang, slug } = await params
-  // Join all slug parts - this preserves the full slug including hyphens
-  // For URL: /bg/obiavi/vista-park-oblast-sofiia-71448713
-  // Next.js will parse slug as: ['vista-park-oblast-sofiia-71448713']
-  // So slug.join('/') will correctly return the full slug
-  const identifier = slug.join('/')
+  const locale = asLocale(lang)
+  
+  // Use last slug segment as identifier (robust against extra segments)
+  const identifier = slug.at(-1) ?? ''
   
   // Debug: Log slug parsing to identify truncation
   if (process.env.NODE_ENV === 'development') {
     console.log(`[ListingPage] Parsed slug array:`, slug)
-    console.log(`[ListingPage] Joined identifier: "${identifier}" (length: ${identifier.length})`)
+    console.log(`[ListingPage] Identifier (last segment): "${identifier}" (length: ${identifier.length})`)
   }
   
-  // Handle empty slug - redirect to listings page
+  // Handle empty slug - redirect to listings page (URL normalization)
   if (!identifier || identifier.trim() === '') {
-    const isBg = lang === 'bg'
-    redirect(isBg ? '/bg/obiavi' : '/listings')
+    permanentRedirect(listingsHref(locale))
   }
   
   // Fetch project once - handle errors gracefully (don't throw)
   let project: Project | PausedProject | DeletedProject | null = null
   try {
-    project = await getProjectData(identifier, lang)
+    project = await getProjectData(identifier)
   } catch (error) {
     console.error(`Error fetching project with identifier "${identifier}":`, error)
     // Return error page instead of throwing (prevents 500 on RSC prefetch)
-    return <NotFoundPage lang={lang} />
+    // NotFoundPage only accepts 'en' | 'bg', so use locale with fallback
+    return <NotFoundPage lang={locale === 'bg' ? 'bg' : 'en'} />
   }
   
   if (!project) {
     // Project not found - return error page instead of throwing
-    return <NotFoundPage lang={lang} />
+    // NotFoundPage only accepts 'en' | 'bg', so use locale with fallback
+    return <NotFoundPage lang={locale === 'bg' ? 'bg' : 'en'} />
   }
   
-  // Only redirect if accessing via old UUID format AND project has a slug
-  // This maintains backward compatibility for old UUID links
-  if (isUUID(identifier) && 'slug' in project && project.slug) {
-    const isBg = lang === 'bg'
-    const newUrl = isBg 
-      ? `/bg/obiavi/${project.slug}`
-      : `/listings/${project.slug}`
-    redirect(newUrl)
+  // Canonical redirect: if project has slug and identifier doesn't match, redirect to canonical slug URL
+  // This handles UUID, wrong slugs, and any non-canonical identifier
+  if ('slug' in project && project.slug && identifier !== project.slug) {
+    permanentRedirect(listingHref(locale, project.slug))
   }
   
   // For slug-based access, extract the UUID from the project object
@@ -294,7 +266,7 @@ export default async function ListingPage({ params }: PageProps) {
   // Pass project data directly to avoid second fetch in ListingPageContent
   return (
     <ModalClientWrapper>
-      <ListingPageContent lang={lang} id={projectId} initialProject={project} />
+      <ListingPageContent lang={locale} id={projectId} initialProject={project} />
     </ModalClientWrapper>
   )
 }

@@ -4,6 +4,7 @@ import { toIkPath } from "@/lib/imagekit"
 import clsx from "clsx"
 import styles from "./homepage-hero.module.css"
 import typographyStyles from "@/components/typography.module.css"
+import { listingsHref, asLocale } from "@/lib/routes"
 
 interface HomepageHeroProps {
   dict: any
@@ -76,7 +77,7 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
 
             {/* Single CTA Button - Responsive styling */}
             <div className={clsx("mt-6 sm:mt-8 lg:mt-8", styles.heroCta)}>
-              <Link href={`/${lang}/listings`}>
+              <Link href={listingsHref(asLocale(lang))}>
                 <button className="w-full lg:w-auto px-6 lg:px-10 py-4 lg:py-5 rounded-xl lg:rounded-2xl text-white font-semibold uppercase transition-all duration-300 ease-in-out active:scale-[0.98] lg:hover:scale-105 lg:hover:shadow-2xl cursor-pointer tracking-wide lg:tracking-wider relative overflow-hidden bg-charcoal-700 hover:bg-charcoal-800 focus:ring-2 focus:ring-charcoal-300 font-sans text-base sm:text-lg lg:text-xl shadow-lg">
                   <div className={clsx("absolute inset-0 opacity-100", styles.liquidFlowBgCharcoal)} style={{
                     borderRadius: '12px'
@@ -110,7 +111,8 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
               height={1000}
               priority
               fetchPriority="high"
-              sizes="(max-width: 1024px) 385px, 498px"
+              sizes="(max-width: 639px) 220px, (max-width: 1023px) 385px, 498px"
+              className={styles.heroImage}
               transformation={[
                 {
                   quality: 60,
@@ -118,7 +120,6 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
                   focus: "auto",
                 },
               ]}
-              className={clsx("w-auto h-auto", styles.heroImage)}
             />
           </div>
         </div>

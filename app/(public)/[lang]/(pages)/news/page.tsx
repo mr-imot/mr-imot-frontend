@@ -9,6 +9,7 @@ import { CompactPostCard } from "@/components/news/compact-post-card"
 import { SectionHeader } from "@/components/news/section-header"
 import PostCard from "@/components/news/post-card"
 import WebPageSchema from "@/components/seo/webpage-schema"
+import { homeHref, asLocale } from "@/lib/routes"
 
 export const revalidate = 600
 export const dynamicParams = false
@@ -463,7 +464,7 @@ export default async function BlogIndexPage({ params, searchParams }: BlogIndexP
                          <div className="bg-charcoal-500 text-white p-6 sm:p-8 rounded-xl text-center">
                             <h4 className="text-lg sm:text-xl font-bold mb-2">{lang === 'bg' ? "Мистър Имот" : "Mister Imot"}</h4>
                             <p className="text-white/80 text-sm mb-4">{lang === 'bg' ? "Намери своя нов дом днес." : "Find your new home today."}</p>
-                            <Link href={`/${lang}`} className="inline-block bg-white text-charcoal-500 font-bold px-5 sm:px-6 py-2 rounded-full hover:bg-gray-100 transition text-sm sm:text-base">
+                            <Link href={homeHref(asLocale(lang))} className="inline-block bg-white text-charcoal-500 font-bold px-5 sm:px-6 py-2 rounded-full hover:bg-gray-100 transition text-sm sm:text-base">
                                 {lang === 'bg' ? "Разгледай имоти" : "Browse Properties"}
                             </Link>
                          </div>

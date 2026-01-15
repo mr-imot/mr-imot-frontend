@@ -7,6 +7,7 @@ import { useDeveloperDashboard } from "@/hooks/use-developer-dashboard"
 import { ProtectedRoute } from "@/components/protected-route"
 import { useAuth } from "@/lib/auth-context"
 import { DeveloperSidebar } from "@/components/developer-sidebar"
+import { contactHref, asLocale } from "@/lib/routes"
 
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -317,7 +318,7 @@ function DashboardContent({ dict, lang }: { dict: any, lang: 'en' | 'bg' }) {
                     variant="outline" 
                     size="sm" 
                     className="text-amber-700 border-amber-300 hover:bg-amber-100 dark:text-amber-300 dark:border-amber-700 dark:hover:bg-amber-900"
-                    onClick={() => router.push(`/${lang}/contact`)}
+                    onClick={() => router.push(contactHref(asLocale(lang)))}
                   >
                     {dict.developer?.dashboard?.contactSupport || 'Contact Support'}
                   </Button>
