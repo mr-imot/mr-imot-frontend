@@ -101,7 +101,7 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
               }
               width={960}
               height={640}
-              priority
+              priority={true}
               transformation={[{ quality: 60, format: "webp", focus: "auto" }]}
               className={clsx("w-auto h-auto", styles.heroImage)}
               sizes="(max-width: 1024px) 220px, 40vw"
