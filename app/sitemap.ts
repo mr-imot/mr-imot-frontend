@@ -13,9 +13,9 @@ function getBaseUrl(): string {
 }
 
 // Fetch all active projects from the API with pagination (public endpoint, no cookies)
-async function getAllActiveProjects(): Promise<{ id: number; slug?: string; updated_at?: string }[]> {
+async function getAllActiveProjects(): Promise<{ id: number; slug?: string; updated_at?: string; created_at?: string }[]> {
   try {
-    const allProjects: { id: number; slug?: string; updated_at?: string }[] = []
+    const allProjects: { id: number; slug?: string; updated_at?: string; created_at?: string }[] = []
     let page = 1
     const perPage = 100
     let hasMore = true
@@ -39,6 +39,7 @@ async function getAllActiveProjects(): Promise<{ id: number; slug?: string; upda
             id: Number(p.id),
             slug: p.slug,
             updated_at: p.updated_at,
+            created_at: p.created_at,
           }))
         allProjects.push(...activeProjects)
       }
@@ -158,6 +159,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'monthly' as const,
       priority: 0.5,
     },
+    {
+      url: `${baseUrl}/gr/sxetika-me-to-mister-imot`,
+      changeFrequency: 'monthly' as const,
+      priority: 0.5,
+    },
     // Contact pages (using pretty URLs for Bulgarian)
     {
       url: `${baseUrl}/contact`,
@@ -171,6 +177,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: `${baseUrl}/bg/kontakt`,
+      changeFrequency: 'monthly' as const,
+      priority: 0.5,
+    },
+    {
+      url: `${baseUrl}/gr/epikoinonia`,
       changeFrequency: 'monthly' as const,
       priority: 0.5,
     },
@@ -211,15 +222,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             ? `${baseUrl}/gr/aggelies/${urlPath}`
             : `${baseUrl}/listings/${urlPath}` // Clean English URL without /en/
       
-      // Use updated_at if available and valid, otherwise omit lastModified
+      // Use updated_at if available, fallback to created_at, otherwise omit lastModified
       const route: MetadataRoute.Sitemap[0] = {
         url,
         changeFrequency: 'monthly' as const,
         priority: 0.6,
       }
       
-      if (project.updated_at) {
-        const lm = new Date(project.updated_at)
+      // Prefer updated_at, fallback to created_at
+      const dateValue = project.updated_at || project.created_at
+      if (dateValue) {
+        const lm = new Date(dateValue)
         if (!isNaN(lm.getTime())) {
           route.lastModified = lm
         }

@@ -15,8 +15,8 @@
     // Domain allowlist (empty = allow all, or specify allowed domains)
     ALLOWED_DOMAINS: [], // Example: ['example.com', 'partner.com']
     
-    // Tracking endpoint (optional)
-    TRACKING_ENDPOINT: 'https://mrimot.com/api/widget/track',
+    // Tracking endpoint (optional) - disabled to prevent 404 errors
+    TRACKING_ENDPOINT: '',
     
     // Brand info
     BRAND_URL: 'https://mrimot.com',
@@ -57,6 +57,11 @@
 
   // Tracking function (with UTM parameters)
   function trackEvent(eventType, data) {
+    // Early return if tracking is disabled
+    if (!CONFIG.TRACKING_ENDPOINT) {
+      return;
+    }
+    
     try {
       // Skip tracking in development/localhost to avoid CORS errors
       if (isDevelopment()) {

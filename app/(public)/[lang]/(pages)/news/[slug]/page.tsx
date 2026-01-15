@@ -38,14 +38,18 @@ export async function generateMetadata({ params }: BlogPostParams): Promise<Meta
   const baseUrl = getSiteUrl() // Hardcoded production domain for canonical URLs
   const alternates = await getAlternateSlugs(post.translationKey)
 
+  // Use English slug for x-default (the default language)
+  const englishSlug = alternates.en || slug
+
   const languages: Record<string, string> = {
     en: `${baseUrl}/news/${alternates.en || slug}`,
     bg: `${baseUrl}/bg/novini/${alternates.bg || slug}`,
     ru: `${baseUrl}/ru/novosti/${alternates.ru || slug}`,
-    gr: `${baseUrl}/gr/eidhseis/${alternates.gr || slug}`,
     el: `${baseUrl}/gr/eidhseis/${alternates.gr || slug}`,
-    "x-default": `${baseUrl}/news/${slug}`,
+    "x-default": `${baseUrl}/news/${englishSlug}`,
   }
+  
+  // Canonical URL: use el for Greek (gr is internal only)
   const canonical =
     languages[lang === "gr" ? "el" : lang] || languages[lang] || languages["x-default"]
 
