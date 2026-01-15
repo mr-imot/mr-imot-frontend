@@ -1,18 +1,9 @@
 import Link from "next/link"
-import Image from "next/image"
-import { IK_URL_ENDPOINT } from "@/lib/imagekit"
+import { MascotImage } from "@/components/homepage/mascot-image"
 import clsx from "clsx"
 import styles from "./homepage-hero.module.css"
 import typographyStyles from "@/components/typography.module.css"
 import { listingsHref, asLocale } from "@/lib/routes"
-
-// ImageKit loader for next/image - must be defined outside component for Server Components
-const imagekitLoader = ({ src, width, quality = 55 }: { src: string; width: number; quality?: number }) => {
-  // ImageKit loader: clean path-based transformation
-  // src is already a relative path like "/Logo/..."
-  const q = quality ?? 55
-  return `${IK_URL_ENDPOINT}/tr:w-${width},q-${q},f-avif,fo-auto${src}`
-}
 
 interface HomepageHeroProps {
   dict: any
@@ -104,25 +95,7 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
               styles.heroVisual
             )}
           >
-            <Image
-              src={
-                lang === "bg"
-                  ? "/Logo/mrimot.com-mascot-bg-0_-komisiona.png"
-                  : "/Logo/0_-commissions-mr-imot.png"
-              }
-              alt={
-                lang === "bg"
-                  ? "Талисман Мистър Имот от mrimot.com, държащ знак с надпис 0% комисиони за платформа за недвижими имоти"
-                  : "Mister Imot mascot of mrimot.com holding a sign with 0% commissions message for real estate platform"
-              }
-              width={780}
-              height={1000}
-              priority
-              fetchPriority="high"
-              sizes="(max-width: 639px) 220px, (max-width: 1023px) 385px, 498px"
-              className={styles.heroImage}
-              loader={imagekitLoader}
-            />
+            <MascotImage lang={lang} />
           </div>
         </div>
       </div>
