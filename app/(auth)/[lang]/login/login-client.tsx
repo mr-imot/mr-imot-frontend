@@ -13,6 +13,7 @@ import { LogIn, CheckCircle, Shield, ArrowRight, Sparkles, Mail, Eye, EyeOff, Lo
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from "@/lib/auth-constants"
 import { useAuth } from "@/lib/auth-context"
 import { useLocale } from "@/lib/locale-context"
+import { registerDeveloperHref } from "@/lib/routes"
 import { createAuthError, getErrorDisplayMessage, AuthenticationError } from "@/lib/auth-errors"
 
 interface LoginClientProps {
@@ -257,7 +258,7 @@ function LoginFormContent({ dict, lang }: LoginClientProps) {
             </div>
 
             <div className="mt-6">
-              <Link href={href('register?type=developer', 'register?type=developer')}>
+              <Link href={registerDeveloperHref(locale)}>
                 <Button variant="outline" className="w-full group">
                   <span>{dict.login?.createAccount || "Create your account"}</span>
                   <ArrowRight size={16} className="ml-2 transition-transform group-hover:translate-x-1" />

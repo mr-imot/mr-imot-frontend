@@ -74,71 +74,22 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
               </div>
             </div>
 
-            {/* Mobile: Mascot + CTA side by side */}
-            <div className="mt-6 sm:mt-8 lg:hidden">
-              <div className="flex items-center gap-4">
-                {/* Small mascot on mobile - LCP element optimized */}
-                <div className="flex-shrink-0">
-                  <Image
-                    src={lang === 'bg' 
-                      ? toIkPath("https://ik.imagekit.io/ts59gf2ul/Logo/mrimot.com-mascot-bg-0_-komisiona.png")
-                      : toIkPath("https://ik.imagekit.io/ts59gf2ul/Logo/0_-commissions-mr-imot.png")
-                    }
-                    alt={lang === 'bg' 
-                      ? 'Талисман Мистър Имот от mrimot.com, държащ знак с надпис 0% комисиони'
-                      : 'Mister Imot mascot of mrimot.com holding a sign with 0% commissions message'
-                    }
-                    width={120}
-                    height={90}
-                    priority
-                    fetchPriority="high"
-                    decoding="async"
-                    transformation={[{ quality: 60, format: "webp", focus: "auto" }]}
-                    className="w-auto h-auto"
-                    style={{
-                      width: 'clamp(100px, 28vw, 140px)',
-                      height: 'auto',
-                      // Inline critical CSS to avoid render-blocking Tailwind class
-                      filter: 'drop-shadow(0 10px 15px rgba(0, 0, 0, 0.1))',
-                      willChange: 'transform',
-                      transform: 'translateZ(0)'
-                    }}
-                    sizes="120px"
-                  />
-                </div>
-                
-                {/* CTA Button */}
-                <Link href={`/${lang}/listings`} className="flex-1">
-                  <button className="w-full py-4 px-6 rounded-xl text-white font-semibold uppercase transition-all duration-300 ease-in-out active:scale-[0.98] cursor-pointer tracking-wide relative overflow-hidden bg-charcoal-700 hover:bg-charcoal-800 focus:ring-2 focus:ring-charcoal-300 font-sans text-base sm:text-lg shadow-lg">
-                    <div className={clsx("absolute inset-0 opacity-100", styles.liquidFlowBgCharcoal)} style={{
-                      borderRadius: '12px'
-                    }} />
-                    <div className={clsx("absolute inset-0 opacity-100", styles.ctaShimmer)} />
-                    <span className="relative z-10">{dict.hero.cta}</span>
-                  </button>
-                </Link>
-              </div>
-            </div>
-
-            {/* Desktop CTA */}
-            <div className={clsx("mt-8 hidden lg:block", styles.heroCta)}>
+            {/* Single CTA Button - Responsive styling */}
+            <div className={clsx("mt-6 sm:mt-8 lg:mt-8", styles.heroCta)}>
               <Link href={`/${lang}/listings`}>
-                <button className="px-10 py-5 rounded-2xl text-white font-semibold uppercase transition-all duration-300 ease-in-out hover:shadow-2xl hover:scale-105 active:scale-[0.98] cursor-pointer tracking-wider relative overflow-hidden group bg-charcoal-700 hover:bg-charcoal-800 focus:ring-2 focus:ring-charcoal-300 font-sans">
-                  <div className={clsx("absolute inset-0 opacity-100 transition-opacity duration-300 ease-out", styles.liquidFlowBgCharcoal)} style={{
-                    borderRadius: '16px',
-                    willChange: 'opacity, transform',
-                    transform: 'translateZ(0)',
-                    backfaceVisibility: 'hidden'
+                <button className="w-full lg:w-auto px-6 lg:px-10 py-4 lg:py-5 rounded-xl lg:rounded-2xl text-white font-semibold uppercase transition-all duration-300 ease-in-out active:scale-[0.98] lg:hover:scale-105 lg:hover:shadow-2xl cursor-pointer tracking-wide lg:tracking-wider relative overflow-hidden bg-charcoal-700 hover:bg-charcoal-800 focus:ring-2 focus:ring-charcoal-300 font-sans text-base sm:text-lg lg:text-xl shadow-lg">
+                  <div className={clsx("absolute inset-0 opacity-100", styles.liquidFlowBgCharcoal)} style={{
+                    borderRadius: '12px'
                   }} />
-                  <div className={clsx("absolute inset-0 opacity-100 transition-opacity duration-500 ease-out", styles.ctaShimmer)} />
+                  <div className={clsx("absolute inset-0 opacity-100", styles.ctaShimmer)} />
                   <span className="relative z-10">{dict.hero.cta}</span>
                 </button>
               </Link>
             </div>
           </div>
 
-          {/* Right Column - Mascot (Desktop Only) - LCP element optimized */}
-            <div className={clsx("hidden lg:flex lg:items-center lg:justify-end", styles.heroVisual)}>
+          {/* Right Column - Mascot (always rendered, responsive) */}
+          <div className={clsx("flex items-center justify-center lg:justify-end order-2 lg:order-none", styles.heroVisual)}>
             <Image
               src={lang === 'bg' 
                 ? toIkPath("https://ik.imagekit.io/ts59gf2ul/Logo/mrimot.com-mascot-bg-0_-komisiona.png")
@@ -148,22 +99,12 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
                 ? 'Талисман Мистър Имот от mrimot.com, държащ знак с надпис 0% комисиони за платформа за недвижими имоти'
                 : 'Mister Imot mascot of mrimot.com holding a sign with 0% commissions message for real estate platform'
               }
-              width={700}
-              height={560}
-              loading="eager"
+              width={960}
+              height={640}
               priority
-              fetchPriority="high"
-              decoding="async"
-              transformation={[{ width: 700, quality: 60, format: "webp", focus: "auto" }]}
+              transformation={[{ quality: 60, format: "webp", focus: "auto" }]}
               className={clsx("w-auto h-auto", styles.heroImage)}
-              style={{
-                width: 'clamp(300px, min(40vw, 700px), 800px)',
-                height: 'auto',
-                // Critical styles inlined to reduce render delay
-                willChange: 'transform',
-                transform: 'translateZ(0)'
-              }}
-              sizes="(max-width: 1024px) 1px, 700px"
+              sizes="(max-width: 1024px) 220px, 40vw"
             />
           </div>
         </div>

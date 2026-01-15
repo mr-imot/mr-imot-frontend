@@ -21,9 +21,14 @@ interface DesktopHeaderProps {
   }
 }
 
-// Helper to generate localized URLs server-side
+// Helper to generate localized pathnames (no query strings)
+// Returns only the pathname, e.g. "/register" or "/bg/register"
 function getLocalizedHref(locale: SupportedLocale, en: string, bg: string): string {
-  if (locale === 'bg') return `/bg/${bg}`
+  // Strip query strings from input (e.g. "register?type=developer" -> "register")
+  const enPath = en.split('?')[0]
+  const bgPath = bg.split('?')[0]
+  
+  if (locale === 'bg') return `/bg/${bgPath}`
   if (locale === 'ru') {
     const ruMap: Record<string, string> = {
       listings: 'obyavleniya',
@@ -31,10 +36,10 @@ function getLocalizedHref(locale: SupportedLocale, en: string, bg: string): stri
       'about-mister-imot': 'o-mister-imot',
       contact: 'kontakty',
       news: 'novosti',
-      'register?type=developer': 'register?type=developer',
+      register: 'register',
       login: 'login',
     }
-    return `/ru/${ruMap[en] ?? en}`
+    return `/ru/${ruMap[enPath] ?? enPath}`
   }
   if (locale === 'gr') {
     const grMap: Record<string, string> = {
@@ -43,12 +48,12 @@ function getLocalizedHref(locale: SupportedLocale, en: string, bg: string): stri
       'about-mister-imot': 'sxetika-me-to-mister-imot',
       contact: 'epikoinonia',
       news: 'eidhseis',
-      'register?type=developer': 'register?type=developer',
+      register: 'register',
       login: 'login',
     }
-    return `/gr/${grMap[en] ?? en}`
+    return `/gr/${grMap[enPath] ?? enPath}`
   }
-  return `/${en}`
+  return `/${enPath}`
 }
 
 /**
@@ -126,7 +131,10 @@ export function DesktopHeader({ lang, translations }: DesktopHeaderProps) {
         <div className="flex items-center justify-end gap-3 lg:gap-6">
           {/* Primary CTA - List Project */}
           <Link 
-            href={getLocalizedHref(lang, 'register?type=developer', 'register?type=developer')} 
+            href={{
+              pathname: getLocalizedHref(lang, 'register', 'register'),
+              query: { type: 'developer' }
+            }}
             className={`${headerStyles.btnShine} inline-flex items-center px-6 py-2 rounded-full bg-charcoal-500 text-white text-xs font-semibold hover:bg-charcoal-600 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-charcoal-300 h-8 w-40 justify-center whitespace-nowrap`}
           >
             {t.listYourProject}

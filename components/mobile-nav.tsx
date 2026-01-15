@@ -8,6 +8,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Menu, LogOut, User, Settings } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
 import { useLocale } from "@/lib/locale-context"
+import { registerDeveloperHref } from "@/lib/routes"
 import { MobileLanguageSwitcher } from "@/components/mobile-language-switcher"
 import { cn } from "@/lib/utils"
 
@@ -93,7 +94,7 @@ function AuthActionsSection({ onLinkClick, t }: { onLinkClick: () => void; t: Na
         asChild
         className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 h-12 rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
       >
-        <Link href={href('register?type=developer', 'register?type=developer')} onClick={onLinkClick}>
+        <Link href={registerDeveloperHref(locale)} onClick={onLinkClick}>
           {t.listYourProject}
         </Link>
       </Button>
@@ -116,7 +117,6 @@ export function MobileNav({ translations }: MobileNavProps) {
         'about-mister-imot': 'o-mister-imot',
         'contact': 'kontakty',
         'news': 'novosti',
-        'register?type=developer': 'register?type=developer',
         'login': 'login',
       }
       return `/ru/${ruMap[en] ?? en}`
@@ -128,7 +128,6 @@ export function MobileNav({ translations }: MobileNavProps) {
         'about-mister-imot': 'sxetika-me-to-mister-imot',
         'contact': 'epikoinonia',
         'news': 'eidhseis',
-        'register?type=developer': 'register?type=developer',
         'login': 'login',
       }
       return `/gr/${grMap[en] ?? en}`

@@ -35,19 +35,24 @@ interface FooterProps {
   lang: SupportedLocale
 }
 
-// Helper to generate localized URLs server-side
+// Helper to generate localized pathnames (no query strings)
+// Returns only the pathname, e.g. "/register" or "/bg/register"
 function getLocalizedHref(locale: SupportedLocale, en: string, bg: string): string {
-  if (locale === 'bg') return `/bg/${bg}`
+  // Strip query strings from input (e.g. "register?type=developer" -> "register")
+  const enPath = en.split('?')[0]
+  const bgPath = bg.split('?')[0]
+  
+  if (locale === 'bg') return `/bg/${bgPath}`
   if (locale === 'ru') {
     const ruMap: Record<string, string> = {
       listings: 'obyavleniya',
       developers: 'zastroyshchiki',
       'about-mister-imot': 'o-mister-imot',
       contact: 'kontakty',
-      'register?type=developer': 'register?type=developer',
+      register: 'register',
       login: 'login',
     }
-    return `/ru/${ruMap[en] ?? en}`
+    return `/ru/${ruMap[enPath] ?? enPath}`
   }
   if (locale === 'gr') {
     const grMap: Record<string, string> = {
@@ -55,12 +60,12 @@ function getLocalizedHref(locale: SupportedLocale, en: string, bg: string): stri
       developers: 'kataskeuastes',
       'about-mister-imot': 'sxetika-me-to-mister-imot',
       contact: 'epikoinonia',
-      'register?type=developer': 'register?type=developer',
+      register: 'register',
       login: 'login',
     }
-    return `/gr/${grMap[en] ?? en}`
+    return `/gr/${grMap[enPath] ?? enPath}`
   }
-  return `/${en}`
+  return `/${enPath}`
 }
 
 export function Footer({ translations, lang }: FooterProps) {
@@ -80,10 +85,22 @@ export function Footer({ translations, lang }: FooterProps) {
     {
       title: t.forDevelopers,
       links: [
-        { href: getLocalizedHref(lang, 'register?type=developer', 'register?type=developer'), label: tNav.listYourProject },
+        { 
+          href: {
+            pathname: getLocalizedHref(lang, 'register', 'register'),
+            query: { type: 'developer' }
+          }, 
+          label: tNav.listYourProject 
+        },
         { href: getLocalizedHref(lang, 'developer/dashboard', 'developer/dashboard'), label: tNav.developerDashboard },
         { href: getLocalizedHref(lang, 'login', 'login'), label: tNav.login },
-        { href: getLocalizedHref(lang, 'register?type=developer', 'register?type=developer'), label: tNav.register },
+        { 
+          href: {
+            pathname: getLocalizedHref(lang, 'register', 'register'),
+            query: { type: 'developer' }
+          }, 
+          label: tNav.register 
+        },
       ],
     },
   ]

@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { AuthError } from '@/components/ui/auth-error';
 import { RateLimitInfo } from '@/components/ui/rate-limit-info';
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/lib/auth-constants';
+import { registerDeveloperHref } from '@/lib/routes';
 import { cn } from '@/lib/utils';
 
 interface ForgotPasswordClientProps {
@@ -279,7 +280,10 @@ export default function ForgotPasswordClient({ dict, lang }: ForgotPasswordClien
           <div className="mt-8 text-center">
             <p className="text-sm text-muted-foreground">
               {t.forgotPassword?.dontHaveAccount || "Don't have an account?"}{' '}
-              <button onClick={() => router.push(`/${lang}/register?type=developer`)} className="text-primary hover:underline font-medium">
+              <button onClick={() => {
+                const href = registerDeveloperHref(lang as 'en' | 'bg' | 'ru' | 'gr')
+                router.push(`${href.pathname}?type=${href.query.type}`)
+              }} className="text-primary hover:underline font-medium">
                 {t.forgotPassword?.signUp || "Sign up"}
               </button>
             </p>

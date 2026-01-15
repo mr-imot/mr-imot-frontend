@@ -1,27 +1,14 @@
 import Link from "next/link"
 import { Image } from "@imagekit/next"
 import { toIkPath } from "@/lib/imagekit"
-import dynamic from "next/dynamic"
 import { HomepageHero } from "./homepage-hero"
 import { ThreeStepProcessSection } from "./sections/three-step-process-section"
 import { PlatformPrinciplesSection } from "./sections/platform-principles-section"
 import { LazyPricingSection } from "./components/client-islands"
-
-// Lazy load heavy components to reduce initial bundle size (ssr: true is allowed in server components)
-const FaqSection = dynamic(
-  () => import("@/components/faq-section").then((mod) => ({ default: mod.FaqSection })),
-  { ssr: true }
-)
-
-const TestimonialsSection = dynamic(
-  () => import("@/components/TestimonialsSection").then((mod) => ({ default: mod.TestimonialsSection })),
-  { ssr: true }
-)
-
-const RecentListingsSection = dynamic(
-  () => import("./sections/recent-listings-section").then((mod) => ({ default: mod.RecentListingsSection })),
-  { ssr: true }
-)
+import { FaqSection } from "@/components/faq-section"
+import { TestimonialsSection } from "@/components/TestimonialsSection"
+import { RecentListingsLazy } from "./sections/recent-listings-lazy"
+import { registerDeveloperHref } from "@/lib/routes"
 
 interface LocalizedHomePageProps {
   dict: any
@@ -42,8 +29,8 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
         {/* Platform Principles Section - Why We're Different */}
         <PlatformPrinciplesSection dict={dict} lang={lang} />
 
-        {/* Recent Listings Section - Client Component (needs state) */}
-        <RecentListingsSection dict={dict} lang={lang} />
+        {/* Recent Listings Section - Client Component (lazy loaded, client-side only) */}
+        <RecentListingsLazy dict={dict} lang={lang} />
 
       {/* Developer Join Section - New 4-Part Funnel */}
       <section className="py-16 sm:py-20 md:py-24" style={{backgroundColor: 'var(--brand-glass-light)'}}>
@@ -84,10 +71,8 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
                         height={240}
                         loading="lazy"
                         transformation={[{ width: 420, quality: 85, format: "webp", focus: "auto" }]}
-                        className="w-auto h-auto mx-auto transition-all duration-700 hover:scale-110 hover:rotate-2"
+                        className="w-auto h-auto mx-auto"
                         style={{
-                          willChange: 'transform',
-                          transform: 'translateZ(0)',
                           filter: 'drop-shadow(0 20px 40px rgba(0, 0, 0, 0.15))',
                           width: 'clamp(200px, 20vw, 320px)',
                           height: 'auto'
@@ -202,7 +187,7 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
               <h3 className="text-2xl sm:text-3xl font-bold mb-6 font-serif text-white">
                 {dict.developerJoin.finalCta.heading}
               </h3>
-              <Link href={`/${lang}/register?type=developer`}>
+              <Link href={registerDeveloperHref(lang as 'en' | 'bg' | 'ru' | 'gr')}>
                 <button className="group relative px-10 py-4 rounded-2xl bg-white text-charcoal-500 font-bold tracking-wider uppercase hover:bg-gray-100 transition-all duration-300 shadow-xl hover:shadow-2xl active:scale-95 overflow-hidden">
                   <span className="relative z-10">{dict.developerJoin.finalCta.button}</span>
                 </button>

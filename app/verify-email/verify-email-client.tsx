@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { CheckCircle, XCircle, Mail, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
+import { useLocale } from '@/lib/locale-context'
+import { registerDeveloperHref } from '@/lib/routes'
 import { cn } from '@/lib/utils'
 
 interface VerificationResponse {
@@ -17,6 +19,7 @@ interface VerificationResponse {
 export default function VerifyEmailClient() {
   const searchParams = useSearchParams()
   const router = useRouter()
+  const locale = useLocale()
   const token = searchParams.get('token')
   
   const [status, setStatus] = useState<'verifying' | 'success' | 'error'>('verifying')
@@ -159,7 +162,7 @@ export default function VerifyEmailClient() {
                     </Button>
                   )}
                   
-                  <Link href="/register?type=developer">
+                  <Link href={registerDeveloperHref(locale)}>
                     <Button variant="ghost" className="w-full">
                       Back to Registration
                     </Button>

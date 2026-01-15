@@ -156,14 +156,14 @@
 }
 
 .heroVisual {
-  display: none;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Center on mobile */
 }
 
 @media (min-width: 1024px) {
   .heroVisual {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
+    justify-content: flex-end; /* Right-align on desktop */
   }
 }
 
@@ -172,18 +172,15 @@
   height: auto;
   object-fit: contain;
   filter: drop-shadow(0 4px 15px rgba(0, 0, 0, 0.1));
-  will-change: transform;
-  transform: translateZ(0);
-  animation: float 6s ease-in-out infinite;
-  /* Fluid image sizing that adapts to available space */
-  max-width: min(90vw, 800px);
-  max-height: min(70vh, 640px);
+  /* Responsive sizing: smaller on mobile (matches sizes="220px"), larger on desktop */
+  max-width: min(90vw, 220px); /* Mobile: match sizes="220px" */
+  max-height: min(70vh, 480px);
 }
 
-/* Desktop: Better image scaling based on viewport */
-@media (min-width: 768px) {
+/* Desktop: Better image scaling based on viewport (matches sizes="40vw") */
+@media (min-width: 1024px) {
   .heroImage {
-    max-width: min(45vw, 800px);
+    max-width: min(40vw, 800px); /* Desktop: match sizes="40vw" */
     max-height: min(75vh, 640px);
   }
 }
@@ -268,14 +265,5 @@
   }
   50%, 100% {
     transform: translateX(100%);
-  }
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-8px);
   }
 }

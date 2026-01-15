@@ -8,6 +8,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Menu, User, Settings, LogOut } from "lucide-react"
 import { useLocale } from "@/lib/locale-context"
 import { useAuth } from "@/lib/auth-context"
+import { registerDeveloperHref } from "@/lib/routes"
 import { MobileLanguageSwitcher } from "@/components/mobile-language-switcher"
 import { cn } from "@/lib/utils"
 
@@ -36,14 +37,13 @@ function AuthActionsSection({ onLinkClick, t }: { onLinkClick: () => void; t: Na
   const { user, isAuthenticated, isLoading, logout, getDashboardUrl } = useAuth();
   const locale = useLocale();
 
-  // Helper function to generate localized URLs
+  // Helper function to generate localized URLs (no query strings)
   const href = (en: string, bg: string) => {
     if (locale === 'bg') return `/bg/${bg}`
     if (locale === 'ru') {
       const ruMap: Record<string, string> = {
         'login': 'login',
         'developer/dashboard': 'developer/dashboard',
-        'register?type=developer': 'register?type=developer',
       }
       return `/ru/${ruMap[en] ?? en}`
     }
@@ -51,7 +51,6 @@ function AuthActionsSection({ onLinkClick, t }: { onLinkClick: () => void; t: Na
       const grMap: Record<string, string> = {
         'login': 'login',
         'developer/dashboard': 'developer/dashboard',
-        'register?type=developer': 'register?type=developer',
       }
       return `/gr/${grMap[en] ?? en}`
     }
@@ -121,7 +120,7 @@ function AuthActionsSection({ onLinkClick, t }: { onLinkClick: () => void; t: Na
         asChild
         className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 h-12 rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
       >
-        <Link href={href('register?type=developer', 'register?type=developer')} onClick={onLinkClick}>
+        <Link href={registerDeveloperHref(locale)} onClick={onLinkClick}>
           {t.listYourProject}
         </Link>
       </Button>
@@ -151,7 +150,6 @@ export function PublicMobileNav({
         'about-mister-imot': 'o-mister-imot',
         'contact': 'kontakty',
         'news': 'novosti',
-        'register?type=developer': 'register?type=developer',
         'login': 'login',
       }
       return `/ru/${ruMap[en] ?? en}`
@@ -163,7 +161,6 @@ export function PublicMobileNav({
         'about-mister-imot': 'sxetika-me-to-mister-imot',
         'contact': 'epikoinonia',
         'news': 'eidhseis',
-        'register?type=developer': 'register?type=developer',
         'login': 'login',
       }
       return `/gr/${grMap[en] ?? en}`

@@ -4,6 +4,7 @@ import Link from "next/link"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { useAuth } from "@/lib/auth-context"
 import { useLocale } from "@/lib/locale-context"
+import { registerDeveloperHref } from "@/lib/routes"
 import { LogOut } from "lucide-react"
 
 interface NavigationTranslations {
@@ -20,14 +21,13 @@ export function UserAuthNav({ translations }: UserAuthNavProps) {
   const t = translations;
   const locale = useLocale();
 
-  // Helper function to generate localized URLs
+  // Helper function to generate localized URLs (no query strings)
   const href = (en: string, bg: string) => {
     if (locale === 'bg') return `/bg/${bg}`
     if (locale === 'ru') {
       const ruMap: Record<string, string> = {
         'login': 'login',
         'developer/dashboard': 'developer/dashboard',
-        'register?type=developer': 'register?type=developer',
         'listings': 'obyavleniya',
         'developers': 'zastroyshchiki',
         'about-mister-imot': 'o-mister-imot',
@@ -40,7 +40,6 @@ export function UserAuthNav({ translations }: UserAuthNavProps) {
       const grMap: Record<string, string> = {
         'login': 'login',
         'developer/dashboard': 'developer/dashboard',
-        'register?type=developer': 'register?type=developer',
         'listings': 'aggelies',
         'developers': 'kataskeuastes',
         'about-mister-imot': 'sxetika-me-to-mister-imot',

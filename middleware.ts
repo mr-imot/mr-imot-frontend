@@ -76,7 +76,14 @@ function setCacheHeaders(response: NextResponse, pathname: string): NextResponse
   
   // English routes without prefix (like /listings) are rewritten internally to /en/*
   // These depend on middleware logic, so should not be publicly cached
-  if (!pathname.startsWith('/bg/') && !pathname.startsWith('/ru/') && !pathname.startsWith('/gr/') && !pathname.startsWith('/en/')) {
+  // Check for locale-prefixed routes (including root locale paths like /bg, /ru, /gr)
+  const isPrefixedLocale =
+    pathname === '/bg' || pathname.startsWith('/bg/') ||
+    pathname === '/ru' || pathname.startsWith('/ru/') ||
+    pathname === '/gr' || pathname.startsWith('/gr/') ||
+    pathname === '/en' || pathname.startsWith('/en/')
+  
+  if (!isPrefixedLocale) {
     response.headers.set('Cache-Control', 'private, no-cache, must-revalidate')
     return response
   }
@@ -193,11 +200,27 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
+  // --- EARLY NORMALIZATION: prevent Next.js auto 308s on locale roots ---
+  // Canonical: /bg, /ru, /gr (no trailing slash)
+  // Non-canonical: /bg/, /ru/, /gr/ should redirect once to canonical
+  if (pathname === '/bg/' || pathname === '/ru/' || pathname === '/gr/') {
+    const url = request.nextUrl.clone()
+    url.pathname = pathname.slice(0, -1) // remove trailing slash
+    // Use 301 for canonical redirects (permanent redirect for SEO)
+    return redirectWithHints(request, url, 301)
+  }
+
+  // Canonical English root is "/"
+  if (pathname === '/en/' || pathname === '/en') {
+    const url = request.nextUrl.clone()
+    url.pathname = '/'
+    return redirectWithHints(request, url, 308)
+  }
+  // --- END EARLY NORMALIZATION ---
+
   // Enforce no /en prefix in canonical URLs – redirect /en/* → /* (preserve path/query)
   // These redirects depend on locale detection, so must set Vary headers to prevent cache issues
-  if (pathname === '/en') {
-    return redirectWithHints(request, new URL('/', request.url))
-  }
+  // Note: /en and /en/ are now handled above, so this only handles /en/* paths
   if (pathname.startsWith('/en/')) {
     const url = request.nextUrl.clone()
     url.pathname = pathname.replace(/^\/en/, '') || '/'

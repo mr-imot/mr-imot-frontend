@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { registerDeveloperHref } from "@/lib/routes"
 
 type FollowUsProps = {
   lang?: "bg" | "en" | "ru" | "gr"
@@ -42,14 +43,7 @@ const copyByLang = {
 export function FollowUs({ lang = "bg", devCta = false }: FollowUsProps) {
   const copy = copyByLang[lang] || copyByLang.bg
 
-  const devLink =
-    lang === "bg"
-      ? "/bg/register?type=developer"
-      : lang === "ru"
-        ? "/ru/register?type=developer"
-        : lang === "gr"
-          ? "/gr/register?type=developer"
-          : "/register?type=developer"
+  const devLink = registerDeveloperHref(lang as 'en' | 'bg' | 'ru' | 'gr')
 
   return (
     <div className="not-prose my-8 rounded-2xl bg-muted p-6 text-center shadow-sm ring-1 ring-muted">

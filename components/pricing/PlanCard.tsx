@@ -32,7 +32,7 @@ interface PlanCardProps {
   highlight: boolean
   isBestValue: boolean
   bestValueLabel: string
-  registerHref: string
+  registerHref: string | { pathname: string; query: { type: string } }
   savingsText?: string | null
   tenPlusNotice?: string | null
   locale: string
