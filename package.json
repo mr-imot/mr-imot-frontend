@@ -3,9 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "pnpm run generate:slug-map && next build",
+    "prebuild": "pnpm run generate:slug-map && pnpm run generate:news-index",
+    "build": "next build",
     "generate:slug-map": "node scripts/generate-news-slug-map.js",
-    "dev": "pnpm run generate:slug-map && next dev",
+    "generate:news-index": "node scripts/generate-news-index.js",
+    "dev": "pnpm run generate:slug-map && pnpm run generate:news-index && next dev",
     "lint": "eslint . --ignore-pattern .next --ignore-pattern dist --ignore-pattern public --ignore-pattern next-env.d.ts --ignore-pattern next.config.mjs --max-warnings=0",
     "start": "next start"
   },

@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next'
 import { getDevelopers, getProjects, DevelopersListResponse, ProjectListResponse } from '@/lib/api'
-import { getAllPostsMeta } from '@/lib/news'
+import { getNewsPostsForLang, type BlogLang } from '@/lib/news-index'
 import { getSiteUrl } from '@/lib/seo'
 
 // Refresh sitemap periodically to pick up new content
@@ -89,50 +89,43 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = getBaseUrl()
   const languages = ['en', 'bg', 'ru', 'gr']
 
-  // Static routes
+  // Static routes (no lastModified - these are stable pages)
   const staticRoutes: MetadataRoute.Sitemap = [
     // Homepage (canonical for English)
     {
       url: baseUrl,
-      lastModified: new Date(),
       changeFrequency: 'daily' as const,
       priority: 1.0,
     },
     // Language-specific homepages (avoid duplicate EN root)
     {
       url: `${baseUrl}/bg`,
-      lastModified: new Date(),
       changeFrequency: 'daily' as const,
       priority: 1.0,
     },
     {
       url: `${baseUrl}/ru`,
-      lastModified: new Date(),
       changeFrequency: 'daily' as const,
       priority: 1.0,
     },
     {
       url: `${baseUrl}/gr`,
-      lastModified: new Date(),
       changeFrequency: 'daily' as const,
       priority: 1.0,
     },
     // Listings pages (using clean English URL)
     {
       url: `${baseUrl}/listings`,
-      lastModified: new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.8,
     },
     {
       url: `${baseUrl}/ru/obyavleniya`,
-      lastModified: new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.8,
     },
     {
       url: `${baseUrl}/bg/obiavi`,
-      lastModified: new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.8,
     },
@@ -146,70 +139,59 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             : lang === 'gr'
               ? `${baseUrl}/gr/kataskeuastes`
               : `${baseUrl}/developers`,
-      lastModified: new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.8,
     })),
     // About Us pages (using pretty URLs for Bulgarian)
     {
       url: `${baseUrl}/about-mister-imot`,
-      lastModified: new Date(),
       changeFrequency: 'monthly' as const,
       priority: 0.5,
     },
     {
       url: `${baseUrl}/ru/o-mister-imot`,
-      lastModified: new Date(),
       changeFrequency: 'monthly' as const,
       priority: 0.5,
     },
     {
       url: `${baseUrl}/bg/za-mistar-imot`,
-      lastModified: new Date(),
       changeFrequency: 'monthly' as const,
       priority: 0.5,
     },
     // Contact pages (using pretty URLs for Bulgarian)
     {
       url: `${baseUrl}/contact`,
-      lastModified: new Date(),
       changeFrequency: 'monthly' as const,
       priority: 0.5,
     },
     {
       url: `${baseUrl}/ru/kontakty`,
-      lastModified: new Date(),
       changeFrequency: 'monthly' as const,
       priority: 0.5,
     },
     {
       url: `${baseUrl}/bg/kontakt`,
-      lastModified: new Date(),
       changeFrequency: 'monthly' as const,
       priority: 0.5,
     },
     // News indexes (localized slugs)
     {
       url: `${baseUrl}/news`,
-      lastModified: new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.7,
     },
     {
       url: `${baseUrl}/bg/novini`,
-      lastModified: new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.7,
     },
     {
       url: `${baseUrl}/ru/novosti`,
-      lastModified: new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.7,
     },
     {
       url: `${baseUrl}/gr/eidhseis`,
-      lastModified: new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.7,
     },
@@ -229,21 +211,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             ? `${baseUrl}/gr/aggelies/${urlPath}`
             : `${baseUrl}/listings/${urlPath}` // Clean English URL without /en/
       
-      // Use updated_at if available, otherwise use current date
-      const lastModified = project.updated_at 
-        ? new Date(project.updated_at)
-        : new Date()
-      
-      return {
+      // Use updated_at if available and valid, otherwise omit lastModified
+      const route: MetadataRoute.Sitemap[0] = {
         url,
-        lastModified,
         changeFrequency: 'monthly' as const,
         priority: 0.6,
       }
+      
+      if (project.updated_at) {
+        const lm = new Date(project.updated_at)
+        if (!isNaN(lm.getTime())) {
+          route.lastModified = lm
+        }
+      }
+      
+      return route
     })
   )
 
-  // Dynamic routes - fetch all developers
+  // Dynamic routes - fetch all developers (no lastModified - API doesn't provide updated_at)
   const developers = await getAllDevelopers()
   const developerRoutes: MetadataRoute.Sitemap = developers.flatMap((developer) =>
     languages.map((lang): MetadataRoute.Sitemap[0] => ({
@@ -256,45 +242,44 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
               ? 'gr/kataskeuastes'
               : 'developers'
       }/${developer.slug || developer.id}`,
-      lastModified: new Date(),
       changeFrequency: 'monthly' as const,
       priority: 0.7,
     }))
   )
 
-  // Fetch all news posts with error handling (similar to projects/developers)
-  const newsPosts = await Promise.all(
-    languages.map(async (lang) => {
-      try {
-        const posts = await getAllPostsMeta(lang as 'en' | 'bg' | 'ru' | 'gr')
-        
-        if (!posts || posts.length === 0) {
-          console.warn(`[Sitemap] No news posts found for language: ${lang}`)
-          return []
-        }
+  // Fetch all news posts from build-time generated index (no filesystem reads at runtime)
+  const newsRoutes: MetadataRoute.Sitemap = []
+  for (const lang of languages) {
+    try {
+      const posts = getNewsPostsForLang(lang as BlogLang)
+      
+      if (!posts || posts.length === 0) {
+        console.warn(`[Sitemap] No news posts found for language: ${lang}`)
+        continue
+      }
 
-        return posts.map((post) => ({
-          url:
-            lang === 'en'
-              ? `${baseUrl}/news/${post.slug}`
-              : lang === 'bg'
-                ? `${baseUrl}/bg/novini/${post.slug}`
-                : lang === 'ru'
-                  ? `${baseUrl}/ru/novosti/${post.slug}`
-                  : `${baseUrl}/gr/eidhseis/${post.slug}`,
-          lastModified: post.date ? new Date(post.date) : new Date(),
+      const langRoutes = posts.map((post) => {
+        const route: MetadataRoute.Sitemap[0] = {
+          url: `${baseUrl}${post.urlPath}`,
           changeFrequency: 'weekly' as const,
           priority: 0.6,
-        }))
-      } catch (error) {
-        console.error(`[Sitemap] Error fetching news posts for ${lang}:`, error)
-        // Return empty array on error - sitemap will still include other content
-        return []
-      }
-    })
-  )
-
-  const newsRoutes = newsPosts.flat()
+        }
+        
+        // Only include lastModified if valid
+        const lm = new Date(post.lastmod)
+        if (!isNaN(lm.getTime())) {
+          route.lastModified = lm
+        }
+        
+        return route
+      })
+      
+      newsRoutes.push(...langRoutes)
+    } catch (error) {
+      console.error(`[Sitemap] Error fetching news posts for ${lang}:`, error)
+      // Continue to next language - sitemap will still include other content
+    }
+  }
 
   return [...staticRoutes, ...projectRoutes, ...developerRoutes, ...newsRoutes]
 }

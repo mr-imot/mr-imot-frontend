@@ -28,3 +28,6 @@ yarn-error.log*
 next-env.d.ts
 # Moat task system
 .moat/
+
+# Generated build-time files (regenerated on each build)
+content/generated/*.json
