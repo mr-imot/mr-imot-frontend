@@ -89,22 +89,36 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
           </div>
 
           {/* Right Column - Mascot (always rendered, responsive) */}
-          <div className={clsx("flex items-center justify-center lg:justify-end order-2 lg:order-none", styles.heroVisual)}>
+          <div
+            className={clsx(
+              "flex items-center justify-center lg:justify-end order-2 lg:order-none",
+              styles.heroVisual
+            )}
+          >
             <Image
-              src={lang === 'bg' 
-                ? toIkPath("https://ik.imagekit.io/ts59gf2ul/Logo/mrimot.com-mascot-bg-0_-komisiona.png")
-                : toIkPath("https://ik.imagekit.io/ts59gf2ul/Logo/0_-commissions-mr-imot.png")
+              src={
+                lang === "bg"
+                  ? toIkPath("https://ik.imagekit.io/ts59gf2ul/Logo/mrimot.com-mascot-bg-0_-komisiona.png")
+                  : toIkPath("https://ik.imagekit.io/ts59gf2ul/Logo/0_-commissions-mr-imot.png")
               }
-              alt={lang === 'bg' 
-                ? 'Талисман Мистър Имот от mrimot.com, държащ знак с надпис 0% комисиони за платформа за недвижими имоти'
-                : 'Mister Imot mascot of mrimot.com holding a sign with 0% commissions message for real estate platform'
+              alt={
+                lang === "bg"
+                  ? "Талисман Мистър Имот от mrimot.com, държащ знак с надпис 0% комисиони за платформа за недвижими имоти"
+                  : "Mister Imot mascot of mrimot.com holding a sign with 0% commissions message for real estate platform"
               }
-              width={960}
-              height={640}
-              priority={true}
-              transformation={[{ quality: 60, format: "webp", focus: "auto" }]}
+              width={780}
+              height={1000}
+              priority
+              fetchPriority="high"
+              sizes="(max-width: 1024px) 385px, 498px"
+              transformation={[
+                {
+                  quality: 60,
+                  format: "auto",
+                  focus: "auto",
+                },
+              ]}
               className={clsx("w-auto h-auto", styles.heroImage)}
-              sizes="(max-width: 1024px) 220px, 40vw"
             />
           </div>
         </div>
