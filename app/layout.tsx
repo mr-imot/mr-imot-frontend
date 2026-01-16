@@ -74,11 +74,6 @@ export default function RootLayout({
   // Hardcode lang="en" as default, [lang] layouts will handle locale-specific HTML lang if needed
   return (
     <html lang="en" suppressHydrationWarning className={geist.variable}>
-      <head>
-        {/* DNS prefetch and preconnect to ImageKit for faster image loading (critical for LCP) */}
-        <link rel="dns-prefetch" href="https://ik.imagekit.io" />
-        <link rel="preconnect" href="https://ik.imagekit.io" crossOrigin="anonymous" />
-      </head>
       <body className="min-h-screen font-sans antialiased">
         {children}
         <SpeedInsights />
