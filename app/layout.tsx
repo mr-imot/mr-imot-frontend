@@ -1,5 +1,5 @@
 import type React from "react"
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { Geist } from "next/font/google"
 import "./globals.css"
 import { cn } from "@/lib/utils"
@@ -51,13 +51,16 @@ export const metadata: Metadata = {
   },
 }
 
-export function generateViewport() {
-  return {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 5,
-    userScalable: true
-  }
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  viewportFit: 'cover',
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#ffffff" },
+  ],
 }
 
 // REMOVED: generateThemeColor function that was causing blue background
@@ -72,32 +75,14 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className={cn(geist.variable)}>
       <head>
-        {/* Preconnect to ImageKit for faster image loading (critical for LCP) */}
+        {/* DNS prefetch and preconnect to ImageKit for faster image loading (critical for LCP) */}
+        <link rel="dns-prefetch" href="https://ik.imagekit.io" />
         <link rel="preconnect" href="https://ik.imagekit.io" crossOrigin="anonymous" />
-        {/* Google Maps preconnect removed - now only on pages that need it (listings page) */}
-        
-        {/* Mobile Viewport Meta Tags */}
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes, viewport-fit=cover" />
-        
-        {/* Mobile Theme Meta Tags - Match Background Color */}
-        <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
-        <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: dark)" />
         
         {/* iOS Safe Area Support */}
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="Mr. Imot" />
-        
-        {/* Font preloading is handled automatically by next/font/google */}
-        
-        <style>{`
-html {
-  font-family: ${geist.style.fontFamily};
-  --font-sans: ${geist.variable};
-  --font-serif: ${geist.variable};
-  --font-geist: ${geist.variable};
-}
-        `}</style>
       </head>
       <body className={cn("min-h-screen font-sans antialiased", geist.variable)}>
         {children}
