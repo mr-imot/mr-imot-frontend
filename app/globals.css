@@ -37,8 +37,8 @@
     --font-serif: var(--font-geist), Georgia, serif;
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     
-    /* Header height - will be updated by HeaderHeight component */
-    --header-height: 80px; /* Approximate initial value */
+    /* Header height - CSS fallback for first paint, updated by HeaderHeight component */
+    --header-height: 80px;
   }
 
   /* Removed scroll-behavior: smooth - conflicts with Next.js navigation */

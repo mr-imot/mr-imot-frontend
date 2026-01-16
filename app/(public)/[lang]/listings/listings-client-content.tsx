@@ -376,17 +376,36 @@ export function ListingsClientContent({
   useEffect(() => {
     const computeHeaderSnap = () => {
       const header = document.getElementById('mobile-map-header')
-      if (!header) return setHeaderSnapPct(90)
-      const rect = header.getBoundingClientRect()
+      if (!header) {
+        setHeaderSnapPct(90)
+        return
+      }
+
+      const rect = header.getBoundingClientRect() // still a layout read, but we control when it runs
       const gap = 8
-      const viewportH = window.innerHeight || document.documentElement.clientHeight
+      const viewportH = window.innerHeight
       let pct = ((viewportH - (rect.bottom + gap)) / viewportH) * 100
       pct = Math.max(70, Math.min(95, Math.round(pct)))
       setHeaderSnapPct(pct)
     }
-    computeHeaderSnap()
-    window.addEventListener('resize', computeHeaderSnap)
-    return () => window.removeEventListener('resize', computeHeaderSnap)
+
+    // Defer initial run out of mount critical path
+    const raf = requestAnimationFrame(() => computeHeaderSnap())
+
+    // Debounce resize so you don't hammer layout
+    let t: ReturnType<typeof setTimeout> | null = null
+    const onResize = () => {
+      if (t) clearTimeout(t)
+      t = setTimeout(computeHeaderSnap, 150)
+    }
+
+    window.addEventListener('resize', onResize)
+
+    return () => {
+      cancelAnimationFrame(raf)
+      if (t) clearTimeout(t)
+      window.removeEventListener('resize', onResize)
+    }
   }, [])
   
   // Optimized map initialization - only loads ONE map instance based on viewport size
@@ -505,31 +524,31 @@ export function ListingsClientContent({
     initMap()
     
     // Handle window resize - initialize the other map if viewport changes significantly
-    const handleResize = () => {
-      const isMobile = window.innerWidth < 1024
-      const hasMobileMap = mobileGoogleMapRef.current !== null
-      const hasDesktopMap = googleMapRef.current !== null
-      
-      // Only initialize the other map if viewport changed and map doesn't exist
-      if (isMobile && !hasMobileMap && hasDesktopMap) {
-        // Switched to mobile, but mobile map not initialized
-        initMap()
-      } else if (!isMobile && !hasDesktopMap && hasMobileMap) {
-        // Switched to desktop, but desktop map not initialized
-        initMap()
-      }
+    let resizeTimeout: ReturnType<typeof setTimeout> | null = null
+
+    const onResize = () => {
+      if (resizeTimeout) clearTimeout(resizeTimeout)
+      resizeTimeout = setTimeout(() => {
+        const isMobile = window.innerWidth < 1024
+        const hasMobileMap = mobileGoogleMapRef.current !== null
+        const hasDesktopMap = googleMapRef.current !== null
+
+        // Only initialize the other map if viewport changed and map doesn't exist
+        if (isMobile && !hasMobileMap && hasDesktopMap) {
+          // Switched to mobile, but mobile map not initialized
+          initMap()
+        } else if (!isMobile && !hasDesktopMap && hasMobileMap) {
+          // Switched to desktop, but desktop map not initialized
+          initMap()
+        }
+      }, 250)
     }
-    
-    // Debounce resize handler to avoid excessive calls
-    let resizeTimeout: NodeJS.Timeout
-    window.addEventListener('resize', () => {
-      clearTimeout(resizeTimeout)
-      resizeTimeout = setTimeout(handleResize, 250)
-    })
-    
+
+    window.addEventListener('resize', onResize)
+
     return () => {
-      window.removeEventListener('resize', handleResize)
-      clearTimeout(resizeTimeout)
+      window.removeEventListener('resize', onResize)
+      if (resizeTimeout) clearTimeout(resizeTimeout)
     }
   }, []) // Only run once on mount
   

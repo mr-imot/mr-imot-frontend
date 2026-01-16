@@ -6,48 +6,42 @@ import { useEffect, useRef } from 'react'
  * Lightweight component that tracks header height using ResizeObserver.
  * Only sets --header-height CSS variable, no viewport locking.
  * Extracted from ViewportLock to separate concerns.
+ * 
+ * FIXED: Removed initial getBoundingClientRect() call to eliminate forced reflow on mount.
+ * ResizeObserver will deliver the initial size via its callback.
  */
 export default function HeaderHeight(): null {
   const headerHeightRef = useRef<number>(0)
 
   useEffect(() => {
-    // Use ResizeObserver with borderBoxSize to avoid getBoundingClientRect forced reflow
-    let resizeObserver: ResizeObserver | null = null
-    
-    if (typeof ResizeObserver !== 'undefined') {
-      const header = document.querySelector('header')
-      if (header) {
-        // Initial measurement
-        const initialHeight = header.getBoundingClientRect().height
-        headerHeightRef.current = initialHeight
-        document.documentElement.style.setProperty('--header-height', `${Math.round(initialHeight)}px`)
+    if (typeof ResizeObserver === 'undefined') return
 
-        resizeObserver = new ResizeObserver((entries) => {
-          // Use ResizeObserver's borderBoxSize to avoid forced reflow
-          // Fallback to getBoundingClientRect only if borderBoxSize is unavailable
-          const entry = entries[0]
-          let newHeight = 0
-          
-          if (entry.borderBoxSize && entry.borderBoxSize.length > 0) {
-            // Modern browsers: use borderBoxSize (no forced reflow)
-            newHeight = entry.borderBoxSize[0].blockSize
-          } else {
-            // Fallback for older browsers
-            newHeight = entry.target.getBoundingClientRect().height
-          }
-          
-          if (headerHeightRef.current !== newHeight) {
-            headerHeightRef.current = newHeight
-            document.documentElement.style.setProperty('--header-height', `${Math.round(newHeight)}px`)
-          }
-        })
-        resizeObserver.observe(header)
+    const header = document.querySelector('header')
+    if (!header) return
+
+    const ro = new ResizeObserver((entries) => {
+      const entry = entries[0]
+      let newHeight = 0
+
+      // Prefer borderBoxSize when available (no layout read)
+      const box = entry.borderBoxSize?.[0]
+      if (box?.blockSize) {
+        newHeight = box.blockSize
+      } else {
+        // Fallback: avoid getBoundingClientRect if possible
+        newHeight = (entry.target as HTMLElement).offsetHeight
       }
-    }
 
-    return () => {
-      if (resizeObserver) resizeObserver.disconnect()
-    }
+      const rounded = Math.round(newHeight)
+      if (rounded && headerHeightRef.current !== rounded) {
+        headerHeightRef.current = rounded
+        document.documentElement.style.setProperty('--header-height', `${rounded}px`)
+      }
+    })
+
+    ro.observe(header)
+
+    return () => ro.disconnect()
   }, [])
 
   return null
