@@ -171,7 +171,23 @@
   filter: drop-shadow(0 4px 15px rgba(0, 0, 0, 0.1));
   max-width: 100%;
   /* Mobile: Use fixed pixel value instead of vh to prevent layout shifts */
-  max-height: 480px;
+  max-height: 420px;
+}
+
+/* Small phones (iPhone SE, mini, etc.) */
+@media (max-width: 430px) {
+  .heroImage {
+    width: 190px;
+    max-height: 360px;
+  }
+}
+
+/* Very small phones */
+@media (max-width: 390px) {
+  .heroImage {
+    width: 175px;
+    max-height: 330px;
+  }
 }
 
 /* larger phones / tablets */
@@ -187,34 +203,6 @@
   .heroImage {
     width: 498px;
     max-height: min(75vh, 640px);
-  }
-}
-
-/* Short screens: tighten spacing even more */
-@media (max-height: 650px) {
-  .heroSection {
-    padding-top: 1rem;
-    padding-bottom: 2rem;
-    min-height: calc(100svh - var(--header-height, 80px) - 30px);
-  }
-  
-  .heroTitle {
-    font-size: clamp(1.75rem, 4vw, 2.5rem) !important;
-    margin-bottom: 0.25rem;
-  }
-  
-  .heroSubtitle {
-    margin-top: 0.5rem !important;
-    font-size: clamp(0.9rem, 1vw + 0.4rem, 1rem);
-  }
-  
-  .heroCta {
-    margin-top: 0.75rem !important;
-  }
-  
-  .heroImage {
-    /* Use fixed pixel value instead of vh to prevent layout shifts */
-    max-height: 400px;
   }
 }
 

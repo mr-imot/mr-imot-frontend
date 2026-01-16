@@ -2,7 +2,6 @@ import type React from "react"
 import type { Metadata, Viewport } from "next"
 import { Geist } from "next/font/google"
 import "./globals.css"
-import { cn } from "@/lib/utils"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 
 // Geist for all text (headings and body) with Cyrillic support - only 2 weights above fold
@@ -34,7 +33,8 @@ export const metadata: Metadata = {
   },
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'black-translucent'
+    statusBarStyle: 'black-translucent',
+    title: 'Mr. Imot'
   },
   alternates: {
     // Hardcode production domain for canonical URLs to prevent build-time issues
@@ -73,18 +73,13 @@ export default function RootLayout({
   // Root layout is static and dumb - language lives in [lang] route segments
   // Hardcode lang="en" as default, [lang] layouts will handle locale-specific HTML lang if needed
   return (
-    <html lang="en" suppressHydrationWarning className={cn(geist.variable)}>
+    <html lang="en" suppressHydrationWarning className={geist.variable}>
       <head>
         {/* DNS prefetch and preconnect to ImageKit for faster image loading (critical for LCP) */}
         <link rel="dns-prefetch" href="https://ik.imagekit.io" />
         <link rel="preconnect" href="https://ik.imagekit.io" crossOrigin="anonymous" />
-        
-        {/* iOS Safe Area Support */}
-        <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="apple-mobile-web-app-title" content="Mr. Imot" />
       </head>
-      <body className={cn("min-h-screen font-sans antialiased", geist.variable)}>
+      <body className="min-h-screen font-sans antialiased">
         {children}
         <SpeedInsights />
       </body>
