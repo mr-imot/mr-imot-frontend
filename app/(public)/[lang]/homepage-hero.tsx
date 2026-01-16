@@ -110,7 +110,7 @@ export function HomepageHero({ dict, lang }: HomepageHeroProps) {
               height={1000}
               priority
               fetchPriority="high"
-              sizes="(max-width: 639px) 220px, (max-width: 1023px) 385px, 498px"
+              sizes="(max-width: 390px) 175px, (max-width: 430px) 190px, (max-width: 639px) 220px, (max-width: 1023px) 385px, 498px"
               className={styles.heroImage}
               transformation={[
                 {

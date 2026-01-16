@@ -1,7 +1,7 @@
 /* Mobile-first: Use min-height to prevent content clipping */
 .heroSection {
   position: relative;
-  overflow: hidden;
+  overflow: visible; /* Allow content to extend under overlays (cookie banner) */
   display: flex;
   align-items: center;
 
@@ -26,7 +26,7 @@
     min-height: calc(100vh - var(--header-height, 80px) - 50px);
     height: auto; /* Allow natural height on desktop */
     max-height: none;
-    overflow: visible; /* Allow overflow on desktop */
+    overflow: hidden; /* Hide overflow on desktop if needed for visual effects */
     padding-top: clamp(1.5rem, 3vh, 2.5rem);
     padding-bottom: clamp(2.5rem, 6vh, 4rem);
   }
