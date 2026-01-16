@@ -4,7 +4,6 @@ import { brandForLang, formatTitleWithBrand, getSiteUrl } from "@/lib/seo"
 import type { Metadata } from 'next'
 import WebPageSchema from "@/components/seo/webpage-schema"
 import { buildIkUrl } from "@/lib/imagekit"
-import ViewportLock from "@/components/ViewportLock"
 import { listingsHref, asLocale } from "@/lib/routes"
 
 // Enable SSG for all language variants
@@ -256,7 +255,6 @@ export default async function HomePage({ params }: HomePageProps) {
         baseUrl={baseUrl}
         primaryImageOfPage={socialImage}
       />
-      <ViewportLock />
       <LocalizedHomePage dict={dict} lang={lang} />
     </>
   )

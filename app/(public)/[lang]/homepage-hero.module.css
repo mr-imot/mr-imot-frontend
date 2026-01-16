@@ -1,24 +1,21 @@
-/* Mobile-first: FIXED height (not min-height) to prevent Chrome iOS stretching */
+/* Mobile-first: Use min-height to prevent content clipping */
 .heroSection {
   position: relative;
-  overflow: hidden; /* Critical: prevents content from growing beyond shell on mobile */
+  overflow: hidden;
   display: flex;
   align-items: center;
 
-  /* MOBILE: Use exact height, not min-height. This kills 70% of the stretch.
-     Remove env(safe-area-inset-bottom) - it changes during scroll in Chrome.
-     Use --fixed-vh for padding calculations, not reactive vh units. */
-  height: calc(var(--fixed-vh, 100svh) - var(--header-height, 80px));
-  padding-top: clamp(1rem, calc(var(--fixed-vh, 100svh) * 0.025), 2rem);
-  padding-bottom: clamp(2rem, calc(var(--fixed-vh, 100svh) * 0.05), 3rem);
+  /* MOBILE: Use min-height (not height) to prevent text clipping.
+     Use 100svh directly - stable viewport height that doesn't change with address bar. */
+  min-height: calc(100svh - var(--header-height, 80px));
+  padding-top: clamp(1rem, 2.5vw, 2rem);
+  padding-bottom: clamp(2rem, 4vw, 3rem);
 }
 
 /* Fallback for very old browsers */
 @supports not (height: 100svh) {
   .heroSection {
-    height: calc(var(--fixed-vh, 100vh) - var(--header-height, 80px));
-    padding-top: clamp(1rem, calc(var(--fixed-vh, 100vh) * 0.025), 2rem);
-    padding-bottom: clamp(2rem, calc(var(--fixed-vh, 100vh) * 0.05), 3rem);
+    min-height: calc(100vh - var(--header-height, 80px));
   }
 }
 
@@ -38,9 +35,9 @@
 /* Smaller screens (13-15 inch laptops): More conservative spacing */
 @media (min-width: 768px) and (max-width: 1023px) {
   .heroSection {
-    height: calc(var(--fixed-vh, 100vh) - var(--header-height, 80px) - 40px);
-    padding-top: clamp(1rem, calc(var(--fixed-vh, 100vh) * 0.02), 1.5rem);
-    padding-bottom: clamp(2rem, calc(var(--fixed-vh, 100vh) * 0.05), 3rem);
+    min-height: calc(100svh - var(--header-height, 80px) - 40px);
+    padding-top: clamp(1rem, 2vw, 1.5rem);
+    padding-bottom: clamp(2rem, 4vw, 3rem);
   }
 }
 
@@ -173,13 +170,15 @@
   object-fit: contain;
   filter: drop-shadow(0 4px 15px rgba(0, 0, 0, 0.1));
   max-width: 100%;
-  max-height: min(70vh, 480px);
+  /* Mobile: Use fixed pixel value instead of vh to prevent layout shifts */
+  max-height: 480px;
 }
 
 /* larger phones / tablets */
 @media (min-width: 640px) {
   .heroImage {
     width: 385px;
+    max-height: 520px;
   }
 }
 
@@ -196,7 +195,7 @@
   .heroSection {
     padding-top: 1rem;
     padding-bottom: 2rem;
-    height: calc(var(--fixed-vh, 100svh) - var(--header-height, 80px) - 30px);
+    min-height: calc(100svh - var(--header-height, 80px) - 30px);
   }
   
   .heroTitle {
@@ -214,7 +213,8 @@
   }
   
   .heroImage {
-    max-height: min(55vh, 400px);
+    /* Use fixed pixel value instead of vh to prevent layout shifts */
+    max-height: 400px;
   }
 }
 

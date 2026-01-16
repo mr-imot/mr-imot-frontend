@@ -7,6 +7,8 @@ import CookieConsent from "@/components/cookie-consent"
 import { brandForLang, formatTitleWithBrand, getSiteUrl } from "@/lib/seo"
 import type { Metadata } from "next"
 import { buildIkUrl } from "@/lib/imagekit"
+import ThemeInit from "@/components/ThemeInit"
+import HeaderHeight from "@/components/HeaderHeight"
 
 export async function generateStaticParams() {
   return [{ lang: 'en' }, { lang: 'bg' }, { lang: 'ru' }, { lang: 'gr' }]
@@ -102,6 +104,8 @@ export default async function PublicLangLayout({
     return (
       <LocaleProvider locale={lang}>
         <AuthProvider>
+          <ThemeInit />
+          <HeaderHeight />
           <div className="relative flex min-h-screen flex-col">
             {/* ServerHeader is rendered by (pages)/layout.tsx for normal pages - outside main */}
             {/* Listings pages have their own layout without ServerHeader */}
@@ -121,6 +125,8 @@ export default async function PublicLangLayout({
     return (
       <LocaleProvider locale="en">
         <AuthProvider>
+          <ThemeInit />
+          <HeaderHeight />
           <div className="relative flex min-h-screen flex-col">
             {/* ServerHeader is rendered by (pages)/layout.tsx for normal pages - outside main */}
             {/* Listings pages have their own layout without ServerHeader */}

@@ -37,9 +37,8 @@
     --font-serif: var(--font-geist), Georgia, serif;
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     
-    /* Viewport lock defaults - prevent layout shift before JS loads */
+    /* Header height - will be updated by HeaderHeight component */
     --header-height: 80px; /* Approximate initial value */
-    --fixed-vh: 100svh;    /* Best pure-CSS guess */
   }
 
   /* Removed scroll-behavior: smooth - conflicts with Next.js navigation */
@@ -115,10 +114,9 @@
 /* ===== iOS SAFE AREAS ===== */
 @supports (padding: max(0px)) {
   body {
-    padding-top: env(safe-area-inset-top);
+    /* Only horizontal safe areas on body to prevent layout shifts */
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
-    padding-bottom: env(safe-area-inset-bottom);
   }
   header { padding-top: max(env(safe-area-inset-top), 1rem); }
   footer { padding-bottom: max(env(safe-area-inset-bottom), 1rem); }
