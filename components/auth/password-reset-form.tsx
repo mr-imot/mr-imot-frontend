@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AuthError } from '@/components/ui/auth-error';
 import { useCountdown } from '@/hooks/use-countdown';
 import { getTimingMessage } from '@/lib/auth-constants';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/use-is-mobile';
 
 export interface PasswordResetFormProps {
   onSubmit: (token: string, newPassword: string) => Promise<void>;

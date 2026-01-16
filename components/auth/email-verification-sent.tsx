@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { AuthError } from '@/components/ui/auth-error';
 import { getTimingMessage } from '@/lib/auth-constants';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/use-is-mobile';
 
 export interface EmailVerificationSentProps {
   email: string;
