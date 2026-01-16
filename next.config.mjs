@@ -52,7 +52,11 @@ const nextConfig = {
       {
         source: "/:path*",
         headers: [
-          { key: "Link", value: '<https://ik.imagekit.io>; rel=preconnect; crossorigin' },
+          {
+            key: "Link",
+            value:
+              '<https://ik.imagekit.io>; rel=preconnect; crossorigin=anonymous, <https://ik.imagekit.io>; rel=dns-prefetch',
+          },
         ],
       },
     ]
