@@ -47,6 +47,16 @@ const nextConfig = {
     // number of pages that should be kept simultaneously without being disposed
     pagesBufferLength: 2,
   },
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "Link", value: '<https://ik.imagekit.io>; rel=preconnect; crossorigin' },
+        ],
+      },
+    ]
+  },
   async rewrites() {
     return [
       {

@@ -165,29 +165,13 @@
 }
 
 .heroImage {
-  width: 220px;      /* mobile baseline */
   height: auto;
   object-fit: contain;
   filter: drop-shadow(0 4px 15px rgba(0, 0, 0, 0.1));
   max-width: 100%;
-  /* Mobile: Use fixed pixel value instead of vh to prevent layout shifts */
-  max-height: 420px;
-}
-
-/* Small phones (iPhone SE, mini, etc.) */
-@media (max-width: 430px) {
-  .heroImage {
-    width: 190px;
-    max-height: 360px;
-  }
-}
-
-/* Very small phones */
-@media (max-width: 390px) {
-  .heroImage {
-    width: 175px;
-    max-height: 330px;
-  }
+  /* Mobile: Use clamp for responsive sizing that scales smoothly on all devices */
+  width: clamp(140px, 38vw, 200px);
+  max-height: clamp(240px, 55vh, 340px);
 }
 
 /* larger phones / tablets */
