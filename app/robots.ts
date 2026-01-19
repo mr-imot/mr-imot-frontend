@@ -37,22 +37,6 @@ export default function robots(): MetadataRoute.Robots {
       '/bg/kontakt/', // Bulgarian pretty URL for contact
       '/ru/kontakty/', // Russian pretty URL for contact
       '/gr/epikoinonia/', // Greek pretty URL for contact
-      // Policy pages - English (using /en/ prefix since they're under [lang] folder)
-      '/en/cookie-policy/',
-      '/en/privacy-policy/',
-      '/en/terms-of-service/',
-      // Policy pages - Bulgarian
-      '/bg/cookie-policy/',
-      '/bg/privacy-policy/',
-      '/bg/terms-of-service/',
-      // Policy pages - Russian
-      '/ru/cookie-policy/',
-      '/ru/privacy-policy/',
-      '/ru/terms-of-service/',
-      // Policy pages - Greek
-      '/gr/cookie-policy/',
-      '/gr/privacy-policy/',
-      '/gr/terms-of-service/',
     ],
     disallow: [
       '/admin/',
@@ -80,6 +64,19 @@ export default function robots(): MetadataRoute.Robots {
       '/api/',
       '/verify-email/',
       '/reset-password/',
+      // Policy pages - all languages (noindex via metadata, but also disallow in robots.txt)
+      '/en/cookie-policy/',
+      '/en/privacy-policy/',
+      '/en/terms-of-service/',
+      '/bg/cookie-policy/',
+      '/bg/privacy-policy/',
+      '/bg/terms-of-service/',
+      '/ru/cookie-policy/',
+      '/ru/privacy-policy/',
+      '/ru/terms-of-service/',
+      '/gr/cookie-policy/',
+      '/gr/privacy-policy/',
+      '/gr/terms-of-service/',
     ],
   }
 

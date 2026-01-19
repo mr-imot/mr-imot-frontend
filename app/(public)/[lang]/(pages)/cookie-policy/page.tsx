@@ -27,6 +27,10 @@ export async function generateMetadata({ params }: CookiePolicyPageProps): Promi
     description: lang === 'bg' 
       ? 'Политика за бисквитки на платформата Мистър Имот'
       : 'Cookie Policy for Mister Imot platform',
+    robots: {
+      index: false,
+      follow: false,
+    },
   }
 }
 

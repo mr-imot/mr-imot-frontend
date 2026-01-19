@@ -27,6 +27,10 @@ export async function generateMetadata({ params }: PrivacyPolicyPageProps): Prom
     description: lang === 'bg' 
       ? 'Политика за поверителност на платформата Мистър Имот'
       : 'Privacy Policy for Mister Imot platform',
+    robots: {
+      index: false,
+      follow: false,
+    },
   }
 }
 

@@ -27,6 +27,10 @@ export async function generateMetadata({ params }: TermsOfServicePageProps): Pro
     description: lang === 'bg' 
       ? 'Условия за ползване на платформата Мистър Имот'
       : 'Terms of Service for Mister Imot platform',
+    robots: {
+      index: false,
+      follow: false,
+    },
   }
 }
 
