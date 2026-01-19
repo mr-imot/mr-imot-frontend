@@ -3,6 +3,13 @@ import { getDevelopers, getProjects, DevelopersListResponse, ProjectListResponse
 import { getNewsPostsForLang, type BlogLang } from '@/lib/news-index'
 import { getSiteUrl } from '@/lib/seo'
 import { PUBLIC_ROUTES, homeHref, listingsHref, listingHref, developersHref, developerHref, newsHref, newsArticleHref, aboutHref, contactHref, type SupportedLocale } from '@/lib/routes'
+import slugMapData from '@/lib/news-slug-map.json'
+
+// Type-safe slug map (Edge Runtime compatible - JSON import works)
+const slugMap = slugMapData as {
+  slugToKey: Record<string, string>
+  keyToSlugs: Record<string, Record<'en' | 'bg' | 'ru' | 'gr', string>>
+}
 
 // Refresh sitemap periodically to pick up new content
 export const revalidate = 3600 // 1 hour
@@ -84,6 +91,27 @@ async function fetchWithTimeoutAndRetry<T>(
 // See: https://www.reddit.com/r/nextjs/s/otIdK3NiqK
 function getBaseUrl(): string {
   return getSiteUrl()
+}
+
+// Helper to build hreflang alternates for any route type
+// Maps internal locale codes (en, bg, ru, gr) to hreflang codes (en, bg, ru, el)
+function buildAlternates(
+  baseUrl: string,
+  routeBuilder: (lang: SupportedLocale) => string
+): { languages: Record<string, string> } {
+  // Normalize: if English route is '/', use baseUrl (no trailing slash) to avoid https://mrimot.com/
+  const enRoute = routeBuilder('en')
+  const enUrl = enRoute === '/' ? baseUrl : `${baseUrl}${enRoute}`
+  
+  return {
+    languages: {
+      en: enUrl,
+      bg: `${baseUrl}${routeBuilder('bg')}`,
+      ru: `${baseUrl}${routeBuilder('ru')}`,
+      el: `${baseUrl}${routeBuilder('gr')}`, // Greek URL segment is 'gr' but hreflang is 'el'
+      'x-default': enUrl, // Use same normalized URL
+    },
+  }
 }
 
 // Fetch all active projects from the API with pagination (public endpoint, no cookies)
@@ -210,40 +238,52 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Static routes (no lastModified - these are stable pages)
   const staticRoutes: MetadataRoute.Sitemap = [
     // Homepages
-    ...languages.map((lang): MetadataRoute.Sitemap[0] => ({
-      url: `${baseUrl}${homeHref(lang)}`,
-      changeFrequency: 'daily' as const,
-      priority: 1.0,
-    })),
+    ...languages.map((lang): MetadataRoute.Sitemap[0] => {
+      const homePath = homeHref(lang)
+      // Normalize: if home route is '/', use baseUrl (no trailing slash) to avoid https://mrimot.com/
+      const url = homePath === '/' ? baseUrl : `${baseUrl}${homePath}`
+      
+      return {
+        url,
+        changeFrequency: 'daily' as const,
+        priority: 1.0,
+        alternates: buildAlternates(baseUrl, homeHref),
+      }
+    }),
     // Listings pages
     ...languages.map((lang): MetadataRoute.Sitemap[0] => ({
       url: `${baseUrl}${listingsHref(lang)}`,
       changeFrequency: 'weekly' as const,
       priority: 0.8,
+      alternates: buildAlternates(baseUrl, listingsHref),
     })),
     // Developers pages
     ...languages.map((lang): MetadataRoute.Sitemap[0] => ({
       url: `${baseUrl}${developersHref(lang)}`,
       changeFrequency: 'weekly' as const,
       priority: 0.8,
+      alternates: buildAlternates(baseUrl, developersHref),
     })),
     // About Us pages
     ...languages.map((lang): MetadataRoute.Sitemap[0] => ({
       url: `${baseUrl}${aboutHref(lang)}`,
       changeFrequency: 'monthly' as const,
       priority: 0.5,
+      alternates: buildAlternates(baseUrl, aboutHref),
     })),
     // Contact pages
     ...languages.map((lang): MetadataRoute.Sitemap[0] => ({
       url: `${baseUrl}${contactHref(lang)}`,
       changeFrequency: 'monthly' as const,
       priority: 0.5,
+      alternates: buildAlternates(baseUrl, contactHref),
     })),
     // News indexes
     ...languages.map((lang): MetadataRoute.Sitemap[0] => ({
       url: `${baseUrl}${newsHref(lang)}`,
       changeFrequency: 'weekly' as const,
       priority: 0.7,
+      alternates: buildAlternates(baseUrl, newsHref),
     })),
   ]
 
@@ -252,10 +292,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let projectRoutes: MetadataRoute.Sitemap = []
   try {
     const projects = await getAllActiveProjects()
-    projectRoutes = projects.flatMap((project) =>
-      languages.map((lang): MetadataRoute.Sitemap[0] => {
-        // Use slug-based URL if available, otherwise fallback to ID
-        const identifier = project.slug || String(project.id)
+    projectRoutes = projects.flatMap((project) => {
+      // Use slug-based URL if available, otherwise fallback to ID
+      const identifier = project.slug || String(project.id)
+      
+      // Build alternates once per project (shared across all language variants)
+      const alternates = buildAlternates(baseUrl, (lang) => listingHref(lang, identifier))
+      
+      return languages.map((lang): MetadataRoute.Sitemap[0] => {
         const url = `${baseUrl}${listingHref(lang, identifier)}`
         
         // Use updated_at if available, fallback to created_at, otherwise omit lastModified
@@ -263,6 +307,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           url,
           changeFrequency: 'monthly' as const,
           priority: 0.6,
+          alternates,
         }
         
         // Prefer updated_at, fallback to created_at
@@ -276,7 +321,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         
         return route
       })
-    )
+    })
   } catch (error) {
     console.error('[sitemap] Unexpected error processing projects:', error)
     // Continue with empty projectRoutes - static routes will still be returned
@@ -287,13 +332,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let developerRoutes: MetadataRoute.Sitemap = []
   try {
     const developers = await getAllDevelopers()
-    developerRoutes = developers.flatMap((developer) =>
-      languages.map((lang): MetadataRoute.Sitemap[0] => ({
-        url: `${baseUrl}${developerHref(lang, developer.slug || String(developer.id))}`,
+    developerRoutes = developers.flatMap((developer) => {
+      const identifier = developer.slug || String(developer.id)
+      
+      // Build alternates once per developer (shared across all language variants)
+      const alternates = buildAlternates(baseUrl, (lang) => developerHref(lang, identifier))
+      
+      return languages.map((lang): MetadataRoute.Sitemap[0] => ({
+        url: `${baseUrl}${developerHref(lang, identifier)}`,
         changeFrequency: 'monthly' as const,
         priority: 0.7,
+        alternates,
       }))
-    )
+    })
   } catch (error) {
     console.error('[sitemap] Unexpected error processing developers:', error)
     // Continue with empty developerRoutes - static routes will still be returned
@@ -311,10 +362,26 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }
 
       const langRoutes = posts.map((post) => {
+        // Find translationKey for this slug to get alternate slugs
+        const translationKey = slugMap.slugToKey[post.slug]
+        const alternateSlugs = translationKey ? slugMap.keyToSlugs[translationKey] : null
+        
+        // Build alternates using alternate slugs if available, otherwise use current slug for that language
+        const alternates = {
+          languages: {
+            en: `${baseUrl}${alternateSlugs?.en ? newsArticleHref('en', alternateSlugs.en) : (lang === 'en' ? post.urlPath : newsArticleHref('en', post.slug))}`,
+            bg: `${baseUrl}${alternateSlugs?.bg ? newsArticleHref('bg', alternateSlugs.bg) : (lang === 'bg' ? post.urlPath : newsArticleHref('bg', post.slug))}`,
+            ru: `${baseUrl}${alternateSlugs?.ru ? newsArticleHref('ru', alternateSlugs.ru) : (lang === 'ru' ? post.urlPath : newsArticleHref('ru', post.slug))}`,
+            el: `${baseUrl}${alternateSlugs?.gr ? newsArticleHref('gr', alternateSlugs.gr) : (lang === 'gr' ? post.urlPath : newsArticleHref('gr', post.slug))}`,
+            'x-default': `${baseUrl}${alternateSlugs?.en ? newsArticleHref('en', alternateSlugs.en) : (lang === 'en' ? post.urlPath : newsArticleHref('en', post.slug))}`,
+          },
+        }
+        
         const route: MetadataRoute.Sitemap[0] = {
           url: `${baseUrl}${post.urlPath}`,
           changeFrequency: 'weekly' as const,
           priority: 0.6,
+          alternates,
         }
         
         // Only include lastModified if valid

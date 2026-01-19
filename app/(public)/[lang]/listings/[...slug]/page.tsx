@@ -177,7 +177,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         en: `${baseUrl}${listingHref('en', canonicalIdentifier)}`,
         bg: `${baseUrl}${listingHref('bg', canonicalIdentifier)}`,
         ru: `${baseUrl}${listingHref('ru', canonicalIdentifier)}`,
-        'el-GR': `${baseUrl}${listingHref('gr', canonicalIdentifier)}`,
+        el: `${baseUrl}${listingHref('gr', canonicalIdentifier)}`,
         'x-default': `${baseUrl}${listingHref('en', canonicalIdentifier)}`,
       },
     },
