@@ -133,6 +133,15 @@ function redirectWithHints(request: NextRequest, url: URL, status = 308): NextRe
   return setClientHintsHeaders(res)
 }
 
+// Return 404 response with proper headers for non-existent/invalid routes
+// Used for register routes without type=developer parameter
+function notFoundResponse(): NextResponse {
+  const response = new NextResponse(null, { status: 404 })
+  response.headers.set('Cache-Control', 'private, no-cache, must-revalidate')
+  response.headers.set('X-Robots-Tag', 'noindex, nofollow')
+  return setClientHintsHeaders(response)
+}
+
 function getLocale(request: NextRequest) {
   try {
   // Get the Accept-Language header
@@ -257,14 +266,9 @@ export async function middleware(request: NextRequest) {
     const url = request.nextUrl.clone()
     const type = url.searchParams.get('type')
     
-    // Only allow developer registration - redirect others to a non-existent route
-    // This will trigger Next.js not-found handler naturally
+    // Only allow developer registration - return 404 for others
     if (type !== 'developer') {
-      // Check cookie preference for locale
-      const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value
-      const locale = cookieLocale === 'bg' ? 'bg' : cookieLocale === 'ru' ? 'ru' : cookieLocale === 'gr' ? 'gr' : 'en'
-      // Redirect to a route that doesn't exist to trigger not-found naturally
-      return redirectWithHints(request, new URL(`/${locale}/__404__`, request.url))
+      return notFoundResponse()
     }
     
     // Check cookie preference first
@@ -305,50 +309,50 @@ export async function middleware(request: NextRequest) {
   
   // Handle /bg/register - block access without type=developer
   if (pathname === '/bg/register') {
-    const url = request.nextUrl.clone()
-    const type = url.searchParams.get('type')
+    const type = request.nextUrl.searchParams.get('type')
     
-    // Only allow developer registration - redirect others to trigger not-found
+    // Only allow developer registration - return 404 for others
     if (type !== 'developer') {
-      // Redirect to non-existent route to trigger not-found naturally
-      return redirectWithHints(request, new URL('/bg/__404__', request.url))
+      return notFoundResponse()
     }
+    // Allow through when type=developer
+    return NextResponse.next()
   }
 
   // Handle /ru/register - block access without type=developer
   if (pathname === '/ru/register') {
-    const url = request.nextUrl.clone()
-    const type = url.searchParams.get('type')
+    const type = request.nextUrl.searchParams.get('type')
     
-    // Only allow developer registration - redirect others to trigger not-found
+    // Only allow developer registration - return 404 for others
     if (type !== 'developer') {
-      // Redirect to non-existent route to trigger not-found naturally
-      return redirectWithHints(request, new URL('/ru/__404__', request.url))
+      return notFoundResponse()
     }
+    // Allow through when type=developer
+    return NextResponse.next()
   }
 
   // Handle /gr/register - block access without type=developer
   if (pathname === '/gr/register') {
-    const url = request.nextUrl.clone()
-    const type = url.searchParams.get('type')
+    const type = request.nextUrl.searchParams.get('type')
     
-    // Only allow developer registration - redirect others to trigger not-found
+    // Only allow developer registration - return 404 for others
     if (type !== 'developer') {
-      // Redirect to non-existent route to trigger not-found naturally
-      return redirectWithHints(request, new URL('/gr/__404__', request.url))
+      return notFoundResponse()
     }
+    // Allow through when type=developer
+    return NextResponse.next()
   }
 
   // Handle /en/register - block access without type=developer
   if (pathname === '/en/register') {
-    const url = request.nextUrl.clone()
-    const type = url.searchParams.get('type')
+    const type = request.nextUrl.searchParams.get('type')
     
-    // Only allow developer registration - redirect others to trigger not-found
+    // Only allow developer registration - return 404 for others
     if (type !== 'developer') {
-      // Redirect to non-existent route to trigger not-found naturally
-      return redirectWithHints(request, new URL('/en/__404__', request.url))
+      return notFoundResponse()
     }
+    // Allow through when type=developer
+    return NextResponse.next()
   }
 
   // Note: no pretty slug for register in BG; '/bg/register' is canonical
