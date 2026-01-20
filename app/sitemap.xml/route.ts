@@ -1,9 +1,31 @@
-import { MetadataRoute } from 'next'
 import { getProjects, ProjectListResponse } from '@/lib/api'
-import { getBaseUrl, fetchWithTimeoutAndRetry } from '@/lib/sitemap-utils'
+import { fetchWithTimeoutAndRetry, getBaseUrl } from '@/lib/sitemap-utils'
 
 // Refresh sitemap periodically to pick up new content
 export const revalidate = 3600 // 1 hour
+
+type SitemapIndexEntry = {
+  url: string
+  lastModified?: Date
+}
+
+function buildSitemapIndexXml(entries: SitemapIndexEntry[]): string {
+  const items = entries
+    .map((entry) => {
+      const lastMod = entry.lastModified
+        ? `<lastmod>${entry.lastModified.toISOString()}</lastmod>`
+        : ''
+      return `<sitemap><loc>${entry.url}</loc>${lastMod}</sitemap>`
+    })
+    .join('')
+
+  return [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    items,
+    '</sitemapindex>',
+  ].join('')
+}
 
 // Helper to get total count of active projects for chunk calculation
 async function getTotalActiveProjectsCount(): Promise<number> {
@@ -17,7 +39,7 @@ async function getTotalActiveProjectsCount(): Promise<number> {
       'get total projects count',
       '/api/v1/projects?page=1&per_page=1&status=active'
     )
-    
+
     return data?.total || 0
   } catch (error) {
     console.error('[sitemap] Error fetching total projects count:', error)
@@ -25,17 +47,17 @@ async function getTotalActiveProjectsCount(): Promise<number> {
   }
 }
 
-export default async function sitemap(): Promise<Array<{ url: string; lastModified?: Date }>> {
+export async function GET(): Promise<Response> {
   const baseUrl = getBaseUrl()
   const now = new Date()
-  
+
   try {
     // Get total active projects count to calculate number of chunks
     const totalProjects = await getTotalActiveProjectsCount()
     const projectsPerChunk = 2500
     const numChunks = Math.ceil(totalProjects / projectsPerChunk)
-    
-    const sitemaps: Array<{ url: string; lastModified?: Date }> = [
+
+    const sitemaps: SitemapIndexEntry[] = [
       {
         url: `${baseUrl}/sitemap/static`,
         lastModified: now,
@@ -53,7 +75,7 @@ export default async function sitemap(): Promise<Array<{ url: string; lastModifi
         lastModified: now,
       },
     ]
-    
+
     // Add project chunk sitemaps
     for (let n = 1; n <= numChunks; n++) {
       sitemaps.push({
@@ -61,12 +83,16 @@ export default async function sitemap(): Promise<Array<{ url: string; lastModifi
         lastModified: now,
       })
     }
-    
-    return sitemaps
+
+    return new Response(buildSitemapIndexXml(sitemaps), {
+      headers: {
+        'Content-Type': 'application/xml',
+      },
+    })
   } catch (error) {
     console.error('[sitemap] Error generating sitemap index:', error)
     // Return minimal index with static sitemaps only
-    return [
+    const fallback = buildSitemapIndexXml([
       {
         url: `${baseUrl}/sitemap/static`,
         lastModified: now,
@@ -83,7 +109,11 @@ export default async function sitemap(): Promise<Array<{ url: string; lastModifi
         url: `${baseUrl}/sitemap/news`,
         lastModified: now,
       },
-    ]
+    ])
+    return new Response(fallback, {
+      headers: {
+        'Content-Type': 'application/xml',
+      },
+    })
   }
 }
-
