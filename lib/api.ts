@@ -140,10 +140,12 @@ export interface Project {
 
 export interface ProjectListResponse {
   projects: Project[];
-  total: number;
-  page: number;
-  per_page: number;
-  total_pages: number;
+  total?: number; // Optional for cursor pagination
+  page?: number; // Optional for cursor pagination
+  per_page?: number; // Optional for cursor pagination
+  total_pages?: number; // Optional for cursor pagination
+  next_cursor?: string; // Cursor for next page
+  prev_cursor?: string; // Cursor for previous page
 }
 
 export interface DeveloperStats {
@@ -485,6 +487,8 @@ class ApiClient {
     status?: string;
     page?: number;
     per_page?: number;
+    cursor?: string;
+    limit?: number;
     sw_lat?: number;
     sw_lng?: number;
     ne_lat?: number;
@@ -710,6 +714,17 @@ class ApiClient {
 
   async getFeature(id: string): Promise<Feature> {
     return this.requestWithoutAuth(`/api/v1/features/${id}`);
+  }
+
+  // Cities endpoints
+  async getCities(min_projects?: number): Promise<{ cities: Array<{ city_key: string; country_code: string; projects_count: number; last_modified: string }> }> {
+    const params = new URLSearchParams();
+    if (min_projects !== undefined) {
+      params.append('min_projects', String(min_projects));
+    }
+    const queryString = params.toString();
+    const endpoint = `/api/v1/cities/${queryString ? `?${queryString}` : ''}`;
+    return this.requestWithoutAuth(endpoint);
   }
 
   // Health check endpoints

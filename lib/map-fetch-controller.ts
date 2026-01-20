@@ -30,7 +30,7 @@ export interface MapFetchControllerConfig {
   debounceMs?: number      // default 600
   throttleMs?: number      // default 1500
   cacheTtlMs?: number      // default 30 * 60 * 1000 (30 min)
-  onDataUpdate: (properties: PropertyData[]) => void
+  onDataUpdate: (properties: PropertyData[], requestId?: number) => void
   onLoadingChange?: (isLoading: boolean) => void
   onError?: (err: Error) => void
 }
@@ -56,12 +56,17 @@ export class MapFetchController {
     ne_lat: number
     ne_lng: number
     propertyType: PropertyTypeFilter
+    page?: number
+    per_page?: number
   } | null = null
   
   // Hard deduplication: track last successful fetch and in-flight requests
   // Using normalized keys (toFixed(3)) to prevent jitter from creating "new" requests
   private lastKey: string | null = null
   private inFlightKey: string | null = null
+  
+  // Request ID counter for preventing stale overwrites
+  private requestIdCounter = 0
 
   public metrics: FetchMetrics = {
     calls: 0,
@@ -90,7 +95,7 @@ export class MapFetchController {
     ne_lat: number,
     ne_lng: number,
     propertyType: PropertyTypeFilter,
-    options?: { immediate?: boolean }
+    options?: { immediate?: boolean; page?: number; per_page?: number }
   ): void {
     // Guard: Reject zero-sized or invalid bounds (map not ready)
     const latDiff = Math.abs(ne_lat - sw_lat)
@@ -99,8 +104,16 @@ export class MapFetchController {
       return
     }
 
-    // Store pending bounds
-    this.pendingBounds = { sw_lat, sw_lng, ne_lat, ne_lng, propertyType }
+    // Store pending bounds with pagination
+    this.pendingBounds = { 
+      sw_lat, 
+      sw_lng, 
+      ne_lat, 
+      ne_lng, 
+      propertyType,
+      page: options?.page,
+      per_page: options?.per_page
+    }
 
     // Clear existing debounce timer
     if (this.debounceTimer) {
@@ -156,8 +169,11 @@ export class MapFetchController {
   private async executeScheduled(skipThrottle: boolean = false): Promise<void> {
     if (!this.pendingBounds) return
 
-    const { sw_lat, sw_lng, ne_lat, ne_lng, propertyType } = this.pendingBounds
+    const { sw_lat, sw_lng, ne_lat, ne_lng, propertyType, page, per_page } = this.pendingBounds
     this.pendingBounds = null
+    
+    // Increment requestId for this fetch
+    const currentRequestId = ++this.requestIdCounter
 
     // Throttle check (skip for immediate requests like city/filter changes)
     if (!skipThrottle) {
@@ -174,20 +190,34 @@ export class MapFetchController {
     }
 
     // ─── Check cache first ───────────────────────────────────────────────────
-    const cacheKey = `${sw_lat.toFixed(3)},${sw_lng.toFixed(3)},${ne_lat.toFixed(3)},${ne_lng.toFixed(3)},${propertyType}`
-    const cached = boundsCache.getCachedData(sw_lat, sw_lng, ne_lat, ne_lng, propertyType)
-    if (cached && cached.length > 0) {
-      this.metrics.cacheHits++
-      this.onDataUpdate(cached)
-      // Background refresh (fire and forget, don't block)
-      this.backgroundFetch(sw_lat, sw_lng, ne_lat, ne_lng, propertyType)
-      return
+    // Note: Cache doesn't support pagination, so skip cache if page/per_page is specified
+    if (!page && !per_page) {
+      const cacheKey = `${sw_lat.toFixed(3)},${sw_lng.toFixed(3)},${ne_lat.toFixed(3)},${ne_lng.toFixed(3)},${propertyType}`
+      const cached = boundsCache.getCachedData(sw_lat, sw_lng, ne_lat, ne_lng, propertyType)
+      if (cached && cached.length > 0) {
+        this.metrics.cacheHits++
+        console.debug('[MapFetch]', { 
+          bounds: { sw_lat, sw_lng, ne_lat, ne_lng }, 
+          fromCache: true, 
+          requestId: currentRequestId,
+          propertyCount: cached.length
+        })
+        this.onDataUpdate(cached, currentRequestId)
+        // Background refresh (fire and forget, don't block)
+        this.backgroundFetch(sw_lat, sw_lng, ne_lat, ne_lng, propertyType, page, per_page)
+        return
+      }
     }
 
     this.metrics.cacheMisses++
 
     // ─── Network fetch ───────────────────────────────────────────────────────
-    await this.networkFetch(sw_lat, sw_lng, ne_lat, ne_lng, propertyType)
+    console.debug('[MapFetch]', { 
+      bounds: { sw_lat, sw_lng, ne_lat, ne_lng }, 
+      fromCache: false, 
+      requestId: currentRequestId 
+    })
+    await this.networkFetch(sw_lat, sw_lng, ne_lat, ne_lng, propertyType, page, per_page, currentRequestId)
   }
 
   private async networkFetch(
@@ -195,7 +225,10 @@ export class MapFetchController {
     sw_lng: number,
     ne_lat: number,
     ne_lng: number,
-    propertyType: PropertyTypeFilter
+    propertyType: PropertyTypeFilter,
+    page?: number,
+    per_page?: number,
+    requestId?: number
   ): Promise<void> {
     // Hard deduplication: create normalized key to prevent duplicate requests
     // toFixed(3) prevents tiny bound jitter from creating "new" requests
@@ -230,11 +263,14 @@ export class MapFetchController {
 
     try {
       const params: Record<string, unknown> = {
-        per_page: 100,
+        per_page: per_page || 100,
         sw_lat,
         sw_lng,
         ne_lat,
         ne_lng,
+      }
+      if (page) {
+        params.page = page
       }
       if (propertyType !== 'all') {
         params.project_type = propertyType === 'apartments' ? 'apartment_building' : 'house_complex'
@@ -248,11 +284,13 @@ export class MapFetchController {
 
       const mapped = this.mapProjects(data.projects || [])
 
-      // Store in cache
-      boundsCache.setCachedData(sw_lat, sw_lng, ne_lat, ne_lng, propertyType, mapped)
+      // Store in cache (only if no pagination - cache is for full bounds results)
+      if (!page && !per_page) {
+        boundsCache.setCachedData(sw_lat, sw_lng, ne_lat, ne_lng, propertyType, mapped)
+      }
 
       this.metrics.lastDurationMs = Math.round(performance.now() - start)
-      this.onDataUpdate(mapped)
+      this.onDataUpdate(mapped, requestId)
       
       // Mark this key as successfully fetched
       this.lastKey = key
@@ -277,16 +315,21 @@ export class MapFetchController {
     sw_lng: number,
     ne_lat: number,
     ne_lng: number,
-    propertyType: PropertyTypeFilter
+    propertyType: PropertyTypeFilter,
+    page?: number,
+    per_page?: number
   ): Promise<void> {
     // Lightweight background refresh — no loading state, no abort tracking
     try {
       const params: Record<string, unknown> = {
-        per_page: 100,
+        per_page: per_page || 100,
         sw_lat,
         sw_lng,
         ne_lat,
         ne_lng,
+      }
+      if (page) {
+        params.page = page
       }
       if (propertyType !== 'all') {
         params.project_type = propertyType === 'apartments' ? 'apartment_building' : 'house_complex'
@@ -295,10 +338,12 @@ export class MapFetchController {
       const data: any = await getProjects(params)
       const mapped = this.mapProjects(data.projects || [])
 
-      // Update cache silently
-      boundsCache.setCachedData(sw_lat, sw_lng, ne_lat, ne_lng, propertyType, mapped)
+      // Update cache silently (only if no pagination)
+      if (!page && !per_page) {
+        boundsCache.setCachedData(sw_lat, sw_lng, ne_lat, ne_lng, propertyType, mapped)
+      }
 
-      // Update UI
+      // Update UI (no requestId for background refresh - it's fire and forget)
       this.onDataUpdate(mapped)
     } catch (err) {
       // Fail silently for background refresh

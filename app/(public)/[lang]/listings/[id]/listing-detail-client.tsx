@@ -400,30 +400,42 @@ export default function ListingDetailClient({ projectId, initialProject, isModal
               <div className="space-y-1">
                 <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">{t.company || "Company"}</p>
                 <div className="flex items-center gap-3">
-                  <Avatar 
-                    className="h-10 w-10 cursor-pointer hover:opacity-80 transition-opacity" 
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => developerProfileUrl && window.open(developerProfileUrl, '_blank')}
-                  >
-                    <AvatarImage 
-                      src={property.developer?.profile_image_url} 
-                      alt={`${property.developer?.company_name} profile`}
-                      className="object-cover cursor-pointer"
-                      style={{ cursor: 'pointer' }}
-                    />
-                    <AvatarFallback 
-                      className="text-sm font-semibold bg-primary text-primary-foreground cursor-pointer"
-                      style={{ cursor: 'pointer' }}
+                  {developerProfileUrl ? (
+                    <Link 
+                      href={developerProfileUrl}
+                      className="flex items-center gap-3 hover:opacity-80 transition-opacity"
                     >
-                      {property.developer?.company_name?.charAt(0) || 'C'}
-                    </AvatarFallback>
-                  </Avatar>
-                  <h4 
-                    className="font-semibold text-base text-gray-900 cursor-pointer hover:text-primary transition-colors"
-                    onClick={() => developerProfileUrl && window.open(developerProfileUrl, '_blank')}
-                  >
-                    {property.developer?.company_name || 'Unknown Developer'}
-                  </h4>
+                      <Avatar className="h-10 w-10">
+                        <AvatarImage 
+                          src={property.developer?.profile_image_url} 
+                          alt={`${property.developer?.company_name} profile`}
+                          className="object-cover"
+                        />
+                        <AvatarFallback className="text-sm font-semibold bg-primary text-primary-foreground">
+                          {property.developer?.company_name?.charAt(0) || 'C'}
+                        </AvatarFallback>
+                      </Avatar>
+                      <h4 className="font-semibold text-base text-gray-900 hover:text-primary transition-colors">
+                        {property.developer?.company_name || 'Unknown Developer'}
+                      </h4>
+                    </Link>
+                  ) : (
+                    <>
+                      <Avatar className="h-10 w-10">
+                        <AvatarImage 
+                          src={property.developer?.profile_image_url} 
+                          alt={`${property.developer?.company_name} profile`}
+                          className="object-cover"
+                        />
+                        <AvatarFallback className="text-sm font-semibold bg-primary text-primary-foreground">
+                          {property.developer?.company_name?.charAt(0) || 'C'}
+                        </AvatarFallback>
+                      </Avatar>
+                      <h4 className="font-semibold text-base text-gray-900">
+                        {property.developer?.company_name || 'Unknown Developer'}
+                      </h4>
+                    </>
+                  )}
                 </div>
               </div>
               

@@ -1,11 +1,13 @@
 import { useState, useEffect, useRef, memo } from 'react'
 import Image from 'next/image'
-import { usePathname, useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { cn, getListingUrl } from '@/lib/utils'
 import { Home, Building, ExternalLink } from 'lucide-react'
 import { trackProjectView } from '@/lib/analytics-batch'
 import { translatePrice, PriceTranslations } from '@/lib/price-translator'
 import { useEmblaCarouselWithPhysics } from '@/hooks/use-embla-carousel'
+import { useIsMobile } from '@/hooks/use-is-mobile'
 
 export interface Listing {
   id: string
@@ -42,36 +44,21 @@ function summarize(text: string | null | undefined, max = 100) {
 
 function ListingCardComponent({ listing, isActive, onCardClick, onCardHover, priority = false, priceTranslations }: ListingCardProps) {
   const pathname = usePathname()
-  const router = useRouter()
   const [hasTrackedView, setHasTrackedView] = useState(false)
   const hasMultipleImages = listing.images?.length > 1
   const cardRef = useRef<HTMLElement>(null)
+  const isMobile = useIsMobile()
   
   // Detect locale from pathname
   const lang = pathname.startsWith('/bg/') ? 'bg' : 'en'
   const listingUrl = getListingUrl(listing, lang)
   
-  // Handle card click - Desktop: new tab, Mobile: modal
-  const handleCardClick = (e: React.MouseEvent) => {
-    // Don't navigate if clicking on carousel controls
-    const target = e.target as HTMLElement
-    if (target.closest('button')) return
-    
-    // If onCardClick prop is provided, use it (allows parent to override behavior)
+  // Handle card click - only for analytics/haptics if onCardClick is provided
+  const handleCardClick = () => {
+    // If onCardClick prop is provided, call it for analytics/haptics
+    // But let the Link handle actual navigation
     if (onCardClick) {
       onCardClick(listing)
-      return
-    }
-    
-    // Default behavior: Desktop: new tab, Mobile: modal
-    const isDesktop = window.innerWidth >= 1024
-    
-    if (isDesktop) {
-      // Desktop: open in new tab for better UX (preserves listings page state)
-      window.open(listingUrl, '_blank', 'noopener,noreferrer')
-    } else {
-      // Mobile: use router for modal interception (preserves map state)
-      router.push(listingUrl)
     }
   }
   
@@ -106,19 +93,16 @@ function ListingCardComponent({ listing, isActive, onCardClick, onCardHover, pri
   }
 
   const nextImage = (e: React.MouseEvent) => {
-    e.preventDefault()
     e.stopPropagation()
     scrollNext()
   }
 
   const prevImage = (e: React.MouseEvent) => {
-    e.preventDefault()
     e.stopPropagation()
     scrollPrev()
   }
 
   const goToImage = (index: number, e: React.MouseEvent) => {
-    e.preventDefault()
     e.stopPropagation()
     scrollTo(index)
   }
@@ -148,105 +132,81 @@ function ListingCardComponent({ listing, isActive, onCardClick, onCardHover, pri
   }, [listing.id, hasTrackedView])
 
     return (
-    <div
-      onClick={handleCardClick}
-      role="link"
-      tabIndex={0}
-      onKeyDown={(e) => { if (e.key === 'Enter') handleCardClick(e as unknown as React.MouseEvent) }}
-      aria-labelledby={`title_${listing.id}`}
-      className="block clickable cursor-pointer"
+    <div 
+      className="block clickable cursor-pointer relative group"
       style={{ transition: 'none', transform: 'translateZ(0)' }}
     >
-      {/* Hidden SEO link for crawlers - they can't execute JavaScript */}
-      <a href={listingUrl} className="sr-only" aria-hidden="true" tabIndex={-1}>
-        {listing.title}
-      </a>
-      <article
-        ref={cardRef}
-        data-id={listing.id}
-        className="group cursor-pointer transition-[filter] duration-300 ease-out"
-        style={{
-          filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.1))',
-          touchAction: 'manipulation',
-          transform: 'none',
-          opacity: 1,
-          willChange: 'auto',
-          ...(isActive && { filter: 'drop-shadow(0 4px 16px rgba(0,0,0,0.15))' })
-        }}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
+      <Link
+        href={listingUrl}
+        onClick={handleCardClick}
+        target={!isMobile ? "_blank" : undefined}
+        rel={!isMobile ? "noopener noreferrer" : undefined}
+        aria-labelledby={`title_${listing.id}`}
+        className="block"
       >
-      {/* Image Container - Embla Carousel with smooth transitions */}
-      <div className="relative overflow-hidden h-[240px] w-full cursor-pointer" style={{ 
-        borderRadius: '20px',
-        WebkitBorderRadius: '20px',
-        transform: 'translateZ(0)',
-        WebkitTransform: 'translateZ(0)',
-        isolation: 'isolate',
-        cursor: 'pointer'
-      }}>
-        <div className="embla" ref={emblaRef}>
-          <div className="embla__container flex">
-            {listing.images.map((image, index) => (
-              <div key={index} className="embla__slide flex-[0_0_100%] min-w-0">
-                <div className="relative w-full h-[240px]">
-                  <Image
-                    src={image || '/placeholder.svg'}
-                    alt={listing.title}
-                    fill
-                    className="object-cover cursor-pointer"
-                    style={{ cursor: 'pointer' }}
-                    sizes="(max-width: 40em) 100vw, (max-width: 64em) 50vw, 33vw"
-                    loading={priority ? "eager" : "lazy"}
-                    priority={priority}
-                  />
-                </div>
+        <article
+          ref={cardRef}
+          data-id={listing.id}
+          className="cursor-pointer transition-[filter] duration-300 ease-out"
+          style={{
+            filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.1))',
+            touchAction: 'manipulation',
+            transform: 'none',
+            opacity: 1,
+            willChange: 'auto',
+            ...(isActive && { filter: 'drop-shadow(0 4px 16px rgba(0,0,0,0.15))' })
+          }}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
+          {/* Image Container - Embla Carousel with smooth transitions */}
+          <div className="relative overflow-hidden h-[240px] w-full cursor-pointer" style={{ 
+            borderRadius: '20px',
+            WebkitBorderRadius: '20px',
+            transform: 'translateZ(0)',
+            WebkitTransform: 'translateZ(0)',
+            isolation: 'isolate',
+            cursor: 'pointer'
+          }}>
+            <div className="embla" ref={emblaRef}>
+              <div className="embla__container flex">
+                {listing.images.map((image, index) => (
+                  <div key={index} className="embla__slide flex-[0_0_100%] min-w-0">
+                    <div className="relative w-full h-[240px]">
+                      <Image
+                        src={image || '/placeholder.svg'}
+                        alt={listing.title}
+                        fill
+                        className="object-cover cursor-pointer"
+                        style={{ cursor: 'pointer' }}
+                        sizes="(max-width: 40em) 100vw, (max-width: 64em) 50vw, 33vw"
+                        loading={priority ? "eager" : "lazy"}
+                        priority={priority}
+                      />
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Image Navigation (only if multiple images) */}
-        {hasMultipleImages && (
-          <>
-            {/* Dots - Mobile-optimized positioning */}
-            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 mobile-dots">
-              {listing.images.map((_, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  className={cn(
-                    "h-1 w-1 sm:h-1.5 sm:w-1.5 md:h-2 md:w-2 rounded-full transition-all duration-200 transform-none",
-                    idx === selectedIndex ? "bg-white ring-2 ring-black/30 shadow-lg" : "bg-white/60 hover:bg-white/80 ring-2 ring-black/30 shadow-md"
-                  )}
-                  onClick={(e) => goToImage(idx, e)}
-                  aria-label={`Go to image ${idx + 1}`}
-                />
-              ))}
             </div>
-
-            {/* Previous/Next Arrows - Hidden on mobile, visible on desktop */}
-            <button
-              type="button"
-              aria-label="Previous image"
-              onClick={prevImage}
-              disabled={!canScrollPrev}
-              className="hidden sm:grid absolute left-2 top-1/2 -translate-y-1/2 place-items-center h-8 w-8 rounded-full bg-white/95 hover:bg-white shadow-xl ring-2 ring-black/30 backdrop-blur-sm text-[#222222] font-bold text-base opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110 disabled:opacity-30 disabled:cursor-not-allowed"
-            >
-              ‹
-            </button>
-            <button
-              type="button"
-              aria-label="Next image"
-              onClick={nextImage}
-              disabled={!canScrollNext}
-              className="hidden sm:grid absolute right-2 top-1/2 -translate-y-1/2 place-items-center h-8 w-8 rounded-full bg-white/95 hover:bg-white shadow-xl ring-2 ring-black/30 backdrop-blur-sm text-[#222222] font-bold text-base opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110 disabled:opacity-30 disabled:cursor-not-allowed"
-            >
-              ›
-            </button>
-          </>
-        )}
-      </div>
+            
+            {/* Dots - Inside image container, positioned relative to image */}
+            {hasMultipleImages && (
+              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 mobile-dots pointer-events-auto z-10">
+                {listing.images.map((_, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    className={cn(
+                      "h-1 w-1 sm:h-1.5 sm:w-1.5 md:h-2 md:w-2 rounded-full transition-all duration-200 transform-none",
+                      idx === selectedIndex ? "bg-white ring-2 ring-black/30 shadow-lg" : "bg-white/60 hover:bg-white/80 ring-2 ring-black/30 shadow-md"
+                    )}
+                    onClick={(e) => goToImage(idx, e)}
+                    aria-label={`Go to image ${idx + 1}`}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
 
        {/* Text floating directly below image - Fixed heights for consistency */}
        <div className="pt-3 flex flex-col gap-1">
@@ -258,7 +218,8 @@ function ListingCardComponent({ listing, isActive, onCardClick, onCardHover, pri
            >
              {listing.title}
            </h3>
-           <ExternalLink className="h-4 w-4 text-gray-400 flex-shrink-0 mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+           {/* Open in new tab icon - visible on desktop (lg+) only */}
+           <ExternalLink className="h-4 w-4 text-gray-400 flex-shrink-0 mt-0.5 opacity-0 lg:opacity-0 group-hover:opacity-100 transition-opacity duration-200 hidden lg:block" />
          </div>
          
          {/* Description - Fixed height, max 1 line */}
@@ -291,9 +252,35 @@ function ListingCardComponent({ listing, isActive, onCardClick, onCardHover, pri
              }
            </span>
          </div>
-       </div>
-       </article>
-     </div>
+        </div>
+        </article>
+      </Link>
+
+      {/* Image Navigation buttons - OUTSIDE the Link, positioned absolutely */}
+      {hasMultipleImages && (
+        <>
+          {/* Previous/Next Arrows - Hidden on mobile, visible on desktop */}
+          <button
+            type="button"
+            aria-label="Previous image"
+            onClick={prevImage}
+            disabled={!canScrollPrev}
+            className="hidden sm:grid absolute left-2 top-[120px] -translate-y-1/2 place-items-center h-8 w-8 rounded-full bg-white/95 hover:bg-white shadow-xl ring-2 ring-black/30 backdrop-blur-sm text-[#222222] font-bold text-base opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110 disabled:opacity-30 disabled:cursor-not-allowed pointer-events-auto z-10"
+          >
+            ‹
+          </button>
+          <button
+            type="button"
+            aria-label="Next image"
+            onClick={nextImage}
+            disabled={!canScrollNext}
+            className="hidden sm:grid absolute right-2 top-[120px] -translate-y-1/2 place-items-center h-8 w-8 rounded-full bg-white/95 hover:bg-white shadow-xl ring-2 ring-black/30 backdrop-blur-sm text-[#222222] font-bold text-base opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110 disabled:opacity-30 disabled:cursor-not-allowed pointer-events-auto z-10"
+          >
+            ›
+          </button>
+        </>
+      )}
+    </div>
    )
  }
 

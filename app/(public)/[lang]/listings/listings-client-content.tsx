@@ -14,7 +14,7 @@
 import { useEffect, useRef, useState, useCallback, memo, RefObject, MutableRefObject } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams, usePathname } from "next/navigation"
 
 import { ensureGoogleMaps } from "@/lib/google-maps"
 import { MarkerManager, PropertyData } from "@/lib/marker-manager"
@@ -25,7 +25,7 @@ import { MapFetchController, PropertyTypeFilter as MapPropertyTypeFilter } from 
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 
-import { MapPin, Building, Home, Loader2, Maximize2, X, Search, SlidersHorizontal } from "lucide-react"
+import { MapPin, Building, Home, Loader2, Maximize2, X, Search, SlidersHorizontal, ChevronLeft, ChevronRight } from "lucide-react"
 import { PropertyMapCard } from "@/components/property-map-card"
 import { ListingCardSkeletonGrid } from "@/components/ListingCardSkeleton"
 import { toPropertyMapCardData } from "@/lib/types"
@@ -40,6 +40,9 @@ import { useIsDesktop } from "@/hooks/use-is-desktop"
 import { getListingUrl } from "@/lib/utils"
 
 import { CityType, PropertyTypeFilter, CITY_COORDINATES } from "./listings-layout-server"
+import { listingsHref, asLocale } from "@/lib/routes"
+import { cn } from "@/lib/utils"
+import { getListingsMode } from "@/lib/listings-mode"
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -83,6 +86,7 @@ export interface ListingsClientContentProps {
   
   // Property cache ref
   propertyCacheRef: MutableRefObject<Map<string, PropertyData>>
+  
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -126,6 +130,13 @@ export function ListingsClientContent({
   onMobileBoundsChange,
   propertyCacheRef,
 }: ListingsClientContentProps) {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  
+  // Mode detection using shared utility
+  const { isMapMode, seoCityMode, defaultLanding, hasAllBounds, cityParam } = getListingsMode(searchParams)
+  
   // ─────────────────────────────────────────────────────────────────────────
   // LOCAL UI STATE (not lifted to wrapper)
   // ─────────────────────────────────────────────────────────────────────────
@@ -142,7 +153,6 @@ export function ListingsClientContent({
   
   // Desktop detection hook (SSR-safe, prevents hydration mismatch)
   const isDesktop = useIsDesktop()
-  const router = useRouter()
   
   // Refs for UI elements
   const searchButtonRef = useRef<HTMLButtonElement>(null)
@@ -153,9 +163,36 @@ export function ListingsClientContent({
   const propertyTypeFilterRef = useRef(propertyTypeFilter)
   propertyTypeFilterRef.current = propertyTypeFilter
   
-  // Skip first idle fetch to prevent duplicate requests (SSR data already loaded)
+  // Skip first idle fetch to prevent duplicate requests
+  // SSR data seeds propertyCacheRef on mount, so first idle doesn't need to fetch
   const skipNextMobileIdleFetchRef = useRef(true)
   const skipNextDesktopIdleFetchRef = useRef(true)
+  
+  // User interaction detection for auto-switching to map mode
+  const userInteractedRef = useRef<boolean>(false)
+  const initialLoadCompleteRef = useRef<boolean>(false)
+  const previousZoomRef = useRef<number | null>(null)
+  
+  // Camera control refs - prevent map snapback on re-renders
+  // These ensure map center only changes via user actions, not fetch results or URL changes
+  const lastCameraChangeWasUserRef = useRef<boolean>(false)
+  const didInitCameraRef = useRef<boolean>(false)
+  const pendingCitySelectionRef = useRef<CityType | null>(null) // Set when user explicitly selects city (autocomplete/chip)
+  
+  /**
+   * MAP CENTER CHANGE RULES (CRITICAL - NO EXCEPTIONS):
+   * Map center is ONLY changed by:
+   * 1. Initial mount: CITY_COORDINATES[selectedCity] in map constructor
+   * 2. User autocomplete selection: panTo() in onPlaceSelected handlers
+   * 3. User explicit city selection: pendingCitySelectionRef mechanism in city change effect
+   * 4. User drag/zoom: map idle handler updates bounds (NOT center)
+   * 
+   * NEVER change map center based on:
+   * - Empty results (filteredProperties.length === 0)
+   * - Property count changes
+   * - Fetch outcomes
+   * - URL param changes (unless user explicitly selected)
+   */
   
   // Refs for diagnostics and fix - avoid stale closures in map click handlers
   const selectedPropertyIdRef = useRef<string | null>(selectedPropertyId)
@@ -244,6 +281,20 @@ export function ListingsClientContent({
   // DERIVED STATE
   // ─────────────────────────────────────────────────────────────────────────
   
+  // Client-side pagination for mapMode (seoCityMode uses server-side pagination via PaginationNav)
+  const currentPage = Number(searchParams.get('page') ?? 1)
+  const pageSize = 12
+  
+  // In mapMode: client-side pagination (noindex, so no SEO needed)
+  // In seoCityMode: server-side pagination (use all filteredProperties, PaginationNav handles it)
+  const visibleProperties = isMapMode
+    ? filteredProperties.slice((currentPage - 1) * pageSize, currentPage * pageSize)
+    : filteredProperties
+  
+  const totalPages = isMapMode
+    ? Math.ceil(filteredProperties.length / pageSize)
+    : undefined // Server-side pagination info comes from props for seoCityMode
+  
   const shouldShowLoading = isLoading && filteredProperties.length === 0
   const showEmpty = !shouldShowLoading && !error && filteredProperties.length === 0
   const showError = !shouldShowLoading && error
@@ -308,14 +359,25 @@ export function ListingsClientContent({
   
   const handleCityChange = useCallback((city: string) => {
     if (!city || city === selectedCity) return
+    // Set pending selection ref to signal that user explicitly selected this city
+    // This allows the city change effect to pan the map
+    pendingCitySelectionRef.current = city as CityType
     onCityChange(city as CityType)
     haptic.light()
   }, [selectedCity, onCityChange])
   
   const handlePropertyTypeFilter = useCallback((type: PropertyTypeFilter) => {
     onPropertyTypeChange(type)
+    
+    // Reset page to 1 in mapMode when filter changes (preserve all other params)
+    if (isMapMode && currentPage > 1) {
+      const params = new URLSearchParams(searchParams.toString())
+      params.delete('page') // Remove page param (page 1 is default)
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false })
+    }
+    
     haptic.light()
-  }, [onPropertyTypeChange])
+  }, [onPropertyTypeChange, isMapMode, currentPage, searchParams, pathname, router])
   
   // Transform PropertyData to PropertyMapCard format
   const transformToPropertyMapData = useCallback((property: PropertyData) => {
@@ -438,29 +500,109 @@ export function ListingsClientContent({
           mobileGoogleMapRef.current = mobileMap
           setMobileMapReady(true)
           
+          // User interaction detection - dragstart (best indicator)
+          mobileMap.addListener('dragstart', () => {
+            userInteractedRef.current = true
+          })
+          
+          // User interaction detection - zoom_changed (only if significant delta)
+          mobileMap.addListener('zoom_changed', () => {
+            const currentZoom = mobileMap.getZoom()
+            if (currentZoom !== undefined && currentZoom !== null && previousZoomRef.current !== null) {
+              const zoomDelta = Math.abs(currentZoom - previousZoomRef.current)
+              // Only set if zoom change is significant (not programmatic)
+              if (zoomDelta > 0.5) {
+                userInteractedRef.current = true
+              }
+            }
+            previousZoomRef.current = currentZoom ?? null
+          })
+          
+          // Set initial zoom for comparison
+          previousZoomRef.current = mobileMap.getZoom() ?? null
+          
           // Bounds listener - skip first idle fetch to prevent duplicate requests
-          // The city change effect already triggers the initial fetch with SSR bounds
+          // SSR data seeds propertyCacheRef on mount, so first idle doesn't need to fetch
           mobileMap.addListener('idle', () => {
             const bounds = mobileMap.getBounds()
             if (!bounds) return
             
-            // Always update bounds state (for UI filtering)
-            onMobileBoundsChange(bounds)
-            
-            // Skip the first idle fetch - city change effect already handled initial fetch
-            if (skipNextMobileIdleFetchRef.current) {
-              skipNextMobileIdleFetchRef.current = false
-              return // <--- kills the 2nd initial request
+            // Mark initial load as complete after first idle
+            if (!initialLoadCompleteRef.current) {
+              initialLoadCompleteRef.current = true
             }
             
-            // Subsequent idle events (pan/zoom) - fetch with debounce
-            const sw = bounds.getSouthWest()
-            const ne = bounds.getNorthEast()
-            getOrCreateFetchController().schedule(
-              sw.lat(), sw.lng(), ne.lat(), ne.lng(),
-              propertyTypeFilterRef.current as MapPropertyTypeFilter
-              // No immediate flag - uses debounce for smooth pan/zoom
-            )
+            // Always update bounds state
+            onMobileBoundsChange(bounds)
+            
+            // Skip the first idle fetch - SSR data already loaded, no need to refetch immediately
+            if (skipNextMobileIdleFetchRef.current) {
+              skipNextMobileIdleFetchRef.current = false
+              return
+            }
+            
+            // Determine current mode
+            const { isMapMode: currentIsMapMode, seoCityMode, defaultLanding: defaultLandingMode } = getListingsMode(searchParams)
+            
+            // Auto-switch to mapMode from defaultLandingMode or seoCityMode
+            if ((defaultLandingMode || seoCityMode) && initialLoadCompleteRef.current && userInteractedRef.current) {
+              // First user-initiated pan/zoom - switch to map mode
+              const sw = bounds.getSouthWest()
+              const ne = bounds.getNorthEast()
+              
+              // Update URL with bounds params + search_by_map flag using router.replace
+              const params = new URLSearchParams(searchParams.toString())
+              params.set('ne_lat', String(ne.lat()))
+              params.set('sw_lat', String(sw.lat()))
+              params.set('ne_lng', String(ne.lng()))
+              params.set('sw_lng', String(sw.lng()))
+              params.set('search_by_map', 'true')
+              // Remove city/page params when switching to map mode
+              params.delete('city')
+              params.delete('city_key')
+              params.delete('page')
+              
+              router.replace(`${pathname}?${params.toString()}`, { scroll: false })
+              
+              // Fetch with bounds
+              getOrCreateFetchController().schedule(
+                sw.lat(), sw.lng(), ne.lat(), ne.lng(),
+                propertyTypeFilterRef.current as MapPropertyTypeFilter
+                // No immediate flag - uses debounce for smooth pan/zoom
+              )
+              return
+            }
+            
+            // In mapMode: update URL with bounds params using router.replace
+            if (currentIsMapMode) {
+              const sw = bounds.getSouthWest()
+              const ne = bounds.getNorthEast()
+              
+              // Update URL with bounds params + search_by_map flag
+              const params = new URLSearchParams(searchParams.toString())
+              params.set('ne_lat', String(ne.lat()))
+              params.set('sw_lat', String(sw.lat()))
+              params.set('ne_lng', String(ne.lng()))
+              params.set('sw_lng', String(sw.lng()))
+              params.set('search_by_map', 'true')
+              
+              // Reset page to 1 when bounds change (prevents showing page 2 of old bounds)
+              const currentPage = searchParams.get('page') ? parseInt(searchParams.get('page')!, 10) : 1
+              if (currentPage > 1) {
+                params.delete('page') // Remove page param (page 1 is default)
+              } else {
+                params.delete('page') // Ensure page param is removed for page 1
+              }
+              
+              router.replace(`${pathname}?${params.toString()}`, { scroll: false })
+              
+              // Fetch with bounds
+              getOrCreateFetchController().schedule(
+                sw.lat(), sw.lng(), ne.lat(), ne.lng(),
+                propertyTypeFilterRef.current as MapPropertyTypeFilter
+                // No immediate flag - uses debounce for smooth pan/zoom
+              )
+            }
           })
           
         } catch (e) {
@@ -490,29 +632,109 @@ export function ListingsClientContent({
           googleMapRef.current = map
           setDesktopMapReady(true)
           
+          // User interaction detection - dragstart (best indicator)
+          google.maps.event.addListener(map, 'dragstart', () => {
+            userInteractedRef.current = true
+          })
+          
+          // User interaction detection - zoom_changed (only if significant delta)
+          google.maps.event.addListener(map, 'zoom_changed', () => {
+            const currentZoom = map.getZoom()
+            if (currentZoom !== undefined && previousZoomRef.current !== null) {
+              const zoomDelta = Math.abs(currentZoom - previousZoomRef.current)
+              // Only set if zoom change is significant (not programmatic)
+              if (zoomDelta > 0.5) {
+                userInteractedRef.current = true
+              }
+            }
+            previousZoomRef.current = currentZoom ?? null
+          })
+          
+          // Set initial zoom for comparison
+          previousZoomRef.current = map.getZoom() ?? null
+          
           // Single idle listener - skip first idle fetch to prevent duplicate requests
           // The city change effect already triggers the initial fetch with SSR bounds
           google.maps.event.addListener(map, "idle", () => {
             const bounds = map.getBounds()
             if (!bounds) return
             
-            // Always update bounds state (for UI filtering)
-            onMapBoundsChange(bounds)
-            
-            // Skip the first idle fetch - city change effect already handled initial fetch
-            if (skipNextDesktopIdleFetchRef.current) {
-              skipNextDesktopIdleFetchRef.current = false
-              return // <--- kills the 2nd initial request
+            // Mark initial load as complete after first idle
+            if (!initialLoadCompleteRef.current) {
+              initialLoadCompleteRef.current = true
             }
             
-            // Subsequent idle events (pan/zoom) - fetch with debounce
-            const sw = bounds.getSouthWest()
-            const ne = bounds.getNorthEast()
-            getOrCreateFetchController().schedule(
-              sw.lat(), sw.lng(), ne.lat(), ne.lng(),
-              propertyTypeFilterRef.current as MapPropertyTypeFilter
-              // No immediate flag - uses debounce for smooth pan/zoom
-            )
+            // Always update bounds state
+            onMapBoundsChange(bounds)
+            
+            // Skip the first idle fetch - SSR data already loaded, no need to refetch immediately
+            if (skipNextDesktopIdleFetchRef.current) {
+              skipNextDesktopIdleFetchRef.current = false
+              return
+            }
+            
+            // Determine current mode
+            const { isMapMode: currentIsMapMode, seoCityMode, defaultLanding: defaultLandingMode } = getListingsMode(searchParams)
+            
+            // Auto-switch to mapMode from defaultLandingMode or seoCityMode
+            if ((defaultLandingMode || seoCityMode) && initialLoadCompleteRef.current && userInteractedRef.current) {
+              // First user-initiated pan/zoom - switch to map mode
+              const sw = bounds.getSouthWest()
+              const ne = bounds.getNorthEast()
+              
+              // Update URL with bounds params + search_by_map flag using router.replace
+              const params = new URLSearchParams(searchParams.toString())
+              params.set('ne_lat', String(ne.lat()))
+              params.set('sw_lat', String(sw.lat()))
+              params.set('ne_lng', String(ne.lng()))
+              params.set('sw_lng', String(sw.lng()))
+              params.set('search_by_map', 'true')
+              // Remove city/page params when switching to map mode
+              params.delete('city')
+              params.delete('city_key')
+              params.delete('page')
+              
+              router.replace(`${pathname}?${params.toString()}`, { scroll: false })
+              
+              // Fetch with bounds
+              getOrCreateFetchController().schedule(
+                sw.lat(), sw.lng(), ne.lat(), ne.lng(),
+                propertyTypeFilterRef.current as MapPropertyTypeFilter
+                // No immediate flag - uses debounce for smooth pan/zoom
+              )
+              return
+            }
+            
+            // In mapMode: update URL with bounds params using router.replace
+            if (currentIsMapMode) {
+              const sw = bounds.getSouthWest()
+              const ne = bounds.getNorthEast()
+              
+              // Update URL with bounds params + search_by_map flag
+              const params = new URLSearchParams(searchParams.toString())
+              params.set('ne_lat', String(ne.lat()))
+              params.set('sw_lat', String(sw.lat()))
+              params.set('ne_lng', String(ne.lng()))
+              params.set('sw_lng', String(sw.lng()))
+              params.set('search_by_map', 'true')
+              
+              // Reset page to 1 when bounds change (prevents showing page 2 of old bounds)
+              const currentPage = searchParams.get('page') ? parseInt(searchParams.get('page')!, 10) : 1
+              if (currentPage > 1) {
+                params.delete('page') // Remove page param (page 1 is default)
+              } else {
+                params.delete('page') // Ensure page param is removed for page 1
+              }
+              
+              router.replace(`${pathname}?${params.toString()}`, { scroll: false })
+              
+              // Fetch with bounds
+              getOrCreateFetchController().schedule(
+                sw.lat(), sw.lng(), ne.lat(), ne.lng(),
+                propertyTypeFilterRef.current as MapPropertyTypeFilter
+                // No immediate flag - uses debounce for smooth pan/zoom
+              )
+            }
           })
           
         } catch (e) {
@@ -750,37 +972,69 @@ export function ListingsClientContent({
     }
   }, [filteredProperties, desktopMapReady, mobileMapReady, selectedPropertyId, hoveredPropertyId])
   
-  // Pan map when city changes and trigger immediate fetch
+  // Pan map ONLY when user explicitly selects a city (autocomplete/city chip)
+  // Do NOT pan on re-renders, URL changes, or when in mapMode (unless user selected)
   useEffect(() => {
-    const coords = CITY_COORDINATES[selectedCity]
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024
+    const { isMapMode: currentIsMapMode } = getListingsMode(searchParams)
     
-    if (googleMapRef.current) {
-      googleMapRef.current.panTo({ lat: coords.lat, lng: coords.lng })
-      googleMapRef.current.setZoom(coords.zoom)
+    // Skip if camera hasn't been initialized yet (map init handles initial positioning)
+    if (!didInitCameraRef.current) {
+      // Mark as initialized after maps are ready
+      if ((desktopMapReady || mobileMapReady) && (googleMapRef.current || mobileGoogleMapRef.current)) {
+        didInitCameraRef.current = true
+      }
+      return
     }
-    if (mobileGoogleMapRef.current) {
-      mobileGoogleMapRef.current.panTo({ lat: coords.lat, lng: coords.lng })
-      mobileGoogleMapRef.current.setZoom(coords.zoom)
+    
+    // Only pan if user explicitly selected this city (pendingCitySelectionRef matches)
+    // AND we're not in mapMode (unless user just selected city, which would exit mapMode)
+    if (pendingCitySelectionRef.current === selectedCity) {
+      const coords = CITY_COORDINATES[selectedCity]
+      
+      // Pan map to selected city
+      if (googleMapRef.current) {
+        googleMapRef.current.panTo({ lat: coords.lat, lng: coords.lng })
+        googleMapRef.current.setZoom(coords.zoom)
+      }
+      if (mobileGoogleMapRef.current) {
+        mobileGoogleMapRef.current.panTo({ lat: coords.lat, lng: coords.lng })
+        mobileGoogleMapRef.current.setZoom(coords.zoom)
+      }
+      
+      // Clear the pending selection flag
+      pendingCitySelectionRef.current = null
+      lastCameraChangeWasUserRef.current = true
+      
+      // Only trigger bounds fetch if in map mode
+      // In city mode, URL change will trigger server-side fetch
+      if (currentIsMapMode) {
+        // Trigger immediate fetch for the new city bounds
+        // The idle event may not fire fast enough on city switch
+        const cityBoundsMultiplier = 0.15 // ~15km radius approximation
+        const sw_lat = coords.lat - cityBoundsMultiplier
+        const sw_lng = coords.lng - cityBoundsMultiplier
+        const ne_lat = coords.lat + cityBoundsMultiplier
+        const ne_lng = coords.lng + cityBoundsMultiplier
+        
+        getOrCreateFetchController().schedule(
+          sw_lat, sw_lng, ne_lat, ne_lng,
+          propertyTypeFilterRef.current as MapPropertyTypeFilter,
+          { immediate: true }
+        )
+      }
     }
-    
-    // Trigger immediate fetch for the new city bounds
-    // The idle event may not fire fast enough on city switch
-    const cityBoundsMultiplier = 0.15 // ~15km radius approximation
-    const sw_lat = coords.lat - cityBoundsMultiplier
-    const sw_lng = coords.lng - cityBoundsMultiplier
-    const ne_lat = coords.lat + cityBoundsMultiplier
-    const ne_lng = coords.lng + cityBoundsMultiplier
-    
-    getOrCreateFetchController().schedule(
-      sw_lat, sw_lng, ne_lat, ne_lng,
-      propertyTypeFilterRef.current as MapPropertyTypeFilter,
-      { immediate: true }
-    )
-  }, [selectedCity, getOrCreateFetchController])
+    // If pendingCitySelectionRef doesn't match, this is a re-render or URL change
+    // Do NOT pan the map - let user's current viewport stay
+  }, [selectedCity, getOrCreateFetchController, searchParams, desktopMapReady, mobileMapReady])
   
   // Re-fetch when property type filter changes
   useEffect(() => {
+    const { isMapMode: currentIsMapMode } = getListingsMode(searchParams)
+    
+    // Only use bounds fetch if in map mode
+    // In city mode, URL change will trigger server-side fetch
+    if (!currentIsMapMode) return
+    
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024
     const map = isMobile ? mobileGoogleMapRef.current : googleMapRef.current
     
@@ -796,7 +1050,7 @@ export function ListingsClientContent({
         { immediate: true }
       )
     }
-  }, [propertyTypeFilter, getOrCreateFetchController])
+  }, [propertyTypeFilter, getOrCreateFetchController, searchParams])
   
   // Escape key to close expanded map
   useEffect(() => {
@@ -939,6 +1193,11 @@ export function ListingsClientContent({
             <div className="mb-6">
               <h2 className="text-2xl font-bold mb-2">
                 {filteredProperties.length} {lang === 'bg' ? 'имота' : 'properties'}
+                {isMapMode && totalPages !== undefined && totalPages > 1 && (
+                  <span className="text-lg font-normal text-gray-600 ml-2">
+                    ({lang === 'bg' ? 'Страница' : 'Page'} {currentPage} {lang === 'bg' ? 'от' : 'of'} {totalPages})
+                  </span>
+                )}
               </h2>
             </div>
             
@@ -951,27 +1210,64 @@ export function ListingsClientContent({
                 <p className="text-gray-600">{dict.listings.tryDifferentLocation}</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 xs:grid-cols-2 gap-4 pb-24">
-                {filteredProperties.map((property, index) => {
-                  const listing = propertyToListing(property)
-                  const listingUrl = getListingUrl(listing, lang)
-                  return (
-                    <MemoizedListingCard
-                      key={property.id}
-                      listing={listing}
-                      isActive={selectedPropertyId === property.id}
-                      onCardClick={() => {
-                        // On mobile, navigate to modal route instead of showing floating card
-                        router.push(listingUrl)
-                        haptic.light()
-                      }}
-                      onCardHover={() => {}}
-                      priority={index < 4}
-                      priceTranslations={dict.price}
-                    />
-                  )
-                })}
-              </div>
+              <>
+                <div className="grid grid-cols-1 xs:grid-cols-2 gap-4 pb-24">
+                  {visibleProperties.map((property, index) => {
+                    const listing = propertyToListing(property)
+                    const listingUrl = getListingUrl(listing, lang)
+                    return (
+                      <MemoizedListingCard
+                        key={property.id}
+                        listing={listing}
+                        isActive={selectedPropertyId === property.id}
+                        onCardClick={() => {
+                          // Only handle haptic feedback, let Link handle navigation
+                          haptic.light()
+                        }}
+                        onCardHover={() => {}}
+                        priority={index < 4}
+                        priceTranslations={dict.price}
+                      />
+                    )
+                  })}
+                </div>
+                
+                {/* Client-side pagination for mapMode (seoCityMode uses server-side PaginationNav) */}
+                {isMapMode && totalPages !== undefined && totalPages > 1 && (
+                  <nav className="mt-8 flex items-center justify-center gap-2" aria-label="Listings pagination">
+                    {currentPage > 1 && (
+                      <button
+                        onClick={() => {
+                          const params = new URLSearchParams(searchParams.toString())
+                          if (currentPage === 2) {
+                            params.delete('page')
+                          } else {
+                            params.set('page', String(currentPage - 1))
+                          }
+                          router.replace(`${pathname}?${params.toString()}`, { scroll: false })
+                        }}
+                        className="inline-flex items-center gap-1 px-4 py-2 rounded-md border border-input bg-background text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors"
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                        <span>{lang === 'bg' ? 'Предишна' : 'Previous'}</span>
+                      </button>
+                    )}
+                    {totalPages !== undefined && currentPage < totalPages && (
+                      <button
+                        onClick={() => {
+                          const params = new URLSearchParams(searchParams.toString())
+                          params.set('page', String(currentPage + 1))
+                          router.replace(`${pathname}?${params.toString()}`, { scroll: false })
+                        }}
+                        className="inline-flex items-center gap-1 px-4 py-2 rounded-md border border-input bg-background text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors"
+                      >
+                        <span>{lang === 'bg' ? 'Следваща' : 'Next'}</span>
+                        <ChevronRight className="h-4 w-4" />
+                      </button>
+                    )}
+                  </nav>
+                )}
+              </>
             )}
           </DraggableSheet>
         )}
@@ -1018,6 +1314,7 @@ export function ListingsClientContent({
             </Card>
           </div>
           
+          {/* List View - Always rendered with map */}
           <div className="listings-map-container overflow-y-auto pr-4 scrollbar-thin">
             {shouldShowLoading ? (
               <div className="flex flex-col items-center justify-center py-24 space-y-6">
@@ -1040,26 +1337,28 @@ export function ListingsClientContent({
                 <p className="text-gray-600">{dict.listings.tryDifferentLocation}</p>
               </div>
             ) : (
-              <div ref={listContainerRef} className="grid grid-cols-3 gap-6 pt-3">
-                {filteredProperties.map((property, index) => (
-                  <div key={property.id} data-prop-id={property.id} className="w-full">
-                    <MemoizedListingCard
-                      listing={propertyToListing(property)}
-                      isActive={selectedPropertyId === property.id}
-                      // On desktop, don't pass onCardClick to allow default behavior (opens in new tab)
-                      // onCardHover still works for map marker highlighting
-                      onCardHover={(id) => setDebouncedHover(id, 100)}
-                      priority={index < 6}
-                      priceTranslations={dict.price}
-                    />
-                  </div>
-                ))}
-              </div>
+              <>
+                <div ref={listContainerRef} className="grid grid-cols-3 gap-6 pt-3">
+                  {visibleProperties.map((property, index) => (
+                    <div key={property.id} data-prop-id={property.id} className="w-full">
+                      <MemoizedListingCard
+                        listing={propertyToListing(property)}
+                        isActive={selectedPropertyId === property.id}
+                        onCardHover={(id) => setDebouncedHover(id, 100)}
+                        priority={index < 6}
+                        priceTranslations={dict.price}
+                      />
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Client-side pagination removed - now server-rendered in page.tsx */}
+              </>
             )}
           </div>
         </section>
         
-        {/* Right: Map */}
+        {/* Right: Map - Always rendered */}
         <aside className={isMapExpanded ? 'flex-1 w-full' : 'flex-shrink-0'} style={{ width: isMapExpanded ? '100%' : 'max(600px, 40vw)' }}>
           <div className="sticky top-4 listings-map-container rounded-2xl overflow-hidden border shadow-lg">
             <div ref={mapRef} className="w-full h-full bg-muted" />

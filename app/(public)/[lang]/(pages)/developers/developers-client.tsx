@@ -2,13 +2,15 @@
 
 import Image from "next/image"
 import Link from "next/link"
+import { useSearchParams } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ScrollAnimationWrapper } from "@/components/scroll-animation-wrapper"
-import { MapPin, Building, CheckCircle, Globe, ExternalLink } from "lucide-react"
+import { MapPin, Building, CheckCircle, Globe, ExternalLink, ChevronLeft, ChevronRight } from "lucide-react"
 import { useDevelopers } from "@/hooks/use-developers"
-import { developerHref, asLocale } from "@/lib/routes"
+import { developerHref, asLocale, developersHref } from "@/lib/routes"
+import { cn } from "@/lib/utils"
 
 interface DevelopersClientProps {
   dict: any
@@ -16,7 +18,13 @@ interface DevelopersClientProps {
 }
 
 export default function DevelopersClient({ dict, lang }: DevelopersClientProps) {
-  const { developers, loading, error, pagination } = useDevelopers({ per_page: 20 })
+  const searchParams = useSearchParams()
+  const currentPage = Number(searchParams.get('page')) || 1
+  
+  const { developers, loading, error, pagination } = useDevelopers({ 
+    per_page: 20,
+    page: currentPage
+  })
 
   if (loading) {
     return (
@@ -171,14 +179,88 @@ export default function DevelopersClient({ dict, lang }: DevelopersClientProps) 
                 })}
               </div>
 
-              {/* Pagination Info */}
+              {/* Pagination */}
               {pagination && pagination.total_pages > 1 && (
-                <div className="mt-8 text-center text-muted-foreground">
-                  <p>
-                    {dict.developers.showingResults
-                      .replace('{{count}}', String(developers.length))
-                      .replace('{{total}}', String(pagination.total))}
-                  </p>
+                <div className="mt-8 space-y-4">
+                  {/* Pagination Links */}
+                  <nav className="flex items-center justify-center gap-2" aria-label="Developers pagination">
+                    {/* Previous Button */}
+                    {currentPage > 1 && (
+                      <Link
+                        href={`${developersHref(asLocale(lang))}?${new URLSearchParams({
+                          page: String(currentPage - 1)
+                        }).toString()}`}
+                        className={cn(
+                          "inline-flex items-center gap-1 px-4 py-2 rounded-md border border-input bg-background text-sm font-medium",
+                          "hover:bg-accent hover:text-accent-foreground transition-colors"
+                        )}
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                        <span>Previous</span>
+                      </Link>
+                    )}
+                    
+                    {/* Page Numbers */}
+                    {Array.from({ length: Math.min(5, pagination.total_pages) }, (_, i) => {
+                      let pageNum: number
+                      if (pagination.total_pages <= 5) {
+                        pageNum = i + 1
+                      } else if (currentPage <= 3) {
+                        pageNum = i + 1
+                      } else if (currentPage >= pagination.total_pages - 2) {
+                        pageNum = pagination.total_pages - 4 + i
+                      } else {
+                        pageNum = currentPage - 2 + i
+                      }
+                      
+                      const params = new URLSearchParams()
+                      if (pageNum > 1) {
+                        params.set('page', String(pageNum))
+                      }
+                      const href = `${developersHref(asLocale(lang))}${params.toString() ? `?${params.toString()}` : ''}`
+                      
+                      return (
+                        <Link
+                          key={pageNum}
+                          href={href}
+                          className={cn(
+                            "inline-flex items-center justify-center min-w-[2.5rem] h-10 px-3 rounded-md border text-sm font-medium transition-colors",
+                            pageNum === currentPage
+                              ? "border-primary bg-primary text-primary-foreground"
+                              : "border-input bg-background hover:bg-accent hover:text-accent-foreground"
+                          )}
+                          aria-current={pageNum === currentPage ? "page" : undefined}
+                        >
+                          {pageNum}
+                        </Link>
+                      )
+                    })}
+                    
+                    {/* Next Button */}
+                    {currentPage < pagination.total_pages && (
+                      <Link
+                        href={`${developersHref(asLocale(lang))}?${new URLSearchParams({
+                          page: String(currentPage + 1)
+                        }).toString()}`}
+                        className={cn(
+                          "inline-flex items-center gap-1 px-4 py-2 rounded-md border border-input bg-background text-sm font-medium",
+                          "hover:bg-accent hover:text-accent-foreground transition-colors"
+                        )}
+                      >
+                        <span>Next</span>
+                        <ChevronRight className="h-4 w-4" />
+                      </Link>
+                    )}
+                  </nav>
+                  
+                  {/* Pagination Info */}
+                  <div className="text-center text-muted-foreground">
+                    <p>
+                      {dict.developers.showingResults
+                        .replace('{{count}}', String(developers.length))
+                        .replace('{{total}}', String(pagination.total))}
+                    </p>
+                  </div>
                 </div>
               )}
             </>

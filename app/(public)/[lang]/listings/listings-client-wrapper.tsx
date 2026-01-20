@@ -85,14 +85,26 @@ export function ListingsClientWrapper({
   // MEMOIZED CALLBACKS - Stable references
   // ─────────────────────────────────────────────────────────────────────────
   
+  // Track latest requestId to prevent stale overwrites
+  const latestRequestIdRef = useRef<number>(0)
+  
   // Fetch controller factory
   const getOrCreateFetchController = useCallback(() => {
     if (!fetchControllerRef.current) {
       fetchControllerRef.current = new MapFetchController({
         debounceMs: 300,  // Reduced from 600 for faster response
         throttleMs: 800,  // Reduced from 1500 for faster updates
-        onDataUpdate: (properties) => {
-          const prevSize = propertyCacheRef.current.size
+        onDataUpdate: (properties, requestId) => {
+          // Guard: Only update if this requestId is >= latest (prevents stale overwrites)
+          if (requestId !== undefined && requestId < latestRequestIdRef.current) {
+            console.log('[MapFetchController] Ignoring stale request:', { requestId, latest: latestRequestIdRef.current })
+            return
+          }
+          if (requestId !== undefined) {
+            latestRequestIdRef.current = requestId
+          }
+          
+          // Replace propertyCacheRef completely (no accumulation - represents current viewport)
           const cache = new Map<string, PropertyData>()
           properties.forEach((p) => cache.set(String(p.id), p))
           propertyCacheRef.current = cache
@@ -126,35 +138,48 @@ export function ListingsClientWrapper({
   // SSR-safe mobile detection hook
   const isMobile = useIsMobile()
   
-  // Memoized filtered properties
+  // Memoized filtered properties - single source of truth for both list and markers
+  // NOTE: propertyCacheRef is replaced per fetch (represents current viewport), so no bounds filtering needed
+  // This ensures list and markers always show the same properties
   const filteredProperties = useMemo(() => {
     const all = Array.from(propertyCacheRef.current.values())
     
-    // Filter by property type
-    const typeFiltered = all.filter((p) => {
+    // Filter by property type only (no bounds filtering - propertyCacheRef is viewport-specific)
+    return all.filter((p) => {
       if (propertyTypeFilter === 'all') return true
       if (propertyTypeFilter === 'apartments') return p.type === 'Apartment Complex'
       if (propertyTypeFilter === 'houses') return p.type === 'Residential Houses'
       return true
     })
-    
-    // Determine which bounds to use (SSR-safe: isMobile starts as false, updates after mount)
-    const activeBounds = isMobile ? mobileBounds : mapBounds
-    
-    if (activeBounds) {
-      return typeFiltered.filter((p) =>
-        typeof p.lat === 'number' && typeof p.lng === 'number' &&
-        isPointInBounds(p.lat, p.lng, activeBounds)
-      )
-    }
-    
-    return typeFiltered
-  }, [propertyTypeFilter, mapBounds, mobileBounds, cacheVersion, isPointInBounds, isMobile])
+  }, [propertyTypeFilter, cacheVersion])
   
-  // City change handler
+  // City change handler - updates URL with city_key
   const handleCityChange = useCallback((city: CityType) => {
     if (city === selectedCity) return
     setSelectedCity(city)
+    
+    // Update URL with city_key format using Next.js router
+    const cityKeyMap: Record<CityType, string> = {
+      'Sofia': 'sofia-bg',
+      'Plovdiv': 'plovdiv-bg',
+      'Varna': 'varna-bg',
+    }
+    const cityKey = cityKeyMap[city] || city.toLowerCase() + '-bg'
+    
+    // Use Next.js router for SSR-safe URL updates
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      params.delete('ne_lat')
+      params.delete('sw_lat')
+      params.delete('ne_lng')
+      params.delete('sw_lng')
+      params.delete('search_by_map')
+      // Reset pagination when switching cities
+      if (city !== 'Sofia') params.set('city', cityKey)  // Use 'city' param name for backward compatibility
+      else params.delete('city')
+      
+      window.history.replaceState({}, '', `${window.location.pathname}${params.toString() ? '?' + params.toString() : ''}`)
+    }
   }, [selectedCity])
   
   // Property type filter handler

@@ -48,7 +48,7 @@ export class MarkerManager {
 
   }
 
-  // Main method to render all markers (clustering disabled for now)
+  // Main method to render all markers (clustering enabled)
   renderMarkers(force: boolean = false) {
     const timestamp = new Date().toISOString()
     console.log('🟠 MARKER RENDER:', {
@@ -59,9 +59,13 @@ export class MarkerManager {
       existingMarkerCount: Object.keys(this.markers).length
     })
     
-    // Always render individual markers - clustering disabled
-    // TODO: Re-enable clustering when property count grows significantly
-    const shouldCluster = false // Disabled: was `currentZoom < 12 && this.config.properties.length > 3`
+    // Get current zoom from first available map
+    const currentZoom = this.config.maps.length > 0 && this.config.maps[0] 
+      ? this.config.maps[0].getZoom() ?? null
+      : null
+    
+    // Re-enable clustering: zoom < 12 and properties.length > 20
+    const shouldCluster = currentZoom !== null && currentZoom < 12 && this.config.properties.length > 20
 
     // Skip re-render if already initialized and not forced
     if (!force && this.isInitialized && this.previousShouldCluster === shouldCluster) {
@@ -78,8 +82,12 @@ export class MarkerManager {
     // Update clustering state
     this.previousShouldCluster = shouldCluster
 
-    // Always render individual markers
-    this.renderIndividual()
+    // Render clustered or individual markers based on zoom and property count
+    if (shouldCluster) {
+      this.renderClustered()
+    } else {
+      this.renderIndividual()
+    }
 
     this.isInitialized = true
   }

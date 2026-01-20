@@ -16,7 +16,7 @@ export const dynamicParams = false
 
 type BlogIndexParams = {
   params: Promise<{ lang: BlogLang }>
-  searchParams?: Promise<{ q?: string; category?: string; tag?: string }>
+  searchParams?: Promise<{ q?: string; category?: string; tag?: string; page?: string }>
 }
 
 async function getNewsCopy(lang: BlogLang) {
@@ -108,11 +108,13 @@ export async function generateStaticParams() {
   return BLOG_LANGS.map((lang) => ({ lang }))
 }
 
-export async function generateMetadata({ params }: BlogIndexParams): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: BlogIndexParams): Promise<Metadata> {
   const { lang } = await params
+  const sp = await searchParams
+  const currentPage = Number(sp?.page) || 1
   const copy = await getNewsCopy(lang)
   const baseUrl = getSiteUrl() // Hardcoded production domain for canonical URLs
-  const canonical =
+  const baseCanonical =
     lang === "en"
       ? `${baseUrl}/news`
       : lang === "bg"
@@ -120,10 +122,20 @@ export async function generateMetadata({ params }: BlogIndexParams): Promise<Met
         : lang === "ru"
           ? `${baseUrl}/ru/novosti`
           : `${baseUrl}/gr/eidhseis`
+  // Canonical URL: page 1 should NOT include ?page=1, page 2+ should include ?page=N
+  const canonical = currentPage > 1 
+    ? `${baseCanonical}?page=${currentPage}`
+    : baseCanonical
   
   const title = formatTitleWithBrand(copy.metaTitle || metaTitleFallback[lang], lang)
   const description = copy.metaDescription || metaDescriptionFallback[lang]
   const brand = brandForLang(lang)
+
+  // Build prev/next links
+  const prevPage = currentPage > 1 ? currentPage - 1 : null
+  const nextPage = currentPage < 100 ? currentPage + 1 : null // Assume max 100 pages, adjust if needed
+  const prevUrl = prevPage ? (prevPage === 1 ? baseCanonical : `${baseCanonical}?page=${prevPage}`) : null
+  const nextUrl = nextPage ? `${baseCanonical}?page=${nextPage}` : null
 
   return {
     title,
@@ -137,6 +149,8 @@ export async function generateMetadata({ params }: BlogIndexParams): Promise<Met
         el: `${baseUrl}/gr/eidhseis`,
         "x-default": `${baseUrl}/news`,
       },
+      ...(prevUrl && { prev: prevUrl }),
+      ...(nextUrl && { next: nextUrl }),
     },
     openGraph: {
       title,
@@ -159,6 +173,8 @@ export default async function BlogIndexPage({ params, searchParams }: BlogIndexP
   const q = sp?.q?.toString().trim().toLowerCase() || ""
   const categoryFilter = sp?.category?.toString()
   const tagFilter = sp?.tag?.toString()
+  const currentPage = Number(sp?.page) || 1
+  const postsPerPage = 12
 
   // Allow cross-locale category filters (e.g., BG query on EN page)
   // Each array contains all equivalent category names across languages (EN, BG, GR, RU)
@@ -220,10 +236,17 @@ export default async function BlogIndexPage({ params, searchParams }: BlogIndexP
     return matches
   })
 
+  // Pagination Logic
+  const totalPages = Math.ceil(filtered.length / postsPerPage)
+  const startIndex = (currentPage - 1) * postsPerPage
+  const endIndex = startIndex + postsPerPage
+  const paginatedPosts = filtered.slice(startIndex, endIndex)
+
   // Segmentation for Layout
   // 1. Hero: Featured (1st) + Side Stories (2nd, 3rd, 4th)
-  const heroFeatured = filtered[0]
-  const heroSide = filtered.slice(1, 4)
+  // Note: Hero only shows on page 1 and when not filtered
+  const heroFeatured = currentPage === 1 && !isFilteredView ? filtered[0] : null
+  const heroSide = currentPage === 1 && !isFilteredView ? filtered.slice(1, 4) : []
   const heroSlugs = new Set([heroFeatured?.slug, ...heroSide.map(p => p.slug)].filter(Boolean))
 
   // 2. Sections
@@ -248,7 +271,7 @@ export default async function BlogIndexPage({ params, searchParams }: BlogIndexP
 
   // Get metadata for WebPage schema
   const baseUrl = getSiteUrl() // Hardcoded production domain for canonical URLs
-  const canonical =
+  const baseCanonical =
     lang === "en"
       ? `${baseUrl}/news`
       : lang === "bg"
@@ -256,6 +279,10 @@ export default async function BlogIndexPage({ params, searchParams }: BlogIndexP
         : lang === "ru"
           ? `${baseUrl}/ru/novosti`
           : `${baseUrl}/gr/eidhseis`
+  // Canonical URL: page 1 should NOT include ?page=1, page 2+ should include ?page=N
+  const canonical = currentPage > 1 
+    ? `${baseCanonical}?page=${currentPage}`
+    : baseCanonical
   const title = formatTitleWithBrand(copy.metaTitle || metaTitleFallback[lang], lang)
   const description = copy.metaDescription || metaDescriptionFallback[lang]
 
@@ -346,7 +373,7 @@ export default async function BlogIndexPage({ params, searchParams }: BlogIndexP
                         
                         {isFilteredView ? (
                              <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2">
-                                {filtered.map(post => (
+                                {paginatedPosts.map(post => (
                                     <PostCard key={post.slug} post={post} lang={lang} />
                                 ))}
                              </div>
@@ -472,6 +499,80 @@ export default async function BlogIndexPage({ params, searchParams }: BlogIndexP
                     </aside>
 
                 </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <nav className="mt-12 flex items-center justify-center gap-2" aria-label="News pagination">
+                    {/* Previous Button */}
+                    {currentPage > 1 && (
+                      <Link
+                        href={`${getRelativeUrl(lang)}?${new URLSearchParams({
+                          ...(q && { q }),
+                          ...(categoryFilter && { category: categoryFilter }),
+                          ...(tagFilter && { tag: tagFilter }),
+                          page: String(currentPage - 1)
+                        }).toString()}`}
+                        className="inline-flex items-center gap-1 px-4 py-2 rounded-md border border-input bg-background text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                        <span>Previous</span>
+                      </Link>
+                    )}
+                    
+                    {/* Page Numbers */}
+                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                      let pageNum: number
+                      if (totalPages <= 5) {
+                        pageNum = i + 1
+                      } else if (currentPage <= 3) {
+                        pageNum = i + 1
+                      } else if (currentPage >= totalPages - 2) {
+                        pageNum = totalPages - 4 + i
+                      } else {
+                        pageNum = currentPage - 2 + i
+                      }
+                      
+                      const params = new URLSearchParams()
+                      if (q) params.set('q', q)
+                      if (categoryFilter) params.set('category', categoryFilter)
+                      if (tagFilter) params.set('tag', tagFilter)
+                      if (pageNum > 1) params.set('page', String(pageNum))
+                      
+                      const href = `${getRelativeUrl(lang)}${params.toString() ? `?${params.toString()}` : ''}`
+                      
+                      return (
+                        <Link
+                          key={pageNum}
+                          href={href}
+                          className={`inline-flex items-center justify-center min-w-[2.5rem] h-10 px-3 rounded-md border text-sm font-medium transition-colors ${
+                            pageNum === currentPage
+                              ? 'border-primary bg-primary text-primary-foreground'
+                              : 'border-input bg-background hover:bg-accent hover:text-accent-foreground'
+                          }`}
+                          aria-current={pageNum === currentPage ? "page" : undefined}
+                        >
+                          {pageNum}
+                        </Link>
+                      )
+                    })}
+                    
+                    {/* Next Button */}
+                    {currentPage < totalPages && (
+                      <Link
+                        href={`${getRelativeUrl(lang)}?${new URLSearchParams({
+                          ...(q && { q }),
+                          ...(categoryFilter && { category: categoryFilter }),
+                          ...(tagFilter && { tag: tagFilter }),
+                          page: String(currentPage + 1)
+                        }).toString()}`}
+                        className="inline-flex items-center gap-1 px-4 py-2 rounded-md border border-input bg-background text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors"
+                      >
+                        <span>Next</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                      </Link>
+                    )}
+                  </nav>
+                )}
             </>
         )}
 
