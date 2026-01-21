@@ -26,13 +26,12 @@ function buildSitemapIndexXml(entries: SitemapIndexEntry[]): string {
   ].join('')
 }
 
-// Get backend API URL for sitemap endpoints
-function getBackendSitemapUrl(path: string): string {
-  // Use API URL from environment, fallback to production API
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.mrimot.com'
-  // Remove trailing slash if present
-  const baseApiUrl = apiUrl.replace(/\/$/, '')
-  return `${baseApiUrl}/api/v1/sitemaps${path}`
+// Get public sitemap URL (via frontend rewrite to backend)
+// Sitemaps are served at mrimot.com/sitemaps/... (not api.mrimot.com)
+function getPublicSitemapUrl(path: string, baseUrl: string): string {
+  // Remove leading slash from path if present
+  const cleanPath = path.startsWith('/') ? path.slice(1) : path
+  return `${baseUrl}/sitemaps/${cleanPath}`
 }
 
 // Helper to get projects count and chunks from backend
@@ -78,13 +77,13 @@ export async function GET(): Promise<Response> {
         url: `${baseUrl}/sitemap/news/sitemap.xml`,
         lastModified: now,
       },
-      // Backend-generated sitemaps (primary source)
+      // Backend-generated sitemaps (primary source) - served via frontend rewrite
       {
-        url: getBackendSitemapUrl('/cities.xml'),
+        url: getPublicSitemapUrl('cities.xml', baseUrl),
         lastModified: now,
       },
       {
-        url: getBackendSitemapUrl('/developers.xml'),
+        url: getPublicSitemapUrl('developers.xml', baseUrl),
         lastModified: now,
       },
     ]
@@ -92,7 +91,7 @@ export async function GET(): Promise<Response> {
     // Add project chunk sitemaps from backend
     for (let n = 1; n <= numChunks; n++) {
       sitemaps.push({
-        url: getBackendSitemapUrl(`/projects/${n}.xml`),
+        url: getPublicSitemapUrl(`projects/${n}.xml`, baseUrl),
         lastModified: now,
       })
     }
@@ -117,11 +116,11 @@ export async function GET(): Promise<Response> {
       },
       // Try to include backend sitemaps even in fallback
       {
-        url: getBackendSitemapUrl('/cities.xml'),
+        url: getPublicSitemapUrl('cities.xml', baseUrl),
         lastModified: now,
       },
       {
-        url: getBackendSitemapUrl('/developers.xml'),
+        url: getPublicSitemapUrl('developers.xml', baseUrl),
         lastModified: now,
       },
     ])

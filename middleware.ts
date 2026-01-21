@@ -227,9 +227,72 @@ export async function middleware(request: NextRequest) {
   }
   // --- END EARLY NORMALIZATION ---
 
+  // Allowlist: Default-English unprefixed public paths that must NEVER redirect to localized paths
+  // These paths should always return 200 and remain unprefixed
+  const defaultEnglishPaths = [
+    '/listings',
+    '/developers',
+    '/about-mister-imot',
+    '/contact',
+    '/news',
+  ]
+  
+  // Check if pathname matches an allowlisted default-English path
+  const isDefaultEnglishPath = defaultEnglishPaths.some(path => 
+    pathname === path || pathname.startsWith(path + '/')
+  )
+  
+  // If it's a default-English path, rewrite internally to /en/* but NEVER redirect
+  // This ensures /listings/** always returns 200 and never redirects based on cookie/geo
+  if (isDefaultEnglishPath) {
+    const url = request.nextUrl.clone()
+    url.pathname = `/en${pathname}`
+    const response = NextResponse.rewrite(url)
+    response.headers.set('x-locale', 'en')
+    response.headers.set('x-pathname', `/en${pathname}`)
+    // These are public canonical URLs, allow caching
+    setCacheHeaders(response, `/en${pathname}`)
+    return setClientHintsHeaders(response)
+  }
+
+  // Legacy URL redirects: /bg/obiavi/<slug-or-id> → /bg/obiavi/p/<slug>
+  // This handles old listing detail URLs without /p/ segment
+  if (pathname.startsWith('/bg/obiavi/') && !pathname.startsWith('/bg/obiavi/p/') && !pathname.startsWith('/bg/obiavi/c/')) {
+    const slugOrId = pathname.replace('/bg/obiavi/', '').split('?')[0].split('#')[0]
+    if (slugOrId && slugOrId.trim()) {
+      // 301 permanent redirect to canonical /p/ route
+      const url = request.nextUrl.clone()
+      url.pathname = `/bg/obiavi/p/${slugOrId}`
+      return redirectWithHints(request, url, 301)
+    }
+  }
+
+  // Legacy URL redirect: /bg/listings/p/<slug> → /bg/obiavi/p/<slug>
+  // This handles internal route that should redirect to canonical Bulgarian route
+  if (pathname.startsWith('/bg/listings/p/')) {
+    const slug = pathname.replace('/bg/listings/p/', '').split('?')[0].split('#')[0]
+    if (slug && slug.trim()) {
+      // 301 permanent redirect to canonical Bulgarian route
+      const url = request.nextUrl.clone()
+      url.pathname = `/bg/obiavi/p/${slug}`
+      return redirectWithHints(request, url, 301)
+    }
+  }
+
+  // Legacy URL redirect: /en/listings/** → /listings/**
+  // This handles any English listing routes that should redirect to unprefixed canonical
+  if (pathname.startsWith('/en/listings/')) {
+    const rest = pathname.replace('/en/listings/', '')
+    const url = request.nextUrl.clone()
+    url.pathname = `/listings/${rest}`
+    // 301 permanent redirect to canonical unprefixed route
+    return redirectWithHints(request, url, 301)
+  }
+
   // Enforce no /en prefix in canonical URLs – redirect /en/* → /* (preserve path/query)
   // These redirects depend on locale detection, so must set Vary headers to prevent cache issues
   // Note: /en and /en/ are now handled above, so this only handles /en/* paths
+  // BUT skip if it's already handled by allowlist or legacy redirects above
   if (pathname.startsWith('/en/')) {
     const url = request.nextUrl.clone()
     url.pathname = pathname.replace(/^\/en/, '') || '/'
@@ -629,7 +692,8 @@ export async function middleware(request: NextRequest) {
   }
 
   // 1. Check cookie preference (user override) - HIGHEST PRIORITY
-  // BUT exclude not-found pages to prevent redirect loops
+  // BUT exclude not-found pages and default-English paths to prevent redirect loops
+  // Default-English paths (like /listings/**) must NEVER redirect based on cookie/geo
   const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value
   if (
     cookieLocale &&
@@ -638,7 +702,8 @@ export async function middleware(request: NextRequest) {
     !pathname.startsWith('/en/not-found') &&
     !pathname.startsWith('/bg/not-found') &&
     !pathname.startsWith('/ru/not-found') &&
-    !pathname.startsWith('/gr/not-found')
+    !pathname.startsWith('/gr/not-found') &&
+    !isDefaultEnglishPath // CRITICAL: Never redirect default-English paths
   ) {
     if (cookieLocale === 'bg') {
       const response = redirectWithHints(request, new URL(`/bg${pathname}`, request.url))
@@ -685,9 +750,10 @@ export async function middleware(request: NextRequest) {
 
   // 2. Check Vercel geo header (IP-based detection)
   // BUT only if no cookie preference is set (cookie takes priority)
+  // AND exclude default-English paths (they must never redirect)
   // Note: request.geo might be undefined during cold starts or in preview deployments
   // Cast to any to access geo property which is injected by Vercel Edge
-  if (!cookieLocale) {
+  if (!cookieLocale && !isDefaultEnglishPath) {
     const geo = (request as any).geo
     let country = geo?.country?.toUpperCase()
     
@@ -713,8 +779,8 @@ export async function middleware(request: NextRequest) {
 
   // 3. Check Accept-Language header
   // BUT only if no cookie preference is set (cookie takes priority)
-  // AND exclude not-found pages to prevent redirect loops
-  if (!cookieLocale) {
+  // AND exclude not-found pages and default-English paths to prevent redirect loops
+  if (!cookieLocale && !isDefaultEnglishPath) {
     try {
       const negotiated = getLocale(request)
       if (negotiated && negotiated !== DEFAULT_LOCALE && !isNotFoundPage) {
