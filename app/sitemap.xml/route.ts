@@ -6,10 +6,6 @@ export const dynamic = 'force-dynamic'
  * Proxy sitemap index from backend.
  * Backend generates the complete sitemap index with all locales and chunks.
  * This route simply proxies the backend response to maintain single source of truth.
- * 
- * TEMPORARY: Using no-store cache control for initial deployment to break edge cache.
- * After verifying https://mrimot.com/sitemap.xml matches backend index, change back to:
- * Cache-Control: public, max-age=3600, s-maxage=3600
  */
 export async function GET(): Promise<Response> {
   try {
@@ -17,9 +13,9 @@ export async function GET(): Promise<Response> {
     const baseApiUrl = apiUrl.replace(/\/$/, '')
     const backendIndexUrl = `${baseApiUrl}/api/v1/sitemaps/index.xml`
     
-    // Always fetch fresh from backend (no Next.js caching)
+    // Fetch from backend with revalidation (cached for 1 hour)
     const response = await fetch(backendIndexUrl, {
-      cache: 'no-store', // Force fresh fetch every time
+      next: { revalidate: 3600 }, // Cache for 1 hour
     })
     
     if (!response.ok) {
@@ -30,7 +26,7 @@ export async function GET(): Promise<Response> {
         {
           headers: {
             'Content-Type': 'application/xml; charset=utf-8',
-            'Cache-Control': 'no-store', // Temporary: force cache refresh
+            'Cache-Control': 'public, max-age=3600, s-maxage=3600',
           },
         }
       )
@@ -39,11 +35,10 @@ export async function GET(): Promise<Response> {
     const xml = await response.text()
     
     // Return backend response as-is (backend already outputs https://mrimot.com/sitemaps/... URLs)
-    // TEMPORARY: Using no-store to break edge cache. Change back after verification.
     return new Response(xml, {
       headers: {
         'Content-Type': 'application/xml; charset=utf-8',
-        'Cache-Control': 'no-store', // Temporary: force cache refresh for one deployment
+        'Cache-Control': 'public, max-age=3600, s-maxage=3600',
       },
     })
   } catch (error) {
@@ -54,7 +49,7 @@ export async function GET(): Promise<Response> {
       {
         headers: {
           'Content-Type': 'application/xml; charset=utf-8',
-          'Cache-Control': 'no-store', // Temporary: force cache refresh
+          'Cache-Control': 'public, max-age=3600, s-maxage=3600',
         },
       }
     )
