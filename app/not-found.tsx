@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Home, Search } from "lucide-react"
 import { GoBackButton } from '@/app/(public)/[lang]/not-found-client-button'
-import { toIkPath } from "@/lib/imagekit"
+import { toIkPath, IK_URL_ENDPOINT } from "@/lib/imagekit"
 
 const SUPPORTED_LOCALES = ['en', 'bg', 'ru', 'gr'] as const
 type SupportedLocale = (typeof SUPPORTED_LOCALES)[number]
@@ -77,17 +77,17 @@ export default async function RootNotFound() {
         <Card className="border-2">
           <CardHeader className="text-center space-y-4 pb-6">
             <div className="mx-auto mb-6 flex items-center justify-center">
-              <div className="relative w-48 h-48 sm:w-64 sm:h-64">
-                <Image
-                  src={mascotUrl}
-                  alt={dict.notFound?.title || "404 - Page Not Found"}
-                  fill
-                    transformation={[{ width: 640, height: 640, quality: 90, format: "webp", focus: "auto" }]}
-                  className="object-contain"
-                  priority
-                  sizes="(max-width: 640px) 192px, 256px"
-                />
-              </div>
+              <Image
+                src={mascotUrl}
+                alt={dict.notFound?.title || "404 - Page Not Found"}
+                width={256}
+                height={256}
+                urlEndpoint={IK_URL_ENDPOINT}
+                transformation={[{ width: 640, quality: 90, format: "webp", focus: "auto" }]}
+                className="object-contain w-48 h-auto sm:w-64"
+                priority
+                sizes="(max-width: 640px) 192px, 256px"
+              />
             </div>
             <div>
               <h1 className="text-4xl sm:text-5xl font-bold mb-2">
