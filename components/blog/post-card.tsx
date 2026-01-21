@@ -29,7 +29,7 @@ export function PostCard({ post, lang }: PostCardProps) {
         </div>
       ) : (
         <div className="flex h-48 w-full items-center justify-center bg-gradient-to-br from-charcoal-500 to-charcoal-300 text-white">
-          <span className="text-sm font-semibold uppercase tracking-wide">Mr. Imot Blog</span>
+          <span className="text-sm font-semibold uppercase tracking-wide">Mister Imot Blog</span>
         </div>
       )}
 

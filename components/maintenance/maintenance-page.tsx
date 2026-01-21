@@ -59,13 +59,13 @@ export const MaintenancePage: React.FC<MaintenancePageProps> = ({
             <div className="relative w-20 h-20 flex items-center justify-center rounded-full bg-white mx-auto mb-6 shadow-lg">
               <Image
                 src="/images/mr-imot-logo-no-background.png"
-                alt="Mr. Imot Logo"
+                alt="Mister Imot Logo"
                 width={80}
                 height={80}
                 className="w-20 h-20 object-contain"
               />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2 font-instrument-serif">Mr imot</h1>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2 font-instrument-serif">Mister Imot</h1>
             <p className="text-sm text-gray-600 font-figtree">Real Estate Directory</p>
           </div>
 

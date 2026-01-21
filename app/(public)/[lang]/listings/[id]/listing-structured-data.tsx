@@ -1,5 +1,7 @@
 import { Project } from '@/lib/api'
 import { buildIkUrl } from '@/lib/imagekit'
+import { listingsHref, cityListingsHref, listingHref } from '@/lib/routes'
+import { getCityKeyFromCityType } from '@/lib/city-registry'
 
 interface ListingStructuredDataProps {
   project: Project
@@ -147,11 +149,9 @@ export default function ListingStructuredData({
     })
   }
   
-  // Build URL paths based on language
+  // Build URL using listingHref helper (canonical /p/[slug] route)
   const urlPath = project.slug || String(project.id)
-  const listingUrl = lang === 'en'
-    ? `${baseUrl}/listings/${urlPath}`
-    : `${baseUrl}/${lang}/${slugPaths[lang]}/${urlPath}`
+  const listingUrl = `${baseUrl}${listingHref(lang, urlPath)}`
   
   // Developer URL
   const developerUrl = project.developer
@@ -346,6 +346,16 @@ export default function ListingStructuredData({
   } : null
   
   // BreadcrumbList Schema
+  // If project has city, link to city hub route
+  const projectCity = project.city
+  const cityKey = projectCity && ['Sofia', 'Plovdiv', 'Varna'].includes(projectCity) 
+    ? getCityKeyFromCityType(projectCity as 'Sofia' | 'Plovdiv' | 'Varna')
+    : null
+  
+  const listingsUrl = cityKey 
+    ? `${baseUrl}${cityListingsHref(lang, cityKey)}`
+    : (lang === 'en' ? `${baseUrl}/listings` : `${baseUrl}/${lang}/${slugPaths[lang]}`)
+  
   const breadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -360,7 +370,7 @@ export default function ListingStructuredData({
         "@type": "ListItem",
         "position": 2,
         "name": t.listings,
-        "item": lang === 'en' ? `${baseUrl}/listings` : `${baseUrl}/${lang}/${slugPaths[lang]}`
+        "item": listingsUrl // Hub route if city exists
       },
       {
         "@type": "ListItem",

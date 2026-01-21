@@ -8,9 +8,10 @@ import type { Metadata } from 'next'
 import WebPageSchema from '@/components/seo/webpage-schema'
 import { buildIkUrl } from "@/lib/imagekit"
 import { redirect } from "next/navigation"
-import { listingsHref, asLocale } from "@/lib/routes"
+import { listingsHref, cityListingsHref, asLocale } from "@/lib/routes"
 import { PaginationNav } from "./pagination-nav"
 import { getListingsMode } from "@/lib/listings-mode"
+import { getCityKeyFromCityType, getCityTypeFromKey } from "@/lib/city-registry"
 
 interface ListingsPageProps {
   params: Promise<{ lang: 'en' | 'bg' | 'ru' | 'gr' }>
@@ -202,58 +203,33 @@ export async function generateMetadata({ params, searchParams }: ListingsPagePro
       ? `${baseUrl}/ru/obyavleniya`
       : `${baseUrl}/listings`
   
-  // Canonical URL logic:
-  // - MapMode (hasBoundsParams): always noindex, canonical back to base (or city hub if city param exists)
-  // - Default landing (no params): canonical stays base (no query params)
-  // - City page 1: `?city=sofia-bg` (no page param)
-  // - City page >1: `?city=sofia-bg&page=N`
+  // Canonical rules (clarified):
+  // - Hub base /obiavi/[cityKey]: index,follow, self-canonical (handled in hub route)
+  // - Hub with ?page>1 or ?type=...: noindex,follow, canonical to hub base (handled in hub route)
+  // - Query /obiavi?city=: noindex,follow, canonical to hub base
+  // - Map mode (bounds): noindex,follow, canonical to base or hub
   
   let canonicalUrl = baseCanonical
+  let shouldIndex = true
   
   if (hasBoundsParams) {
-    // MapMode: canonical back to base or city hub
-    const canonicalParams = new URLSearchParams()
-    if (cityKey) {
-      canonicalParams.set('city', cityKey)
-    } else if (city) {
-      const cityKeyMap: Record<string, string> = {
-        'Sofia': 'sofia-bg',
-        'Plovdiv': 'plovdiv-bg',
-        'Varna': 'varna-bg',
+    // MapMode: noindex, canonical to base or hub
+    shouldIndex = false
+    if (cityKey || city) {
+      const effectiveKey = cityKey || (city && ['Sofia', 'Plovdiv', 'Varna'].includes(city) ? getCityKeyFromCityType(city as 'Sofia' | 'Plovdiv' | 'Varna') : city)
+      if (effectiveKey) {
+        canonicalUrl = `${baseUrl}${cityListingsHref(lang, effectiveKey)}` // Hub base
       }
-      const mappedKey = cityKeyMap[city] || city.toLowerCase() + '-bg'
-      canonicalParams.set('city', mappedKey)
     }
-    canonicalUrl = canonicalParams.toString() 
-      ? `${baseCanonical}?${canonicalParams.toString()}`
-      : baseCanonical
-  } else {
-    // City mode or default landing
-    const canonicalParams = new URLSearchParams()
+  } else if (cityKey || city) {
+    // Query param ?city= present
+    const effectiveKey = cityKey || (city && ['Sofia', 'Plovdiv', 'Varna'].includes(city) ? getCityKeyFromCityType(city as 'Sofia' | 'Plovdiv' | 'Varna') : city)
     
-    // Use city_key if available, otherwise map city to city_key
-    if (cityKey) {
-      canonicalParams.set('city', cityKey)  // Use 'city' param name for backward compatibility, but value is city_key
-    } else if (city) {
-      const cityKeyMap: Record<string, string> = {
-        'Sofia': 'sofia-bg',
-        'Plovdiv': 'plovdiv-bg',
-        'Varna': 'varna-bg',
-      }
-      const mappedKey = cityKeyMap[city] || city.toLowerCase() + '-bg'
-      canonicalParams.set('city', mappedKey)
+    if (effectiveKey) {
+      // Query ?city=: noindex, follow, canonical to hub base
+      shouldIndex = false
+      canonicalUrl = `${baseUrl}${cityListingsHref(lang, effectiveKey)}` // Hub base: /bg/obiavi/c/[cityKey] or /listings/c/[cityKey]
     }
-    
-    if (type && type !== 'all') canonicalParams.set('type', type)
-    
-    // Only include page if > 1 (city page 1 has no page param)
-    if (page && parseInt(page, 10) > 1) {
-      canonicalParams.set('page', page)
-    }
-    
-    canonicalUrl = canonicalParams.toString() 
-      ? `${baseCanonical}?${canonicalParams.toString()}`
-      : baseCanonical
   }
   
   const ogLocale = isBg ? 'bg_BG' : isRu ? 'ru_RU' : 'en_US'
@@ -262,7 +238,7 @@ export async function generateMetadata({ params, searchParams }: ListingsPagePro
     title,
     description,
     robots: {
-      index: !hasBoundsParams, // Noindex if bounds params exist
+      index: shouldIndex && !hasBoundsParams,
       follow: true,
     },
     alternates: {
@@ -341,18 +317,13 @@ export default async function ListingsPage({ params, searchParams }: ListingsPag
   
   // Extract city_key from URL (value comes from city= param)
   // cityParam may be "sofia-bg" (city_key format) or "Sofia" (old format)
-  const cityKeyToCity: Record<string, CityType> = {
-    'sofia-bg': 'Sofia',
-    'plovdiv-bg': 'Plovdiv',
-    'varna-bg': 'Varna',
-  }
   
   // Get city_key from URL (prefer city_key param, fallback to city param if it's city_key format)
-  const effectiveCityKey = cityKeyParam || (cityParam && cityKeyToCity[cityParam] ? cityParam : undefined)
+  const effectiveCityKey = cityKeyParam || (cityParam && getCityTypeFromKey(cityParam) ? cityParam : undefined)
   
   // Map city_key to CityType for UI (fallback to Sofia if no city specified)
   const initialCity: CityType = 
-    (effectiveCityKey && cityKeyToCity[effectiveCityKey]) ||
+    (effectiveCityKey && getCityTypeFromKey(effectiveCityKey)) ||
     (cityParam && ['Sofia', 'Plovdiv', 'Varna'].includes(cityParam) ? cityParam as CityType : 'Sofia')
   
   const initialType: PropertyTypeFilter = 

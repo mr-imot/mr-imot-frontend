@@ -192,6 +192,7 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api') ||
     pathname.startsWith('/images') ||
+    pathname.startsWith('/sitemap') || // Exclude all sitemap routes (index and child sitemaps)
     pathname === '/not-found' ||
     pathname === '/en/not-found' ||
     pathname === '/bg/not-found' ||
@@ -203,8 +204,7 @@ export async function middleware(request: NextRequest) {
     pathname === '/gr/__404__' ||
     pathname === '/og-image.png' || // Explicitly exclude og-image.png
     pathname === '/favicon.ico' ||
-    pathname === '/robots.txt' ||
-    pathname === '/sitemap.xml'
+    pathname === '/robots.txt'
   ) {
     return NextResponse.next()
   }
@@ -236,30 +236,29 @@ export async function middleware(request: NextRequest) {
     return redirectWithHints(request, url)
   }
 
-  // Handle old /listing/ route - redirect to proper localized route
+  // Handle old /listing/ route - redirect to canonical /p/[slug] route
   if (pathname.startsWith('/listing/')) {
     const listingId = pathname.replace('/listing/', '')
     
     // Check cookie preference first
-    const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value
-    if (cookieLocale === 'bg') {
-      return redirectWithHints(request, new URL(`/bg/obiavi/${listingId}`, request.url))
-    } else {
-      return redirectWithHints(request, new URL(`/listings/${listingId}`, request.url))
-    }
+    const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value || 'en'
+    const lang = (cookieLocale === 'bg' || cookieLocale === 'ru' || cookieLocale === 'gr') ? cookieLocale : 'en'
+    const listingsBase = lang === 'bg' ? '/bg/obiavi' : lang === 'ru' ? '/ru/obyavleniya' : lang === 'gr' ? '/gr/aggelies' : '/listings'
+    return redirectWithHints(request, new URL(`${listingsBase}/p/${listingId}`, request.url))
   }
 
-  // Handle /bg/listing/ route - redirect to /bg/obiavi/
+  // Handle /bg/listing/ route - redirect to /bg/obiavi/p/[slug]
   if (pathname.startsWith('/bg/listing/')) {
     const listingId = pathname.replace('/bg/listing/', '')
-    return redirectWithHints(request, new URL(`/bg/obiavi/${listingId}`, request.url))
+    return redirectWithHints(request, new URL(`/bg/obiavi/p/${listingId}`, request.url))
   }
 
-  // Handle /en/listing/ route - redirect to /en/listings/
+  // Handle /en/listing/ route - redirect to /listings/p/[slug]
   if (pathname.startsWith('/en/listing/')) {
     const listingId = pathname.replace('/en/listing/', '')
-    return redirectWithHints(request, new URL(`/listings/${listingId}`, request.url))
+    return redirectWithHints(request, new URL(`/listings/p/${listingId}`, request.url))
   }
+
 
   // Handle /register route - block access without type=developer
   if (pathname === '/register') {
@@ -587,7 +586,7 @@ export async function middleware(request: NextRequest) {
     '/buyer/',
     '/maintenance',
     '/robots.txt',
-    '/sitemap.xml',
+    '/sitemap', // Exclude all sitemap routes (index and child sitemaps)
     '/og-image.png',
   ]
   

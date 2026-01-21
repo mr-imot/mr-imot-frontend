@@ -19,6 +19,9 @@ import { MarkerManager } from "@/lib/marker-manager"
 import { ListingsClientContent } from "./listings-client-content"
 import { CityType, PropertyTypeFilter, CITY_BOUNDS } from "./listings-layout-server"
 import { useIsMobile } from "@/hooks/use-is-mobile"
+import { useRouter } from "next/navigation"
+import { cityListingsHref } from "@/lib/routes"
+import { getCityKeyFromCityType } from "@/lib/city-registry"
 
 export interface ListingsClientWrapperProps {
   dict: any
@@ -153,34 +156,20 @@ export function ListingsClientWrapper({
     })
   }, [propertyTypeFilter, cacheVersion])
   
-  // City change handler - updates URL with city_key
+  // City change handler - navigates to hub route using Next.js router
+  const router = useRouter()
+  
   const handleCityChange = useCallback((city: CityType) => {
     if (city === selectedCity) return
     setSelectedCity(city)
     
-    // Update URL with city_key format using Next.js router
-    const cityKeyMap: Record<CityType, string> = {
-      'Sofia': 'sofia-bg',
-      'Plovdiv': 'plovdiv-bg',
-      'Varna': 'varna-bg',
-    }
-    const cityKey = cityKeyMap[city] || city.toLowerCase() + '-bg'
+    const cityKey = getCityKeyFromCityType(city)
+    if (!cityKey) return
     
-    // Use Next.js router for SSR-safe URL updates
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search)
-      params.delete('ne_lat')
-      params.delete('sw_lat')
-      params.delete('ne_lng')
-      params.delete('sw_lng')
-      params.delete('search_by_map')
-      // Reset pagination when switching cities
-      if (city !== 'Sofia') params.set('city', cityKey)  // Use 'city' param name for backward compatibility
-      else params.delete('city')
-      
-      window.history.replaceState({}, '', `${window.location.pathname}${params.toString() ? '?' + params.toString() : ''}`)
-    }
-  }, [selectedCity])
+    // Use Next.js router for navigation to hub route (not window.location.href)
+    const hubUrl = cityListingsHref(lang, cityKey)
+    router.push(hubUrl) // Full navigation for SEO
+  }, [selectedCity, lang, router])
   
   // Property type filter handler
   const handlePropertyTypeChange = useCallback((type: PropertyTypeFilter) => {
@@ -224,6 +213,14 @@ export function ListingsClientWrapper({
   // ─────────────────────────────────────────────────────────────────────────
   // RENDER - Minimal JSX, delegates to ListingsClientContent
   // ─────────────────────────────────────────────────────────────────────────
+  
+  // Hide SSR grid after client hydration
+  useEffect(() => {
+    const ssrGrid = document.querySelector('[data-ssr-listings]')
+    if (ssrGrid) {
+      ssrGrid.classList.add('hidden')
+    }
+  }, [])
   
   return (
     <ListingsClientContent

@@ -96,6 +96,7 @@ export interface Project {
   location?: string;
   formatted_address?: string;
   city: string;
+  city_key?: string; // Stable city key (e.g., "sofia-bg") for translations
   neighborhood?: string;
   project_type: string;
   status?: ProjectStatus; // Added status field

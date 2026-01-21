@@ -7,7 +7,8 @@
 
 import Link from "next/link"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import { listingsHref } from "@/lib/routes"
+import { listingsHref, cityListingsHref } from "@/lib/routes"
+import { getCityKeyFromCityType } from "@/lib/city-registry"
 
 interface PaginationNavProps {
   lang: 'en' | 'bg' | 'ru' | 'gr'
@@ -43,10 +44,9 @@ export function PaginationNav({
 
   // Build pagination URL
   const buildPageUrl = (pageNum: number) => {
-    const params = new URLSearchParams()
-    
     if (isMapMode && bounds) {
       // MapMode pagination: include bounds params and preserve propertyType
+      const params = new URLSearchParams()
       params.set('search_by_map', 'true')
       params.set('sw_lat', String(bounds.sw_lat))
       params.set('sw_lng', String(bounds.sw_lng))
@@ -58,32 +58,34 @@ export function PaginationNav({
       if (pageNum > 1) {
         params.set('page', String(pageNum))
       }
+      return `${listingsHref(lang)}${params.toString() ? '?' + params.toString() : ''}`
     } else {
-      // City mode pagination
-      // Use city_key from URL if available, otherwise map from CityType
-      if (cityKey) {
-        params.set('city', cityKey)  // Use 'city' param name for backward compatibility
-      } else if (cityType && cityType !== 'Sofia') {
-        const cityKeyMap: Record<string, string> = {
-          'Sofia': 'sofia-bg',
-          'Plovdiv': 'plovdiv-bg',
-          'Varna': 'varna-bg',
+      // City mode pagination: use hub routes
+      const effectiveCityKey = cityKey || (cityType && cityType !== 'Sofia' ? getCityKeyFromCityType(cityType as 'Sofia' | 'Plovdiv' | 'Varna') : null)
+      
+      if (effectiveCityKey) {
+        // Use hub route
+        const hubBase = cityListingsHref(lang, effectiveCityKey)
+        const params = new URLSearchParams()
+        if (propertyType && propertyType !== 'all') {
+          params.set('type', propertyType)
         }
-        const mappedKey = cityKeyMap[cityType] || cityType.toLowerCase() + '-bg'
-        params.set('city', mappedKey)
-      }
-      
-      if (propertyType && propertyType !== 'all') {
-        params.set('type', propertyType)
-      }
-      
-      if (pageNum > 1) {
-        params.set('page', String(pageNum))
+        if (pageNum > 1) {
+          params.set('page', String(pageNum))
+        }
+        return params.toString() ? `${hubBase}?${params.toString()}` : hubBase
+      } else {
+        // Fallback: base listings with query params
+        const params = new URLSearchParams()
+        if (propertyType && propertyType !== 'all') {
+          params.set('type', propertyType)
+        }
+        if (pageNum > 1) {
+          params.set('page', String(pageNum))
+        }
+        return `${listingsHref(lang)}${params.toString() ? '?' + params.toString() : ''}`
       }
     }
-    
-    const queryString = params.toString()
-    return `${listingsHref(lang)}${queryString ? '?' + queryString : ''}`
   }
 
   return (

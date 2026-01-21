@@ -67,6 +67,11 @@ const nextConfig = {
         source: "/health",
         destination: `${process.env.NEXT_PUBLIC_API_URL}/health`,
       },
+      // Sitemap routes - proxy to backend (must come before /api/v1/:path*)
+      {
+        source: "/sitemaps/:path*",
+        destination: `${process.env.NEXT_PUBLIC_API_URL}/api/v1/sitemaps/:path*`,
+      },
       // Handle projects endpoint specifically with trailing slash for FastAPI
       {
         source: "/api/v1/projects",

@@ -74,7 +74,13 @@ export function listingsHref(lang: SupportedLocale): string {
 }
 
 export function listingHref(lang: SupportedLocale, id: string | number): string {
-  return `${PUBLIC_ROUTES[lang].listings}/${id}`
+  // Canonical route: /{lang}/{listingsBase}/p/[slug]
+  return `${PUBLIC_ROUTES[lang].listings}/p/${id}`
+}
+
+export function cityListingsHref(lang: SupportedLocale, cityKey: string): string {
+  // Universal segment /c/ for all languages
+  return `${PUBLIC_ROUTES[lang].listings}/c/${cityKey}`
 }
 
 export function developersHref(lang: SupportedLocale): string {

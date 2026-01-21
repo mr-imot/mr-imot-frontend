@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'Mr. Imot'
+    title: 'Mister Imot'
   },
   alternates: {
     // Hardcode production domain for canonical URLs to prevent build-time issues
