@@ -192,7 +192,8 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api') ||
     pathname.startsWith('/images') ||
-    pathname.startsWith('/sitemap') || // Exclude all sitemap routes (index and child sitemaps)
+    pathname.startsWith('/sitemap') || // Exclude /sitemap/* routes (index and child sitemaps)
+    pathname.startsWith('/sitemaps') || // Exclude /sitemaps/* routes (unified namespace)
     pathname === '/not-found' ||
     pathname === '/en/not-found' ||
     pathname === '/bg/not-found' ||

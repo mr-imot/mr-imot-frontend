@@ -67,10 +67,40 @@ const nextConfig = {
         source: "/health",
         destination: `${process.env.NEXT_PUBLIC_API_URL}/health`,
       },
-      // Sitemap routes - proxy to backend (must come before /api/v1/:path*)
+      // Locale-specific backend sitemaps - proxy to API (must come before generic /sitemaps/*)
       {
-        source: "/sitemaps/:path*",
-        destination: `${process.env.NEXT_PUBLIC_API_URL}/api/v1/sitemaps/:path*`,
+        source: "/sitemaps/:locale/cities.xml",
+        destination: `${process.env.NEXT_PUBLIC_API_URL}/api/v1/sitemaps/:locale/cities.xml`,
+      },
+      {
+        source: "/sitemaps/:locale/developers.xml",
+        destination: `${process.env.NEXT_PUBLIC_API_URL}/api/v1/sitemaps/:locale/developers.xml`,
+      },
+      {
+        source: "/sitemaps/:locale/projects/:n.xml",
+        destination: `${process.env.NEXT_PUBLIC_API_URL}/api/v1/sitemaps/:locale/projects/:n.xml`,
+      },
+      // Legacy backend sitemaps - proxy to API (for backward compatibility)
+      {
+        source: "/sitemaps/cities.xml",
+        destination: `${process.env.NEXT_PUBLIC_API_URL}/api/v1/sitemaps/cities.xml`,
+      },
+      {
+        source: "/sitemaps/developers.xml",
+        destination: `${process.env.NEXT_PUBLIC_API_URL}/api/v1/sitemaps/developers.xml`,
+      },
+      {
+        source: "/sitemaps/projects/:n.xml",
+        destination: `${process.env.NEXT_PUBLIC_API_URL}/api/v1/sitemaps/projects/:n.xml`,
+      },
+      // Frontend-generated sitemaps - rewrite to /sitemaps/ namespace
+      {
+        source: "/sitemaps/static.xml",
+        destination: "/sitemap/static/sitemap.xml",
+      },
+      {
+        source: "/sitemaps/news.xml",
+        destination: "/sitemap/news/sitemap.xml",
       },
       // Handle projects endpoint specifically with trailing slash for FastAPI
       {
