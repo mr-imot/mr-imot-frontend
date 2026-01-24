@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn, getListingUrl } from '@/lib/utils'
 import { Home, Building, ExternalLink } from 'lucide-react'
-import { trackProjectView } from '@/lib/analytics-batch'
 import { translatePrice, PriceTranslations } from '@/lib/price-translator'
 import { useEmblaCarouselWithPhysics } from '@/hooks/use-embla-carousel'
 import { useIsMobile } from '@/hooks/use-is-mobile'
@@ -44,9 +43,7 @@ function summarize(text: string | null | undefined, max = 100) {
 
 function ListingCardComponent({ listing, isActive, onCardClick, onCardHover, priority = false, priceTranslations }: ListingCardProps) {
   const pathname = usePathname()
-  const [hasTrackedView, setHasTrackedView] = useState(false)
   const hasMultipleImages = listing.images?.length > 1
-  const cardRef = useRef<HTMLElement>(null)
   const isMobile = useIsMobile()
   
   // Detect locale from pathname
@@ -107,31 +104,9 @@ function ListingCardComponent({ listing, isActive, onCardClick, onCardHover, pri
     scrollTo(index)
   }
 
-  // Track view when card becomes visible
-  useEffect(() => {
-    if (!cardRef.current || hasTrackedView) return
+  // Analytics v2: No impression tracking - only detail_view when listing is opened
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && !hasTrackedView) {
-            // Track view using batched analytics (debounced and batched)
-            trackProjectView(listing.id)
-            setHasTrackedView(true)
-          }
-        })
-      },
-      { threshold: 0.5 } // Trigger when 50% of card is visible
-    )
-
-    observer.observe(cardRef.current)
-
-    return () => {
-      observer.disconnect()
-    }
-  }, [listing.id, hasTrackedView])
-
-    return (
+  return (
     <div 
       className="block clickable cursor-pointer relative group"
       style={{ transition: 'none', transform: 'translateZ(0)' }}
@@ -145,7 +120,6 @@ function ListingCardComponent({ listing, isActive, onCardClick, onCardHover, pri
         className="block"
       >
         <article
-          ref={cardRef}
           data-id={listing.id}
           className="cursor-pointer transition-[filter] duration-300 ease-out"
           style={{

@@ -510,19 +510,7 @@ class ApiClient {
     return this.requestWithoutAuth(endpoint);
   }
 
-  // Analytics endpoints - these are public endpoints that don't require authentication
-  async recordProjectView(projectId: string): Promise<{ message: string }> {
-
-    return this.request(`/api/v1/analytics/projects/${projectId}/view`, { method: 'POST' });
-  }
-
-  async recordProjectWebsiteClick(projectId: string): Promise<{ message: string }> {
-    return this.request(`/api/v1/analytics/projects/${projectId}/click/website`, { method: 'POST' });
-  }
-
-  async recordProjectPhoneClick(projectId: string): Promise<{ message: string }> {
-    return this.request(`/api/v1/analytics/projects/${projectId}/click/phone`, { method: 'POST' });
-  }
+  // Analytics v2: Event tracking moved to lib/analytics.ts with batching
 
   async getProject(id: string): Promise<Project | PausedProject | DeletedProject> {
     return this.request(`/api/v1/projects/${id}`);
@@ -784,9 +772,7 @@ export const getProjectFormData = () => apiClient.getProjectFormData();
 export const createProject = (projectData: any) => apiClient.createProject(projectData);
 export const updateProject = (id: string, projectData: any) => apiClient.updateProject(id, projectData);
 export const deleteProject = (id: string) => apiClient.deleteProject(id);
-export const recordProjectView = (projectId: string) => apiClient.recordProjectView(projectId);
-export const recordProjectWebsiteClick = (projectId: string) => apiClient.recordProjectWebsiteClick(projectId);
-export const recordProjectPhoneClick = (projectId: string) => apiClient.recordProjectPhoneClick(projectId);
+// Analytics v2: Tracking exports removed - use lib/analytics.ts
 export const registerDeveloper = (developerData: any) => apiClient.registerDeveloper(developerData);
 export const verifyEmail = (token: string) => apiClient.verifyEmail(token);
 export const resendVerification = (email: string) => apiClient.resendVerification(email);

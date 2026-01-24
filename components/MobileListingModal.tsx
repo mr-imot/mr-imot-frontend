@@ -10,7 +10,7 @@ import { PropertyGallery } from "@/components/PropertyGallery"
 import { FeaturesDisplay } from "@/components/FeaturesDisplay"
 import { ensureGoogleMaps } from "@/lib/google-maps"
 import { translatePrice, PriceTranslations } from "@/lib/price-translator"
-import { recordProjectView, recordProjectPhoneClick, recordProjectWebsiteClick } from "@/lib/api"
+import { trackDetailView, trackClickPhone, trackClickWebsite } from "@/lib/analytics"
 
 interface Property {
   id: string
@@ -87,15 +87,24 @@ export function MobileListingModal({
   const modalRef = useRef<HTMLDivElement>(null)
   const scrollPositionRef = useRef<number>(0)
   
+  // Analytics v2: Track detail_view once per modal open (guarded against re-renders)
+  const hasTrackedModalView = useRef(false)
+  
   const t = translations?.listingDetail || defaultModalTranslations.listingDetail
   const tPrice = priceTranslations || translations?.price || {} as PriceTranslations
 
   // Track view when modal opens
   useEffect(() => {
-    if (isOpen && property) {
-      recordProjectView(property.id)
+    if (isOpen && property && !hasTrackedModalView.current) {
+      trackDetailView(property.id)
+      hasTrackedModalView.current = true
     }
-  }, [isOpen, property])
+    
+    // Reset on close for next open
+    if (!isOpen) {
+      hasTrackedModalView.current = false
+    }
+  }, [isOpen, property?.id])
 
   // Handle modal open/close animations
   useEffect(() => {
@@ -152,14 +161,14 @@ export function MobileListingModal({
 
   const handlePhoneClick = () => {
     if (property.developer?.phone) {
-      recordProjectPhoneClick(property.id)
+      trackClickPhone(property.id)
       window.open(`tel:${property.developer.phone}`)
     }
   }
 
   const handleWebsiteClick = () => {
     if (property.developer?.website) {
-      recordProjectWebsiteClick(property.id)
+      trackClickWebsite(property.id)
       window.open(property.developer.website, '_blank')
     }
   }

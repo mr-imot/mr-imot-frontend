@@ -4,8 +4,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { X, Phone, Globe } from 'lucide-react'
 import { cn, getListingUrl } from '@/lib/utils'
-import { trackProjectView } from '@/lib/analytics-batch'
-import { recordProjectPhoneClick, recordProjectWebsiteClick } from '@/lib/api'
+import { trackClickPhone, trackClickWebsite } from '@/lib/analytics'
 import { translatePrice, PriceTranslations } from '@/lib/price-translator'
 import { useRouter, usePathname } from 'next/navigation'
 import { useEmblaCarouselWithPhysics } from '@/hooks/use-embla-carousel'
@@ -53,7 +52,6 @@ export function PropertyMapCard({
       })
     }
   }, [property, floating, forceMobile, position])
-  const [hasTrackedView, setHasTrackedView] = useState(false)
   const [dragOffset, setDragOffset] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
   const touchStartY = useRef<number | null>(null)
@@ -106,13 +104,7 @@ export function PropertyMapCard({
     }, 180)
   }
 
-  // Track view when map card opens (using batched analytics)
-  useEffect(() => {
-    if (!hasTrackedView && property) {
-      trackProjectView(String(property.id))
-      setHasTrackedView(true)
-    }
-  }, [property, hasTrackedView])
+  // Analytics v2: No view tracking on map card - only detail_view when listing is opened
 
   // Prevent body scroll when card is open on mobile (like modal)
   // IMPORTANT: Never modify body overflow on desktop to prevent scrollbar layout shifts
@@ -156,21 +148,13 @@ export function PropertyMapCard({
 
   const handlePhoneClick = async () => {
     if (property?.developer?.phone) {
-      try {
-        await recordProjectPhoneClick(String(property.id))
-      } catch (error) {
-        console.warn('Analytics tracking failed:', error)
-      }
+      trackClickPhone(String(property.id))
     }
   }
 
   const handleWebsiteClick = async () => {
     if (property?.developer?.website) {
-      try {
-        await recordProjectWebsiteClick(String(property.id))
-      } catch (error) {
-        console.warn('Analytics tracking failed:', error)
-      }
+      trackClickWebsite(String(property.id))
     }
   }
 

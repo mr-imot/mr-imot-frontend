@@ -18,7 +18,8 @@ import {
   Euro,
   Navigation,
 } from "lucide-react"
-import { recordProjectPhoneClick, recordProjectWebsiteClick, Project } from "@/lib/api"
+import { Project } from "@/lib/api"
+import { trackDetailView, trackClickPhone, trackClickWebsite } from "@/lib/analytics"
 import { PropertyGallery } from "@/components/PropertyGallery"
 import { FeaturesDisplay } from "@/components/FeaturesDisplay"
 import dynamic from "next/dynamic"
@@ -127,6 +128,9 @@ export default function ListingDetailClient({ projectId, initialProject, isModal
   const initialProjectIdRef = useRef<string | null>(null)
   const lastProjectIdRef = useRef<string | null>(null)
   
+  // Analytics v2: Track detail_view once per page load (guarded against StrictMode)
+  const hasTrackedDetailView = useRef(false)
+  
   // Extract stable ID from initialProject for comparison
   // This allows us to detect when initialProject actually changes (different project)
   // vs when it's just a new object reference with the same data
@@ -167,8 +171,6 @@ export default function ListingDetailClient({ projectId, initialProject, isModal
           
           setProperty(data)
           hasInitializedRef.current = true
-          // NOTE: For direct URL access (not from grid), view is not pre-tracked
-          // But we don't track here either - views are only counted when visible in listings grid
           
         } catch (err) {
           console.error("Error loading property:", err)
@@ -181,6 +183,14 @@ export default function ListingDetailClient({ projectId, initialProject, isModal
       loadProperty()
     }
   }, [projectId, initialProjectId]) // Only depend on stable IDs, not object references
+
+  // Track detail_view once when property is loaded (guarded against StrictMode double-mount)
+  useEffect(() => {
+    if (property && projectId && !hasTrackedDetailView.current) {
+      trackDetailView(projectId)
+      hasTrackedDetailView.current = true
+    }
+  }, [property, projectId])
 
   if (loading) {
     return <LoadingSkeletonPropertyDetail />
@@ -226,7 +236,7 @@ export default function ListingDetailClient({ projectId, initialProject, isModal
 
   const handlePhoneClick = async (phone: string) => {
     try {
-      await recordProjectPhoneClick(projectId)
+      trackClickPhone(projectId)
       
       if (phone && phone.trim()) {
         const cleanPhone = phone.replace(/[\s\-\(\)]/g, '')
@@ -239,7 +249,7 @@ export default function ListingDetailClient({ projectId, initialProject, isModal
 
   const handlePhoneNumberClick = async (phone: string) => {
     try {
-      await recordProjectPhoneClick(projectId)
+      trackClickPhone(projectId)
       
       if (phone && phone.trim()) {
         const cleanPhone = phone.replace(/[\s\-\(\)]/g, '')
@@ -256,6 +266,8 @@ export default function ListingDetailClient({ projectId, initialProject, isModal
   }
 
   const handleWebsiteClick = (website: any) => {
+    trackClickWebsite(projectId)
+    
     if (website && website.trim()) {
       let url = website.trim()
       if (!url.startsWith('http://') && !url.startsWith('https://')) {
@@ -263,10 +275,6 @@ export default function ListingDetailClient({ projectId, initialProject, isModal
       }
       window.open(url, '_blank', 'noopener,noreferrer')
     }
-    
-    recordProjectWebsiteClick(projectId).catch(err => 
-      console.warn("Failed to record website click:", err)
-    )
   }
 
   const handleOfficeAddressClick = () => {
