@@ -15,7 +15,8 @@
   "overrides": {
     "react": "19.0.0",
     "react-dom": "19.0.0",
-    "next": ">=15.5.9"
+    "next": ">=15.5.9",
+    "lodash": ">=4.17.23"
   },
   "pnpm": {
     "peerDependencyRules": {
@@ -27,6 +28,9 @@
         "react": "19",
         "react-dom": "19"
       }
+    },
+    "overrides": {
+      "lodash": ">=4.17.23"
     }
   },
   "browserslist": [
