@@ -242,6 +242,9 @@ export default async function BlogIndexPage({ params, searchParams }: BlogIndexP
   const endIndex = startIndex + postsPerPage
   const paginatedPosts = filtered.slice(startIndex, endIndex)
 
+  // Group remaining posts by category for specific sections, or just show a mixed feed if filtering is active
+  const isFilteredView = !!q || !!categoryFilter || !!tagFilter
+
   // Segmentation for Layout
   // 1. Hero: Featured (1st) + Side Stories (2nd, 3rd, 4th)
   // Note: Hero only shows on page 1 and when not filtered
@@ -251,9 +254,6 @@ export default async function BlogIndexPage({ params, searchParams }: BlogIndexP
 
   // 2. Sections
   const categories = NAV_CATEGORIES[lang] || []
-  
-  // Group remaining posts by category for specific sections, or just show a mixed feed if filtering is active
-  const isFilteredView = !!q || !!categoryFilter || !!tagFilter
 
   const t = (key: string, fallback?: string) => (copy?.[key] as string) || fallback || ""
 
