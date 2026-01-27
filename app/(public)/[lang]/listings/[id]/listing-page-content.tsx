@@ -7,6 +7,10 @@ import ListingStructuredData from './listing-structured-data'
 import { getSiteUrl } from '@/lib/seo'
 import { getDictionary } from '@/lib/dictionaries'
 import { type SupportedLocale } from '@/lib/routes'
+import { getCityInfo } from '@/lib/city-registry'
+import { BreadcrumbNav } from '@/components/listings/breadcrumb-nav'
+import { MoreFromDeveloper } from '@/components/listings/more-from-developer'
+import { SimilarListings } from '@/components/listings/similar-listings'
 
 interface ListingPageContentProps {
   lang: SupportedLocale
@@ -75,10 +79,14 @@ export default async function ListingPageContent({
   const activeProject = project as Project
   const baseUrl = getSiteUrl() // Hardcoded production domain for SEO
   const dict = await getDictionary(lang)
-  
+  const cityLabel = activeProject.city_key
+    ? (await getCityInfo(activeProject.city_key))?.displayNames[lang] ?? activeProject.city ?? null
+    : null
+
   return (
     <>
       <ListingStructuredData project={activeProject} lang={lang} baseUrl={baseUrl} />
+      <BreadcrumbNav lang={lang} project={activeProject} cityLabel={cityLabel} />
       <ListingDetailClient 
         key={activeProject.id} 
         projectId={id} 
@@ -90,6 +98,22 @@ export default async function ListingPageContent({
           features: dict.features,
         }}
       />
+      {typeof activeProject.developer_id === 'number' && (
+        <MoreFromDeveloper
+          developerId={activeProject.developer_id}
+          excludeId={activeProject.id}
+          lang={lang}
+          dict={{ listingDetail: dict.listingDetail }}
+        />
+      )}
+      {activeProject.city_key && (
+        <SimilarListings
+          cityKey={activeProject.city_key}
+          excludeId={activeProject.id}
+          lang={lang}
+          dict={{ listingDetail: dict.listingDetail }}
+        />
+      )}
     </>
   )
 }
