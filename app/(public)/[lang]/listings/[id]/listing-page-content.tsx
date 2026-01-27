@@ -83,6 +83,14 @@ export default async function ListingPageContent({
     ? (await getCityInfo(activeProject.city_key))?.displayNames[lang] ?? activeProject.city ?? null
     : null
 
+  // Developer id: API may return developer_id (top-level) or developer.id (nested)
+  const developerId =
+    typeof activeProject.developer_id === 'number'
+      ? activeProject.developer_id
+      : typeof activeProject.developer?.id === 'number'
+        ? activeProject.developer.id
+        : null
+
   return (
     <>
       <ListingStructuredData project={activeProject} lang={lang} baseUrl={baseUrl} />
@@ -98,9 +106,9 @@ export default async function ListingPageContent({
           features: dict.features,
         }}
       />
-      {typeof activeProject.developer_id === 'number' && (
+      {developerId != null && (
         <MoreFromDeveloper
-          developerId={activeProject.developer_id}
+          developerId={developerId}
           excludeId={activeProject.id}
           lang={lang}
           dict={{ listingDetail: dict.listingDetail }}

@@ -19,6 +19,20 @@ function summarize(text: string | null | undefined, max = 60): string | null {
   return normalized.slice(0, max - 1) + '…'
 }
 
+/** Parse projects list from API; backend may return { projects }, { items }, or { results }. */
+function parseProjectsFromResponse(body: unknown): Project[] {
+  if (body && typeof body === 'object') {
+    const o = body as Record<string, unknown>
+    const arr = (o.projects ?? o.items ?? o.results) as unknown
+    if (Array.isArray(arr)) return arr as Project[]
+  }
+  if (process.env.NODE_ENV === 'development') {
+    const keys = body && typeof body === 'object' ? Object.keys(body as object).join(',') : 'non-object'
+    console.warn('[MoreFromDeveloper] Unexpected API shape. Top-level keys:', keys)
+  }
+  return []
+}
+
 /**
  * Server-rendered "More from this developer" block for listing detail (SEO internal links).
  * Fetches 3–6 other projects by developer_id, excludes current, renders link cards.
@@ -43,8 +57,8 @@ export async function MoreFromDeveloper({
       headers: { 'Content-Type': 'application/json' },
     })
     if (!res.ok) return null
-    const body = (await res.json()) as { projects?: Project[] }
-    const raw = body.projects ?? []
+    const body = await res.json()
+    const raw = parseProjectsFromResponse(body)
     data = raw
       .filter((p) => String(p.id) !== excludeStr && String(p.slug ?? p.id) !== excludeStr)
       .slice(0, 6)
