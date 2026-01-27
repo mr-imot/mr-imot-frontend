@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { getAllPostsMeta } from "@/lib/news"
+import { getAllPostsMeta, formatBlogDate } from "@/lib/news"
 import { newsArticleHref, newsHref } from "@/lib/routes"
 import type { SupportedLocale } from "@/lib/routes"
 import type { BlogLang, BlogPostMeta } from "@/lib/news"
@@ -75,9 +75,30 @@ export async function RelatedArticles({
             <li key={post.slug}>
               <Link
                 href={newsArticleHref(lang, post.slug)}
-                className="block rounded-xl bg-white/80 hover:bg-white px-4 py-3 font-medium text-gray-800 hover:text-charcoal-600 shadow-sm hover:shadow-md transition-all"
+                className="group block rounded-xl bg-white/90 hover:bg-white px-4 py-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all"
               >
-                {post.title}
+                <div className="flex items-start gap-3">
+                  <span className="shrink-0 text-lg opacity-70" aria-hidden>
+                    &#128240;
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                      {post.date && (
+                        <time className="text-xs text-muted-foreground">
+                          {formatBlogDate(post.date, blogLang)}
+                        </time>
+                      )}
+                      {post.category && (
+                        <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-foreground">
+                          {post.category}
+                        </span>
+                      )}
+                    </div>
+                    <h3 className="mt-1 text-base font-semibold leading-snug text-gray-800 group-hover:text-charcoal-600 line-clamp-2">
+                      {post.title}
+                    </h3>
+                  </div>
+                </div>
               </Link>
             </li>
           ))}
