@@ -2,6 +2,7 @@ import { notFound } from "next/navigation"
 import type { Metadata } from 'next'
 import DeveloperDetailClient from './developer-detail-client'
 import DeveloperStructuredData from './developer-structured-data'
+import { DeveloperListingsGridServer } from './developer-listings-grid-server'
 import { DeveloperProfile } from '@/lib/api'
 import { brandForLang, formatTitleWithBrand, getSiteUrl } from '@/lib/seo'
 import { buildIkUrl } from '@/lib/imagekit'
@@ -144,6 +145,18 @@ export default async function DeveloperDetailPage({ params }: PageProps) {
   const baseUrl = getSiteUrl() // Hardcoded production domain for canonical URLs
   const dict = await getDictionary(lang)
   
+  const projects = developer.projects ?? []
+  const listingsMarkup = projects.length > 0 ? (
+    <DeveloperListingsGridServer
+      projects={projects}
+      lang={lang}
+      dict={{
+        listingDetail: dict.listingDetail,
+        developersDetail: dict.developersDetail,
+      }}
+    />
+  ) : undefined
+
   return (
     <>
       <DeveloperStructuredData developer={developer} lang={lang} baseUrl={baseUrl} />
@@ -155,6 +168,7 @@ export default async function DeveloperDetailPage({ params }: PageProps) {
           developers: dict.developers,
           listingDetail: dict.listingDetail,
         }}
+        listingsMarkup={listingsMarkup}
       />
     </>
   )

@@ -1,5 +1,6 @@
 "use client"
 
+import type { ReactNode } from "react"
 import { useRef, useEffect } from "react"
 import { formatDate } from "@/lib/date-formatter"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -22,6 +23,7 @@ interface DeveloperDetailClientProps {
   developer: DeveloperProfile
   lang?: string
   translations?: DeveloperTranslations
+  listingsMarkup?: ReactNode
 }
 
 // Default translations for fallback
@@ -115,7 +117,7 @@ function projectToListing(project: any): Listing {
   }
 }
 
-export default function DeveloperDetailClient({ developer, lang, translations }: DeveloperDetailClientProps) {
+export default function DeveloperDetailClient({ developer, lang, translations, listingsMarkup }: DeveloperDetailClientProps) {
   const tDev = translations?.developersDetail || defaultDeveloperTranslations.developersDetail
   const tDevs = translations?.developers || defaultDeveloperTranslations.developers
   const tListing = translations?.listingDetail || defaultDeveloperTranslations.listingDetail
@@ -284,7 +286,9 @@ export default function DeveloperDetailClient({ developer, lang, translations }:
                 {developer.projects_pagination.total} {tDev?.totalProjects ?? 'total projects'}
               </p>
             </div>
-            {listings.length > 0 ? (
+            {listingsMarkup != null ? (
+              listingsMarkup
+            ) : listings.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {listings.map((listing) => (
                   <ListingCard key={listing.id} listing={listing} />

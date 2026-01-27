@@ -11,16 +11,47 @@ import { MapPin, Building, CheckCircle, Globe, ExternalLink, ChevronLeft, Chevro
 import { useDevelopers } from "@/hooks/use-developers"
 import { developerHref, asLocale, developersHref } from "@/lib/routes"
 import { cn } from "@/lib/utils"
+import type { ReactNode } from "react"
 
 interface DevelopersClientProps {
   dict: any
-  lang: 'en' | 'bg'
+  lang: 'en' | 'bg' | 'ru' | 'gr'
+  initialData?: { developers: any[]; pagination: { total: number; page: number; per_page: number; total_pages: number } }
+  children?: ReactNode
 }
 
-export default function DevelopersClient({ dict, lang }: DevelopersClientProps) {
+export default function DevelopersClient({ dict, lang, initialData, children }: DevelopersClientProps) {
+  // When server-rendered children are provided, render hero + children (no client fetch).
+  if (children != null) {
+    return (
+      <div className="min-h-screen bg-background">
+        <section className="bg-gradient-to-br from-muted to-muted/50 py-16">
+          <div className="container mx-auto px-4 text-center">
+            <ScrollAnimationWrapper>
+              <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
+                {dict.developers.pageTitle}
+              </h1>
+              <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+                {dict.developers.pageDescription}
+              </p>
+            </ScrollAnimationWrapper>
+          </div>
+        </section>
+        <section className="py-16">
+          <div className="container mx-auto px-4">
+            {children}
+          </div>
+        </section>
+      </div>
+    )
+  }
+
+  return <DevelopersClientFetched dict={dict} lang={lang} />
+}
+
+function DevelopersClientFetched({ dict, lang }: { dict: any; lang: 'en' | 'bg' | 'ru' | 'gr' }) {
   const searchParams = useSearchParams()
   const currentPage = Number(searchParams.get('page')) || 1
-  
   const { developers, loading, error, pagination } = useDevelopers({ 
     per_page: 20,
     page: currentPage
