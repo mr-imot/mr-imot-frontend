@@ -6,7 +6,7 @@ import type { Project } from "@/lib/api"
 import type { SupportedLocale } from "@/lib/routes"
 
 interface MoreFromDeveloperProps {
-  developerId: number
+  developerId: number | string
   excludeId: string | number
   lang: SupportedLocale
   dict?: { listingDetail?: Record<string, string> }
