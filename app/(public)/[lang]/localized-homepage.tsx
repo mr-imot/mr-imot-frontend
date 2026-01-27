@@ -4,6 +4,10 @@ import { toIkPath } from "@/lib/imagekit"
 import { HomepageHero } from "./homepage-hero"
 import { ThreeStepProcessSection } from "./sections/three-step-process-section"
 import { PlatformPrinciplesSection } from "./sections/platform-principles-section"
+import { TopCities } from "@/components/home/top-cities"
+import { FeaturedDevelopers } from "@/components/home/featured-developers"
+import { LatestListingsSSR } from "@/components/home/latest-listings-ssr"
+import { LatestNews } from "@/components/home/latest-news"
 import { LazyPricingSection } from "./components/client-islands"
 import { FaqSection } from "@/components/faq-section"
 import { TestimonialsSection } from "@/components/TestimonialsSection"
@@ -28,6 +32,12 @@ export function LocalizedHomePage({ dict, lang }: LocalizedHomePageProps) {
 
         {/* Platform Principles Section - Why We're Different */}
         <PlatformPrinciplesSection dict={dict} lang={lang} />
+
+        {/* SSR internal linking: cities, developers, listings, news */}
+        <TopCities lang={lang as 'en' | 'bg' | 'ru' | 'gr'} dict={dict} />
+        <FeaturedDevelopers lang={lang as 'en' | 'bg' | 'ru' | 'gr'} dict={dict} />
+        <LatestListingsSSR lang={lang as 'en' | 'bg' | 'ru' | 'gr'} dict={dict} />
+        <LatestNews lang={lang as 'en' | 'bg' | 'ru' | 'gr'} dict={dict} />
 
         {/* Recent Listings Section - Client Component (lazy loaded, client-side only) */}
         <RecentListingsLazy dict={dict} lang={lang} />
