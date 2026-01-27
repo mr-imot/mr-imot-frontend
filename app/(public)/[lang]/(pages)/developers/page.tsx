@@ -38,8 +38,10 @@ async function getDevelopersServer(page: number, perPage: number): Promise<Devel
   }
 }
 
-export async function generateMetadata({ params }: DevelopersPageProps): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: DevelopersPageProps): Promise<Metadata> {
   const { lang } = await params
+  const sp = await (searchParams ?? Promise.resolve({})) as { page?: string }
+  const currentPage = Math.max(1, Number(sp?.page) || 1)
   const baseUrl = getSiteUrl() // Hardcoded production domain for canonical URLs
   
   const isBg = lang === 'bg'
@@ -75,7 +77,7 @@ export async function generateMetadata({ params }: DevelopersPageProps): Promise
     description,
     metadataBase: new URL(baseUrl),
     robots: {
-      index: true, // Explicitly allow indexing of developers page
+      index: currentPage <= 1,
       follow: true,
     },
     alternates: {

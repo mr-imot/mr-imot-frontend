@@ -119,6 +119,11 @@ export function registerDeveloperHref(lang: SupportedLocale) {
   } as const
 }
 
+/** String href for register?type=developer (App Router Link prefers string href). */
+export function registerDeveloperHrefString(lang: SupportedLocale): string {
+  return `${PUBLIC_ROUTES[lang].register}?type=developer`
+}
+
 // ---------- Convenience when you have lang: string ----------
 export function asLocale(lang: string): SupportedLocale {
   return assertSupportedLocale(lang)

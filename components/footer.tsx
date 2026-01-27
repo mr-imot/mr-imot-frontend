@@ -4,7 +4,7 @@ import { Separator } from "@/components/ui/separator"
 import { Facebook, Twitter, Instagram, Youtube } from "lucide-react"
 import { CookieSettingsButton } from "@/components/cookie-settings-button"
 import type { SupportedLocale } from "@/lib/locale-context"
-import { listingsHref, developersHref, aboutHref, contactHref, loginHref, registerDeveloperHref, type SupportedLocale as RoutesSupportedLocale } from "@/lib/routes"
+import { listingsHref, developersHref, newsHref, aboutHref, contactHref, loginHref, registerDeveloperHrefString, type SupportedLocale as RoutesSupportedLocale } from "@/lib/routes"
 
 interface FooterTranslations {
   footer: {
@@ -22,6 +22,7 @@ interface FooterTranslations {
   navigation: {
     listings: string
     developers: string
+    blog?: string
     aboutUs: string
     contact: string
     listYourProject: string
@@ -48,6 +49,7 @@ export function Footer({ translations, lang }: FooterProps) {
       links: [
         { href: listingsHref(langRoutes), label: tNav.listings },
         { href: developersHref(langRoutes), label: tNav.developers },
+        { href: newsHref(langRoutes), label: tNav.blog ?? 'News' },
         { href: aboutHref(langRoutes), label: tNav.aboutUs },
         { href: contactHref(langRoutes), label: tNav.contact },
       ],
@@ -56,13 +58,13 @@ export function Footer({ translations, lang }: FooterProps) {
       title: t.forDevelopers,
       links: [
         { 
-          href: registerDeveloperHref(langRoutes), 
+          href: registerDeveloperHrefString(langRoutes), 
           label: tNav.listYourProject 
         },
         { href: langRoutes === 'en' ? '/developer/dashboard' : `/${langRoutes}/developer/dashboard`, label: tNav.developerDashboard },
         { href: loginHref(langRoutes), label: tNav.login },
         { 
-          href: registerDeveloperHref(langRoutes), 
+          href: registerDeveloperHrefString(langRoutes), 
           label: tNav.register 
         },
       ],

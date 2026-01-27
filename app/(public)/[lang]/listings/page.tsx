@@ -10,6 +10,7 @@ import { buildIkUrl } from "@/lib/imagekit"
 import { redirect } from "next/navigation"
 import { listingsHref, cityListingsHref, asLocale } from "@/lib/routes"
 import { PaginationNav } from "./pagination-nav"
+import { ExploreByCityStrip } from "@/components/listings/explore-by-city-strip"
 import { getListingsMode } from "@/lib/listings-mode"
 import { getCityKeyFromCityType, getCityTypeFromKey } from "@/lib/city-registry"
 
@@ -382,6 +383,7 @@ export default async function ListingsPage({ params, searchParams }: ListingsPag
         primaryImageOfPage={socialImage}
       />
       <ListingsLayoutServer dict={dict} lang={lang}>
+        <ExploreByCityStrip lang={lang} dict={dict} />
         <ListingsClientWrapper
           dict={dict}
           lang={lang}

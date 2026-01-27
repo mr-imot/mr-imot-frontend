@@ -3,7 +3,7 @@ import { Image } from "@imagekit/next"
 import { toIkPath } from "@/lib/imagekit"
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { ServerHeaderAuthSlot } from "@/components/server-header-auth-slot"
-import { listingsHref, developersHref, newsHref, aboutHref, registerDeveloperHref, type SupportedLocale } from "@/lib/routes"
+import { homeHref, listingsHref, developersHref, newsHref, aboutHref, registerDeveloperHrefString, type SupportedLocale } from "@/lib/routes"
 import headerStyles from "./header.module.css"
 
 interface DesktopHeaderProps {
@@ -44,7 +44,7 @@ export function DesktopHeader({ lang, translations }: DesktopHeaderProps) {
       <div className="w-full grid items-center grid-cols-[auto_1fr_auto] gap-4">
         {/* Left Column - Logo */}
         <div className="flex items-center justify-start">
-          <Link href="/" className="flex items-center space-x-3 group clickable cursor-pointer">
+          <Link href={homeHref(lang)} className="flex items-center space-x-3 group clickable cursor-pointer">
             <div className="relative w-14 h-14 flex items-center justify-center rounded-full bg-white text-charcoal-800 shadow-[0_10px_24px_rgba(0,0,0,0.12)] border border-slate-200 hover:shadow-[0_12px_28px_rgba(0,0,0,0.16)] transition-all duration-200 cursor-pointer logo-circle">
               <Image
                 src={toIkPath("https://ik.imagekit.io/ts59gf2ul/Logo/mr-imot-logo-no-background.png")}
@@ -95,7 +95,7 @@ export function DesktopHeader({ lang, translations }: DesktopHeaderProps) {
         <div className="flex items-center justify-end gap-3 lg:gap-6">
           {/* Primary CTA - List Project */}
           <Link 
-            href={registerDeveloperHref(lang)}
+            href={registerDeveloperHrefString(lang)}
             className={`${headerStyles.btnShine} inline-flex items-center px-6 py-2 rounded-full bg-charcoal-500 text-white text-xs font-semibold hover:bg-charcoal-600 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-charcoal-300 h-8 w-40 justify-center whitespace-nowrap`}
           >
             {t.listYourProject}

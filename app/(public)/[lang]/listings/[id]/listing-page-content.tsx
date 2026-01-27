@@ -111,6 +111,8 @@ export default async function ListingPageContent({
           excludeId={activeProject.id}
           lang={lang}
           dict={{ listingDetail: dict.listingDetail }}
+          developerSlug={activeProject.developer?.slug ?? null}
+          developerName={activeProject.developer?.company_name ?? null}
         />
       )}
       {activeProject.city_key && (

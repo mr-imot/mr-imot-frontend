@@ -1,6 +1,6 @@
 import Link from "next/link"
 import Image from "next/image"
-import { listingHref } from "@/lib/routes"
+import { listingHref, developerHref } from "@/lib/routes"
 import { Home, Building } from "lucide-react"
 import type { Project } from "@/lib/api"
 import type { SupportedLocale } from "@/lib/routes"
@@ -10,6 +10,8 @@ interface MoreFromDeveloperProps {
   excludeId: string | number
   lang: SupportedLocale
   dict?: { listingDetail?: Record<string, string> }
+  developerSlug?: string | null
+  developerName?: string | null
 }
 
 function summarize(text: string | null | undefined, max = 60): string | null {
@@ -42,6 +44,8 @@ export async function MoreFromDeveloper({
   excludeId,
   lang,
   dict,
+  developerSlug,
+  developerName,
 }: MoreFromDeveloperProps) {
   const excludeStr = String(excludeId)
   let data: Project[] = []
@@ -70,11 +74,25 @@ export async function MoreFromDeveloper({
 
   const titleKey = dict?.listingDetail?.moreFromDeveloper
   const sectionTitle = titleKey ?? 'More from this developer'
+  const viewProfileKey = dict?.listingDetail?.viewDeveloperProfile
+  const viewProfileLabel =
+    viewProfileKey ??
+    (developerName ? `View ${developerName} profile` : 'View developer profile')
   const priceFallback = 'Request price'
 
   return (
     <section aria-label="More from this developer" className="max-w-7xl mx-auto px-4 py-8">
-      <h2 className="text-xl font-semibold text-foreground mb-4">{sectionTitle}</h2>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-xl font-semibold text-foreground">{sectionTitle}</h2>
+        {developerSlug && (
+          <Link
+            href={developerHref(lang, developerSlug)}
+            className="text-sm font-medium text-primary hover:underline"
+          >
+            {viewProfileLabel}
+          </Link>
+        )}
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {data.map((project) => {
           const listingUrl = listingHref(lang, project.slug ?? project.id)

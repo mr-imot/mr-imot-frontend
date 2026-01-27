@@ -4,7 +4,7 @@ import { toIkPath } from "@/lib/imagekit"
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { LazyMobileNavButton } from "@/components/lazy-mobile-nav-button"
 import { ServerHeaderAuthSlot } from "@/components/server-header-auth-slot"
-import { registerDeveloperHref, listingsHref, developersHref, newsHref, aboutHref, homeHref, type SupportedLocale } from "@/lib/routes"
+import { registerDeveloperHrefString, listingsHref, developersHref, newsHref, aboutHref, homeHref, type SupportedLocale } from "@/lib/routes"
 import headerStyles from "./header.module.css"
 
 interface ServerHeaderProps {
@@ -93,7 +93,7 @@ export function ServerHeader({ lang, translations, isListings = false }: ServerH
           <div className="hidden md:flex items-center gap-3 lg:gap-6">
             {/* Primary CTA - List Project */}
             <Link 
-              href={registerDeveloperHref(lang)}
+              href={registerDeveloperHrefString(lang)}
               className={`${headerStyles.btnShine} inline-flex items-center px-6 py-2 rounded-full bg-charcoal-500 text-white text-xs font-semibold hover:bg-charcoal-600 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-charcoal-300 h-8 w-40 justify-center whitespace-nowrap`}
             >
               {t.listYourProject}
