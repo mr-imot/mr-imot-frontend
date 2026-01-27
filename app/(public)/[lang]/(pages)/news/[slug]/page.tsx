@@ -3,6 +3,7 @@ import { notFound } from "next/navigation"
 import BlogPostLayout from "@/components/news/blog-post-layout"
 import { ArticleAlternateSlugs } from "@/components/news/article-alternate-slugs"
 import { ArticleStructuredData } from "@/components/news/article-structured-data"
+import { RelatedArticles } from "@/components/news/related-articles"
 import {
   BLOG_LANGS,
   type BlogLang,
@@ -10,7 +11,9 @@ import {
   getAlternateSlugs,
   getPostBySlug,
 } from "@/lib/news"
+import { getDictionary } from "@/lib/dictionaries"
 import { brandForLang, formatTitleWithBrand, getSiteUrl } from "@/lib/seo"
+import type { SupportedLocale } from "@/lib/routes"
 
 export const revalidate = 600
 export const dynamicParams = false
@@ -109,6 +112,8 @@ export default async function BlogPostPage({ params }: BlogPostParams) {
     return notFound()
   }
 
+  const dict = await getDictionary(lang)
+
   // Get alternate slugs for language switching
   const alternateSlugs = await getAlternateSlugs(post.translationKey)
 
@@ -129,6 +134,12 @@ export default async function BlogPostPage({ params }: BlogPostParams) {
       <BlogPostLayout post={post} lang={lang}>
         {post.content}
       </BlogPostLayout>
+      <RelatedArticles
+        lang={lang as SupportedLocale}
+        currentSlug={slug}
+        currentMeta={{ tags: post.tags, category: post.category, date: post.date }}
+        dict={dict}
+      />
     </div>
   )
 }

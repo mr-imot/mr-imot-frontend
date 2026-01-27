@@ -1,7 +1,16 @@
+import Image from "next/image"
 import Link from "next/link"
 import { developerHref, developersHref } from "@/lib/routes"
 import type { SupportedLocale } from "@/lib/routes"
 import type { DevelopersListResponse } from "@/lib/api"
+
+function initials(name: string): string {
+  const words = name.trim().split(/\s+/).filter(Boolean)
+  if (words.length >= 2) {
+    return (words[0][0] + words[1][0]).toUpperCase().slice(0, 2)
+  }
+  return name.trim().slice(0, 2).toUpperCase() || "?"
+}
 
 interface FeaturedDevelopersProps {
   lang: SupportedLocale
@@ -51,13 +60,48 @@ export async function FeaturedDevelopers({ lang, dict }: FeaturedDevelopersProps
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {developers.map((dev) => {
             const slug = dev.slug ?? String(dev.id)
+            const logoSrc =
+              dev.profile_image_url?.startsWith("http")
+                ? dev.profile_image_url
+                : dev.profile_image_url
+                  ? `${baseUrl}${dev.profile_image_url.startsWith("/") ? "" : "/"}${dev.profile_image_url}`
+                  : null
             return (
               <Link
                 key={dev.id}
                 href={developerHref(lang, slug)}
-                className="block rounded-xl bg-white/80 hover:bg-white px-4 py-3 font-medium text-gray-800 hover:text-charcoal-600 shadow-sm hover:shadow-md transition-all"
+                className="group flex items-center gap-4 rounded-xl bg-white/90 hover:bg-white px-4 py-4 font-medium text-gray-800 hover:text-charcoal-600 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all"
               >
-                {dev.company_name}
+                <div
+                  className="relative shrink-0 size-12 rounded-lg overflow-hidden bg-muted flex items-center justify-center"
+                  aria-hidden
+                >
+                  {logoSrc ? (
+                    /^https:\/\/ik\.imagekit\.io\//i.test(logoSrc) ? (
+                      <Image
+                        src={logoSrc}
+                        alt=""
+                        width={48}
+                        height={48}
+                        className="object-cover size-full"
+                      />
+                    ) : (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={logoSrc}
+                        alt=""
+                        width={48}
+                        height={48}
+                        className="object-cover size-full"
+                      />
+                    )
+                  ) : (
+                    <span className="text-sm font-semibold text-charcoal-600">
+                      {initials(dev.company_name)}
+                    </span>
+                  )}
+                </div>
+                <span className="min-w-0 truncate">{dev.company_name}</span>
               </Link>
             )
           })}

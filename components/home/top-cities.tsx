@@ -40,7 +40,7 @@ export async function TopCities({ lang, dict }: TopCitiesProps) {
               <li key={cityKey}>
                 <Link
                   href={cityListingsHref(lang, cityKey)}
-                  className="block rounded-xl bg-white/80 hover:bg-white px-4 py-3 font-medium text-gray-800 hover:text-charcoal-600 shadow-sm hover:shadow-md transition-all"
+                  className="block rounded-xl bg-white/90 hover:bg-white px-5 py-4 text-center font-semibold text-gray-800 hover:text-charcoal-600 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all"
                 >
                   {label}
                 </Link>
