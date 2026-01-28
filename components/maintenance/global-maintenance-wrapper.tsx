@@ -56,7 +56,7 @@ export const GlobalMaintenanceWrapper: React.FC<GlobalMaintenanceWrapperProps> =
           // Only consider 500+ errors as failures, not 404 or other client errors
           healthFailed = healthStatus.status >= 500
           
-          if (config.features.debugLogging) {
+          if (process.env.NODE_ENV === 'development' && config.features?.debugLogging) {
             console.log(`Health check attempt ${retryCount + 1}:`, healthStatus.status)
           }
           
@@ -84,19 +84,18 @@ export const GlobalMaintenanceWrapper: React.FC<GlobalMaintenanceWrapperProps> =
 
       if (healthFailed) {
         setIsBackendDown(true)
-        if (config.features.debugLogging) {
+        if (process.env.NODE_ENV === 'development' && config.features?.debugLogging) {
           console.warn('🚨 Backend appears to be down after retries - showing maintenance page')
         }
       } else {
         setIsBackendDown(false)
-        if (config.features.debugLogging) {
+        if (process.env.NODE_ENV === 'development' && config.features?.debugLogging) {
           console.info('✅ Backend is responsive or health check passed - normal operation')
         }
       }
     } catch (error) {
-      // Unexpected error - be conservative and allow the app to load
       setIsBackendDown(false)
-      if (config.features.debugLogging) {
+      if (process.env.NODE_ENV === 'development' && config.features?.debugLogging) {
         console.warn('⚠️ Health check error, defaulting to allow app load:', error)
       }
     } finally {

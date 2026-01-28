@@ -37,10 +37,7 @@ export default function VerifyEmailClient() {
   }, [token, hasVerified])
 
   const verifyEmail = async (verificationToken: string) => {
-    if (hasVerified) {
-      console.log('DEBUG: Already verified, skipping API call')
-      return
-    }
+    if (hasVerified) return
     
     try {
       setIsLoading(true)

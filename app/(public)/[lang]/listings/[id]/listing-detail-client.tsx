@@ -24,6 +24,7 @@ import { PropertyGallery } from "@/components/PropertyGallery"
 import { FeaturesDisplay } from "@/components/FeaturesDisplay"
 import dynamic from "next/dynamic"
 import { translatePrice, PriceTranslations } from "@/lib/price-translator"
+import { developerHref, type SupportedLocale } from "@/lib/routes"
 
 // Dynamically import map component with no SSR to reduce initial bundle size
 const OptimizedPropertyMap = dynamic(
@@ -42,6 +43,7 @@ const OptimizedPropertyMap = dynamic(
 
 interface ListingDetailClientProps {
   projectId: string
+  lang?: SupportedLocale
   initialProject?: Project
   isModal?: boolean // Indicates if rendered in modal context
   translations?: {
@@ -106,7 +108,7 @@ const defaultTranslations = {
   }
 }
 
-export default function ListingDetailClient({ projectId, initialProject, isModal = false, translations }: ListingDetailClientProps) {
+export default function ListingDetailClient({ projectId, lang = 'en', initialProject, isModal = false, translations }: ListingDetailClientProps) {
   const [property, setProperty] = useState<any>(initialProject || null)
   const [loading, setLoading] = useState(!initialProject) // Don't show loading if we have data
   const [error, setError] = useState<string | null>(null)
@@ -310,7 +312,7 @@ export default function ListingDetailClient({ projectId, initialProject, isModal
 
   const completionData = parseCompletionNote(property.completion_note)
   const developerProfilePath = property.developer?.slug || property.developer?.id
-  const developerProfileUrl = developerProfilePath ? `/developers/${developerProfilePath}` : null
+  const developerProfileUrl = developerProfilePath ? developerHref(lang, String(developerProfilePath)) : null
 
   return (
     <main role="main" className="max-w-7xl mx-auto px-4 py-6">

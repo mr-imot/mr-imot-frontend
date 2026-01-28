@@ -50,15 +50,15 @@ export class MarkerManager {
 
   // Main method to render all markers (clustering enabled)
   renderMarkers(force: boolean = false) {
-    const timestamp = new Date().toISOString()
-    console.log('🟠 MARKER RENDER:', {
-      timestamp,
-      force,
-      propertyCount: this.config.properties.length,
-      isInitialized: this.isInitialized,
-      existingMarkerCount: Object.keys(this.markers).length
-    })
-    
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🟠 MARKER RENDER:', {
+        timestamp: new Date().toISOString(),
+        force,
+        propertyCount: this.config.properties.length,
+        isInitialized: this.isInitialized,
+        existingMarkerCount: Object.keys(this.markers).length
+      })
+    }
     // Get current zoom from first available map
     const currentZoom = this.config.maps.length > 0 && this.config.maps[0] 
       ? this.config.maps[0].getZoom() ?? null
@@ -209,15 +209,15 @@ export class MarkerManager {
 
   // Update properties without recreating markers
   updateProperties(newProperties: PropertyData[]) {
-    const timestamp = new Date().toISOString()
-    console.log('🟠 MARKER UPDATE (updateProperties):', {
-      timestamp,
-      newPropertyCount: newProperties.length,
-      existingMarkerCount: Object.keys(this.markers).length,
-      newPropertyIds: newProperties.map(p => p.id),
-      reason: 'properties changed'
-    })
-    
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🟠 MARKER UPDATE (updateProperties):', {
+        timestamp: new Date().toISOString(),
+        newPropertyCount: newProperties.length,
+        existingMarkerCount: Object.keys(this.markers).length,
+        newPropertyIds: newProperties.map(p => p.id),
+        reason: 'properties changed'
+      })
+    }
     const newPropertyIds = new Set(newProperties.map(p => p.id))
     const primaryMap = this.config.maps[0]
     if (!primaryMap) return
@@ -308,14 +308,13 @@ export class MarkerManager {
   }
 
   private clearAllMarkers() {
-    const timestamp = new Date().toISOString()
-    const markerCount = Object.keys(this.markers).length
-    console.log('🟠 CLEAR ALL MARKERS:', {
-      timestamp,
-      markerCount,
-      markerIds: Object.keys(this.markers)
-    })
-    
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🟠 CLEAR ALL MARKERS:', {
+        timestamp: new Date().toISOString(),
+        markerCount: Object.keys(this.markers).length,
+        markerIds: Object.keys(this.markers)
+      })
+    }
     // Clear all markers from maps (unified approach - no clones to clean up)
     Object.values(this.markers).forEach((marker) => {
       if ('setMap' in marker) {
@@ -382,18 +381,17 @@ export class MarkerManager {
     if (typeof property.lat !== "number" || typeof property.lng !== "number") {
       return
     }
-    
-    const timestamp = new Date().toISOString()
-    console.log('🟠 CREATE MARKER:', {
-      timestamp,
-      propertyId: property.id,
-      propertyTitle: property.title,
-      lat: property.lat,
-      lng: property.lng,
-      alreadyExists: !!this.markers[property.id],
-      fromCache: !!(this.markerCache[property.id] && this.markerContents[property.id])
-    })
-
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🟠 CREATE MARKER:', {
+        timestamp: new Date().toISOString(),
+        propertyId: property.id,
+        propertyTitle: property.title,
+        lat: property.lat,
+        lng: property.lng,
+        alreadyExists: !!this.markers[property.id],
+        fromCache: !!(this.markerCache[property.id] && this.markerContents[property.id])
+      })
+    }
     // Check if marker is already cached AND we have its original content to clone
     if (this.markerCache[property.id] && this.markerContents[property.id]) {
       const originalElement = this.markerContents[property.id]
@@ -543,22 +541,23 @@ export class MarkerManager {
         e.domEvent.preventDefault()
       }
       
-      console.log('🔵 MARKER CLICK FIRED:', {
-        timestamp,
-        propertyId: property.id,
-        propertyTitle: property.title,
-        currentConfigSelectedId,
-        willOpen,
-        willClose,
-        action: willOpen ? 'OPENING card' : 'CLOSING card'
-      })
-      
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔵 MARKER CLICK FIRED:', {
+          timestamp,
+          propertyId: property.id,
+          propertyTitle: property.title,
+          currentConfigSelectedId,
+          willOpen,
+          willClose,
+          action: willOpen ? 'OPENING card' : 'CLOSING card'
+        })
+      }
       if (currentConfigSelectedId === property.id) {
-        console.log('🔵 MARKER CLICK: Calling onPropertySelect(null) to close')
+        if (process.env.NODE_ENV === 'development') console.log('🔵 MARKER CLICK: Calling onPropertySelect(null) to close')
         this.config.onPropertySelect(null)
         this.config.onAriaAnnouncement("Property details closed")
       } else {
-        console.log('🔵 MARKER CLICK: Calling onPropertySelect(property.id, property) to open')
+        if (process.env.NODE_ENV === 'development') console.log('🔵 MARKER CLICK: Calling onPropertySelect(property.id, property) to open')
         // FIX: Pass the full property object to avoid stale closure issues
         // The callback can use this directly instead of searching filteredProperties
         this.config.onPropertySelect(property.id, property)

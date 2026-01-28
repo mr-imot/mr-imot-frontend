@@ -11,10 +11,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const citiesData = await apiClient.getCities(10) // min_projects=10
     
-    // Debug logging
-    console.log('[sitemap] cities total:', citiesData.cities?.length)
-    console.log('[sitemap] example city:', citiesData.cities?.[0])
-    
     // Filter to Bulgaria only (case-insensitive)
     const bgCities = citiesData.cities.filter(
       city => (city.country_code || '').toLowerCase() === 'bg'

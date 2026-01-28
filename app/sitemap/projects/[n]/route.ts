@@ -65,7 +65,9 @@ export async function GET(
       })
     }
     
-    console.log(`[sitemap] Generating projects sitemap for chunk ${chunkNumber}`)
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[sitemap] Generating projects sitemap for chunk ${chunkNumber}`)
+    }
     
     // Calculate page range for this chunk
     const startProjectIndex = (chunkNumber - 1) * PROJECTS_PER_CHUNK
@@ -127,7 +129,9 @@ export async function GET(
     // Limit to chunk size
     const chunkProjects = allProjects.slice(0, PROJECTS_PER_CHUNK)
     
-    console.log(`[sitemap] Found ${chunkProjects.length} projects for chunk ${chunkNumber}`)
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[sitemap] Found ${chunkProjects.length} projects for chunk ${chunkNumber}`)
+    }
     
     // Generate sitemap entries for this chunk
     // One URL per project (EN as main) with alternates for other languages

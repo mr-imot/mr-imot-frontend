@@ -196,12 +196,9 @@ export class MapFetchController {
       const cached = boundsCache.getCachedData(sw_lat, sw_lng, ne_lat, ne_lng, propertyType)
       if (cached && cached.length > 0) {
         this.metrics.cacheHits++
-        console.debug('[MapFetch]', { 
-          bounds: { sw_lat, sw_lng, ne_lat, ne_lng }, 
-          fromCache: true, 
-          requestId: currentRequestId,
-          propertyCount: cached.length
-        })
+        if (process.env.NODE_ENV === 'development') {
+          console.debug('[MapFetch]', { bounds: { sw_lat, sw_lng, ne_lat, ne_lng }, fromCache: true, requestId: currentRequestId, propertyCount: cached.length })
+        }
         this.onDataUpdate(cached, currentRequestId)
         // Background refresh (fire and forget, don't block)
         this.backgroundFetch(sw_lat, sw_lng, ne_lat, ne_lng, propertyType, page, per_page)
@@ -212,11 +209,9 @@ export class MapFetchController {
     this.metrics.cacheMisses++
 
     // ─── Network fetch ───────────────────────────────────────────────────────
-    console.debug('[MapFetch]', { 
-      bounds: { sw_lat, sw_lng, ne_lat, ne_lng }, 
-      fromCache: false, 
-      requestId: currentRequestId 
-    })
+    if (process.env.NODE_ENV === 'development') {
+      console.debug('[MapFetch]', { bounds: { sw_lat, sw_lng, ne_lat, ne_lng }, fromCache: false, requestId: currentRequestId })
+    }
     await this.networkFetch(sw_lat, sw_lng, ne_lat, ne_lng, propertyType, page, per_page, currentRequestId)
   }
 

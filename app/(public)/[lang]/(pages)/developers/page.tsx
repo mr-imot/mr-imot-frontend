@@ -21,12 +21,16 @@ interface DevelopersPageProps {
   searchParams?: Promise<{ page?: string }>
 }
 
-/** Server-side fetch for developers list (SEO crawlability). */
-async function getDevelopersServer(page: number, perPage: number): Promise<DevelopersListResponse | null> {
+/** Server-side fetch for developers list (SEO crawlability). lang in URL so cache key is per-locale. */
+async function getDevelopersServer(page: number, perPage: number, lang: string): Promise<DevelopersListResponse | null> {
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
     const baseUrl = apiUrl.replace(/\/$/, '')
-    const params = new URLSearchParams({ page: String(page), per_page: String(perPage) })
+    const params = new URLSearchParams({
+      page: String(page),
+      per_page: String(perPage),
+      lang: lang,
+    })
     const response = await fetch(`${baseUrl}/api/v1/developers?${params.toString()}`, {
       next: { revalidate: 300 },
       headers: { 'Content-Type': 'application/json' },
@@ -147,7 +151,7 @@ export default async function DevelopersPage({ params, searchParams }: Developer
     { width: 1200, height: 630, quality: 85, format: "webp", focus: "auto" },
   ])
 
-  const data = await getDevelopersServer(currentPage, 20)
+  const data = await getDevelopersServer(currentPage, 20, lang)
   const developers = data?.developers ?? []
   const pagination = data
     ? { total: data.total, page: data.page, per_page: data.per_page, total_pages: data.total_pages }

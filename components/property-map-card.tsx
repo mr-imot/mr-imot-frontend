@@ -38,20 +38,6 @@ export function PropertyMapCard({
   const pathname = usePathname()
   const [isClosing, setIsClosing] = useState(false)
   
-  // Log when card renders
-  useEffect(() => {
-    if (property) {
-      const timestamp = new Date().toISOString()
-      console.log('🟦 PropertyMapCard RENDERED:', {
-        timestamp,
-        propertyId: property.id,
-        propertyTitle: property.title,
-        floating,
-        forceMobile,
-        hasPosition: !!position
-      })
-    }
-  }, [property, floating, forceMobile, position])
   const [dragOffset, setDragOffset] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
   const touchStartY = useRef<number | null>(null)

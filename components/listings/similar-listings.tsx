@@ -1,6 +1,6 @@
 import Link from "next/link"
 import Image from "next/image"
-import { listingHref } from "@/lib/routes"
+import { listingHref, cityListingsHref } from "@/lib/routes"
 import { Home, Building } from "lucide-react"
 import type { Project } from "@/lib/api"
 import type { SupportedLocale } from "@/lib/routes"
@@ -10,6 +10,8 @@ interface SimilarListingsProps {
   excludeId: string | number
   lang: SupportedLocale
   dict?: { listingDetail?: Record<string, string> }
+  /** Display name for CTA e.g. "София". If empty, CTA uses viewAllInThisArea. */
+  cityName?: string | null
 }
 
 function summarize(text: string | null | undefined, max = 60): string | null {
@@ -35,13 +37,14 @@ function parseProjectsFromResponse(body: unknown): Project[] {
 
 /**
  * Server-rendered "Similar listings in this city" block for listing detail (SEO internal links).
- * Fetches 6–12 projects by city_key, excludes current, renders only if ≥2 others.
+ * Fetches up to 12 projects by city_key, excludes current, renders when ≥1 other.
  */
 export async function SimilarListings({
   cityKey,
   excludeId,
   lang,
   dict,
+  cityName,
 }: SimilarListingsProps) {
   const excludeStr = String(excludeId)
   let data: Project[] = []
@@ -52,29 +55,56 @@ export async function SimilarListings({
       city_key: cityKey,
       per_page: '13',
     })
-    const res = await fetch(`${baseUrl}/api/v1/projects?${params.toString()}`, {
+    const requestUrl = `${baseUrl}/api/v1/projects?${params.toString()}`
+    const res = await fetch(requestUrl, {
       next: { revalidate: 300 },
       headers: { 'Content-Type': 'application/json' },
     })
-    if (!res.ok) return null
     const body = await res.json()
     const raw = parseProjectsFromResponse(body)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[SimilarListings]', {
+        cityKey,
+        requestUrl,
+        status: res.status,
+        rawLength: raw.length,
+        afterExcludeLength: raw.filter((p) => String(p.id) !== excludeStr && String(p.slug ?? p.id) !== excludeStr).length,
+      })
+    }
+    if (!res.ok) return null
     data = raw
       .filter((p) => String(p.id) !== excludeStr && String(p.slug ?? p.id) !== excludeStr)
       .slice(0, 12)
-  } catch {
+  } catch (e) {
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('[SimilarListings] fetch error:', e)
+    }
     return null
   }
 
-  if (data.length < 2) return null
+  if (data.length === 0) return null
 
   const titleKey = dict?.listingDetail?.similarListingsInCity
   const sectionTitle = titleKey ?? 'Similar listings in this city'
+  const viewAllInCityRaw = dict?.listingDetail?.viewAllInCity ?? 'View all in {cityName}'
+  const viewAllInThisAreaFallback = dict?.listingDetail?.viewAllInThisArea ?? 'View all in this area'
+  const viewAllLabel =
+    cityName && cityName.trim()
+      ? viewAllInCityRaw.replace(/\{cityName\}/g, cityName.trim())
+      : viewAllInThisAreaFallback
   const priceFallback = 'Request price'
 
   return (
     <section aria-label="Similar listings in this city" className="max-w-7xl mx-auto px-4 py-8">
-      <h2 className="text-xl font-semibold text-foreground mb-4">{sectionTitle}</h2>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-xl font-semibold text-foreground">{sectionTitle}</h2>
+        <Link
+          href={cityListingsHref(lang, cityKey)}
+          className="text-sm font-medium text-primary hover:underline"
+        >
+          {viewAllLabel}
+        </Link>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {data.map((project) => {
           const listingUrl = listingHref(lang, project.slug ?? project.id)

@@ -15,14 +15,16 @@ interface PageProps {
   }>
 }
 
-// Server-side function to fetch developer data
-async function getDeveloperData(identifier: string): Promise<DeveloperProfile | null> {
+// Server-side function to fetch developer data.
+// lang is included in the URL so the fetch cache key varies by locale (avoids EN-cached
+// response being reused for /bg/stroiteli/... and causing "redirect" / language mismatch).
+async function getDeveloperData(identifier: string, lang: string): Promise<DeveloperProfile | null> {
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
     const baseUrl = apiUrl.replace(/\/$/, '')
     const encodedIdentifier = encodeURIComponent(identifier)
-    const response = await fetch(`${baseUrl}/api/v1/developers/${encodedIdentifier}?per_page=12`, {
-      next: { revalidate: 300 }, // Revalidate every 5 minutes
+    const response = await fetch(`${baseUrl}/api/v1/developers/${encodedIdentifier}?per_page=12&lang=${encodeURIComponent(lang)}`, {
+      cache: 'no-store', // Always fresh so projects count is correct; locale in URL keeps cache key per-lang if caching is re-enabled
       headers: {
         'Content-Type': 'application/json',
       },
@@ -50,7 +52,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     { width: 1200, height: 630, quality: 85, format: "webp", focus: "auto" },
   ])
   
-  const developer = await getDeveloperData(slug)
+  const developer = await getDeveloperData(slug, lang)
   
   if (!developer) {
     return {
@@ -136,7 +138,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function DeveloperDetailPage({ params }: PageProps) {
   const { lang, slug } = await params
-  const developer = await getDeveloperData(slug)
+  const developer = await getDeveloperData(slug, lang)
   
   if (!developer) {
     notFound()

@@ -724,7 +724,17 @@
     "getDirectionsToOffice": "Get Directions to Office",
     "officeLocationNotAvailable": "Office location not available",
     "noImagesAvailable": "No images available for this property",
-    "untitledProject": "Untitled Project"
+    "untitledProject": "Untitled Project",
+    "moreFromDeveloper": "More from this developer",
+    "viewDeveloperProfile": "View developer profile",
+    "viewAllProjectsByDeveloper": "View all projects by this developer",
+    "similarListingsInCity": "Similar listings in this city",
+    "viewAllInCity": "View all in {cityName}",
+    "viewAllInThisArea": "View all in this area",
+    "publishedByVerifiedDeveloper": "Published directly by a verified developer",
+    "source": "Source",
+    "noBrokersNoIntermediaries": "No brokers · No intermediaries · No fake listings",
+    "accountVerifiedByMrImot": "The developer account is verified by Mister Imot"
   },
   "developersDetail": {
     "loading": "Loading developer details...",
@@ -751,12 +761,6 @@
     "getDirections": "Get Directions to Office",
     "verifiedDeveloperDescription": "Verified developer on Mister Imot – directly from the developer, without intermediaries.",
     "verifiedDeveloperTrustSignals": "No brokers · No fake listings · Verified account"
-  },
-  "listingDetail": {
-    "publishedByVerifiedDeveloper": "Published directly by a verified developer",
-    "source": "Source",
-    "noBrokersNoIntermediaries": "No brokers · No intermediaries · No fake listings",
-    "accountVerifiedByMrImot": "The developer account is verified by Mister Imot"
   },
   "projectTypes": {
     "apartmentBuilding": "Apartment complex",

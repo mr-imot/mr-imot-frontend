@@ -11,7 +11,7 @@ interface MoreFromDeveloperProps {
   lang: SupportedLocale
   dict?: { listingDetail?: Record<string, string> }
   developerSlug?: string | null
-  developerName?: string | null
+  developerName?: string | null // kept for backwards compatibility, not used for CTA
 }
 
 function summarize(text: string | null | undefined, max = 60): string | null {
@@ -56,17 +56,30 @@ export async function MoreFromDeveloper({
       developer_id: String(developerId),
       per_page: '7',
     })
-    const res = await fetch(`${baseUrl}/api/v1/projects?${params.toString()}`, {
+    const requestUrl = `${baseUrl}/api/v1/projects?${params.toString()}`
+    const res = await fetch(requestUrl, {
       next: { revalidate: 300 },
       headers: { 'Content-Type': 'application/json' },
     })
-    if (!res.ok) return null
     const body = await res.json()
     const raw = parseProjectsFromResponse(body)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[MoreFromDeveloper]', {
+        developerId,
+        requestUrl,
+        status: res.status,
+        rawLength: raw.length,
+        afterExcludeLength: raw.filter((p) => String(p.id) !== excludeStr && String(p.slug ?? p.id) !== excludeStr).length,
+      })
+    }
+    if (!res.ok) return null
     data = raw
       .filter((p) => String(p.id) !== excludeStr && String(p.slug ?? p.id) !== excludeStr)
       .slice(0, 6)
-  } catch {
+  } catch (e) {
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('[MoreFromDeveloper] fetch error:', e)
+    }
     return null
   }
 
@@ -74,10 +87,8 @@ export async function MoreFromDeveloper({
 
   const titleKey = dict?.listingDetail?.moreFromDeveloper
   const sectionTitle = titleKey ?? 'More from this developer'
-  const viewProfileKey = dict?.listingDetail?.viewDeveloperProfile
-  const viewProfileLabel =
-    viewProfileKey ??
-    (developerName ? `View ${developerName} profile` : 'View developer profile')
+  const viewAllLabel =
+    dict?.listingDetail?.viewAllProjectsByDeveloper ?? 'View all projects by this developer'
   const priceFallback = 'Request price'
 
   return (
@@ -89,7 +100,7 @@ export async function MoreFromDeveloper({
             href={developerHref(lang, developerSlug)}
             className="text-sm font-medium text-primary hover:underline"
           >
-            {viewProfileLabel}
+            {viewAllLabel}
           </Link>
         )}
       </div>

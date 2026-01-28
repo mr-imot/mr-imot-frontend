@@ -63,7 +63,9 @@ export function MobileListingsLayout() {
   }
 
   const handlePropertySelect = (propertyId: string | null) => {
-    console.log('🔵 MOBILE LAYOUT: Property selected:', propertyId)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔵 MOBILE LAYOUT: Property selected:', propertyId)
+    }
     setSelectedPropertyId(propertyId)
     if (propertyId && viewMode === 'list') {
       // Switch to map view when property is selected from list

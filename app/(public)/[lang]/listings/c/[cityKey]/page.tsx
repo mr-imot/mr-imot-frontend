@@ -99,6 +99,7 @@ async function fetchInitialProperties(
   }
 }
 
+// Non-OK (including 404 for unknown city_key) is treated as no active listings (noindex).
 async function fetchCityStatus(cityKey: string): Promise<{ has_active_listings: boolean } | null> {
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'

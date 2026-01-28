@@ -83,7 +83,7 @@ export default async function ListingPageContent({
     ? (await getCityInfo(activeProject.city_key))?.displayNames[lang] ?? activeProject.city ?? null
     : null
 
-  // Developer id: API may return developer_id or developer.id as number or string (UUID)
+  // Developer id: prefer developer_id (UUID) from single-project API for MoreFromDeveloper; backend accepts UUID or slug
   const developerId =
     activeProject.developer_id ?? activeProject.developer?.id ?? null
   const hasDeveloperId =
@@ -97,6 +97,7 @@ export default async function ListingPageContent({
       <ListingDetailClient 
         key={activeProject.id} 
         projectId={id} 
+        lang={lang}
         initialProject={activeProject}
         isModal={isModal}
         translations={{
@@ -121,6 +122,7 @@ export default async function ListingPageContent({
           excludeId={activeProject.id}
           lang={lang}
           dict={{ listingDetail: dict.listingDetail }}
+          cityName={cityLabel}
         />
       )}
     </>

@@ -211,11 +211,13 @@ export function ListingsClientContent({
     if (id === null) {
       // Check if we should ignore this auto-clear (it's from a race condition)
       if (ignoreNextAutoClearRef.current) {
-        console.log('🛡️ IGNORED: onPropertySelect(null) - blocked by ignoreNextAutoClearRef guard')
+        if (process.env.NODE_ENV === 'development') {
+          console.log('🛡️ IGNORED: onPropertySelect(null) - blocked by ignoreNextAutoClearRef guard')
+        }
         ignoreNextAutoClearRef.current = false
         return
       }
-      console.trace('🔍 TRACE: onPropertySelect(null) called - full call stack:')
+      if (process.env.NODE_ENV === 'development') console.trace('🔍 TRACE: onPropertySelect(null) called - full call stack:')
     } else {
       // When opening a card, set the guard to prevent immediate auto-clear
       ignoreNextAutoClearRef.current = true
@@ -242,39 +244,42 @@ export function ListingsClientContent({
     
     propertyByIdRef.current = map
     
-    const timestamp = new Date().toISOString()
-    console.log('📦 propertyByIdRef UPDATED:', {
-      timestamp,
-      propertyCount: map.size,
-      source: propertyCacheRef.current.size > 0 ? 'propertyCacheRef' : 'filteredProperties',
-      ids: Array.from(map.keys()).slice(0, 5)
-    })
+    if (process.env.NODE_ENV === 'development') {
+      console.log('📦 propertyByIdRef UPDATED:', {
+        timestamp: new Date().toISOString(),
+        propertyCount: map.size,
+        source: propertyCacheRef.current.size > 0 ? 'propertyCacheRef' : 'filteredProperties',
+        ids: Array.from(map.keys()).slice(0, 5)
+      })
+    }
   }, [filteredProperties, propertyCacheRef])
   
   // Track selectedPropertyId changes (ground truth for diagnostics)
   useEffect(() => {
-    const timestamp = new Date().toISOString()
-    console.log('🟣 selectedPropertyId CHANGED (ground truth):', {
-      timestamp,
-      newValue: selectedPropertyId,
-      previousValue: selectedPropertyIdRef.current,
-      willOpenCard: !!selectedPropertyId,
-      willCloseCard: !selectedPropertyId && !!selectedPropertyIdRef.current
-    })
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🟣 selectedPropertyId CHANGED (ground truth):', {
+        timestamp: new Date().toISOString(),
+        newValue: selectedPropertyId,
+        previousValue: selectedPropertyIdRef.current,
+        willOpenCard: !!selectedPropertyId,
+        willCloseCard: !selectedPropertyId && !!selectedPropertyIdRef.current
+      })
+    }
     selectedPropertyIdRef.current = selectedPropertyId
   }, [selectedPropertyId])
   
   // Track filteredProperties changes (critical for Pattern 2 diagnosis)
   useEffect(() => {
-    const timestamp = new Date().toISOString()
-    console.log('🧨 filteredProperties CHANGED:', {
-      timestamp,
-      city: selectedCity,
-      count: filteredProperties.length,
-      ids: filteredProperties.slice(0, 5).map(p => p.id), // don't spam
-      hasSelectedProperty: selectedPropertyId ? filteredProperties.some(p => p.id === selectedPropertyId) : false,
-      selectedPropertyId: selectedPropertyId
-    })
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🧨 filteredProperties CHANGED:', {
+        timestamp: new Date().toISOString(),
+        city: selectedCity,
+        count: filteredProperties.length,
+        ids: filteredProperties.slice(0, 5).map(p => p.id),
+        hasSelectedProperty: selectedPropertyId ? filteredProperties.some(p => p.id === selectedPropertyId) : false,
+        selectedPropertyId
+      })
+    }
   }, [filteredProperties, selectedCity, selectedPropertyId])
   
   // ─────────────────────────────────────────────────────────────────────────
@@ -304,12 +309,11 @@ export function ListingsClientContent({
     ? filteredProperties.find(p => p.id === selectedPropertyId)
     : null
   
-  // Log card rendering state
+  // Log card rendering state (dev only)
   useEffect(() => {
-    if (selectedPropertyId) {
-      const timestamp = new Date().toISOString()
+    if (process.env.NODE_ENV === 'development' && selectedPropertyId) {
       console.log('🟪 CARD RENDER CHECK:', {
-        timestamp,
+        timestamp: new Date().toISOString(),
         selectedPropertyId,
         selectedProperty: selectedProperty ? selectedProperty.title : 'NOT FOUND',
         foundInFilteredProperties: !!selectedProperty,
@@ -332,11 +336,13 @@ export function ListingsClientContent({
     // Only clear if property is genuinely missing from all sources
     // This prevents clearing during valid selection or UI event races
     if (!existsInRef && !existsInFiltered) {
-      console.log('🛡️ AUTO-CLEAR: Property not found in any source, clearing selection', {
-        selectedPropertyId,
-        propertyCacheSize: propertyByIdRef.current.size,
-        filteredCount: filteredProperties.length
-      })
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🛡️ AUTO-CLEAR: Property not found in any source, clearing selection', {
+          selectedPropertyId,
+          propertyCacheSize: propertyByIdRef.current.size,
+          filteredCount: filteredProperties.length
+        })
+      }
       // IMPORTANT: Set state directly, do NOT call onPropertySelect(null)
       // Calling onPropertySelect(null) would re-enter marker manager callbacks and cause loops
       // This is only for genuinely invalid selections (e.g., after city switch where property doesn't exist)
@@ -781,34 +787,27 @@ export function ListingsClientContent({
     
     const map = googleMapRef.current
     const clickListener = map.addListener('click', (e: google.maps.MapMouseEvent) => {
-      const timestamp = new Date().toISOString()
       const currentSelectedId = selectedPropertyIdRef.current
-      
-      console.log('🟢 MAP CLICK FIRED (desktop):', {
-        timestamp,
-        currentSelectedId,
-        hasSelectedProperty: !!currentSelectedId,
-        suppressFlag: suppressMapClickRef.current,
-        lat: e.latLng?.lat(),
-        lng: e.latLng?.lng()
-      })
-      
-      // Suppress if marker click just happened (prevents conflict)
-      // This is the ONLY place we clear the suppress flag (consumes it)
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🟢 MAP CLICK FIRED (desktop):', {
+          timestamp: new Date().toISOString(),
+          currentSelectedId,
+          hasSelectedProperty: !!currentSelectedId,
+          suppressFlag: suppressMapClickRef.current,
+          lat: e.latLng?.lat(),
+          lng: e.latLng?.lng()
+        })
+      }
       if (suppressMapClickRef.current) {
-        console.log('🟢 MAP CLICK: Suppressed (marker click in progress)')
+        if (process.env.NODE_ENV === 'development') console.log('🟢 MAP CLICK: Suppressed (marker click in progress)')
         suppressMapClickRef.current = false
         return
       }
-      
-      // If suppress flag wasn't set but we have a selected property, 
-      // this is a legitimate empty-space click
-      
       if (currentSelectedId) {
-        console.log('🟢 MAP CLICK: Closing card')
+        if (process.env.NODE_ENV === 'development') console.log('🟢 MAP CLICK: Closing card')
         tracedOnPropertySelect(null)
       } else {
-        console.log('🟢 MAP CLICK: No card to close (empty space click)')
+        if (process.env.NODE_ENV === 'development') console.log('🟢 MAP CLICK: No card to close (empty space click)')
       }
     })
     
@@ -824,34 +823,27 @@ export function ListingsClientContent({
     
     const mobileMap = mobileGoogleMapRef.current
     const clickListener = mobileMap.addListener('click', (e: google.maps.MapMouseEvent) => {
-      const timestamp = new Date().toISOString()
       const currentSelectedId = selectedPropertyIdRef.current
-      
-      console.log('🟢 MAP CLICK FIRED (mobile):', {
-        timestamp,
-        currentSelectedId,
-        hasSelectedProperty: !!currentSelectedId,
-        suppressFlag: suppressMapClickRef.current,
-        lat: e.latLng?.lat(),
-        lng: e.latLng?.lng()
-      })
-      
-      // Suppress if marker click just happened (prevents conflict)
-      // This is the ONLY place we clear the suppress flag (consumes it)
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🟢 MAP CLICK FIRED (mobile):', {
+          timestamp: new Date().toISOString(),
+          currentSelectedId,
+          hasSelectedProperty: !!currentSelectedId,
+          suppressFlag: suppressMapClickRef.current,
+          lat: e.latLng?.lat(),
+          lng: e.latLng?.lng()
+        })
+      }
       if (suppressMapClickRef.current) {
-        console.log('🟢 MAP CLICK: Suppressed (marker click in progress)')
+        if (process.env.NODE_ENV === 'development') console.log('🟢 MAP CLICK: Suppressed (marker click in progress)')
         suppressMapClickRef.current = false
         return
       }
-      
-      // If suppress flag wasn't set but we have a selected property, 
-      // this is a legitimate empty-space click
-      
       if (currentSelectedId) {
-        console.log('🟢 MAP CLICK: Closing card')
+        if (process.env.NODE_ENV === 'development') console.log('🟢 MAP CLICK: Closing card')
         tracedOnPropertySelect(null)
       } else {
-        console.log('🟢 MAP CLICK: No card to close (empty space click)')
+        if (process.env.NODE_ENV === 'development') console.log('🟢 MAP CLICK: No card to close (empty space click)')
       }
     })
     
@@ -891,54 +883,46 @@ export function ListingsClientContent({
         maps: availableMaps,
         properties: filteredProperties,
         onPropertySelect: (id, propertyFromMarker) => {
-          const timestamp = new Date().toISOString()
-          console.log('🟡 onPropertySelect CALLED (from marker manager):', {
-            timestamp,
-            propertyId: id,
-            hasPropertyObject: !!propertyFromMarker,
-            propertyTitle: propertyFromMarker?.title,
-            previousSelectedId: selectedPropertyIdRef.current,
-            willOpenCard: !!id,
-            willCloseCard: !id && !!selectedPropertyIdRef.current
-          })
-          
-          // Set suppress flag before calling to prevent map click conflict
-          // This flag will be consumed by map click handler (safer than auto-reset)
+          if (process.env.NODE_ENV === 'development') {
+            console.log('🟡 onPropertySelect CALLED (from marker manager):', {
+              timestamp: new Date().toISOString(),
+              propertyId: id,
+              hasPropertyObject: !!propertyFromMarker,
+              propertyTitle: propertyFromMarker?.title,
+              previousSelectedId: selectedPropertyIdRef.current,
+              willOpenCard: !!id,
+              willCloseCard: !id && !!selectedPropertyIdRef.current
+            })
+          }
           if (id) {
             suppressMapClickRef.current = true
-            console.log('🟡 onPropertySelect: Set suppressMapClickRef = true')
-            
-            // Safety net: clear suppress flag on next tick if map click never fires
-            // This prevents the flag from getting stuck
+            if (process.env.NODE_ENV === 'development') console.log('🟡 onPropertySelect: Set suppressMapClickRef = true')
             setTimeout(() => {
               if (suppressMapClickRef.current) {
-                console.log('🟡 onPropertySelect: Safety net - clearing suppress flag (map click did not fire)')
+                if (process.env.NODE_ENV === 'development') console.log('🟡 onPropertySelect: Safety net - clearing suppress flag (map click did not fire)')
                 suppressMapClickRef.current = false
               }
-            }, 100) // 100ms should be enough for any map click to fire
+            }, 100)
           }
-          
           tracedOnPropertySelect(id)
           if (id) {
-            // FIX: Use property object passed from MarkerManager (most reliable)
-            // Fallback to propertyByIdRef if not provided (backwards compatibility)
-            // This completely eliminates stale closure issues
             const property = propertyFromMarker || propertyByIdRef.current.get(id)
             if (property) {
-              console.log('🟡 onPropertySelect: Setting card position for', property.title, {
-                source: propertyFromMarker ? 'from marker' : 'from ref'
-              })
+              if (process.env.NODE_ENV === 'development') {
+                console.log('🟡 onPropertySelect: Setting card position for', property.title, { source: propertyFromMarker ? 'from marker' : 'from ref' })
+              }
               setCardPosition(calculateCardPosition(property))
             } else {
-              console.warn('🟡 onPropertySelect: Property not found!', {
-                propertyId: id,
-                propertyCacheSize: propertyByIdRef.current.size,
-                availableIds: Array.from(propertyByIdRef.current.keys()).slice(0, 5)
-              })
+              if (process.env.NODE_ENV === 'development') {
+                console.warn('🟡 onPropertySelect: Property not found!', {
+                  propertyId: id,
+                  propertyCacheSize: propertyByIdRef.current.size,
+                  availableIds: Array.from(propertyByIdRef.current.keys()).slice(0, 5)
+                })
+              }
             }
           } else {
-            console.log('🟡 onPropertySelect: Clearing selection (from marker manager callback)')
-            // Clear suppress flag when closing (no conflict possible)
+            if (process.env.NODE_ENV === 'development') console.log('🟡 onPropertySelect: Clearing selection (from marker manager callback)')
             suppressMapClickRef.current = false
           }
           

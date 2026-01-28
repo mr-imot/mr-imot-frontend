@@ -577,19 +577,19 @@ export default function NewPropertyPage({ dict, lang }: NewPropertyClientProps) 
     setSubmitSuccess(null)
     
     try {
-      // Debug: Log the form values being sent
-      console.log('🚀 Creating project with values:', {
-        name: values.name,
-        description: values.description,
-        city: values.city,
-        country: values.country,
-        formatted_address: values.address,
-        project_type: values.project_type,
-        latitude: values.latitude,
-        longitude: values.longitude,
-        feature_ids: values.feature_ids
-      });
-      
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🚀 Creating project with values:', {
+          name: values.name,
+          description: values.description,
+          city: values.city,
+          country: values.country,
+          formatted_address: values.address,
+          project_type: values.project_type,
+          latitude: values.latitude,
+          longitude: values.longitude,
+          feature_ids: values.feature_ids
+        })
+      }
       // First, create the project
       const project = await createProject({
         name: values.name,

@@ -4,7 +4,7 @@ export const dynamic = 'force-dynamic'
 /**
  * Proxy sitemap index from backend.
  * Backend generates the complete sitemap index with all locales and chunks.
- * Short revalidate so index (including static/news entries) updates quickly after backend deploy.
+ * Cache-Control: no-store so proxy never serves a stale index (see docs/seo-architecture.md Sitemap freshness).
  */
 export async function GET(): Promise<Response> {
   try {
@@ -24,7 +24,7 @@ export async function GET(): Promise<Response> {
         {
           headers: {
             'Content-Type': 'application/xml; charset=utf-8',
-            'Cache-Control': 'public, max-age=60, s-maxage=60',
+            'Cache-Control': 'no-store',
           },
         }
       )
@@ -36,7 +36,7 @@ export async function GET(): Promise<Response> {
     return new Response(xml, {
       headers: {
         'Content-Type': 'application/xml; charset=utf-8',
-        'Cache-Control': 'public, max-age=60, s-maxage=60',
+        'Cache-Control': 'no-store',
       },
     })
   } catch (error) {
@@ -47,7 +47,7 @@ export async function GET(): Promise<Response> {
       {
         headers: {
           'Content-Type': 'application/xml; charset=utf-8',
-          'Cache-Control': 'public, max-age=60, s-maxage=60',
+          'Cache-Control': 'no-store',
         },
       }
     )

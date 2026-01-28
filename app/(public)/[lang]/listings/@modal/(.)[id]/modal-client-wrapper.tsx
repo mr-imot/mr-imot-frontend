@@ -60,16 +60,14 @@ export function ModalClientWrapper({ children }: ModalClientWrapperProps) {
           title: 'Property Listing',
           url: window.location.href,
         })
-      } catch (error) {
-        console.log('Error sharing:', error)
+      } catch {
+        // Share failed (user cancelled or unsupported); no need to log in prod
       }
     } else {
-      // Fallback: copy to clipboard
       try {
         await navigator.clipboard.writeText(window.location.href)
-        // You could add a toast notification here
-      } catch (error) {
-        console.log('Error copying to clipboard:', error)
+      } catch {
+        // Clipboard failed; no need to log in prod
       }
     }
   }

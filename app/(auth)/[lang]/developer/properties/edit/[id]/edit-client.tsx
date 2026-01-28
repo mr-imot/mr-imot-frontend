@@ -178,17 +178,6 @@ export default function EditProjectPage({ dict, lang, params }: EditPropertyClie
 
         // Type guard: ensure we have a Project (not PausedProject or DeletedProject)
         const project = projectData as Project
-        
-        // Debug project structure
-        console.log('Edit Project Debug:', {
-          project: project,
-          title: project.title,
-          name: project.name,
-          images: project.images,
-          features: project.features,
-          completion_date: project.completion_date,
-          completion_note: project.completion_note
-        });
 
         // Populate form with project data
         form.reset({

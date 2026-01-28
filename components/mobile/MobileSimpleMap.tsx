@@ -129,7 +129,9 @@ export function MobileSimpleMap({
 
       // Add click handler
       marker.addEventListener('click', () => {
-        console.log('🔴 MOBILE MARKER CLICKED:', property.id, property.title)
+        if (process.env.NODE_ENV === 'development') {
+          console.log('🔴 MOBILE MARKER CLICKED:', property.id, property.title)
+        }
         onPropertySelect(property.id)
       })
 

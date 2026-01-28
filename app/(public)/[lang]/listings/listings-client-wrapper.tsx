@@ -100,7 +100,9 @@ export function ListingsClientWrapper({
         onDataUpdate: (properties, requestId) => {
           // Guard: Only update if this requestId is >= latest (prevents stale overwrites)
           if (requestId !== undefined && requestId < latestRequestIdRef.current) {
-            console.log('[MapFetchController] Ignoring stale request:', { requestId, latest: latestRequestIdRef.current })
+            if (process.env.NODE_ENV === 'development') {
+              console.log('[MapFetchController] Ignoring stale request:', { requestId, latest: latestRequestIdRef.current })
+            }
             return
           }
           if (requestId !== undefined) {
