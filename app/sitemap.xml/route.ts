@@ -1,11 +1,10 @@
 // Force dynamic behavior to prevent Vercel edge caching
-// This ensures we always fetch fresh data from backend
 export const dynamic = 'force-dynamic'
 
 /**
  * Proxy sitemap index from backend.
  * Backend generates the complete sitemap index with all locales and chunks.
- * This route simply proxies the backend response to maintain single source of truth.
+ * Short revalidate so index (including static/news entries) updates quickly after backend deploy.
  */
 export async function GET(): Promise<Response> {
   try {
@@ -13,9 +12,8 @@ export async function GET(): Promise<Response> {
     const baseApiUrl = apiUrl.replace(/\/$/, '')
     const backendIndexUrl = `${baseApiUrl}/api/v1/sitemaps/index.xml`
     
-    // Fetch from backend with revalidation (cached for 1 hour)
     const response = await fetch(backendIndexUrl, {
-      next: { revalidate: 3600 }, // Cache for 1 hour
+      next: { revalidate: 60 }, // 1 minute - index updates quickly after backend changes
     })
     
     if (!response.ok) {
@@ -26,7 +24,7 @@ export async function GET(): Promise<Response> {
         {
           headers: {
             'Content-Type': 'application/xml; charset=utf-8',
-            'Cache-Control': 'public, max-age=3600, s-maxage=3600',
+            'Cache-Control': 'public, max-age=60, s-maxage=60',
           },
         }
       )
@@ -38,7 +36,7 @@ export async function GET(): Promise<Response> {
     return new Response(xml, {
       headers: {
         'Content-Type': 'application/xml; charset=utf-8',
-        'Cache-Control': 'public, max-age=3600, s-maxage=3600',
+        'Cache-Control': 'public, max-age=60, s-maxage=60',
       },
     })
   } catch (error) {
@@ -49,7 +47,7 @@ export async function GET(): Promise<Response> {
       {
         headers: {
           'Content-Type': 'application/xml; charset=utf-8',
-          'Cache-Control': 'public, max-age=3600, s-maxage=3600',
+          'Cache-Control': 'public, max-age=60, s-maxage=60',
         },
       }
     )

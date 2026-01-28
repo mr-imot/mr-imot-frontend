@@ -122,10 +122,8 @@ export async function generateMetadata({ params, searchParams }: BlogIndexParams
         : lang === "ru"
           ? `${baseUrl}/ru/novosti`
           : `${baseUrl}/gr/eidhseis`
-  // Canonical URL: page 1 should NOT include ?page=1, page 2+ should include ?page=N (but page 2+ is noindex)
-  const canonical = currentPage > 1 
-    ? `${baseCanonical}?page=${currentPage}`
-    : baseCanonical
+  // Canonical: always base news URL (no query). Page 2+ is noindex; canonical points to base.
+  const canonical = baseCanonical
   
   const title = formatTitleWithBrand(copy.metaTitle || metaTitleFallback[lang], lang)
   const description = copy.metaDescription || metaDescriptionFallback[lang]
