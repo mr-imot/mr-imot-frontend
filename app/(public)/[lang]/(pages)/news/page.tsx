@@ -122,7 +122,7 @@ export async function generateMetadata({ params, searchParams }: BlogIndexParams
         : lang === "ru"
           ? `${baseUrl}/ru/novosti`
           : `${baseUrl}/gr/eidhseis`
-  // Canonical URL: page 1 should NOT include ?page=1, page 2+ should include ?page=N
+  // Canonical URL: page 1 should NOT include ?page=1, page 2+ should include ?page=N (but page 2+ is noindex)
   const canonical = currentPage > 1 
     ? `${baseCanonical}?page=${currentPage}`
     : baseCanonical
@@ -137,9 +137,16 @@ export async function generateMetadata({ params, searchParams }: BlogIndexParams
   const prevUrl = prevPage ? (prevPage === 1 ? baseCanonical : `${baseCanonical}?page=${prevPage}`) : null
   const nextUrl = nextPage ? `${baseCanonical}?page=${nextPage}` : null
 
+  // SEO: only page 1 is indexable; page 2+ noindex, canonical to base news
+  const indexNews = currentPage <= 1
+
   return {
     title,
     description,
+    robots: {
+      index: indexNews,
+      follow: true,
+    },
     alternates: {
       canonical,
       languages: {

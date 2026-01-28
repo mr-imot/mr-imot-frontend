@@ -1,6 +1,6 @@
 import { Project } from '@/lib/api'
 import { buildIkUrl } from '@/lib/imagekit'
-import { listingsHref, cityListingsHref, listingHref } from '@/lib/routes'
+import { listingsHref, cityListingsHref, listingHref, developerHref } from '@/lib/routes'
 import { getCityKeyFromCityType } from '@/lib/city-registry'
 
 interface ListingStructuredDataProps {
@@ -153,9 +153,9 @@ export default function ListingStructuredData({
   const urlPath = project.slug || String(project.id)
   const listingUrl = `${baseUrl}${listingHref(lang, urlPath)}`
   
-  // Developer URL
+  // Developer URL (locale-aware; do not hardcode English path)
   const developerUrl = project.developer
-    ? `${baseUrl}/developers/${project.developer.slug || project.developer.id}`
+    ? `${baseUrl}${developerHref(lang, String(project.developer.slug || project.developer.id))}`
     : null
   
   // Publisher name per language

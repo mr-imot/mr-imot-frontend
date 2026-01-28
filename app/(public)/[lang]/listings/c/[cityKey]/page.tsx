@@ -99,6 +99,22 @@ async function fetchInitialProperties(
   }
 }
 
+async function fetchCityStatus(cityKey: string): Promise<{ has_active_listings: boolean } | null> {
+  try {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+    const base = apiUrl.replace(/\/$/, '')
+    const res = await fetch(`${base}/api/v1/cities/${encodeURIComponent(cityKey)}/status`, {
+      next: { revalidate: 60 },
+      headers: { 'Content-Type': 'application/json' },
+    })
+    if (!res.ok) return null
+    const data = await res.json()
+    return { has_active_listings: !!data?.has_active_listings }
+  } catch {
+    return null
+  }
+}
+
 export async function generateMetadata({ params, searchParams }: CityListingsPageProps): Promise<Metadata> {
   const { lang, cityKey } = await params
   const sp = await searchParams
@@ -106,6 +122,7 @@ export async function generateMetadata({ params, searchParams }: CityListingsPag
   const page = sp?.page?.toString()
   
   const cityInfo = await getCityInfo(cityKey)
+  const cityStatus = await fetchCityStatus(cityKey)
   const baseUrl = getSiteUrl()
   const socialImage = buildIkUrl("/Logo/mister-imot-waving-hi-with-bg.png", [
     { width: 1200, height: 630, quality: 85, format: "webp", focus: "auto" },
@@ -120,8 +137,11 @@ export async function generateMetadata({ params, searchParams }: CityListingsPag
   const hubBase = cityListingsHref(lang, cityKey)
   const hubBaseUrl = `${baseUrl}${hubBase}`
   
-  // If city not found or no projects, use generic metadata
-  if (!cityInfo) {
+  // Noindex when city unknown or has zero active listings (programmatic empty hub)
+  const hasActiveListings = cityStatus?.has_active_listings ?? false
+  
+  // If city not found in registry or no active listings, use generic metadata and noindex
+  if (!cityInfo || !hasActiveListings) {
     return {
       title: formatTitleWithBrand(
         isBg 
@@ -160,7 +180,7 @@ export async function generateMetadata({ params, searchParams }: CityListingsPag
   const ogLocale = isBg ? 'bg_BG' : isRu ? 'ru_RU' : 'en_US'
   
   // Hub with params: noindex, follow, canonical to hub base
-  // Hub base: index, follow, self-canonical
+  // Hub base (no params + has active listings): index, follow, self-canonical
   if (hasParams) {
     return {
       title,

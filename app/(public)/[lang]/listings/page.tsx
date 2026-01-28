@@ -13,6 +13,7 @@ import { PaginationNav } from "./pagination-nav"
 import { ExploreByCityStrip } from "@/components/listings/explore-by-city-strip"
 import { getListingsMode } from "@/lib/listings-mode"
 import { getCityKeyFromCityType, getCityTypeFromKey } from "@/lib/city-registry"
+import { getListingsIndexation } from "@/lib/seo-indexation"
 
 interface ListingsPageProps {
   params: Promise<{ lang: 'en' | 'bg' | 'ru' | 'gr' }>
@@ -204,34 +205,25 @@ export async function generateMetadata({ params, searchParams }: ListingsPagePro
       ? `${baseUrl}/ru/obyavleniya`
       : `${baseUrl}/listings`
   
-  // Canonical rules (clarified):
-  // - Hub base /obiavi/[cityKey]: index,follow, self-canonical (handled in hub route)
-  // - Hub with ?page>1 or ?type=...: noindex,follow, canonical to hub base (handled in hub route)
-  // - Query /obiavi?city=: noindex,follow, canonical to hub base
-  // - Map mode (bounds): noindex,follow, canonical to base or hub
+  // City hub base (when city/city_key present) for canonical
+  const effectiveKey = cityKey || (city && ['Sofia', 'Plovdiv', 'Varna'].includes(city) ? getCityKeyFromCityType(city as 'Sofia' | 'Plovdiv' | 'Varna') : city)
+  const cityHubBasePath = effectiveKey ? `${baseUrl}${cityListingsHref(lang, effectiveKey)}` : null
   
-  let canonicalUrl = baseCanonical
-  let shouldIndex = true
+  const indexation = getListingsIndexation(
+    {
+      page,
+      type,
+      city_key: cityKey ?? undefined,
+      city: city ?? undefined,
+      ne_lat, ne_lng, sw_lat, sw_lng,
+      search_by_map: search_by_map ?? undefined,
+    },
+    baseCanonical,
+    cityHubBasePath
+  )
   
-  if (hasBoundsParams) {
-    // MapMode: noindex, canonical to base or hub
-    shouldIndex = false
-    if (cityKey || city) {
-      const effectiveKey = cityKey || (city && ['Sofia', 'Plovdiv', 'Varna'].includes(city) ? getCityKeyFromCityType(city as 'Sofia' | 'Plovdiv' | 'Varna') : city)
-      if (effectiveKey) {
-        canonicalUrl = `${baseUrl}${cityListingsHref(lang, effectiveKey)}` // Hub base
-      }
-    }
-  } else if (cityKey || city) {
-    // Query param ?city= present
-    const effectiveKey = cityKey || (city && ['Sofia', 'Plovdiv', 'Varna'].includes(city) ? getCityKeyFromCityType(city as 'Sofia' | 'Plovdiv' | 'Varna') : city)
-    
-    if (effectiveKey) {
-      // Query ?city=: noindex, follow, canonical to hub base
-      shouldIndex = false
-      canonicalUrl = `${baseUrl}${cityListingsHref(lang, effectiveKey)}` // Hub base: /bg/obiavi/c/[cityKey] or /listings/c/[cityKey]
-    }
-  }
+  const canonicalUrl = indexation.canonicalPath
+  const shouldIndex = indexation.index
   
   const ogLocale = isBg ? 'bg_BG' : isRu ? 'ru_RU' : 'en_US'
   
@@ -239,7 +231,7 @@ export async function generateMetadata({ params, searchParams }: ListingsPagePro
     title,
     description,
     robots: {
-      index: shouldIndex && !hasBoundsParams,
+      index: shouldIndex,
       follow: true,
     },
     alternates: {
