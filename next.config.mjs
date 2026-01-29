@@ -67,19 +67,8 @@ const nextConfig = {
         source: "/health",
         destination: `${process.env.NEXT_PUBLIC_API_URL}/health`,
       },
-      // Locale-specific backend sitemaps - proxy to API (must come before generic /sitemaps/*)
-      {
-        source: "/sitemaps/:locale/cities.xml",
-        destination: `${process.env.NEXT_PUBLIC_API_URL}/api/v1/sitemaps/:locale/cities.xml`,
-      },
-      {
-        source: "/sitemaps/:locale/developers.xml",
-        destination: `${process.env.NEXT_PUBLIC_API_URL}/api/v1/sitemaps/:locale/developers.xml`,
-      },
-      {
-        source: "/sitemaps/:locale/projects/:n.xml",
-        destination: `${process.env.NEXT_PUBLIC_API_URL}/api/v1/sitemaps/:locale/projects/:n.xml`,
-      },
+      // Locale sitemaps (cities, developers, projects) are proxied by app/sitemaps/[locale]/... route handlers
+      // so we read the response body and fix backend's wrong Content-Length: 0 (P0 fix).
       // Legacy backend sitemaps - proxy to API (for backward compatibility)
       {
         source: "/sitemaps/cities.xml",
