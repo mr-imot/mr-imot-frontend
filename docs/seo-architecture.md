@@ -13,6 +13,12 @@ Long-term reference for indexation rules, sitemap contract, query-param taxonomy
 
 ---
 
+## Indexation
+
+A single **indexation matrix** (route × params × indexable vs noindex × canonical) and mismatch fixes are documented in [seo-indexation-matrix.md](seo-indexation-matrix.md). Use it when adding or changing query params or new route types.
+
+---
+
 ## 1. Query-Param Taxonomy
 
 One central list of every search param and its indexation rule. When adding new params (e.g. `sort`, `q`, `price_min`/`price_max`), add them here and ensure the helper and `generateMetadata` logic cover them.

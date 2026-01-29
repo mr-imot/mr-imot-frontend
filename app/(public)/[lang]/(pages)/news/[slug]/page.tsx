@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import Link from "next/link"
 import { notFound } from "next/navigation"
 import BlogPostLayout from "@/components/news/blog-post-layout"
 import { ArticleAlternateSlugs } from "@/components/news/article-alternate-slugs"
@@ -13,7 +14,7 @@ import {
 } from "@/lib/news"
 import { getDictionary } from "@/lib/dictionaries"
 import { brandForLang, formatTitleWithBrand, getSiteUrl } from "@/lib/seo"
-import type { SupportedLocale } from "@/lib/routes"
+import { newsHref, type SupportedLocale } from "@/lib/routes"
 
 export const revalidate = 600
 export const dynamicParams = false
@@ -134,6 +135,22 @@ export default async function BlogPostPage({ params }: BlogPostParams) {
       <BlogPostLayout post={post} lang={lang}>
         {post.content}
       </BlogPostLayout>
+      <nav className="mb-6 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm" aria-label="News index">
+        <Link href={newsHref(lang as SupportedLocale)} className="font-medium text-primary hover:underline">
+          {lang === "bg" ? "Всички новини" : lang === "ru" ? "Все новости" : lang === "gr" ? "Όλες οι ειδήσεις" : "View all news"}
+        </Link>
+        {post.category && (
+          <>
+            <span aria-hidden className="text-muted-foreground/60">|</span>
+            <Link
+              href={`${newsHref(lang as SupportedLocale)}?category=${encodeURIComponent(post.category)}`}
+              className="font-medium text-primary hover:underline"
+            >
+              {lang === "bg" ? `Повече в ${post.category}` : lang === "ru" ? `Больше в ${post.category}` : lang === "gr" ? `Περισσότερα σε ${post.category}` : `More in ${post.category}`}
+            </Link>
+          </>
+        )}
+      </nav>
       <RelatedArticles
         lang={lang as SupportedLocale}
         currentSlug={slug}

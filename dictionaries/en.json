@@ -19,6 +19,9 @@
       ]
     }
   },
+  "home": {
+    "exploreByCity": "Explore by city"
+  },
   "hero": {
     "title": {
       "find": "Apartments and",

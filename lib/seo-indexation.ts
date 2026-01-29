@@ -53,6 +53,9 @@ export function getListingsIndexation(
 
 export interface NewsIndexationParams {
   page?: string
+  q?: string
+  category?: string
+  tag?: string
 }
 
 export interface NewsIndexationResult {
@@ -61,7 +64,8 @@ export interface NewsIndexationResult {
 }
 
 /**
- * News index: indexable only for page 1. Page 2+ → noindex, canonical to base news.
+ * News index: indexable only for page 1 with no filters.
+ * Page 2+, or any q/category/tag → noindex, canonical to base news.
  */
 export function getNewsIndexation(
   params: NewsIndexationParams,
@@ -69,7 +73,11 @@ export function getNewsIndexation(
 ): NewsIndexationResult {
   const pageNum = params.page ? parseInt(params.page, 10) : 1
   const validPage = pageNum > 0 ? pageNum : 1
-  const index = validPage <= 1
+  const index =
+    validPage <= 1 &&
+    !params.q &&
+    !params.category &&
+    !params.tag
   return {
     index,
     canonicalPath: baseNewsPath,

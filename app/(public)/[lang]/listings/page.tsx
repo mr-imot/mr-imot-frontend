@@ -12,8 +12,46 @@ import { listingsHref, cityListingsHref, asLocale } from "@/lib/routes"
 import { PaginationNav } from "./pagination-nav"
 import { ExploreByCityStrip } from "@/components/listings/explore-by-city-strip"
 import { getListingsMode } from "@/lib/listings-mode"
-import { getCityKeyFromCityType, getCityTypeFromKey } from "@/lib/city-registry"
+import { getCityKeyFromCityType, getCityTypeFromKey, getCityInfo } from "@/lib/city-registry"
 import { getListingsIndexation } from "@/lib/seo-indexation"
+import { apiClient } from "@/lib/api"
+import Link from "next/link"
+
+const TOP_CITY_KEYS = ['sofia-bg', 'plovdiv-bg', 'varna-bg']
+
+/** SSR block: links to city hubs from getCities(10) that are not in ExploreByCityStrip. */
+async function MoreCitiesStrip({ lang }: { lang: 'en' | 'bg' | 'ru' | 'gr' }) {
+  try {
+    const { cities } = await apiClient.getCities(10)
+    const bgCities = cities.filter((c) => (c.country_code || '').toLowerCase() === 'bg')
+    const moreCities = bgCities.filter((c) => !TOP_CITY_KEYS.includes(c.city_key))
+    if (moreCities.length === 0) return null
+    const infos = await Promise.all(moreCities.map((c) => getCityInfo(c.city_key)))
+    const label = lang === 'bg' ? 'Още градове' : lang === 'ru' ? 'Ещё города' : lang === 'gr' ? 'Περισσότερες πόλεις' : 'More cities'
+    return (
+      <nav className="flex flex-wrap items-center gap-x-2 gap-y-1 py-2 text-sm" aria-label={label}>
+        <span className="font-medium text-muted-foreground">{label}:</span>
+        <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+          {moreCities.map((city, i) => {
+            const info = infos[i]
+            const displayName = info?.displayNames[lang as keyof typeof info.displayNames] ?? city.city_key.replace(/-bg$/, '')
+            const isLast = i === moreCities.length - 1
+            return (
+              <span key={city.city_key} className="inline-flex items-center gap-x-2">
+                <Link href={cityListingsHref(lang, city.city_key)} className="font-medium text-primary hover:underline">
+                  {displayName}
+                </Link>
+                {!isLast && <span aria-hidden className="text-muted-foreground/60">|</span>}
+              </span>
+            )
+          })}
+        </span>
+      </nav>
+    )
+  } catch {
+    return null
+  }
+}
 
 interface ListingsPageProps {
   params: Promise<{ lang: 'en' | 'bg' | 'ru' | 'gr' }>
@@ -376,6 +414,7 @@ export default async function ListingsPage({ params, searchParams }: ListingsPag
       />
       <ListingsLayoutServer dict={dict} lang={lang}>
         <ExploreByCityStrip lang={lang} dict={dict} />
+        <MoreCitiesStrip lang={lang} />
         <ListingsClientWrapper
           dict={dict}
           lang={lang}

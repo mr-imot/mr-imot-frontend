@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { notFound } from "next/navigation"
 import type { Metadata } from 'next'
 import DeveloperDetailClient from './developer-detail-client'
@@ -7,6 +8,8 @@ import { DeveloperProfile } from '@/lib/api'
 import { brandForLang, formatTitleWithBrand, getSiteUrl } from '@/lib/seo'
 import { buildIkUrl } from '@/lib/imagekit'
 import { getDictionary } from '@/lib/dictionaries'
+import { cityListingsHref } from '@/lib/routes'
+import { getCityInfo } from '@/lib/city-registry'
 
 interface PageProps {
   params: Promise<{
@@ -159,9 +162,31 @@ export default async function DeveloperDetailPage({ params }: PageProps) {
     />
   ) : undefined
 
+  const topCityKeys = ['sofia-bg', 'plovdiv-bg', 'varna-bg'] as const
+  const cityInfos = await Promise.all(topCityKeys.map((key) => getCityInfo(key)))
+  const exploreByCityLabel = lang === 'bg' ? 'Обяви по град' : lang === 'ru' ? 'Объявления по городам' : lang === 'gr' ? 'Αγγελίες ανά πόλη' : 'Listings by city'
+
   return (
     <>
       <DeveloperStructuredData developer={developer} lang={lang} baseUrl={baseUrl} />
+      <nav className="mb-6 flex flex-wrap items-center gap-x-2 gap-y-2 py-4 text-sm" aria-label={exploreByCityLabel}>
+        <span className="font-medium text-muted-foreground">{exploreByCityLabel}:</span>
+        <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+          {topCityKeys.map((cityKey, i) => {
+            const info = cityInfos[i]
+            const label = info?.displayNames[lang as keyof typeof info.displayNames] ?? cityKey
+            const isLast = i === topCityKeys.length - 1
+            return (
+              <span key={cityKey} className="inline-flex items-center gap-x-2">
+                <Link href={cityListingsHref(lang, cityKey)} className="font-medium text-primary hover:underline">
+                  {label}
+                </Link>
+                {!isLast && <span aria-hidden className="text-muted-foreground/60">|</span>}
+              </span>
+            )
+          })}
+        </span>
+      </nav>
       <DeveloperDetailClient
         developer={developer}
         lang={lang}

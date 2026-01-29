@@ -1,5 +1,7 @@
 # SEO Live Checks (Production) — 2026-01-29
 
+2026-01-29: P0 locale sitemap proxy fix verified in production (bg cities/developers/projects non-empty; invalid locale 404).
+
 Live curl checks against **https://mrimot.com**. No code changes; measure only.
 
 ---
@@ -163,3 +165,26 @@ curl -sI https://mrimot.com/sitemaps/bg/projects/1.xml
 ```
 
 Expect: `Content-Type: application/xml; charset=utf-8`, and response body starting with `<?xml` and containing `<urlset>` / `<url>` entries.
+
+---
+
+## P1.3 verification (news canonical/noindex + SSR article links)
+
+After deploying P1.3 (internal linking quality):
+
+1. **News filters: noindex and clean canonical**
+   - `/bg/novini?category=...` and `/bg/novini?page=2` must have `noindex` in robots and canonical pointing to `https://mrimot.com/bg/novini` (no query params).
+
+```bash
+curl -s "https://mrimot.com/bg/novini?category=test" | grep -E "canonical|robots" | head -n 20
+curl -s "https://mrimot.com/bg/novini?page=2" | grep -E "canonical|robots" | head -n 20
+```
+
+2. **News article: SSR links to other articles**
+   - Article pages must output `/bg/novini/...` links in the initial HTML (RelatedArticles + "View all news").
+
+```bash
+curl -s https://mrimot.com/bg/novini/<some-article-slug> | grep -E "/bg/novini/" | head
+```
+
+Expect: multiple `/bg/novini/...` URLs in the HTML (related articles and news index link).

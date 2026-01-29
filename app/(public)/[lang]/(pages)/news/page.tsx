@@ -10,6 +10,7 @@ import { SectionHeader } from "@/components/news/section-header"
 import PostCard from "@/components/news/post-card"
 import WebPageSchema from "@/components/seo/webpage-schema"
 import { homeHref, asLocale } from "@/lib/routes"
+import { getNewsIndexation } from "@/lib/seo-indexation"
 
 export const revalidate = 600
 export const dynamicParams = false
@@ -111,7 +112,6 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params, searchParams }: BlogIndexParams): Promise<Metadata> {
   const { lang } = await params
   const sp = await searchParams
-  const currentPage = Number(sp?.page) || 1
   const copy = await getNewsCopy(lang)
   const baseUrl = getSiteUrl() // Hardcoded production domain for canonical URLs
   const baseCanonical =
@@ -122,21 +122,23 @@ export async function generateMetadata({ params, searchParams }: BlogIndexParams
         : lang === "ru"
           ? `${baseUrl}/ru/novosti`
           : `${baseUrl}/gr/eidhseis`
-  // Canonical: always base news URL (no query). Page 2+ is noindex; canonical points to base.
-  const canonical = baseCanonical
-  
+
+  const { index: indexNews, canonicalPath } = getNewsIndexation(
+    { page: sp?.page, q: sp?.q, category: sp?.category, tag: sp?.tag },
+    baseCanonical
+  )
+  const canonical = canonicalPath
+
   const title = formatTitleWithBrand(copy.metaTitle || metaTitleFallback[lang], lang)
   const description = copy.metaDescription || metaDescriptionFallback[lang]
   const brand = brandForLang(lang)
 
+  const currentPage = Number(sp?.page) || 1
   // Build prev/next links
   const prevPage = currentPage > 1 ? currentPage - 1 : null
   const nextPage = currentPage < 100 ? currentPage + 1 : null // Assume max 100 pages, adjust if needed
   const prevUrl = prevPage ? (prevPage === 1 ? baseCanonical : `${baseCanonical}?page=${prevPage}`) : null
   const nextUrl = nextPage ? `${baseCanonical}?page=${nextPage}` : null
-
-  // SEO: only page 1 is indexable; page 2+ noindex, canonical to base news
-  const indexNews = currentPage <= 1
 
   return {
     title,
