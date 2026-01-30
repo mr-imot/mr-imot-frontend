@@ -13,7 +13,7 @@
     "lint": "eslint . --ignore-pattern .next --ignore-pattern dist --ignore-pattern public --ignore-pattern next-env.d.ts --ignore-pattern next.config.mjs --max-warnings=0",
     "start": "next start"
   },
-  "packageManager": "pnpm@9.12.3",
+  "packageManager": "pnpm@10.28.2",
   "overrides": {
     "react": "19.0.0",
     "react-dom": "19.0.0",
@@ -22,6 +22,7 @@
     "lodash": ">=4.17.23"
   },
   "pnpm": {
+    "onlyBuiltDependencies": ["sharp", "esbuild", "unrs-resolver"],
     "peerDependencyRules": {
       "ignoreMissing": [
         "react",
@@ -115,13 +116,14 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",
+    "@next/eslint-plugin-next": "15.5.10",
     "@tailwindcss/typography": "^0.5.15",
     "@types/google.maps": "^3.58.1",
     "@types/node": "^22",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "eslint": "^9",
-    "eslint-config-next": "16.1.1",
+    "eslint-config-next": "15.5.10",
     "eslint-plugin-react-hooks": "^7.0.0",
     "postcss": "^8.5",
     "tailwindcss": "^3.4.17",
