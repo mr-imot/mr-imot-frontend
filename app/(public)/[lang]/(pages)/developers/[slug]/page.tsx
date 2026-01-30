@@ -21,13 +21,15 @@ interface PageProps {
 // Server-side function to fetch developer data.
 // lang is included in the URL so the fetch cache key varies by locale (avoids EN-cached
 // response being reused for /bg/stroiteli/... and causing "redirect" / language mismatch).
+// ISR is safe here: project count and profile data can be up to 5 min stale; lang in URL
+// keeps cache key per-locale; no custom keys required.
 async function getDeveloperData(identifier: string, lang: string): Promise<DeveloperProfile | null> {
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
     const baseUrl = apiUrl.replace(/\/$/, '')
     const encodedIdentifier = encodeURIComponent(identifier)
     const response = await fetch(`${baseUrl}/api/v1/developers/${encodedIdentifier}?per_page=12&lang=${encodeURIComponent(lang)}`, {
-      cache: 'no-store', // Always fresh so projects count is correct; locale in URL keeps cache key per-lang if caching is re-enabled
+      next: { revalidate: 300 },
       headers: {
         'Content-Type': 'application/json',
       },

@@ -15,8 +15,11 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    // Enable Next.js image optimization with ImageKit remote patterns
-    deviceSizes: [120, 160, 240, 320, 480, 640, 750, 828, 1080, 1200, 1920],
+    loader: 'custom',
+    loaderFile: './lib/image-loader.ts',
+    // Keep remotePatterns so Next still allows ImageKit (and other) remote src; do not remove
+    // Fewer deviceSizes to limit variant count; covers common breakpoints (sm/md/lg/xl/2xl)
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
     remotePatterns: [
       {
         protocol: 'https',

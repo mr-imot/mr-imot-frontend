@@ -76,6 +76,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning className={geist.variable}>
       <body className="min-h-screen font-sans antialiased">
         {children}
+        {/* Speed Insights has no built-in bot filtering, so datapoints include crawler traffic; only apply an official sampling/bot-exclusion option if the library provides one. */}
         <SpeedInsights />
       </body>
     </html>

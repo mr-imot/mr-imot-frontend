@@ -1,10 +1,9 @@
-// Force dynamic behavior to prevent Vercel edge caching
-export const dynamic = 'force-dynamic'
+export const revalidate = 300
 
 /**
  * Proxy sitemap index from backend.
  * Backend generates the complete sitemap index with all locales and chunks.
- * Cache-Control: no-store so proxy never serves a stale index (see docs/seo-architecture.md Sitemap freshness).
+ * Success responses cached 5 min (revalidate + Cache-Control); errors never cached.
  */
 export async function GET(): Promise<Response> {
   try {
@@ -13,12 +12,12 @@ export async function GET(): Promise<Response> {
     const backendIndexUrl = `${baseApiUrl}/api/v1/sitemaps/index.xml`
     
     const response = await fetch(backendIndexUrl, {
-      next: { revalidate: 60 }, // 1 minute - index updates quickly after backend changes
+      next: { revalidate: 300 },
     })
     
     if (!response.ok) {
       console.error('[sitemap] Backend sitemap index returned non-OK status:', response.status)
-      // Return empty sitemap index on error (never 500 to Google)
+      // Return empty sitemap index on error (never 500 to Google); do not cache errors
       return new Response(
         '<?xml version="1.0" encoding="UTF-8"?><sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></sitemapindex>',
         {
@@ -36,7 +35,7 @@ export async function GET(): Promise<Response> {
     return new Response(xml, {
       headers: {
         'Content-Type': 'application/xml; charset=utf-8',
-        'Cache-Control': 'no-store',
+        'Cache-Control': 'public, max-age=300, s-maxage=300',
       },
     })
   } catch (error) {

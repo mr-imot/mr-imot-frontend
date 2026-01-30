@@ -1,7 +1,6 @@
 import { SUPPORTED_LOCALES } from '@/lib/dictionaries'
 
-// Force dynamic so we always fetch from backend
-export const dynamic = 'force-dynamic'
+export const revalidate = 300
 
 const SUPPORTED_SET = new Set(SUPPORTED_LOCALES)
 
@@ -26,7 +25,7 @@ export async function GET(
     const backendUrl = `${baseApiUrl}/api/v1/sitemaps/${encodeURIComponent(locale)}/cities.xml`
 
     const response = await fetch(backendUrl, {
-      next: { revalidate: 60 },
+      next: { revalidate: 300 },
       headers: { Accept: 'application/xml' },
     })
 
@@ -42,7 +41,7 @@ export async function GET(
     return new Response(xml, {
       headers: {
         'Content-Type': 'application/xml; charset=utf-8',
-        'Cache-Control': 'public, max-age=3600, s-maxage=3600',
+        'Cache-Control': 'public, max-age=300, s-maxage=300',
       },
     })
   } catch (error) {
