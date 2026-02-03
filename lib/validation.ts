@@ -56,10 +56,7 @@ export const validateForm = (data: FormData, translations?: any): ValidationErro
     errors.push({ field: 'officeAddress', message: translations?.validation?.officeAddressRequired || 'Office address is required' })
   }
 
-  // Office Coordinates validation (required for developers)
-  if (!data.officeLatitude || !data.officeLongitude) {
-    errors.push({ field: 'officeAddress', message: translations?.validation?.officeLocationRequired || 'Please select your office location on the map' })
-  }
+  // Office coordinates are optional (address can be geocoded on submit)
 
   // Password validation
   if (!data.password) {
@@ -131,6 +128,14 @@ export const isValidUrl = (url: string): boolean => {
   } catch {
     return false
   }
+}
+
+/** Step 1 fields only (companyName, contactPerson, email, phone). Use for "Continue" before Step 2. */
+const STEP1_FIELDS = ['companyName', 'contactPerson', 'email', 'phone'] as const
+
+export function validateFormStep1(data: FormData, translations?: any): ValidationError[] {
+  const allErrors = validateForm(data, translations)
+  return allErrors.filter((e) => STEP1_FIELDS.includes(e.field as typeof STEP1_FIELDS[number]))
 }
 
 export const getFieldError = (errors: ValidationError[], field: string): string | undefined => {

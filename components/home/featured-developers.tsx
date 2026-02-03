@@ -18,9 +18,11 @@ interface FeaturedDevelopersProps {
     developers?: { viewAll?: string }
     home?: { featuredDevelopers?: string }
   }
+  /** When provided (e.g. on register page), use this as the section heading instead of dict.home.featuredDevelopers */
+  headingOverride?: string
 }
 
-export async function FeaturedDevelopers({ lang, dict }: FeaturedDevelopersProps) {
+export async function FeaturedDevelopers({ lang, dict, headingOverride }: FeaturedDevelopersProps) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
   const baseUrl = apiUrl.replace(/\/$/, "")
 
@@ -42,7 +44,7 @@ export async function FeaturedDevelopers({ lang, dict }: FeaturedDevelopersProps
   const developers = data?.developers ?? []
   if (developers.length === 0) return null
 
-  const heading = dict?.home?.featuredDevelopers ?? "Featured developers"
+  const heading = headingOverride ?? dict?.home?.featuredDevelopers ?? "Featured developers"
   const viewAllLabel = dict?.developers?.viewAll ?? "View all developers"
 
   return (

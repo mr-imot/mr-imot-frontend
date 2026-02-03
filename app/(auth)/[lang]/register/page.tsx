@@ -1,5 +1,6 @@
 import { getDictionary } from '@/lib/dictionaries'
 import RegisterClient from './register-client'
+import { RegisterPageSections } from './register-page-sections'
 import { brandForLang, formatTitleWithBrand, getSiteUrl } from '@/lib/seo'
 import type { Metadata } from 'next'
 import { buildIkUrl } from '@/lib/imagekit'
@@ -78,5 +79,10 @@ export default async function RegisterPage({ params }: RegisterPageProps) {
   const { lang } = await params
   const dict = await getDictionary(lang)
 
-  return <RegisterClient dict={dict} lang={lang} />
+  return (
+    <>
+      <RegisterClient dict={dict} lang={lang} />
+      <RegisterPageSections lang={lang} dict={dict} />
+    </>
+  )
 }

@@ -20,7 +20,8 @@
     }
   },
   "home": {
-    "exploreByCity": "Explore by city"
+    "exploreByCity": "Explore by city",
+    "featuredDevelopers": "Developers already on the platform"
   },
   "hero": {
     "title": {
@@ -380,6 +381,7 @@
     "na": "N/A"
   },
   "developers": {
+    "viewAll": "View all developers",
     "pageTitle": "Verified Developers",
     "pageDescription": "Discover Bulgaria's leading real estate developers, all verified and trusted by the Mister Imot community.",
     "loading": "Loading developers...",
@@ -554,7 +556,8 @@
     "and": "and",
     "privacyPolicy": "Privacy Policy",
     "creatingAccount": "Creating Account...",
-    "createAccount": "Create Account",
+    "applyForAccess": "Apply for FREE",
+    "createAccount": "Submit application",
     "alreadyHaveAccount": "Already have an account?",
     "signIn": "Sign In",
     "tryAgain": "Try Again",
@@ -584,7 +587,72 @@
     "officeAddressAndWebsite": "Office address and optional website",
     "optionalWebsite": "optional website",
     "websiteOffer": "As our client, take advantage of the most competitive prices for website development from",
-    "abilityToVerifyOwnership": "Ability to verify ownership when requested"
+    "abilityToVerifyOwnership": "Ability to verify ownership when requested",
+    "hero": {
+      "h1": "Buyers want to contact you. Not a broker.",
+      "subheadline": "On Mister Imot only verified investors and developers publish.",
+      "bullet1": "Access to buyers from Bulgaria and Bulgarians abroad",
+      "bullet2": "Your photos are not used in others' listings.",
+      "bullet3": "Less wasted time and lower risk of failed deals",
+      "trustBadge": "Verified developers only · Manual review · No brokers",
+      "ctaButton": "Apply for access",
+      "suitableForTitle": "Suitable for:",
+      "suitableFor1": "Developers and investors with active projects",
+      "suitableFor2": "Sales teams who want direct inquiries",
+      "suitableFor3": "Companies that do not work with brokers"
+    },
+    "formTitle": "Apply for access",
+    "formHelper": "Applications are reviewed within 24–48 hours.",
+    "formHelperShort": "Nothing is published automatically.",
+    "reviewTiming": "Applications are reviewed within 24–48 hours.",
+    "sectionBasicInfo": "Basic information",
+    "sectionAddressConfirm": "Address and confirmation",
+    "submitHelper": "We will get in touch with you after reviewing your application.",
+    "howItWorks": {
+      "title": "How Mister Imot works for developers",
+      "subtitle": "Three steps to start receiving direct inquiries.",
+      "step1Title": "Publish your project",
+      "step1Desc": "One page: location, stage, plans, prices and contacts.",
+      "step2Title": "Keep availability up to date",
+      "step2Desc": "Show what’s available and update when things change.",
+      "step3Title": "Receive real inquiries",
+      "step3Desc": "Clients contact you or your team directly."
+    },
+    "whyDevelopers": {
+      "title": "Why developers prefer this model",
+      "item1": "Less time wasted",
+      "item1Desc": "Fewer pointless calls and confusion, more real clients.",
+      "item2": "Lower risk for the deal",
+      "item2Desc": "One clear page with official project information.",
+      "item3": "Your content is protected",
+      "item3Desc": "Your photos are not used in third-party listings.",
+      "item4": "Reach Bulgarians abroad",
+      "item4Desc": "More inquiries from people looking for new construction.",
+      "metaHint": "Verified developers only."
+    },
+    "socialProofTitle": "Developers who already work without brokers",
+    "socialProofHeading": "Become one of verified investors",
+    "socialProofSupportLine": "Publish alongside companies that already sell directly.",
+    "socialProofSubheading": "Companies already selling directly without brokers",
+    "socialProofHelper": "Every developer shown here has passed manual verification.",
+    "verificationSection": {
+      "title": "How verification works",
+      "intro": "To keep the platform clean and broker-free, every application goes through:",
+      "step1": "Email confirmation",
+      "step1Helper": "We check that the contact is real.",
+      "step2": "Manual verification",
+      "step2Helper": "We verify the company and project.",
+      "step3": "If needed – follow-up",
+      "step3Helper": "Short call or office visit."
+    },
+    "finalCta": {
+      "title": "Apply and present yourself to buyers",
+      "ctaButton": "Apply for free",
+      "subline": "Approval usually within 24–48 hours.",
+      "trustLine": "Manual verification • No automatic listings.",
+      "imageUrl": "https://ik.imagekit.io/ts59gf2ul/Logo/Zabraneno-za-brokerki-mrimot.com.png",
+      "imageAlt": "No brokers – Mister Imot is for verified developers only"
+    }
   },
   "about": {
     "pageTitle": "About Mister Imot",
