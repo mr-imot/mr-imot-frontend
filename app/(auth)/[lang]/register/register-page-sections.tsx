@@ -27,7 +27,9 @@ export async function RegisterPageSections({ lang, dict }: RegisterPageSectionsP
   const socialProofHeading = (reg?.socialProofHeading as string) ?? "Trusted by verified developers"
   const socialProofSupportLine = (reg?.socialProofSupportLine as string) ?? undefined
   const verificationIntro = (verification?.intro as string) ?? "To keep the platform clean, every application goes through:"
-  const ctaSubline = (finalCta?.subline as string) ?? "Approval usually within 24–48 hours."
+  const ctaSubline = (finalCta?.subline as string) ?? "Approval usually within 48 hours."
+  const ctaTitle = (finalCta?.title as string) ?? "Clients look for new construction directly from the investor.\nBe that investor."
+  const [ctaTitleA, ctaTitleB] = ctaTitle.split("\n")
 
   return (
     <>
@@ -221,24 +223,34 @@ export async function RegisterPageSections({ lang, dict }: RegisterPageSectionsP
         </div>
       </section>
 
-      {/* 5. Final CTA – centered panel */}
+      {/* 5. Final CTA – two-line headline (both substantial), accent highlight + pill button */}
       <section className="py-16 sm:py-20 bg-muted/40 border-y border-border/60" aria-labelledby="final-cta-heading">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
           <div className="max-w-3xl mx-auto">
             <Card className="rounded-2xl border border-border/60 bg-card shadow-md overflow-hidden">
-              <div className="pt-4 flex justify-center">
+              <div className="pt-5 flex justify-center">
                 <div className="h-1 w-12 bg-accent rounded-full" aria-hidden />
               </div>
-              <CardContent className="p-8 sm:p-10 text-center">
-                <h2 id="final-cta-heading" className={SECONDARY_HEADING_CLASS + " mb-3 whitespace-pre-line"}>
-                  {finalCta?.title ?? "Apply and present yourself to buyers"}
+              <CardContent className="px-6 py-10 sm:px-10 sm:py-12 text-center">
+                <h2
+                  id="final-cta-heading"
+                  className="font-serif text-center leading-tight"
+                >
+                  <span className="block text-xl sm:text-2xl md:text-3xl font-semibold text-foreground">
+                    {ctaTitleA?.trim() || "Clients look for new construction directly from the investor."}
+                  </span>
+                  <span className="mt-5 block text-3xl sm:text-4xl md:text-5xl font-bold text-accent">
+                    {ctaTitleB?.trim() || "Be that investor."}
+                  </span>
                 </h2>
-                <p className="text-foreground/80 text-base mb-6">
+                <p className="mt-6 text-muted-foreground text-base sm:text-lg">
                   {ctaSubline}
                 </p>
-                <ScrollToFormButton className="rounded-lg px-10">
-                  {finalCta?.ctaButton ?? "Apply for free"}
-                </ScrollToFormButton>
+                <div className="mt-8">
+                  <ScrollToFormButton className="rounded-full px-10 py-6 h-auto text-base sm:text-lg font-bold uppercase tracking-wide bg-accent text-accent-foreground shadow-md hover:bg-accent/90 hover:shadow-lg border-0 focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">
+                    {finalCta?.ctaButton ?? "Apply for free"}
+                  </ScrollToFormButton>
+                </div>
               </CardContent>
             </Card>
           </div>
