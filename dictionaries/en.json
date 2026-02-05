@@ -288,7 +288,7 @@
     "privacyPolicy": "Privacy Policy",
     "termsOfService": "Terms of Service",
     "cookiePolicy": "Cookie Policy",
-    "copyright": "© 2025 Mister Imot. All rights reserved."
+    "copyright": "© 2026 Mister Imot. All rights reserved."
   },
   "feedback": {
     "button": "Feedback",
@@ -646,7 +646,7 @@
       "step3Helper": "Short call or office visit."
     },
     "finalCta": {
-      "title": "Apply and present yourself to buyers",
+      "title": "Clients look for new construction directly from the investor.\nBe that investor.",
       "ctaButton": "Apply for free",
       "subline": "Approval usually within 24–48 hours.",
       "trustLine": "Manual verification • No automatic listings.",
@@ -695,22 +695,22 @@
           "description": "Official launch and addition of Russian language"
         },
         {
-          "date": "January 2026",
+          "date": "January 2025",
           "title": "Greek Market Expansion",
           "description": "First steps in international market with focus on Greece"
         },
         {
-          "date": "February 2026",
+          "date": "February 2025",
           "title": "Turkish Language & New Market",
           "description": "Expanding language support and new markets"
         },
         {
-          "date": "April 2026",
+          "date": "April 2025",
           "title": "UAE Market Entry",
           "description": "Strategic entry into Middle Eastern market"
         },
         {
-          "date": "November 2026",
+          "date": "November 2025",
           "title": "Additional Statistics",
           "description": "Enhanced analytics tools for builders and investors"
         },
@@ -963,7 +963,7 @@
       "title": "Billing & Subscription",
       "description": "Manage your subscription and watch for special offers",
       "pricingLiveTitle": "Congratulations!",
-      "freeUntilDescription": "You have free and unlimited access until 01.02.2026. You’ll receive a special offer here and via email soon.",
+      "freeUntilDescription": "You have free and unlimited access until 01.02.2025. You’ll receive a special offer here and via email soon.",
       "viewPlans": "View plans",
       "specialDealTitle": "Stay tuned for your special deal",
       "specialDealDescription": "Make the most of the platform during the free period.",
@@ -984,8 +984,8 @@
       "step3": "Swap active listings anytime as your needs change",
       "noHiddenFees": "No hidden fees, no long-term contracts",
       "faqTitle": "Frequently Asked Questions",
-      "noPlanAfterDate": "What if I have no active plan after 01.02.2026?",
-      "noPlanAfterDateAnswer": "If you don’t have an active plan after 01.02.2026, your listings will not be active or public.",
+      "noPlanAfterDate": "What if I have no active plan after 01.02.2025?",
+      "noPlanAfterDateAnswer": "If you don’t have an active plan after 01.02.2025, your listings will not be active or public.",
       "reuploadNeeded": "Do I need to re-upload my listings after the free period?",
       "reuploadNeededAnswer": "No. Choose a plan to keep them public.",
       "switchPlans": "Can I switch plans later?",
@@ -1206,7 +1206,7 @@
       "contactUs": "Contact Us:",
       "email": "Email:",
       "dataProtection": "Data Protection Inquiries:",
-      "copyright": "© 2025 Mister Imot. All rights reserved."
+      "copyright": "© 2026 Mister Imot. All rights reserved."
     },
     "terms": {
       "title": "📜 Terms of Service",
@@ -1239,7 +1239,7 @@
       "notLiable": "We are not liable for any losses, damages, or disputes arising from the use of this platform.",
       "modifications": "8. Modifications",
       "mayBeUpdated": "These Terms may be updated at any time. Continued use of the platform implies acceptance of the current Terms.",
-      "copyright": "© 2025 Mister Imot. All rights reserved. | Part of Prodigy Corp"
+      "copyright": "© 2026 Mister Imot. All rights reserved. | Part of Prodigy Corp"
     },
     "cookie": {
       "title": "🍪 Cookie Policy",
@@ -1268,7 +1268,7 @@
       "mayBeUpdated": "This Cookie Policy may be updated from time to time. Any changes will be posted on this page with an updated effective date.",
       "contactUs": "Contact Us",
       "questions": "If you have questions about our Cookie Policy, please contact us at:",
-      "copyright": "© 2025 Mister Imot. All rights reserved."
+      "copyright": "© 2026 Mister Imot. All rights reserved."
     },
     "newsPage": {
       "metaTitle": "Mister Imot News – market updates, guides, and analytics",

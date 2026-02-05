@@ -28,7 +28,6 @@ export async function RegisterPageSections({ lang, dict }: RegisterPageSectionsP
   const socialProofSupportLine = (reg?.socialProofSupportLine as string) ?? undefined
   const verificationIntro = (verification?.intro as string) ?? "To keep the platform clean, every application goes through:"
   const ctaSubline = (finalCta?.subline as string) ?? "Approval usually within 24–48 hours."
-  const ctaTrustLine = (finalCta?.trustLine as string) ?? undefined
 
   return (
     <>
@@ -231,7 +230,7 @@ export async function RegisterPageSections({ lang, dict }: RegisterPageSectionsP
                 <div className="h-1 w-12 bg-accent rounded-full" aria-hidden />
               </div>
               <CardContent className="p-8 sm:p-10 text-center">
-                <h2 id="final-cta-heading" className={SECONDARY_HEADING_CLASS + " mb-3"}>
+                <h2 id="final-cta-heading" className={SECONDARY_HEADING_CLASS + " mb-3 whitespace-pre-line"}>
                   {finalCta?.title ?? "Apply and present yourself to buyers"}
                 </h2>
                 <p className="text-foreground/80 text-base mb-6">
@@ -240,9 +239,6 @@ export async function RegisterPageSections({ lang, dict }: RegisterPageSectionsP
                 <ScrollToFormButton className="rounded-lg px-10">
                   {finalCta?.ctaButton ?? "Apply for free"}
                 </ScrollToFormButton>
-                {ctaTrustLine && (
-                  <p className="text-sm text-foreground/70 mt-3">{ctaTrustLine}</p>
-                )}
               </CardContent>
             </Card>
           </div>
