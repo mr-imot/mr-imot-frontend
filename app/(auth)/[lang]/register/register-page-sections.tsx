@@ -2,7 +2,7 @@ import type { SupportedLocale } from "@/lib/routes"
 import { DeveloperLogosStrip } from "@/components/register/developer-logos-strip"
 import { ScrollToFormButton } from "@/components/register/scroll-to-form-button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Building2, ListChecks, MessagesSquare, Clock, Shield, Lock, Globe } from "lucide-react"
+import { Building2, ListChecks, MessagesSquare, Clock, Shield, Lock, Globe, Mail, FileCheck, MessageCircle } from "lucide-react"
 import typographyStyles from "@/components/typography.module.css"
 
 interface RegisterPageSectionsProps {
@@ -108,113 +108,134 @@ export async function RegisterPageSections({ lang, dict }: RegisterPageSectionsP
         </div>
       </section>
 
-      {/* 3. Verification – right after How it works, tied to “Apply” */}
+      {/* 3. Verification – same heading style + accent line below heading (consistent with Social proof) */}
       <section className="py-16 sm:py-20 bg-muted/40 border-y border-border/60" aria-labelledby="verification-heading">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 md:px-8">
-          <h2 id="verification-heading" className={SECONDARY_HEADING_CLASS + " mb-3"}>
-            {verification?.title ?? "Verification"}
-          </h2>
-          <p className={BODY_CLASS + " text-center mb-8 sm:mb-10"}>
-            {verificationIntro}
-          </p>
+          <div className="text-center mb-10 sm:mb-12">
+            <h2 id="verification-heading" className={SOCIAL_PROOF_HEADING_CLASS + " mb-3"}>
+              {verification?.title ?? "How verification works"}
+            </h2>
+            <div className="h-1 w-12 rounded-full bg-accent mx-auto mb-5" aria-hidden />
+            <p className="text-base sm:text-lg text-foreground/80 text-center max-w-xl mx-auto">
+              {verificationIntro}
+            </p>
+          </div>
           <ol className="space-y-0">
-            <li className="flex gap-4">
+            <li className="flex gap-5 sm:gap-6">
               <div className="flex flex-col items-center flex-shrink-0">
-                <div className="w-10 h-10 rounded-full border-2 border-primary/20 bg-muted flex items-center justify-center text-sm font-semibold text-primary">
+                <div className="w-11 h-11 rounded-full border-2 border-primary/20 bg-background flex items-center justify-center text-sm font-bold text-primary shadow-sm">
                   1
                 </div>
-                <div className="w-px flex-1 min-h-[24px] mt-1 bg-border/80" aria-hidden />
+                <div className="w-0.5 flex-1 min-h-[20px] mt-2 bg-border/80 rounded-full" aria-hidden />
               </div>
-              <div className="pb-8">
-                <h3 className="font-semibold text-foreground text-base">{verification?.step1 ?? "Email confirmation"}</h3>
-                <p className="text-sm text-foreground/70 mt-1">{verification?.step1Helper ?? "We check that the contact is real."}</p>
+              <div className="flex gap-4 pb-10 sm:pb-12 flex-1">
+                <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-primary" aria-hidden>
+                  <Mail className="h-5 w-5" strokeWidth={1.5} />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-foreground text-lg">{verification?.step1 ?? "Email confirmation"}</h3>
+                  <p className="text-sm sm:text-base text-foreground/70 mt-1.5">{verification?.step1Helper ?? "We check that the contact is real."}</p>
+                </div>
               </div>
             </li>
-            <li className="flex gap-4">
+            <li className="flex gap-5 sm:gap-6">
               <div className="flex flex-col items-center flex-shrink-0">
-                <div className="w-10 h-10 rounded-full border-2 border-primary/20 bg-muted flex items-center justify-center text-sm font-semibold text-primary">
+                <div className="w-11 h-11 rounded-full border-2 border-primary/20 bg-background flex items-center justify-center text-sm font-bold text-primary shadow-sm">
                   2
                 </div>
-                <div className="w-px flex-1 min-h-[24px] mt-1 bg-border/80" aria-hidden />
+                <div className="w-0.5 flex-1 min-h-[20px] mt-2 bg-border/80 rounded-full" aria-hidden />
               </div>
-              <div className="pb-8">
-                <h3 className="font-semibold text-foreground text-base">{verification?.step2 ?? "Manual verification"}</h3>
-                <p className="text-sm text-foreground/70 mt-1">{verification?.step2Helper ?? "We verify the company and project."}</p>
+              <div className="flex gap-4 pb-10 sm:pb-12 flex-1">
+                <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-primary" aria-hidden>
+                  <FileCheck className="h-5 w-5" strokeWidth={1.5} />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-foreground text-lg">{verification?.step2 ?? "Manual verification"}</h3>
+                  <p className="text-sm sm:text-base text-foreground/70 mt-1.5">{verification?.step2Helper ?? "We verify the company and project."}</p>
+                </div>
               </div>
             </li>
-            <li className="flex gap-4">
+            <li className="flex gap-5 sm:gap-6">
               <div className="flex flex-col items-center flex-shrink-0">
-                <div className="w-10 h-10 rounded-full border-2 border-primary/20 bg-muted flex items-center justify-center text-sm font-semibold text-primary">
+                <div className="w-11 h-11 rounded-full border-2 border-primary/20 bg-background flex items-center justify-center text-sm font-bold text-primary shadow-sm">
                   3
                 </div>
               </div>
-              <div className="pb-0">
-                <h3 className="font-semibold text-foreground text-base">{verification?.step3 ?? "If needed – follow-up"}</h3>
-                <p className="text-sm text-foreground/70 mt-1">{verification?.step3Helper ?? "Short call or office visit."}</p>
+              <div className="flex gap-4 pb-0 flex-1">
+                <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-primary" aria-hidden>
+                  <MessageCircle className="h-5 w-5" strokeWidth={1.5} />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-foreground text-lg">{verification?.step3 ?? "If needed – follow-up"}</h3>
+                  <p className="text-sm sm:text-base text-foreground/70 mt-1.5">{verification?.step3Helper ?? "Short call or office visit."}</p>
+                </div>
               </div>
             </li>
           </ol>
         </div>
       </section>
 
-      {/* 4. Why this model – 2x2 feature grid */}
+      {/* 4. Why this model – same heading style + accent line below heading (consistent with Social proof) */}
       <section className="py-16 sm:py-20" aria-labelledby="why-developers-heading">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8">
-          <h2 id="why-developers-heading" className={SECONDARY_HEADING_CLASS + " mb-3"}>
-            {whyDevelopers?.title ?? "Why developers prefer this model"}
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+          <div className="text-center mb-10 sm:mb-12">
+            <h2 id="why-developers-heading" className={SOCIAL_PROOF_HEADING_CLASS + " mb-3"}>
+              {whyDevelopers?.title ?? "Why developers prefer this model"}
+            </h2>
+            <div className="h-1 w-12 rounded-full bg-accent mx-auto mb-2" aria-hidden />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 lg:gap-8">
             <Card className="rounded-2xl border border-border/60 bg-background shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
-              <CardContent className="p-6 flex flex-col">
-                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-muted text-primary mb-4 flex-shrink-0" aria-hidden>
-                  <Clock className="h-5 w-5" strokeWidth={1.5} />
+              <CardContent className="p-7 sm:p-8 flex flex-col">
+                <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-muted text-primary mb-5 flex-shrink-0" aria-hidden>
+                  <Clock className="h-6 w-6" strokeWidth={1.5} />
                 </div>
-                <h3 className="font-semibold text-foreground text-base mb-2">
+                <h3 className="font-semibold text-foreground text-lg mb-2">
                   {whyDevelopers?.item1 ?? "Less time wasted"}
                 </h3>
-                <p className="text-sm text-foreground/75 leading-relaxed">
+                <p className="text-sm sm:text-base text-foreground/75 leading-relaxed">
                   {(whyDevelopers as Record<string, string> | undefined)?.item1Desc ?? "Fewer pointless calls and confusion, more real clients."}
                 </p>
                 {(whyDevelopers as Record<string, string> | undefined)?.metaHint && (
-                  <p className="text-xs text-muted-foreground mt-2">{(whyDevelopers as Record<string, string> | undefined)?.metaHint}</p>
+                  <p className="text-xs text-muted-foreground mt-3">{(whyDevelopers as Record<string, string> | undefined)?.metaHint}</p>
                 )}
               </CardContent>
             </Card>
             <Card className="rounded-2xl border border-border/60 bg-background shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
-              <CardContent className="p-6 flex flex-col">
-                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-muted text-primary mb-4 flex-shrink-0" aria-hidden>
-                  <Shield className="h-5 w-5" strokeWidth={1.5} />
+              <CardContent className="p-7 sm:p-8 flex flex-col">
+                <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-muted text-primary mb-5 flex-shrink-0" aria-hidden>
+                  <Shield className="h-6 w-6" strokeWidth={1.5} />
                 </div>
-                <h3 className="font-semibold text-foreground text-base mb-2">
+                <h3 className="font-semibold text-foreground text-lg mb-2">
                   {whyDevelopers?.item2 ?? "Lower risk for the deal"}
                 </h3>
-                <p className="text-sm text-foreground/75 leading-relaxed">
+                <p className="text-sm sm:text-base text-foreground/75 leading-relaxed">
                   {(whyDevelopers as Record<string, string> | undefined)?.item2Desc ?? "One clear page with official project information."}
                 </p>
               </CardContent>
             </Card>
             <Card className="rounded-2xl border border-border/60 bg-background shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
-              <CardContent className="p-6 flex flex-col">
-                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-muted text-primary mb-4 flex-shrink-0" aria-hidden>
-                  <Lock className="h-5 w-5" strokeWidth={1.5} />
+              <CardContent className="p-7 sm:p-8 flex flex-col">
+                <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-muted text-primary mb-5 flex-shrink-0" aria-hidden>
+                  <Lock className="h-6 w-6" strokeWidth={1.5} />
                 </div>
-                <h3 className="font-semibold text-foreground text-base mb-2">
+                <h3 className="font-semibold text-foreground text-lg mb-2">
                   {whyDevelopers?.item3 ?? "Your content is protected"}
                 </h3>
-                <p className="text-sm text-foreground/75 leading-relaxed">
+                <p className="text-sm sm:text-base text-foreground/75 leading-relaxed">
                   {(whyDevelopers as Record<string, string> | undefined)?.item3Desc ?? "Your photos are not used in third-party listings."}
                 </p>
               </CardContent>
             </Card>
             <Card className="rounded-2xl border border-border/60 bg-background shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
-              <CardContent className="p-6 flex flex-col">
-                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-muted text-primary mb-4 flex-shrink-0" aria-hidden>
-                  <Globe className="h-5 w-5" strokeWidth={1.5} />
+              <CardContent className="p-7 sm:p-8 flex flex-col">
+                <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-muted text-primary mb-5 flex-shrink-0" aria-hidden>
+                  <Globe className="h-6 w-6" strokeWidth={1.5} />
                 </div>
-                <h3 className="font-semibold text-foreground text-base mb-2">
+                <h3 className="font-semibold text-foreground text-lg mb-2">
                   {whyDevelopers?.item4 ?? "Reach Bulgarians abroad"}
                 </h3>
-                <p className="text-sm text-foreground/75 leading-relaxed">
+                <p className="text-sm sm:text-base text-foreground/75 leading-relaxed">
                   {(whyDevelopers as Record<string, string> | undefined)?.item4Desc ?? "More inquiries from people looking for new construction."}
                 </p>
               </CardContent>
