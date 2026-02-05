@@ -40,21 +40,22 @@ export async function RegisterPageSections({ lang, dict }: RegisterPageSectionsP
             lang={lang}
             heading={socialProofHeading}
             subheading={socialProofSupportLine}
-            subheadingClassName="text-sm text-foreground/80"
+            subheadingClassName="text-base sm:text-lg text-foreground/80"
             headingClassName={SOCIAL_PROOF_HEADING_CLASS}
             showViewAllLink={false}
           />
         </div>
       </section>
 
-      {/* 2. How it works – workflow for professionals (premium, calm, B2B) */}
+      {/* 2. How it works – same heading + accent line below (consistent with other sections) */}
       <section className="py-16 sm:py-20" aria-labelledby="how-it-works-heading">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8">
           <h2 id="how-it-works-heading" className={SOCIAL_PROOF_HEADING_CLASS + " mb-3"}>
             {howItWorks?.title ?? "How Mister Imot works"}
           </h2>
+          <div className="h-1 w-12 rounded-full bg-accent mx-auto mb-5" aria-hidden />
           {howItWorks?.subtitle && (
-            <p className="text-sm text-foreground/80 text-center max-w-xl mx-auto mb-8 sm:mb-10">
+            <p className="text-base sm:text-lg text-foreground/80 text-center max-w-xl mx-auto mb-8 sm:mb-10">
               {howItWorks.subtitle}
             </p>
           )}
