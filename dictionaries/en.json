@@ -631,6 +631,88 @@
       "item4Desc": "More inquiries from people looking for new construction.",
       "metaHint": "Verified developers only."
     },
+    "portalsComparison": {
+      "title": "When you sell new construction, the channel matters",
+      "subtitle": "imot.bg and alo.bg are strong portals for broad reach. Mister Imot is built as an official showcase for your project and a place for inquiries to the investor.",
+      "tableHeaders": {
+        "imot": "imot.bg",
+        "alo": "alo.bg",
+        "misterImot": "mrimot.com"
+      },
+      "badge": "Built for new construction",
+      "tableRows": [
+        { "label": "Best suited for", "imot": "Listing portal (mass market)", "alo": "Listings of all types", "misterImot": "New construction projects (investor/developer)" },
+        { "label": "How buyers find you", "imot": "Search by filters and listings", "alo": "Search by category", "misterImot": "Search by city/map + project pages" },
+        { "label": "How you are presented", "imot": "Individual listings", "alo": "Individual listings", "misterImot": "One official project page", "misterImotHelper": "links, location, stage, plans, prices, contact" },
+        { "label": "Availability and stage updates", "imot": "Depends on the listing author", "alo": "Depends on the listing author", "misterImot": "You maintain availability in one place" },
+        { "label": "Control over brand and content", "imot": "Limited", "alo": "Limited", "misterImot": "Full control: copy, images, positioning" },
+        { "label": "Quality of inquiries", "imot": "Mixed (broad traffic)", "alo": "Mixed", "misterImot": "People looking for new construction" },
+        { "label": "Suited for sales teams", "imot": "Possible, but no structure", "alo": "Possible, but no structure", "misterImot": "Structured: project → inquiry → contact" },
+        { "label": "Reach to Bulgarians abroad", "imot": "Partial", "alo": "Partial", "misterImot": "Focus: buyers in Bulgaria and abroad" },
+        { "label": "Where you save the most time", "imot": "Publishing listings", "alo": "Publishing listings", "misterImot": "Maintaining the project and communication" }
+      ],
+      "conclusion": "The practical approach: publish on portals for reach, and on mrimot.com maintain the official project page and inquiries to your team."
+    },
+    "portalsContrast": {
+      "title": "The channel matters when you sell new construction",
+      "subtitle": "Portals bring traffic. Mister Imot is built for selling projects.",
+      "cards": {
+        "imot": {
+          "label": "Listing portal",
+          "items": [
+            "Individual listings from many sources",
+            "Focus on search by filters",
+            "Mixed buyer interest"
+          ]
+        },
+        "alo": {
+          "label": "General portal",
+          "items": [
+            "Listings of all types",
+            "Low focus on new construction",
+            "Hard to stand out as a project"
+          ]
+        },
+        "misterImot": {
+          "badge": "Built for investors",
+          "items": [
+            "One project = one official page",
+            "Full control over the information",
+            "Inquiries directly to the investor"
+          ]
+        }
+      },
+      "conclusion": "That’s why investors use Mister Imot for new construction, and portals for listings."
+    },
+    "portalsComparisonTable": {
+      "title": "Why do investors publish on mrimot.com?",
+      "columns": {
+        "imot": {
+          "logoAlt": "imot.bg logo",
+          "label": "Listing portal"
+        },
+        "alo": {
+          "logoAlt": "alo.bg logo",
+          "label": "General portal"
+        },
+        "mister": {
+          "logoAlt": "Mister Imot logo",
+          "label": "Platform for projects",
+          "badge": "Built for investors"
+        }
+      },
+      "rows": [
+        { "label": "Suited for new construction", "imot": 2, "alo": 1, "misterImot": 3 },
+        { "label": "Photo theft protection", "imot": 0, "alo": 0, "misterImot": 3 },
+        { "label": "Buyer contact", "imot": 1, "alo": 1, "misterImot": 3 },
+        { "label": "Duplicate listings", "imot": 1, "alo": 1, "misterImot": 3 },
+        { "label": "Availability/stage updates", "imot": 1, "alo": 1, "misterImot": 3 },
+        { "label": "Quality of inquiries", "imot": 1, "alo": 1, "misterImot": 3 },
+        { "label": "International buyers", "imot": 1, "alo": 1, "misterImot": 3 }
+      ],
+      "conclusion": "If you sell a project, the clearest presentation is on Mister Imot.",
+      "cta": "Apply for free"
+    },
     "socialProofTitle": "Developers who already work without brokers",
     "socialProofHeading": "Become one of verified investors",
     "socialProofSupportLine": "They already chose Mister Imot",
