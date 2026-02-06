@@ -197,9 +197,6 @@ export async function RegisterPageSections({ lang, dict }: RegisterPageSectionsP
                 <p className="text-sm sm:text-base text-foreground/75 leading-relaxed">
                   {(whyDevelopers as Record<string, string> | undefined)?.item1Desc ?? "Fewer pointless calls and confusion, more real clients."}
                 </p>
-                {(whyDevelopers as Record<string, string> | undefined)?.metaHint && (
-                  <p className="text-xs text-muted-foreground mt-3">{(whyDevelopers as Record<string, string> | undefined)?.metaHint}</p>
-                )}
               </CardContent>
             </Card>
             <Card className="rounded-2xl border border-border/60 bg-background shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
@@ -247,13 +244,13 @@ export async function RegisterPageSections({ lang, dict }: RegisterPageSectionsP
 
       {/* 5. Final CTA – two-line headline (both substantial), accent highlight + pill button */}
       <section className="py-16 sm:py-20 bg-muted/40 border-y border-border/60" aria-labelledby="final-cta-heading">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-          <div className="max-w-3xl mx-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 min-w-0">
+          <div className="max-w-3xl mx-auto min-w-0">
             <Card className="rounded-2xl border border-border/60 bg-card shadow-md overflow-hidden">
               <div className="pt-5 flex justify-center">
                 <div className="h-1 w-12 bg-accent rounded-full" aria-hidden />
               </div>
-              <CardContent className="px-6 py-10 sm:px-10 sm:py-12 text-center">
+              <CardContent className="px-6 py-10 sm:px-10 sm:py-12 text-center min-w-0 overflow-hidden">
                 <h2
                   id="final-cta-heading"
                   className="font-serif text-center leading-tight"
@@ -268,8 +265,8 @@ export async function RegisterPageSections({ lang, dict }: RegisterPageSectionsP
                 <p className="mt-6 text-muted-foreground text-base sm:text-lg">
                   {ctaSubline}
                 </p>
-                <div className="mt-8">
-                  <ScrollToFormButton className="rounded-full px-10 py-6 h-auto text-base sm:text-lg font-bold uppercase tracking-wide bg-accent text-accent-foreground shadow-md hover:bg-accent/90 hover:shadow-lg border-0 focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">
+                <div className="mt-8 w-full min-w-0 flex justify-center">
+                  <ScrollToFormButton className="w-full max-w-full sm:w-auto rounded-full px-6 py-6 sm:px-10 h-auto text-base sm:text-lg font-bold uppercase tracking-wide bg-accent text-accent-foreground shadow-md hover:bg-accent/90 hover:shadow-lg border-0 focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">
                     {finalCta?.ctaButton ?? "Apply for free"}
                   </ScrollToFormButton>
                 </div>
