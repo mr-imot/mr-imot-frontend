@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -21,6 +21,7 @@ interface NavigationTranslations {
   listYourProject: string
   login: string
   navigation?: string
+  language?: string
   connectDirectly?: string
   [key: string]: string | undefined
 }
@@ -137,6 +138,8 @@ export function PublicMobileNav({
     setIsOpen(newOpen)
   }
 
+  const firstNavLinkRef = useRef<HTMLAnchorElement>(null)
+
   return (
     <Sheet open={isOpen} onOpenChange={handleOpenChange}>
       {/* Only render SheetTrigger if not controlled (for backward compatibility) */}
@@ -148,7 +151,14 @@ export function PublicMobileNav({
           </Button>
         </SheetTrigger>
       )}
-      <SheetContent side="right" className="w-80 flex flex-col h-full">
+      <SheetContent
+        side="right"
+        className="w-80 flex flex-col h-full"
+        onOpenAutoFocus={(e) => {
+          e.preventDefault()
+          firstNavLinkRef.current?.focus()
+        }}
+      >
         <SheetHeader className="text-left flex-shrink-0">
           <SheetTitle className="text-xl font-bold">{t.navigation ?? 'Navigation'}</SheetTitle>
         </SheetHeader>
@@ -156,9 +166,10 @@ export function PublicMobileNav({
         <div className="flex flex-col space-y-6 mt-8 flex-1 overflow-y-auto pb-6">
           {/* Navigation Links */}
           <nav className="flex flex-col space-y-4">
-            {navItems.map((item) => (
+            {navItems.map((item, index) => (
               <Link
                 key={item.href}
+                ref={index === 0 ? firstNavLinkRef : undefined}
                 href={item.href}
                 onClick={handleLinkClick}
                 className={cn(
@@ -177,18 +188,13 @@ export function PublicMobileNav({
           <div className="border-t" />
 
           {/* Language Switcher */}
-          <MobileLanguageSwitcher onLinkClick={handleLinkClick} />
+          <MobileLanguageSwitcher onLinkClick={handleLinkClick} languageLabel={t.language} />
 
           {/* Divider */}
           <div className="border-t" />
 
           {/* Auth Actions - Shows login/register when not authenticated, user info/dashboard/logout when authenticated */}
           <AuthActionsSection onLinkClick={handleLinkClick} t={t} />
-
-          {/* Footer Info */}
-          <div className="pt-8 border-t">
-            <p className="text-sm text-muted-foreground text-center">{t.connectDirectly ?? 'Connect directly with developers'}</p>
-          </div>
         </div>
       </SheetContent>
     </Sheet>

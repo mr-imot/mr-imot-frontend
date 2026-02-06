@@ -4,23 +4,33 @@ import { useState } from "react"
 import { usePathname, useSearchParams } from "next/navigation"
 import { useLocale } from "@/lib/locale-context"
 import { cn } from "@/lib/utils"
+import { ChevronDown } from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 interface MobileLanguageSwitcherProps {
   onLinkClick: () => void
+  languageLabel?: string
 }
 
-export function MobileLanguageSwitcher({ onLinkClick }: MobileLanguageSwitcherProps) {
+const LANGUAGES = [
+  { code: 'en', name: 'English', flag: 'https://flagcdn.com/w20/us.png', nativeName: 'English' },
+  { code: 'bg', name: 'Bulgarian', flag: 'https://flagcdn.com/w20/bg.png', nativeName: 'Български' },
+  { code: 'ru', name: 'Russian', flag: 'https://flagcdn.com/w20/ru.png', nativeName: 'Русский' },
+  { code: 'gr', name: 'Greek', flag: 'https://flagcdn.com/w20/gr.png', nativeName: 'Ελληνικά' }
+] as const
+
+export function MobileLanguageSwitcher({ onLinkClick, languageLabel }: MobileLanguageSwitcherProps) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const currentLocale = useLocale()
   const [isSwitching, setIsSwitching] = useState(false)
 
-  const languages = [
-    { code: 'en', name: 'English', flag: 'https://flagcdn.com/w20/us.png', nativeName: 'English' },
-    { code: 'bg', name: 'Bulgarian', flag: 'https://flagcdn.com/w20/bg.png', nativeName: 'Български' },
-    { code: 'ru', name: 'Russian', flag: 'https://flagcdn.com/w20/ru.png', nativeName: 'Русский' },
-    { code: 'gr', name: 'Greek', flag: 'https://flagcdn.com/w20/gr.png', nativeName: 'Ελληνικά' }
-  ]
+  const currentLanguage = LANGUAGES.find((l) => l.code === currentLocale) ?? LANGUAGES[0]
 
   const handleLanguageChange = (newLocale: string) => {
     // Don't do anything if already on this locale or switching
@@ -157,31 +167,51 @@ export function MobileLanguageSwitcher({ onLinkClick }: MobileLanguageSwitcherPr
 
   return (
     <div className="space-y-3">
-      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Language</h3>
-      {languages.map((language) => (
-        <button
-          key={language.code}
-          onClick={() => handleLanguageChange(language.code)}
-          disabled={isSwitching}
-          className={cn(
-            "w-full flex items-center space-x-3 text-left py-3 px-4 rounded-lg transition-all duration-200",
-            language.code === currentLocale 
-              ? "bg-primary/10 text-primary font-medium" 
-              : "text-foreground/80 hover:text-foreground hover:bg-muted",
-            isSwitching && "opacity-50 cursor-not-allowed"
-          )}
-        >
-          <img 
-            src={language.flag} 
-            alt={language.name}
-            className="w-5 h-3 rounded-sm object-cover"
-          />
-          <span className="text-sm font-medium">{language.code.toUpperCase()}</span>
-          {language.code === currentLocale && (
-            <div className="ml-auto w-2 h-2 bg-primary rounded-full" />
-          )}
-        </button>
-      ))}
+      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">{languageLabel ?? "Language"}</h3>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            disabled={isSwitching}
+            className={cn(
+              "w-full flex items-center justify-between gap-2 text-left py-3 px-4 rounded-lg border border-input bg-background transition-all duration-200 hover:bg-muted focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+              isSwitching && "opacity-50 cursor-not-allowed"
+            )}
+          >
+            <span className="flex items-center gap-3">
+              <img
+                src={currentLanguage.flag}
+                alt={currentLanguage.name}
+                className="w-5 h-3 rounded-sm object-cover"
+              />
+              <span className="text-sm font-medium">{currentLanguage.code.toUpperCase()}</span>
+            </span>
+            <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-[14rem]">
+          {LANGUAGES.map((language) => (
+            <DropdownMenuItem
+              key={language.code}
+              onClick={() => handleLanguageChange(language.code)}
+              disabled={isSwitching}
+              className={cn(
+                "flex items-center gap-3 py-3 cursor-pointer",
+                language.code === currentLocale && "bg-primary/10 text-primary font-medium"
+              )}
+            >
+              <img
+                src={language.flag}
+                alt={language.name}
+                className="w-5 h-3 rounded-sm object-cover"
+              />
+              <span className="text-sm font-medium">{language.code.toUpperCase()}</span>
+              {language.code === currentLocale && (
+                <div className="ml-auto w-2 h-2 bg-primary rounded-full shrink-0" />
+              )}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   )
 }

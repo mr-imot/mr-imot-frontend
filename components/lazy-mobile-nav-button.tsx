@@ -14,6 +14,7 @@ interface NavigationTranslations {
   listYourProject: string
   login: string
   navigation?: string
+  language?: string
   connectDirectly?: string
   [key: string]: string | undefined
 }
