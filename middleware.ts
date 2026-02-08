@@ -133,6 +133,14 @@ function redirectWithHints(request: NextRequest, url: URL, status = 308): NextRe
   return setClientHintsHeaders(res)
 }
 
+// Build locale target path ensuring no trailing slash on root redirects
+// Preserves query params by using request.nextUrl.clone() instead of new URL()
+function buildLocaleTarget(pathname: string, locale: string): string {
+  // pathname includes leading slash, e.g. "/", "/listings", "/obiavi"
+  // we want "/bg" for root, otherwise "/bg" + pathname
+  return pathname === "/" ? `/${locale}` : `/${locale}${pathname}`
+}
+
 // Return 404 response with proper headers for non-existent/invalid routes
 // Used for register routes without type=developer parameter
 function notFoundResponse(): NextResponse {
@@ -707,19 +715,28 @@ export async function middleware(request: NextRequest) {
     !isDefaultEnglishPath // CRITICAL: Never redirect default-English paths
   ) {
     if (cookieLocale === 'bg') {
-      const response = redirectWithHints(request, new URL(`/bg${pathname}`, request.url))
+      const targetPath = buildLocaleTarget(pathname, 'bg')
+      const url = request.nextUrl.clone()
+      url.pathname = targetPath
+      const response = redirectWithHints(request, url)
       response.headers.set('x-locale', 'bg')
-      response.headers.set('x-pathname', `/bg${pathname}`)
+      response.headers.set('x-pathname', targetPath)
       return response
     } else if (cookieLocale === 'ru') {
-      const response = redirectWithHints(request, new URL(`/ru${pathname}`, request.url))
+      const targetPath = buildLocaleTarget(pathname, 'ru')
+      const url = request.nextUrl.clone()
+      url.pathname = targetPath
+      const response = redirectWithHints(request, url)
       response.headers.set('x-locale', 'ru')
-      response.headers.set('x-pathname', `/ru${pathname}`)
+      response.headers.set('x-pathname', targetPath)
       return response
     } else if (cookieLocale === 'gr') {
-      const response = redirectWithHints(request, new URL(`/gr${pathname}`, request.url))
+      const targetPath = buildLocaleTarget(pathname, 'gr')
+      const url = request.nextUrl.clone()
+      url.pathname = targetPath
+      const response = redirectWithHints(request, url)
       response.headers.set('x-locale', 'gr')
-      response.headers.set('x-pathname', `/gr${pathname}`)
+      response.headers.set('x-pathname', targetPath)
       return response
     }
     // For English (default), rewrite internally to /en for [lang] route handling
@@ -764,7 +781,10 @@ export async function middleware(request: NextRequest) {
     }
     
     if (country === 'BG') {
-      const response = redirectWithHints(request, new URL(`/bg${pathname}`, request.url))
+      const targetPath = buildLocaleTarget(pathname, 'bg')
+      const url = request.nextUrl.clone()
+      url.pathname = targetPath
+      const response = redirectWithHints(request, url)
       // Set cookie to persist Bulgarian preference (so we don't re-detect on every request)
       response.cookies.set('NEXT_LOCALE', 'bg', {
         path: '/',
@@ -773,7 +793,7 @@ export async function middleware(request: NextRequest) {
       })
       // Set language header for root layout to use
       response.headers.set('x-locale', 'bg')
-      response.headers.set('x-pathname', `/bg${pathname}`)
+      response.headers.set('x-pathname', targetPath)
       return response
     }
   }
@@ -785,10 +805,13 @@ export async function middleware(request: NextRequest) {
     try {
       const negotiated = getLocale(request)
       if (negotiated && negotiated !== DEFAULT_LOCALE && !isNotFoundPage) {
-        const response = redirectWithHints(request, new URL(`/${negotiated}${pathname}`, request.url))
+        const targetPath = buildLocaleTarget(pathname, negotiated)
+        const url = request.nextUrl.clone()
+        url.pathname = targetPath
+        const response = redirectWithHints(request, url)
         // Set language header for root layout to use
         response.headers.set('x-locale', negotiated)
-        response.headers.set('x-pathname', `/${negotiated}${pathname}`)
+        response.headers.set('x-pathname', targetPath)
         return response
       }
     } catch (error) {
